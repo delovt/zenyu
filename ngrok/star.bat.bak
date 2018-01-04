@@ -1,0 +1,2 @@
+@each on
+ngrok -config=ngrok.cfg -subdomain hhzytech 1010
