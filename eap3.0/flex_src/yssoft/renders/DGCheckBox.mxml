@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx"
+						  focusEnabled="false" >	
+	<fx:Metadata>
+		[Event(name="onClickBox",type="flash.events.Event")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.DataGrid;
+			protected function chk_selrow_clickHandler(event:MouseEvent):void
+			{
+				data.checked=!data.checked;
+				this.dataGridListData.owner.dispatchEvent(new Event("onClickBox"));
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:HBox width="100%" horizontalAlign="center">
+		<mx:CheckBox id="chk_selrow" selected="{data.checked}" enabled="{!this.dataGridListData.owner.readonly}" click="chk_selrow_clickHandler(event)">
+		</mx:CheckBox>
+	</mx:HBox>
+</s:MXDataGridItemRenderer>

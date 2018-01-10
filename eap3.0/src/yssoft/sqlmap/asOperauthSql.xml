@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 查询操作权限分配 -->
+	<select id="get_operauth_byRoleId" parameterClass="int" resultClass="yssoft.vos.AsOperauthVo">
+		select iid,irole,coperauth from AS_operauth where irole=#roleId#
+	</select>
+	
+	<!-- 新增 -->
+	<insert id="add_operauth" parameterClass="yssoft.vos.AsOperauthVo">
+		insert into AS_operauth(irole,coperauth) values(#irole#,#coperauth#)
+		   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey>
+	</insert>
+	
+		<!-- 删除角色 -->
+	<delete id="remove_operauth" parameterClass="int">
+		delete from AS_operauth where irole=#irole#
+	</delete>
+</sqlMap>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 新增部门 -->
+	<insert id="add_department" parameterClass="yssoft.vos.HRDepartmentVo">
+		insert into HR_department(ipid,ccode,cname,ihead,icharge,iperson,ilead,cabbreviation) 
+		values(#ipid#,#ccode#,#cname#,#ihead#,#icharge#,#iperson#,#ilead#,#cabbreviation#)
+	   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 修改部门-->
+	<update id="update_department" parameterClass="yssoft.vos.HRDepartmentVo">
+		begin 
+			update HR_department set ipid=#ipid#,cname=#cname#,ihead=#ihead#,icharge=#icharge#,iperson=#iperson#,ilead=#ilead#,cabbreviation=#cabbreviation#  
+			where iid=#iid#;
+			update hr_department set  ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+	 	end;
+	</update>
+	
+	<!-- 删除角色 -->
+	<delete id="remove_department" parameterClass="int">		
+		begin
+			delete from HR_department where iid=#iid#
+			delete from hr_job where idepartment=#iid#;
+		end;
+	</delete>
+	
+	<!-- 新增岗位 -->
+	<insert id="add_job" parameterClass="yssoft.vos.HrJobVo">
+		insert into HR_job(idepartment,ccode,cname,cwork,iperson) 
+		values(#idepartment#,#ccode#,#cname#,#cwork#,#iperson#)
+	   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 修改岗位 -->
+	<update id="update_job" parameterClass="yssoft.vos.HrJobVo">
+		update HR_job set ccode=#ccode#,cname=#cname#,cwork=#cwork#,iperson=#iperson#
+		where iid=#iid#
+	</update>
+	
+	<!-- 删除岗位  -->
+	<delete id="remove_job" parameterClass="string">
+		delete from HR_job where $sql$
+	</delete>
+	
+	<!-- 查询表格 -->
+	<select id="getJob_by_idepartment" parameterClass="int" resultClass="yssoft.vos.HrJobVo">
+		select iid,idepartment,ccode,cname,cwork,iperson
+		,(select COUNT(*) from hr_person where (ijob1=h.iid or ijob2=h.iid) and bjobstatus=1) irealperson from HR_job  h where idepartment=#idepartment#
+	</select>
+	
+	<!-- 查询所有部门 liu lei-->
+	<select id="get_AllHR_department" resultClass="java.util.HashMap">
+		select iid,ipid,ccode,cname,ihead,icharge,iperson,ilead,cabbreviation from HR_department
+	</select>
+	
+	<!-- 查询所有部门 liu lei-->
+	<select id="get_HR_departmentByWhere" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" remapResults="true">
+	  select iid,-1 as ipid,ccode,cname,ihead,icharge,iperson,ilead,cabbreviation from HR_department where 1=1 and iid=#iid#
+      union
+      select iid,ipid,ccode,cname,ihead,icharge,iperson,ilead,cabbreviation from HR_department where 1=1 $condition$
+      and iid not in (select iid where 1=1 and iid=#iid#)
+	</select>
+</sqlMap>

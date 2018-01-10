@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	
+	<!-- 刘睿添加 sqlmap  用于处理基础档案中的特殊情况 -->
+	<!-- 仓库档案 -->
+	<select id="getWareHouseList" resultClass="java.util.HashMap">
+		select * from sc_warehouse
+	</select>
+	
+	<!-- 修改仓库ccode -->
+	<update id="updateWareHouseCcode" parameterClass="java.util.HashMap">
+		update sc_warehouse
+		set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode))
+		where ccode like #oldCcode#+'%';
+	</update>
+		
+	<!-- 收发类别档案 -->
+	<select id="getRdTypeList" resultClass="java.util.HashMap">
+		select * from sc_rdtype order by ccode
+	</select>
+	
+	<!-- 修改收发类别ccode -->
+	<update id="updateRdTypeCcode" parameterClass="java.util.HashMap">
+		update sc_rdtype
+		set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode))
+		where ccode like #oldCcode#+'%';
+	</update>
+	
+	<!-- 修改收发类别irdflag -->
+	<update id="updateRdTypeIrdflag" parameterClass="java.util.HashMap">
+		update sc_rdtype
+		set irdflag = #irdflag#
+		where ccode like #oldCcode#+'%';
+	</update>
+	
+</sqlMap>

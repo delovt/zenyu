@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" paddingLeft="5" paddingRight="5"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		   xmlns:comps="yssoft.comps.*" label="协同回复{items.length==0?'':'('+items.length+')'}" 
+		   xmlns:renders="yssoft.renders.*" creationComplete="vbox1_creationCompleteHandler(event)" show="vbox1_showHandler(event)">
+	<!--回复-->
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.events.ItemClickEvent;
+        import mx.events.MenuEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.frameui.FrameCore;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.vos.WfMessageVo;
+        import yssoft.vos.WfNodeVo;
+
+        [Bindable]
+        public var items:ArrayCollection = new ArrayCollection();
+        private var timegap:Number = 10000; // 连续两次发送的时间间隔，单位毫秒
+        private var curtime:Number = 0;	   // 上一次的发送时间
+        private var newTime:Number = 0;	   //  最近一次的发送时间
+        private var wfmessageVo:WfMessageVo = new WfMessageVo();
+
+        public var relats:ArrayCollection = new ArrayCollection();
+        public var handleNode:WfNodeVo;
+
+        [Bindable]
+        private var bb_opt_items:ArrayCollection = new ArrayCollection([
+            {label: "加签", name: "jq"        },
+            {label: "回退", name: "ht"    },
+            {label: "暂存", name: "zcdb"        }
+        ]);
+
+        public var ifuncregedit:int = 0; //47
+        public var iinvoice:int = 0; //
+
+        public function submit_clickHandler(type:String = "only", msgtype:int = 0):void {
+            this.newTime = (new Date()).getTime();
+            // 时间验证
+            if (this.curtime + this.timegap > this.newTime) {
+                //Alert.show("发送信息过于频繁,请稍后在发送...");
+                return;
+            } else {
+                this.curtime = this.newTime;
+            }
+
+            /* if(!checkParam()){
+             return;
+             } */
+            ////* 参数：ifuncregedit ,iinvoice--单据的iid,cnodeid(节点iid),other,节点操作类型 opt,perosn personid
+            var params:Object = {};
+            params.msgvo = this.getParam();
+            if (msgtype == 4) {
+                params.msgvo.iresult = 4
+            }
+            params.ifuncregedit = ifuncregedit;
+            params.iinvoice = iinvoice;
+
+            if (type == "only") {//只发送信息
+                //params.iresult=3; // 暂存待办
+                AccessUtil.remoteCallJava("WorkFlowDest", "onlySendReplay", callBack, params, null, false);
+                return;
+            }
+
+            if (this.handleNode == null) {
+                CRMtool.tipAlert("无法获取当前节点信息");
+                return;
+            }
+
+            params.inodeid = this.handleNode.inodeid;
+            params.cnodeid = this.handleNode.inodeid
+            //params.cnodeid="node131668251170377";
+            params.opt = this.handleNode.source;
+            //params.opt="wf_nodes"
+            if (this.handleNode.inodemode == 1) { // 审批
+                params.iresult = 5; // 已审
+            }
+            params.iperson = CRMmodel.userId;
+            params.other = "cmessage=" + this.cmessage.text + "@@cresult=" + wfmessageVo.iresult + "@@hand=测试hand";
+
+            //if(type=="only"){//只发送信息
+            //AccessUtil.remoteCallJava("WorkFlowDest","onlySendReplay",callBack,params,null,false);
+            //}else{//发送信息 并进行流程推进
+            AccessUtil.remoteCallJava("WorkFlowDest", "co_enterHandler", callBack, params, "正在保存协同回复信息...");
+            //}
+
+        }
+
+        public function checkParam():Boolean {
+            if (wfmessageVo == null) {
+                return false;
+            }
+            /* 		if(CRMtool.isStringNull(this.cmessage.text)){
+             CRMtool.tipAlert("请输入处理意见!",this.cmessage);
+             return false;
+             } */
+            return true;
+        }
+
+        public function getParam():Object {
+            wfmessageVo.bdiary = this.bdiary.selected ? 1 : 0;
+            wfmessageVo.bhide = this.bhide.selected ? 1 : 0;
+            wfmessageVo.iresult = 0;// 0已阅、1同意、2不同意、3暂存待办、4退回、5 已审
+            wfmessageVo.cmessage = this.cmessage.text;
+            wfmessageVo.iperson = CRMmodel.userId;
+            if (this.handleNode) {
+                wfmessageVo.ioainvoice = this.handleNode.ioainvoice;
+                if (this.handleNode.inodemode == 1) { // 审批
+                    wfmessageVo.iresult = 5
+                }
+            }
+            //wfmessageVo.ioainvoice=this.handleNode.ioainvoice;
+            return wfmessageVo;
+        }
+
+        public function callBack(event:ResultEvent):void {
+            //Alert.show("["+(event.result as String)+"]");
+            this.cmessage.text = "";
+            if (event.result) {
+                if (isNaN(event.result as int)) {
+                    CRMtool.tipAlert(event.result as String);
+                    return;
+                }
+                wfmessageVo.iid = event.result as int;
+                wfmessageVo.dprocess = CRMtool.getFormatDateString();
+                wfmessageVo.fdate = CRMtool.getFormatDateString("YY-MM-DD HH:NN");
+                wfmessageVo.cname = CRMmodel.hrperson.cname;
+                /* 					if(wfmessageVo.iresult==3){
+                 wfmessageVo.resultname="暂存待办";
+                 }else{
+                 wfmessageVo.resultname="已阅";
+                 } */
+                if (wfmessageVo.iresult == 0) {
+                    if (this.handleNode.inodemode == 0) {
+                        wfmessageVo.resultname = "已阅";
+                    } else {
+                        wfmessageVo.resultname = "已审";
+                    }
+                } else if (wfmessageVo.iresult == 3) {
+                    wfmessageVo.resultname = "暂存待办";
+                } else if (wfmessageVo.iresult == 5) {
+                    wfmessageVo.resultname = "已审";
+                } else if (wfmessageVo.iresult == 4) {
+                    wfmessageVo.resultname = "退回";
+                }
+
+                this.items.addItemAt(wfmessageVo, 0);
+                //CRMtool.tipAlert("信息发送成功!");
+
+                // 处理 发送成功后的 界面显示
+                cmessage.visible = false;
+                hide.visible = false;
+                cmessage.includeInLayout = false;
+                //optbar.enabled=false;
+                optbar.visible = false;
+                optbar.includeInLayout = false;
+
+                if (wfmessageVo.iresult == 3) {
+                    return;
+                }
+                if (this.owner is FrameCore) {
+                    if ((this.owner as FrameCore).workflow) {
+                        (this.owner as FrameCore).workflow.getFormWorkFlow(ifuncregedit, iinvoice);
+                    }
+                    (this.owner as FrameCore).getWordFlowDetail(ifuncregedit, iinvoice);
+                }
+            } else {
+                CRMtool.tipAlert("信息发送失败,请重发!");
+            }
+        }
+
+        //是否是新建
+        public var isNew:Boolean = false;
+        // 获取协同的当前节点
+        protected function vbox1_creationCompleteHandler(event:FlexEvent):void {
+            if (isNew == false) {
+                replayGetFormWorkFlow(ifuncregedit, iinvoice);
+            }
+            this.cmessage.setFocus();
+        }
+
+        //public var oaiid:int; // 当前协同工作路iid
+        public function replayGetFormWorkFlow(ifuncregedit:int = 0, iinvoice:int = 0):void {
+            if (ifuncregedit == 0 || iinvoice == 0) {
+                return;
+            }
+            var params:Object = {};
+            params.ifuncregedit = ifuncregedit;
+            params.iperson = CRMmodel.userId;
+            params.iinvoice = iinvoice;
+            this.ifuncregedit = ifuncregedit;
+            this.iinvoice = iinvoice
+
+            AccessUtil.remoteCallJava("WorkFlowDest", "replayGetFormWorkFlow", gfwfCallBack, params, null, false);
+        }
+
+        private function gfwfCallBack(event:ResultEvent):void {
+            if (event.result) {
+                this.handleNode = event.result.handlerNode as WfNodeVo;
+                this.relats = event.result.nodeentry as ArrayCollection;
+                //this.iinvoice=this.handleNode.ioainvoice;
+                isShowOpt(true);
+            } else {
+                isShowOpt(false);
+            }
+        }
+
+        //设置 是否显示
+        private function isShowOpt(bool:Boolean = false):void {
+            this.optHandlerBar.visible = bool;
+            this.optHandlerBar.includeInLayout = bool;
+        }
+
+        // 获取 消息列表
+        public function getMessages(oaid:int, opt:String = ""):void {
+            //ioainvoice=oaid;
+            //optType=opt;
+            var param:Object = {};
+            param.ioainvoice = oaid;
+            param.iperson = CRMmodel.userId;
+            AccessUtil.remoteCallJava("WorkFlowDest", "getMessages", getMsgCallBack, param, null, false);
+            //在获取消息的同时 ，获取当前处理节点
+            //replayGetFormWorkFlow(this.);
+        }
+
+        private function getMsgCallBack(event:ResultEvent):void {
+            this.items = event.result as ArrayCollection;
+        }
+
+        public function clearParam():void {
+            //Alert.show("执行清理操作");
+            this.cmessage.text = "";
+            items.removeAll();
+            cmessage.visible = true;
+            cmessage.includeInLayout = true;
+            optbar.visible = true;
+            optbar.includeInLayout = true;
+        }
+
+        private function endorsebt_clickHandler():void {
+            //Alert.show("当前处理节点"+mx.utils.ObjectUtil.toString(this.handleNode));
+            if (iinvoice == 0) {
+                CRMtool.tipAlert("获取不到协同工作流信息");
+                return;
+            }
+
+            if (this.handleNode != null && this.handleNode.istatus != 5) {
+                var jq:EndorseWindow = new EndorseWindow();
+                jq.ifuniid = ifuncregedit;
+                jq.iinvoice = iinvoice;
+                jq.owner = this.owner;
+                jq.ioaiid = this.handleNode.ioainvoice;
+                CRMtool.openView(jq, false);
+            } else {
+                CRMtool.tipAlert("当前节点不可加签");
+            }
+        }
+
+        private function returnbt_clickHandler():void {
+            if (iinvoice == 0) {
+                CRMtool.tipAlert("获取不到协同工作流信息");
+                return;
+            }
+            if (this.handleNode == null) {
+                CRMtool.tipAlert("当前节点不可回退");
+                return;
+            }
+
+            CRMtool.tipAlert1("您确定要回退此节点？", null, "AFFIRM", function ():void {
+                onReturnHandler();
+            });
+        }
+
+        private function onReturnHandler():void {
+            var level:int = this.handleNode.inodelevel;
+
+            if (level <= 1) { // 排除不可回退的
+                return;
+            }
+            var params:Object = {};
+            //var msgvo:Object=this.getParam();
+            //msgvo.iresult=6;
+            //params.msgvo=msgvo;
+            params.ioainvoice = this.handleNode.ioainvoice;
+            params.istatus = 0;
+            params.inodelevel = this.handleNode.inodelevel;
+
+            params.ifuncregedit = ifuncregedit;
+            params.pinodeid = this.handleNode.ipnodeid; // 父节点的iid
+
+            if (level == 2) {
+                params.pistatus = 3;
+                AccessUtil.remoteCallJava("WorkFlowDest", "return2level", onReturnCallBack, params, "正在回退，请稍等...");
+            } else {
+                params.pistatus = 3;
+                params.pinodelevel = this.handleNode.inodelevel - 1;
+                //params.pinodeid=this.handleNode.ipnodeid;
+                AccessUtil.remoteCallJava("WorkFlowDest", "returnOtheLevel", onReturnCallBack, params, "正在回退，请稍等...");
+            }
+
+        }
+
+        private function onReturnCallBack(event:ResultEvent):void {
+            if (event.result && (event.result as String) == "suc") {
+                CRMtool.tipAlert("回退成功");
+                submit_clickHandler("only", 4); // 回退成功后，提交处理意见
+                if (this.owner is FrameCore) {
+                    if ((this.owner as FrameCore).workflow) {
+                        (this.owner as FrameCore).workflow.getFormWorkFlow(ifuncregedit, iinvoice);
+                    }
+                    (this.owner as FrameCore).getWordFlowDetail(ifuncregedit, iinvoice);
+                }
+            } else {
+                CRMtool.tipAlert("回退失败");
+            }
+        }
+
+        protected function menu1_itemClickHandler(event:MenuEvent):void {
+            if (event.item.opt == "jq") {
+                endorsebt_clickHandler();
+            } else if (event.item.opt == "ht") {
+                returnbt_clickHandler();
+            } else if (event.item.opt == "zcdb") {
+                onzcdb();
+            }
+        }
+
+        private function bb_clickHandler(event:ItemClickEvent):void {
+            if (event.label == "加签") {
+                endorsebt_clickHandler();
+            } else if (event.label == "回退") {
+                returnbt_clickHandler();
+            } else if (event.label == "暂存") {
+                onzcdb();
+            }
+        }
+
+        //暂存待办
+        private function onzcdb():void {
+            if (this.handleNode == null) {
+                CRMtool.tipAlert("获取不到协同工作流信息");
+                return;
+            }
+            var params:Object = {};
+            var msgvo:Object = this.getParam();
+            msgvo.iresult = 3;
+            params.msgvo = msgvo;
+            params.ifuncregedit = ifuncregedit;
+            params.ioainvoice = this.handleNode.ioainvoice;
+            params.inodeid = handleNode.inodeid;
+            params.iperson = CRMmodel.userId;
+            AccessUtil.remoteCallJava("WorkFlowDest", "ywZcdbHandler", callBack, params, null, false);
+        }
+
+        protected function vbox1_showHandler(event:FlexEvent):void {
+            // TODO Auto-generated method stub
+            this.cmessage.setFocus();
+        }
+
+        // 统一入口
+        public function entrance(ifuniid:int, wfiid:int, curiid:int):void {
+            //Alert.show("ifuniid["+ifuniid+"],wfiid["+wfiid+"],curiid["+curiid+"]");
+            this.clearParam();
+            getMessages(wfiid);
+            replayGetFormWorkFlow(ifuniid, curiid);
+        }
+        ]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:Canvas width="100%" height="100%" borderVisible="false" horizontalScrollPolicy="off">
+		<mx:VBox width="100%" height="100%" borderVisible="false" verticalGap="0">
+				<mx:Repeater id="rep" dataProvider="{items}" width="100%">
+					<renders:ReplyViewRender width="100%" item="{rep.currentItem}"/>
+					<comps:CrmDotLine width="100%" height="1" dotLineColor="0xcccccc"/>
+				</mx:Repeater>
+		</mx:VBox>
+	</mx:Canvas>
+	<mx:VBox id="optHandlerBar" paddingTop="5" paddingBottom="5" width="100%" visible="false" includeInLayout="false">
+		<mx:HBox  id="hide" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" cornerRadius="4" width="100%" borderStyle="solid" borderColor="#c4cccc" borderAlpha="1">
+			<s:TextArea id="cmessage" width="100%" height="50"   />
+		</mx:HBox>
+		<mx:HBox width="100%" height="27" verticalAlign="middle" id="optbar">
+			<s:CheckBox id="bhide" label="隐藏" visible="false"/>
+			<s:CheckBox id="bdiary" label="日记" visible="false"/>
+			<s:Spacer width="100%"/>
+			<s:Button id="submitbt" width="50" label="处理" click="submit_clickHandler('cj')"/>
+			<mx:ButtonBar itemClick="bb_clickHandler(event);" dataProvider="{this.bb_opt_items}" width="135">
+			</mx:ButtonBar>
+			<!--<mx:PopUpButton width="19" toolTip="点击，选择相关操作!">
+			<mx:popUp>
+				<mx:Menu itemClick="menu1_itemClickHandler(event)">
+					<mx:dataProvider>
+						<fx:Array>
+							<fx:Object label="加签" opt="jq"/>
+							<fx:Object label="回退" opt="ht"/>
+							<fx:Object label="暂存" opt="zcdb"/>
+						</fx:Array>
+					</mx:dataProvider>
+				</mx:Menu>
+			</mx:popUp>
+			</mx:PopUpButton>-->
+<!--		<s:Button id="endorsebt" width="45" label="加签" click="endorsebt_clickHandler()"/>
+		<s:Button id="returnbt" width="45" label="回退" click="returnbt_clickHandler()"/>-->
+		</mx:HBox>
+	</mx:VBox>
+</mx:VBox>

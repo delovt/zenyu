@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" 
+						  focusEnabled="true">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			
+			[Bindable]
+			public var fm:DateFormatter = new DateFormatter();			
+			
+			
+			override public function set data(value:Object):void{
+				super.data = value;
+				
+				fm.formatString="YYYY-MM-DD";
+				
+				if(df.text == "" || data[dataGridListData.dataField] == null){
+					df.text = "";
+//					df.text = fm.format(new Date());
+//					data[dataGridListData.dataField] = fm.format(df.text);
+				}
+				else
+					data[dataGridListData.dataField] = fm.format(data[dataGridListData.dataField]);
+				
+			}
+			
+			protected function df_changeHandler(event:CalendarLayoutChangeEvent):void
+			{
+				// TODO Auto-generated method stub
+				data[dataGridListData.dataField] = df.text;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:HBox width="100%" horizontalAlign="center">
+		
+		<mx:DateField id="df" yearNavigationEnabled="true" width="100%"
+					  formatString="YYYY-MM-DD" 
+					  dayNames="['日','一','二','三','四','五','六']" 
+					  monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十
+					  
+					  月','十一月','十二月']"
+					  change="df_changeHandler(event)" text="{data[dataGridListData.dataField]}"/>
+		
+	</mx:HBox>
+	
+</s:MXDataGridItemRenderer>

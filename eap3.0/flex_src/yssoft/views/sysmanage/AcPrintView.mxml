@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 xmlns:comps="yssoft.comps.*" creationComplete="ini()" xmlns:dataGridRenderer="yssoft.comps.dataGridRenderer.*">	
+	
+	<fx:Script source="../../scripts/AcPrintViewScript.as"/>
+	
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="bitype" selectedValue="{this.treeMenu.selectedItem.@itype==true?1:0}"/>
+		<s:RadioButtonGroup id="buse" selectedValue="{this.treeMenu.selectedItem.@buse==true?1:0}"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			private var downLoadPath:String = "<FONT COLOR='#3300FF'><A HREF='"
+				+ConstsModel.publishUrlRoot+"/printmodel/"+"emptymodel.rar"
+				+"' TARGET='_blank'>点此下载空白模板</A></FONT>";
+
+		]]>
+	</fx:Script>
+	<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+		<mx:VBox width="20%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar id="menuBar1" width="100%" height="32" dock="true">
+				<mx:Label text="功能目录" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" styleName="lefttree1">
+				<comps:TreeCompsVbox id="treeMenu" width="100%" height="100%"  dropShadowVisible="false"
+									 change="treeMenu_itemClickHandler()"/>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:VBox width="80%" height="100%" styleName="centerbg4">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="32" dock="true">
+				<mx:ButtonBar id="btn_menubar" width="10%" height="80%" 
+							  creationComplete="CRMtool.toolButtonsEnabled(btn_menubar,null)"
+							  dataProvider="{arr_menubar}" styleName="contentButtonBar"
+							  itemClick="btn_menubar_itemClickHandler(event)"/>
+				<!--
+				<mx:Text  htmlText="{downLoadPath}" width="300"  />
+				-->
+				
+			<mx:Button id="downFile" label="空白模版下载" height="80%" click="downLoadBlankTemplate()">
+				
+			</mx:Button>
+			</mx:ApplicationControlBar>
+			<mx:HBox horizontalAlign="left" width="100%" >
+				<mx:Label text="模板参数"/>
+			</mx:HBox>
+			<mx:DataGrid id="dglist" width="100%" height="100%" styleName="contentDataGrid" horizontalScrollPolicy="auto"
+						 borderVisible="true" borderColor="#c4cccc" borderAlpha="1" lockedColumnCount="3" allowMultipleSelection="true"  editable="{myenabled}"
+						 itemEditBegin="dglist_itemEditBeginHandler(event)" itemFocusIn="dglist_itemFocusInHandler(event)" change="dglist_changeHandler()">
+				<mx:columns>
+					<mx:DataGridColumn headerText="内码" dataField="iid" visible="false"/>
+					<mx:DataGridColumn headerText="序号" width="50" textAlign="center" editable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<comps:ItemRendererNumber/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="关联功能" dataField="fcname" editable="false"/>
+					<mx:DataGridColumn headerText="模板名称" dataField="cname"/>
+					<mx:DataGridColumn headerText="模板文件" dataField="ctemplate" width="310" editable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<dataGridRenderer:ItemRenderChooiceFile ifuncregedit="{outerDocument.ifuncregedit}" selectedIndex="{outerDocument.dglist.selectedIndex+1}" tValue="{data.ctemplate}" valueChange="itemrenderchooicefile1_valueChangeHandler(event)" 
+																		enabled="{outerDocument.myenabled}" iseditable="{outerDocument.myenabled}" 
+																		visibleBorder="{outerDocument.myenabled}">
+									
+									<fx:Script>
+										<![CDATA[
+											protected function itemrenderchooicefile1_valueChangeHandler(event:Event):void
+											{
+												outerDocument.fileReference = event.currentTarget.getFileReference;
+												outerDocument.onUploadFile(); 
+												data.ctemplate = outerDocument.fileName;
+											}
+										]]>
+									</fx:Script>
+									
+								</dataGridRenderer:ItemRenderChooiceFile>
+								
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="模板参数" dataField="ccondit"/>
+					<mx:DataGridColumn headerText="模板类型" dataField="itype" editable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<dataGridRenderer:ItemRendererComboBox dataProvider="{outerDocument.arr_itype}" enabled="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="是否启用" dataField="buse" editable="false" width="60">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:CheckBox textAlign="center" click="data.buse=!data.buse"  selected="{(data.buse==0)?false:true}" enabled="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="是否默认" dataField="bdefault" editable="false" width="60">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:CheckBox textAlign="center" click="data.bdefault=!data.bdefault"  selected="{(data.bdefault==0)?false:true}" enabled="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="备注" dataField="cmemo"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:HBox width="100%">
+				<comps:DataGridOperRow backgroundAlpha="0" id="dataGridOperRow" enabled="{myenabled}"/>
+				<mx:Label text="SQL配置"/>
+			</mx:HBox>
+			<mx:DataGrid id="dgrd_printsets" width="100%" height="100%"  horizontalScrollPolicy="auto"
+						 borderVisible="true" borderColor="#c4cccc" borderAlpha="1" dataProvider="{printsets}"
+						 editable="{myenabled}" change="dgrd_printsets_changeHandler()">
+				<mx:columns>
+					<mx:DataGridColumn dataField="bhead" headerText="是否表头" width="60"
+									   sortable="false" editable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:CheckBox textAlign="center" click="checkbox1_clickHandler(event)"  selected="{(data.bhead==0)?false:true}" enabled="{outerDocument.myenabled}">
+									<fx:Script>
+										<![CDATA[
+											protected function checkbox1_clickHandler(event:MouseEvent):void
+											{
+												for each (var item:Object in outerDocument.printsets) 
+												{
+													if (item!=data)
+													{
+														item.bhead=false;
+														outerDocument.printsets.setItemAt(item,outerDocument.printsets.getItemIndex(item));
+													}
+												}
+												data.bhead=!data.bhead
+											}
+										]]>
+									</fx:Script>
+								</mx:CheckBox>
+								
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn dataField="csql" headerText="SQL语句" sortable="false"></mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:HBox width="100%">
+				<mx:HBox width="100%" horizontalAlign="left" enabled="{myenabled}">
+					<mx:LinkButton id="clmClear" icon="{ConstsModel._CLEARICON}" click="clmClear_clickHandler()" toolTip="清空"/>
+					
+				</mx:HBox>
+				<mx:Label text="字段信息"/>
+			</mx:HBox>
+			<mx:DataGrid id="dgrd_printclm" width="100%" height="100%"
+						 borderVisible="true" borderColor="#c4cccc" borderAlpha="1" dataProvider="{printclm}"
+						 editable="{myenabled}" focusOut="updatesqlfields()">
+				<mx:columns>
+					<mx:DataGridColumn width="50" dataField="ino" editable="false"
+									   headerText="序号" sortable="false"
+									   textAlign="center"></mx:DataGridColumn>
+					<mx:DataGridColumn dataField="cfield" headerText="列名" editable="false" 
+									   sortable="false"></mx:DataGridColumn>
+					<mx:DataGridColumn dataField="ccaption" headerText="默认标题"
+									   sortable="false"></mx:DataGridColumn>
+					<mx:DataGridColumn dataField="cnewcaption" headerText="显示标题"
+									   sortable="false"></mx:DataGridColumn>
+					<mx:DataGridColumn dataField="ifieldtype" editorDataField="value"
+									   headerText="数据类型" width="60" editable="false"
+									   labelFunction="getIfieldtypeLabel"
+									   sortable="false">
+						<mx:itemEditor>
+							<fx:Component>
+								<mx:HBox>
+									<fx:Script>
+										<![CDATA[
+											public function get value(): Object
+											{
+												var obj:Object=cmb_ifieldtype.selectedItem;
+												return obj.iid;
+											}
+										]]>
+									</fx:Script>
+									<mx:ComboBox id="cmb_ifieldtype" width="100%"
+												 dataProvider="{outerDocument.printclm}"
+												 selectedIndex="{data.ifieldtype}" labelField="cname">
+									</mx:ComboBox>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+					<!--				<mx:DataGridColumn headerText="是否启用" dataField="buse" editable="false" width="60">
+					<mx:itemRenderer>
+					<fx:Component>
+					<mx:CheckBox textAlign="center" click="data.buse=!data.buse"  selected="{(data.buse==0)?false:true}" enabled="{outerDocument.myenabled}"/>
+					</fx:Component>
+					</mx:itemRenderer>
+					</mx:DataGridColumn>-->
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VBox>
+		
+	</mx:HDividedBox>
+</mx:HBox>

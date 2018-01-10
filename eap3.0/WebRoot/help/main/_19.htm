@@ -1,0 +1,225 @@
+<html>
+
+<head>
+  <title>3.2.6 、业务字典 - 综合业务管理软件_帮助手册</title>
+  <meta http-equiv=Content-Type content="text/html; charset=x-cp20936">
+  <meta name="GENERATOR" content="Macrobject Word-2-CHM">
+  <link rel="stylesheet" href="Word2Chm.css" type="text/css">
+  <link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+
+<body lang=ZH-CN link=blue vlink=purple style='text-justify-trim:punctuation'>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td class="moHeader">&nbsp;3.2.6 、业务字典</td>
+    </tr>
+  </table>
+  
+  <p></p>
+
+<div class=Section1 style='layout-grid:15.6pt'>
+
+
+
+<p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+line-height:125%;font-family:宋体;color:#F79646'>【功能概述】</span></b></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-size:12.0pt;font-family:宋体'>&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:12.0pt;font-family:宋体'>系统中涉及的表单、字段字典。</span></p>
+
+<p class=MsoNormal align=left style='text-align:left'><b><span
+style='font-size:12.0pt;font-family:宋体;color:#F79646'>【操作说明】</span></b><b><span
+lang=EN-US style='font-size:12.0pt;color:#F79646'>  </span></b></p>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 align=left
+ style='border-collapse:collapse;border:none;margin-left:6.75pt;margin-right:
+ 6.75pt'>
+ <tr>
+  <td width=159 valign=top style='width:119.55pt;border:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>1</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、通用区</span></p>
+  </td>
+  <td width=402 valign=top style='width:301.15pt;border:solid #7F7F7F 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>公共按钮：</span></b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>同通用表单操作事件；</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>功能编码：</span></b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>同通用点位分隔编码说明；</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=159 valign=top style='width:119.55pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>2</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、表单区</span></p>
+  </td>
+  <td width=402 valign=top style='width:301.15pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>计算公式：</span></b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>主要实现单表中的计算、主子表互动计算。支持四则运算、聚合运算。以下举例说明：<span
+  lang=EN-US>sum(</span>金额<span lang=EN-US>)</span>、<span lang=EN-US>price(</span>单价<span
+  lang=EN-US>)</span>、<span lang=EN-US>fquantity(</span>数量<span lang=EN-US>)</span></span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>当某个字段更改的时候，就在这个字段中设置对应的计算公式。如需设置多个公式，每个公式以<span
+  lang=EN-US>&quot;|&quot;</span>分割</span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>单表计算<span
+  lang=EN-US>(</span>公式设置<span lang=EN-US>)</span>：</span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>当数量改变的时候，<span
+  lang=EN-US>sum=@price@*@fquantity@</span></span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>当单价改变的时候，<span
+  lang=EN-US>sum=@price@*@fquantity@</span></span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>当金额改变的时候，<span
+  lang=EN-US>price=@sum@/@fquantity@</span></span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>聚合公式：<span
+  lang=EN-US>getcolsum(</span>求和<span lang=EN-US>),getcolavg(</span>平均<span
+  lang=EN-US>),getcolmax(</span>最大值<span lang=EN-US>),getcolmin(</span>最小值<span
+  lang=EN-US>)</span>。</span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>公式的设置与四则运算一样，<span
+  lang=EN-US>(</span>赋值字段<span lang=EN-US>)=getcolsum(</span>运算字段<span
+  lang=EN-US>)</span></span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>主子表互动计算：</span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  lang=EN-US style='font-size:12.0pt;line-height:125%;font-family:宋体'>1</span><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>、主表向子表赋值</span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>当主表的某个字段更改时候，子表的某个字段需要及时更新，举例：子表的运输时间和主表一致，那么在主表的运输时间<span
+  lang=EN-US>(ddate)</span>更改的时候子表<span lang=EN-US>(table)</span>运输时间</span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  lang=EN-US style='font-size:12.0pt;line-height:125%;font-family:宋体'>(dates)</span><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>也及时更新。公式设置为<span
+  lang=EN-US>table.ddates=@ddate@</span></span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  lang=EN-US style='font-size:12.0pt;line-height:125%;font-family:宋体'>2</span><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>、子表向主表赋值</span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>举例：主表金额<span
+  lang=EN-US>(sum)</span>需要子表的金额<span lang=EN-US>(fsum)</span>合计，公式如下：主表表名<span
+  lang=EN-US>.sum=getcolsum(fsum)</span></span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>约束公式：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>主要针对单据中用户录入信息的校验。</span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>需求：在录入合同单据时，合同的总金额必须大于零</span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>实现：在合同单据中对应的总金额(ftotal)字段设置约束公式</span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>约束公式：@ftotal@&gt;0</span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>约束提示：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>约束公式设置完成后，当单据中的约束起作用时，需要给予友好提示，这时需要在约束提示中设置。</span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>依上所述，约束提示设置为：合同总金额必须大于零！</span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>正则约束表达式公式：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>编写正则表达式公式，用来约束格式的。</span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>正则约束提示：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>正则表达式约束提示后，需要给予友好提示。</span></p>
+  <p class=MsoNormal align=left style='text-align:left'><b><span
+  style='font-size:12.0pt;font-family:宋体'>唯一性约束：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>该字段对应的值必须是唯一的，不能重复。设置后系统会在保存和修改时给予友好提示。填写格式，写字段名，如果写多个字段名，要用<span
+  lang=EN-US>,</span>隔开。多个字段名表示联合约束。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>录入参照公式：</span></b></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  lang=EN-US style='font-size:12.0pt;font-family:宋体'>iconsult=@ifunconsult@|consultSql=dbo.getSql(@ifunconsult@)|cconsulttable=dbo.getTable(@ifuncregedit@)|itype=dbo.getItype(@ifunconsult@)|cconsultbkfld=dbo.getCconsultbkfld(@iifuncregedit@,@ifuncregedit@)|cconsultswfld=dbo.getCconsultswfld(@iifuncregedit@,@ifuncregedit@)|cconsultipvf=dbo.getCconsultipvf(@iifuncregedit@,@ifuncregedit@)|cconsultconfld=dbo.getCconsultconfld(@iifuncregedit@,@ifuncregedit@)|cconsultcondition=dbo.getCconsultcondition(@iifuncregedit@,@ifuncregedit@)</span><span
+  style='font-size:12.0pt;font-family:宋体'>，用来动态获得参照编码和参照相关信息。只有配置该项，并且为表头参照时，才可以配置表头触发表体参照，配置表头触发表体参照，可以设置多个，配置方式跟表头参照配置方式一致。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>录入参照：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>当前字段前台的展现方式是以参照的样式显示。在设置<span
+  lang=EN-US>&quot;</span>录入参照<span lang=EN-US>&quot;</span>之前需要设置<span
+  lang=EN-US>&quot;</span>参照设置<span lang=EN-US>&quot;</span>模块。参照设置完成后，在录入参照时点击放大镜，选择设置好的参照即可。只有配置该项，并且为表头参照时，才可以配置表头触发表体参照，配置表头触发表体参照，可以设置多个。配置方式跟表头参照配置方式一致。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>参照表名：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>参照对应的表名</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>参照返回存入字段：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>单据实际保存至物理表中的字段值，可以是内码也可以是字符串。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>参照返回显示字段：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>选择参照后，参照返回至业务单据时显示的字段对应的信息。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>参照录入验证字段：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>参照验证的字段，可以是多个。也就是说在参照信息手工录入的时候，参与条件过滤的字段是哪些，多个用<span
+  lang=EN-US>,</span>隔开。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>参照查询根据字段：</span></b><span
+  style='font-size:12.0pt;font-family:宋体'>参照查询根据字段：作为参照条件的字段。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>主要考虑的是主子表关系的业务，以下举例说明：</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>需求：在做合同订单需要参照报价单，在选择报价单的时候需要将报价单对应的报价单子表<span
+  lang=EN-US>(</span>产品信息<span lang=EN-US>)</span>带</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  lang=EN-US style='font-size:12.0pt;font-family:宋体'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span><span style='font-size:12.0pt;font-family:宋体'>入到合同订单中的产品档案子表中。这时需要过滤当前选中报价单对应的报价单子表信息，那么在</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  lang=EN-US style='font-size:12.0pt;font-family:宋体'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span><span style='font-size:12.0pt;font-family:宋体'>参照条件字段中需要设置对应的过滤字段条件</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>公式：<span lang=EN-US>isource=sc_contracts.iquotation</span></span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>公式说明：<span lang=EN-US>isource(</span>合同订单中对应的报价单字段<span
+  lang=EN-US>)</span></span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  lang=EN-US style='font-size:12.0pt;font-family:宋体'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  sc_contracts(</span><span style='font-size:12.0pt;font-family:宋体'>合同子表表名<span
+  lang=EN-US>)</span></span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  lang=EN-US style='font-size:12.0pt;font-family:宋体'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  iquotation(</span><span style='font-size:12.0pt;font-family:宋体'>报价单子表对应的外键字段<span
+  lang=EN-US>)</span></span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><b><span
+  style='font-size:12.0pt;font-family:宋体'>参照固定<span lang=EN-US>SQL:</span></span></b><span
+  style='font-size:12.0pt;font-family:宋体'>主要功能是动态给参照添加过滤条件。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>与参照配置模块搭配使用。在设定参照时，需要加入<span
+  lang=EN-US>@condition</span>，再设置<span lang=EN-US>&quot;</span>参照固定条件<span
+  lang=EN-US>&quot;</span>，这样在参照弹出时会依据条件过滤。</span></p>
+  <p class=MsoNormal style='margin-right:2.0pt;text-autospace:none'><span
+  style='font-size:12.0pt;font-family:宋体'>举例：在做合同订单时，需要参照审核过的报价单，这样在设置<span
+  lang=EN-US>&quot;</span>参照固定条件<span lang=EN-US>&quot;</span>的时候可以这样写：<span
+  lang=EN-US> </span></span></p>
+  <p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:
+  0cm;margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><span
+  lang=EN-US style='font-size:12.0pt;font-family:宋体'>&nbsp;and check(</span><span
+  style='font-size:12.0pt;font-family:宋体'>审核人字段<span lang=EN-US>) is not null </span>即可。</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal style='margin-top:0cm;margin-right:2.0pt;margin-bottom:0cm;
+margin-left:4.0pt;margin-bottom:.0001pt;text-autospace:none'><span lang=EN-US>&nbsp;</span></p>
+
+<p class=MsoNormal align=left style='text-align:left'><b><span lang=EN-US
+style='font-size:12.0pt;color:#F79646'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></b></p>
+
+
+</div>
+  <p></p>
+
+</body>
+
+</html>

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        title="电话报岗"
+                        width="780" height="520"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var iid:int;
+        private var _crmeap:CrmEapRadianVbox;
+
+        private var _dataList:ArrayCollection;
+
+        public var barrflag:Boolean = false;
+        public var bleaflag:Boolean = false;
+
+        public var arrid:int;
+        public var leaid:int;
+
+        public function get crmeap():CrmEapRadianVbox {
+            return _crmeap;
+        }
+
+        public function set crmeap(value:CrmEapRadianVbox):void {
+            _crmeap = value;
+            var mainValue:Object = value.getValue();
+            if (CRMtool.isStringNotNull(mainValue.dbegin)) {
+                this.ui_dbegin.text = mainValue.dbegin;
+                this.ui_carrivaltel.text = mainValue.carrivaltel;
+
+                this.ui_dbegin.editable = false;
+                this.ui_carrivaltel.editable = false;
+
+                barrflag = true;
+            }
+            if (CRMtool.isStringNotNull(mainValue.dend)) {
+                this.ui_dend.text = mainValue.dend;
+                this.ui_cdeparturetel.text = mainValue.cdeparturetel;
+
+                this.ui_dend.editable = false;
+                this.ui_cdeparturetel.editable = false;
+
+                bleaflag = true;
+            }
+        }
+
+        public function get dataList():ArrayCollection {
+            return _dataList;
+        }
+
+        public function set dataList(value:ArrayCollection):void {
+            for each(var item:Object in  value) {
+                item.myflag = 0;
+            }
+            _dataList = value;
+        }
+
+        protected function button_clickHandler():void {
+            if (arrid == 0 && leaid == 0) {
+                CRMtool.showAlert("尚未选择，不允许提交。");
+                return;
+            }
+            var parm:Object = new Object();
+            if (!barrflag) {
+                parm.dbegin = ui_dbegin.text;
+                parm.carrivaltel = ui_carrivaltel.text;
+                parm.arrid = arrid;
+            }
+            if (!bleaflag) {
+                parm.dend = ui_dend.text;
+                parm.cdeparturetel = ui_cdeparturetel.text;
+                parm.leaid = leaid;
+            }
+            parm.iid = crmeap.getValue().iid;
+            parm.isolution = 9;
+            parm.imaker = CRMmodel.userId;
+            parm.dmaker = new Date();
+            AccessUtil.remoteCallJava("CallCenterDest", "updataSrProjectsAndCC", function (event:ResultEvent):void {
+                if (event.result as Boolean) {
+                    var mainValue:Object = crmeap.getValue();
+                    if (!barrflag) {
+                        mainValue.dbegin = ui_dbegin.text;
+                        mainValue.carrivaltel = ui_carrivaltel.text;
+                    }
+                    if (!bleaflag) {
+                        mainValue.dend = ui_dend.text;
+                        mainValue.cdeparturetel = ui_cdeparturetel.text;
+                    }
+                    var obj:Object = new Object();
+                    obj.mainValue = mainValue;
+                    crmeap.setValue(obj, 1, 1);
+                    onCloseHandler();
+                } else {
+                    CRMtool.showAlert("提交失败，请检查。");
+                }
+            }, parm);
+        }
+        ]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:VBox id="myBorder" width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" verticalGap="10" >
+		<mx:VBox width="100%" height="75" styleName="content">
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%">
+					<mx:Label text="签到时间：" styleName="contentLabel" />
+					<mx:TextInput  id="ui_dbegin"  width="100%" styleName="contentTextInput" editable="false"/>
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="签到电话：" styleName="contentLabel" />
+					<mx:TextInput id="ui_carrivaltel"  styleName="contentTextInput" editable="false" width="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+			<mx:HRule width="100%" />
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%">
+					<mx:Label text="签退时间：" styleName="contentLabel" />
+					<mx:TextInput  id="ui_dend"   width="100%" styleName="contentTextInput" editable="false"/>
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="签退电话：" styleName="contentLabel" />
+					<mx:TextInput id="ui_cdeparturetel"  styleName="contentTextInput" width="100%" editable="false"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true"
+					dataProvider="{dataList}" styleName="content"
+					horizontalScrollPolicy="auto">
+			<mx:columns>
+				<mx:DataGridColumn width="110"  >
+					<mx:itemRenderer>
+						<fx:Component>
+							
+							<s:MXDataGridItemRenderer>
+								<fx:Declarations>
+									<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+									<s:RadioButtonGroup id="radioGroup" itemClick="radioGroup_itemClickHandler(event)" />
+								</fx:Declarations>
+								<fx:Script>
+									<![CDATA[
+                                    import mx.events.ItemClickEvent;
+
+                                    override public function set data(value:Object):void {
+                                        super.data = value;
+                                        if (outerDocument.barrflag) {
+                                            arr.enabled = false;
+                                        }
+                                        if (outerDocument.bleaflag) {
+                                            lea.enabled = false;
+                                        }
+                                    }
+
+                                    protected function radioGroup_itemClickHandler(event:ItemClickEvent):void {
+                                        var buttonlabel:String = (event.target as RadioButtonGroup).selection.label
+                                        if (buttonlabel == "到达") {
+                                            if (data.myflag == 2) {
+                                                outerDocument.ui_dend.text = "";
+                                                outerDocument.ui_cdeparturetel.text = "";
+                                            }
+                                            data.myflag = 1;
+                                            for each(var item:Object in outerDocument.dataList) {
+                                                if (item !== data) {
+                                                    if (item.myflag == 1) {
+                                                        item.myflag = 0;
+                                                    }
+                                                }
+                                            }
+                                            outerDocument.arrid = data.iid;
+                                            outerDocument.ui_dbegin.text = data.dbegin;
+                                            outerDocument.ui_carrivaltel.text = data.ccallintel;
+                                        } else {
+                                            if (data.myflag == 1) {
+                                                outerDocument.ui_dbegin.text = "";
+                                                outerDocument.ui_carrivaltel.text = "";
+                                            }
+                                            data.myflag = 2;
+                                            for each(var item:Object in outerDocument.dataList) {
+                                                if (item !== data) {
+                                                    if (item.myflag == 2) {
+                                                        item.myflag = 0;
+                                                    }
+                                                }
+                                            }
+                                            outerDocument.leaid = data.iid;
+                                            outerDocument.ui_dend.text = data.dbegin;
+                                            outerDocument.ui_cdeparturetel.text = data.ccallintel;
+                                        }
+                                        outerDocument.dataList.refresh();
+                                    }
+                                    ]]>
+								</fx:Script>
+								<mx:HBox>	
+									<s:Spacer width="3"/>
+									<s:RadioButton id="arr" group="{radioGroup}" buttonMode="true" label="到达" selected="{data.myflag==1?true:false}" />
+									<s:RadioButton id="lea" group="{radioGroup}" buttonMode="true" label="离开" selected="{data.myflag==2?true:false}"/>
+								</mx:HBox>
+							</s:MXDataGridItemRenderer>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="开始时间" dataField="dbegin" width="115"/>
+				<mx:DataGridColumn headerText="电话" dataField="ccallintel" width="90"/>
+				<mx:DataGridColumn headerText="单位" dataField="customer_name" width="140"/>
+				<mx:DataGridColumn headerText="人员" dataField="custperson_name" width="60"/>
+				<mx:DataGridColumn headerText="记录内容" dataField="cdetail" />
+			</mx:columns>
+		</mx:DataGrid>
+
+		<mx:HBox  verticalAlign="middle" horizontalAlign="right" paddingRight="10" paddingLeft="10">
+			<s:Spacer width="590"/>
+			<s:Button label="确定" click="button_clickHandler()"/>
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

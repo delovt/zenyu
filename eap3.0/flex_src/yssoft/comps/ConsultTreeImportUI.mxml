@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="400"
+                        close="mx.managers.PopUpManager.removePopUp(this)" creationComplete="getBodyData()"
+                        xmlns:comps="yssoft.comps.*" styleName="contentVBox" title="表单设置模版"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.ArrayList;
+        import mx.collections.XMLListCollection;
+        import mx.controls.Alert;
+        import mx.core.FlexGlobals;
+        import mx.events.ItemClickEvent;
+        import mx.events.ListEvent;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import spark.events.TextOperationEvent;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.models.*;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.views.consultsets.ConsultsetSet;
+        import yssoft.vos.*;
+
+        //模糊查询值
+        [Bindable]
+        public var search:String;
+        //参照窗体宽
+        [Bindable]
+        public var winwidth:int;
+        //参照窗体高
+        [Bindable]
+        public var winheight:int;
+        //允许多选
+        [Bindable]
+        public var allowmulti:Boolean;
+
+        //选中记录集属性
+        public var selectRows:Object;
+
+        //表体集
+        [Bindable]
+        public var bodyArr:ArrayCollection = new ArrayCollection();
+
+        //参照主键
+        public var iid:int;
+
+        //表头VO
+        [Bindable]
+        public var acConsultsetVo:AcConsultsetVo = new AcConsultsetVo();
+        //表体VO
+        public var acConsultclmVo:AcConsultclmVo;
+
+        //列表设置
+        public var consultsetSet:ConsultsetSet = new ConsultsetSet();
+
+        //查询树列表
+        public var list:XMLList = new XMLList();
+
+        private var myTreeXML:XML;
+
+        //获得选中记录集回调方法
+        [Bindable]
+        public var getSelectTreeRows:Function;
+
+        //只允许参照末节点
+        private var _onlyGetEndNode:Boolean = true;
+        public function get onlyGetEndNode():Boolean {
+            return _onlyGetEndNode;
+        }
+
+        public function set onlyGetEndNode(value:Boolean):void {
+            _onlyGetEndNode = value;
+        }
+
+        public var crmEapRadianVbox:CrmEapRadianVbox;
+
+
+        /**
+         * 功能：获得选中数据退出
+         */
+
+        protected function btn_ok_clickHandler():void {
+            if (this.tre_tree.selectedItem.@ctable != "") {
+                if (this.crmEapRadianVbox != null) {
+                    var ifuncregedit:String = this.tre_tree.selectedItem.@iid;
+                    var ojb:Object = new Object();
+                    var obj:Object = new Object();
+                    obj.ifuncregedit = ifuncregedit;
+                    ojb.mainValue = obj;
+                    //this.crmEapRadianVbox.setValue(ojb,1);
+                    this.crmEapRadianVbox.popupTree = false;
+                    this.crmEapRadianVbox.queryPm(ifuncregedit);
+                }
+            }
+            PopUpManager.removePopUp(this);
+        }
+
+        /**
+         * 功能：获得表体数据
+         * 参数：无
+         * 返回值：无
+         * 修改人：王炫皓
+         * 修改时间：20121121
+         */
+        public function getBodyData():void {
+            var objvalue:Object = new Object();
+            objvalue.sqlcondition = " bvouchform=1";
+            objvalue.single = "";
+            AccessUtil.remoteCallJava("DatadictionaryDest", "getTreeMenuList", bodyData_callBackHandler, objvalue);
+
+        }
+
+        /**
+         * 功能：获得表体数据回调
+         */
+        public function bodyData_callBackHandler(event:ResultEvent):void {
+            this.tre_tree.treeCompsXml = new XML(event.result as String);
+            myTreeXML = new XML(event.result as String);
+            list[0] = this.tre_tree.dataProvider[0];  //budProTr是tree的id,获取tree的dataProvider
+            if (this.search != "") {
+                this.tnp_search.text = this.search;
+                tnp_search_searchHandler();
+            }
+        }
+
+        protected function btn_Expand_clickHandler(event:MouseEvent):void {
+            this.tre_tree.expandAll();
+
+        }
+
+        protected function btn_Colapse_clickHandler(event:MouseEvent):void {
+            this.tre_tree.CollapseAll();
+        }
+
+        /**
+         * 日期：2011-08-24
+         * 功能：全表格搜索定位
+         */
+        protected function tnp_search_searchHandler():void {
+            //lr modity
+            tnp_search_changeHandler();
+
+            //tre_tree.treeCompsXml = myTreeXML;
+            //this.tre_tree.ExpandAll();
+            //recursionFindTree(list,this.tnp_search.text);  //调用循环方法查找匹配的节点
+        }
+
+        //递归定位树形节点,要查找的字符就是传入的find  和对应tree的@guid属性
+        private function recursionFindTree(xmlList:XMLList, find:String):void {
+            for (var i:int = 0; i < xmlList.length(); i++) {
+                var childXml:XML = xmlList[i];
+                var guid1:String = childXml.@ccode;
+                var guid2:String = childXml.@cname;
+                if ((guid1 != null && guid1.indexOf(find) > -1) || (guid2 != null && guid2.indexOf(find) > -1)) {
+                    this.tre_tree.selectedItem = childXml;    //将tree的选中项设定为当前项
+                    return;
+                } else if (this.tre_tree.dataDescriptor.isBranch(childXml))//如果有子节点,则递归调用本方法
+                {
+                    recursionFindTree(childXml.children(), find);
+                }
+            }
+        }
+
+        protected function tnp_search_keyDownHandler(event:KeyboardEvent):void {
+            if (event.keyCode == 13) {
+                tnp_search_searchHandler();
+                tnp_search.selectAll();
+            }
+        }
+
+        //lr add  搜索tree
+        protected function tnp_search_changeHandler():void {
+            searchTree(tnp_search.text);
+        }
+
+
+        public function searchTree(fname:String):void {
+            var vname:String = StringUtil.trim(fname);
+            if (vname == "") {
+                tre_tree.treeCompsXml = myTreeXML;
+            } else {
+                var xml:XML = CRMtool.searchTreeNode(myTreeXML.descendants("*"), vname);
+                if (xml)
+                    tre_tree.treeCompsXml = xml;
+            }
+
+        }
+
+        protected function tnp_search_clickHandler(event:MouseEvent):void {
+            tnp_search.selectAll();
+        }
+        ]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+    <basic:layout>
+        <s:VerticalLayout gap="-1" />
+    </basic:layout>
+	<mx:VBox width="100%" height="100%" verticalGap="-1">
+		<mx:ApplicationControlBar cornerRadius="0" styleName="consultTree"  id="menuBar2" x="0" y="0" width="100%" height="32"  dock="true" >
+			<mx:HBox width="20%">
+				<comps:CrmTextInput id="tnp_search" text="" change="tnp_search_changeHandler()" search="tnp_search_searchHandler()" click="tnp_search_clickHandler(event)" keyDown="tnp_search_keyDownHandler(event)">
+				</comps:CrmTextInput>
+				<mx:LinkButton id="btn_Expand" label="展开" click="btn_Expand_clickHandler(event)"
+							   color="#388DB" fontWeight="normal" paddingLeft="5" paddingRight="0"
+							   styleName="contentVBox" textDecoration="underline">
+				</mx:LinkButton>
+				<mx:LinkButton id="btn_Colapse" label="折叠" click="btn_Colapse_clickHandler(event)"
+							   color="#388DB" fontWeight="normal" paddingLeft="0" paddingRight="0"
+							   styleName="contentVBox" textDecoration="underline">
+				</mx:LinkButton>
+			</mx:HBox>
+			<mx:HBox width="80%" horizontalAlign="right" verticalAlign="middle" >
+				<mx:LinkButton id="btn_ConsultEdit" label="档案编辑" color="#388DB" fontWeight="normal"
+							   styleName="contentVBox" textDecoration="underline" visible="false">
+				</mx:LinkButton>
+			</mx:HBox>
+		</mx:ApplicationControlBar>
+		<comps:TreeCompsVbox id="tre_tree" paddingTop="-1" width="100%" height="100%" itemDoubleClick="btn_ok_clickHandler()" />
+	
+		<mx:HRule width="100%">
+		</mx:HRule>
+		<mx:HBox width="100%" height="38" horizontalAlign="right" verticalAlign="middle" paddingRight="10">
+			<s:Button id="btn_ok" label="确定" click="btn_ok_clickHandler()"/>
+			<s:Button id="btn_cancel" label="取消" click="mx.managers.PopUpManager.removePopUp(this)"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

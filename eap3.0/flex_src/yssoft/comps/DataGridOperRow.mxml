@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox backgroundAlpha="0" xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="22" xmlns:scripts="yssoft.scripts.*" horizontalAlign="left" initialize="Init()">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import yssoft.models.ConstsModel;
+			private var dgarr:ArrayCollection=null;
+			/* 控件使用说明：该控件与DataGrid数据集连用
+			   data对象构成：dataProvider为DataGrid数据集
+			                selectedItem为DataGrid当前选中数据
+			*/
+			public var addNewItem:Function;//增行回调函数
+			public var delData:ArrayCollection=new ArrayCollection();//删除数据
+			public function deleteItem():void
+			{
+				for each (var item:Object in data.dataProvider) 
+				{
+					if (item==data.selectedItem)
+					{
+					   if (item["iid"]!=null && item["iid"]!=0)//添加删除数据集
+					   {
+					      delData.addItem(item);
+					   }
+					   data.dataProvider.removeItemAt(data.dataProvider.getItemIndex(item));
+					   break;
+					}
+				}
+			}
+			public function clear():void
+			{
+		        if (data.dataProvider["length"]>0)
+				{
+					for each (var item:Object in data.dataProvider) 
+					{
+						    if (item["iid"]!=null && item["iid"]!=0)//添加删除数据集
+							{
+								delData.addItem(item);
+							}
+					}
+				    data.dataProvider.removeAll();
+				}
+			}
+			
+			public function Init():void
+			{
+				delData.removeAll();
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+		<mx:LinkButton icon="{ConstsModel._ADDITIONICON}" click="addNewItem()" toolTip="增行"/>
+		<mx:LinkButton icon="{ConstsModel._SUBTRACTIONICON}" click="deleteItem()" toolTip="删行"/>
+		<mx:LinkButton icon="{ConstsModel._CLEARICON}" click="clear()" toolTip="清空"/>
+</mx:HBox>

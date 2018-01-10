@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+
+		import yssoft.models.ConstsModel;
+		import yssoft.tools.CRMtool;
+
+		//重新封装高级查询数据集
+		[Bindable]
+		public var _advancedArr:ArrayCollection;
+
+		public function set advancedArr(value:ArrayCollection):void {
+			this._advancedArr = value;
+
+		}
+
+		public function get advancedArr():ArrayCollection {
+			return this._advancedArr;
+		}
+
+
+		//重新封装高级查询数据集
+		[Bindable]
+		public var _cfieldArr:ArrayCollection = new ArrayCollection();
+
+		public function set cfieldArr(value:ArrayCollection):void {
+			this._cfieldArr = value;
+		}
+
+		[Bindable]
+		public var singleType:Object;
+
+		/**
+		 *
+		 * 作者：zhong_jing
+		 * 日期：2011-08-08
+		 * 功能：新增一行记录
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 *
+		 */
+		public function addNewItem():void {
+			var advancedObj:Object = new Object();
+			advancedObj.logic = "and";
+			advancedObj.leftParenthesis = "";
+			advancedObj.cfiled = "";
+			advancedObj.ccaption = "";
+			var uid:String = this.owner["uid"] as String;
+			if (uid.indexOf("AssembledConditionWindow") == 0) {
+				advancedObj.condition = "=";
+			}
+			else {
+				advancedObj.condition = "like";
+			}
+			advancedObj.value = " ";
+			advancedObj.rightParenthesis = " ";
+			_advancedArr.addItem(advancedObj);
+			dgrd_advanced.addEventListener(KeyboardEvent.KEY_DOWN, CRMtool.doKeyDown);
+		}
+
+		/**
+		 *
+		 * 作者：zhong_jing
+		 * 日期：2011-08-08
+		 * 功能：删除一行记录
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 *
+		 */
+		public function deleteItem():void {
+			var size:int = this.dgrd_advanced.selectedIndex;
+			for (var i:int = 0; i < this._advancedArr.length; i++) {
+				if (_advancedArr.getItemAt(i) == this.dgrd_advanced.selectedItem) {
+					_advancedArr.removeItemAt(i);
+					break;
+				}
+			}
+			if (size == 0) {
+				this.dgrd_advanced.selectedIndex = size + 1;
+			}
+			else {
+				this.dgrd_advanced.selectedIndex = size - 1;
+			}
+		}
+
+		/**
+		 *
+		 * 作者：zhong_jing
+		 * 日期：2011-08-08
+		 * 功能：删除一行记录
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 *
+		 */
+		public function clear():void {
+			_advancedArr.removeAll();
+		}
+
+		private function logicFormat(item:Object, icol:int):String {
+			return CRMtool.logicFo(item.logic);
+		}
+
+
+		private function cfiedFormat(item:Object, icol:int):String {
+			return CRMtool.cfiedFo(item.cfiled, _cfieldArr);
+		}
+
+
+		private function conditionFormat(item:Object, icol:int):String {
+			return CRMtool.conditionFo(item.condition);
+		}
+
+		[Bindable]
+		public var arrDataList:ArrayCollection;
+		]]>
+	</fx:Script>
+	<mx:HBox horizontalAlign="left" width="100%" height="1%">
+		<mx:LinkButton icon="{ConstsModel._ADDITIONICON}" click="addNewItem()" toolTip="增行"/>
+		<mx:LinkButton icon="{ConstsModel._SUBTRACTIONICON}" click="deleteItem()" toolTip="删行"/>
+		<mx:LinkButton icon="{ConstsModel._CLEARICON}" click="clear()" toolTip="清空"/>
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%">
+		<mx:DataGrid id="dgrd_advanced" width="100%" height="100%" borderStyle="solid" borderColor="#c4cccc"  borderAlpha="1" dataProvider="{_advancedArr}" editable="true">
+			<mx:columns>
+				<mx:DataGridColumn headerText="逻辑" dataField="logic" editorDataField="value" sortable="false" labelFunction="logicFormat" width="100">
+					<mx:itemEditor>
+						<fx:Component>
+							<mx:HBox>
+								<fx:Script>
+									<![CDATA[
+									import mx.collections.ArrayCollection;
+
+									[Bindable]
+									public var logicArr:ArrayCollection = new ArrayCollection([
+										{value: "and", label: "并且"},
+										{value: "or", label: "或者"},
+										{value: "not", label: "否"}
+									]);
+
+									public function get value():Object {
+										var obj:Object = cmb_logic.selectedItem;
+										return obj.value;
+									}
+									]]>
+								</fx:Script>
+								<mx:ComboBox id="cmb_logic" dataProvider="{logicArr}" width="100%">
+								</mx:ComboBox>
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemEditor>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="(" dataField="leftParenthesis" editable="true" editorDataField="value" sortable="false" width="60">
+					<mx:itemEditor>
+						<fx:Component>
+							<mx:HBox>
+								<fx:Script>
+									<![CDATA[
+									import mx.collections.ArrayCollection;
+
+									[Bindable]
+									public var leftParenthesisArr:ArrayCollection = new ArrayCollection([
+										{value: " ", label: " "},
+										{value: "(", label: "("},
+										{value: "((", label: "(("},
+										{value: "(((", label: "((("}
+									]);
+
+									public function get value():Object {
+										var obj:Object = cmb_leftParenthesis.selectedItem;
+										return obj.value;
+									}
+									]]>
+								</fx:Script>
+								<mx:ComboBox id="cmb_leftParenthesis" dataProvider="{leftParenthesisArr}" width="100%" >
+								</mx:ComboBox>
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemEditor>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="字段名称" width="200" dataField="cfiled" editable="true" editorDataField="value" sortable="false" labelFunction="cfiedFormat">
+					<mx:itemEditor>
+						<fx:Component>
+							<mx:HBox>
+								<fx:Script>
+									<![CDATA[
+									import mx.events.ListEvent;
+
+									public function get value():Object {
+										var obj:Object = cmb_cfiled.selectedItem;
+										if (obj != null) {
+											return obj.cfield;
+										}
+										else {
+											return "";
+										}
+									}
+
+									protected function cmb_cfiled_changeHandler(event:ListEvent):void {
+										var obj:Object = cmb_cfiled.selectedItem;
+										if (outerDocument.arrDataList != null) {
+											for (var i:int = 0; i < outerDocument.arrDataList.length; i++) {
+												var arrDataObj:Object = outerDocument.arrDataList.getItemAt(i);
+												if (arrDataObj.cfield == obj.cfield) {
+													outerDocument.singleType = arrDataObj;
+													break;
+												}
+											}
+										}
+									}
+									]]>
+								</fx:Script>
+								<mx:ComboBox id="cmb_cfiled" dataProvider="{outerDocument._cfieldArr}" width="100%" labelField="ccaption" 
+											 change="cmb_cfiled_changeHandler(event)">
+								</mx:ComboBox>
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemEditor>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="条件" dataField="condition" editable="true" editorDataField="value" sortable="false" labelFunction="conditionFormat">
+					<mx:itemEditor>
+						<fx:Component>
+							<mx:HBox>
+								<fx:Script>
+									<![CDATA[
+									import mx.collections.ArrayCollection;
+
+									[Bindable]
+									[Bindable]
+									public var conditionArr:ArrayCollection = new ArrayCollection([
+										{value: "=", label: "等于"},
+										{value: "like", label: "相似"},
+										{value: ">", label: "大于"},
+										{value: "<", label: "小于"},
+										{value: ">=", label: "大于等于"},
+										{value: "<=", label: "小于等于"},
+										{value: "<>", label: "不等于"},
+										{value: "!>", label: "不大于"},
+										{value: "!<", label: "不小于"},
+										{value: " is null ", label: "为空"},
+										{value: " is not null ", label: "不为空"}
+									]);
+
+									public function get value():Object {
+										var obj:Object = cmb_leftParenthesis.selectedItem;
+										return obj.value;
+									}
+									]]>
+								</fx:Script>
+								<mx:ComboBox id="cmb_leftParenthesis" dataProvider="{conditionArr}" width="100%" rowCount="11">
+								</mx:ComboBox>
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemEditor>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn dataField="value" headerText="值">
+					<mx:itemEditor>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center">
+								<mx:HBox id="my" width="100%" height="100%">
+									
+								</mx:HBox>
+								<fx:Script>
+									<![CDATA[
+                                    import mx.controls.DateField;
+                                    import mx.controls.TextInput;
+                                    import mx.events.CalendarLayoutChangeEvent;
+
+                                    import yssoft.comps.frame.module.Basic.BasicDateField;
+
+                                    import yssoft.comps.frame.module.CrmEapTextInput;
+                                    import yssoft.tools.CRMtool;
+
+                                    private var consultti:CrmEapTextInput;
+
+									private var te:TextInput;
+
+									private var _text:String;
+
+									public function get text():String {
+										if (data.cfiled != null && data.cfiled != "") {
+											if (outerDocument.arrDataList == null) {
+												return te.text;
+											}
+											else {
+												if (te != null) {
+													if (data.hasOwnProperty("ifieldtype") && (data.ifieldtype == 1 || data.ifieldtype == 2)) {
+														if (isNaN(Number(te.text))) {
+															return "";
+														}
+													}
+													return te.text;
+												}
+												return data.value;
+											}
+										}
+										else {
+											return "";
+										}
+									}
+
+									public function set text(value:String):void {
+										if (data.cfiled != null && data.cfiled != "") {
+											if (outerDocument.arrDataList == null) {
+												te.text = data.value;
+											}
+											else {
+												consultti.text = data.value;
+											}
+										}
+										_text = value;
+									}
+
+									override public function set data(value:Object):void {
+										if (value.cfiled != null && value.cfiled != "") {
+											if (outerDocument.arrDataList == null) {
+												te = new TextInput();
+												te.percentHeight = 100;
+												te.percentWidth = 100;
+												my.addChild(te);
+											}
+											else {
+												for (var i:int = 0; i < outerDocument.arrDataList.length; i++) {
+													var arrDataObj:Object = outerDocument.arrDataList.getItemAt(i);
+													if (arrDataObj.cfield == value.cfiled) {
+														outerDocument.singleType = arrDataObj;
+                                                        if(arrDataObj.ctype=="datetime"){
+                                                            var dateField:DateField = new BasicDateField();
+                                                            dateField.percentHeight = 100;
+                                                            dateField.percentWidth = 100;
+                                                            dateField.setStyle("borderStyle", "none");
+                                                            dateField.addEventListener(CalendarLayoutChangeEvent.CHANGE, function(e:CalendarLayoutChangeEvent):void{
+                                                                data.value = dateField.text;
+                                                                outerDocument._advancedArr.refresh();
+                                                            })
+
+                                                            if(CRMtool.isStringNotNull(value.value))
+                                                                dateField.text = value.value;
+
+                                                            my.addChild(dateField);
+                                                        }else{
+                                                            consultti = new CrmEapTextInput();
+                                                            consultti.text = value.value;
+                                                            consultti.singleType = arrDataObj;
+                                                            consultti.percentHeight = 100;
+                                                            consultti.percentWidth = 100;
+                                                            consultti.addEventListener("valueChange", valueChange);
+                                                            consultti.addEventListener(FocusEvent.FOCUS_OUT, function(event:FocusEvent):void{
+                                                                if (consultti.singleType.iconsult > 0)
+                                                                    consultti.text = data.value;
+                                                            })
+                                                            my.addChild(consultti);
+
+                                                        }
+                                                        break;
+													}
+												}
+											}
+										}
+										super.data = value;
+									}
+
+									private function valueChange(event:Event):void {
+										if (consultti.consultList.length > 0) {
+											//var cconsultbkfld:String=consultti.singleType.cconsultswfld;
+											text = consultti.consultList.getItemAt(0)[consultti.singleType.cconsultswfld];
+											data.value = consultti.consultList.getItemAt(0)[consultti.singleType.cconsultbkfld];
+											//outerDocument.dgrd_advanced.setFocus();
+										}
+										else if (!consultti.singleType.hasOwnProperty("cfunction")) {
+											data.value = consultti.text;
+										}
+										else {
+											text = "";
+											data.value = "";
+										}
+
+                                        //this.setFocus();
+										outerDocument._advancedArr.refresh();
+									}
+									]]>
+								</fx:Script>
+								
+								<!--<module:CrmEapTextInput id="consultti" singleType="{outerDocument.singleType}" text="{data.value}"/>-->
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemEditor>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn dataField="rightParenthesis" headerText=")" editable="true" editorDataField="value" sortable="false" width="60">
+					<mx:itemEditor>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center">
+								<fx:Script>
+									<![CDATA[
+									import mx.collections.ArrayCollection;
+
+									[Bindable]
+									public var rightParenthesisArr:ArrayCollection = new ArrayCollection([
+										{value: "", label: ""},
+										{value: ")", label: ")"},
+										{value: "))", label: "))"},
+										{value: ")))", label: ")))"}
+									]);
+
+									public function get value():Object {
+										var obj:Object = cmb_rightParenthesis.selectedItem;
+										return obj.value;
+									}
+									]]>
+								</fx:Script>
+								<mx:ComboBox id="cmb_rightParenthesis" dataProvider="{rightParenthesisArr}" width="100%">
+								</mx:ComboBox>
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemEditor>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:HBox>
+</mx:VBox>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 按照角色的父节点查询 -->
+	<select id="get_all_roles" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select iid,ipid,ccode,cname,buse,cmemo from as_role where 1=1 
+		<isNotEmpty prepend="and" property="isT">
+			buse =#buse#
+		</isNotEmpty>
+		order by ccode
+	</select>
+
+    <select id="get_all_use" resultClass="java.util.HashMap">
+        select iid,'-1' ipid,ccode,cname from hr_person where 1=1 and bjobstatus = 1
+    </select>
+	
+	<!-- 新增角色 -->
+	<insert id="add_role" parameterClass="yssoft.vos.AsRoleVo">
+		insert into AS_role(ipid,ccode,cname,buse,cmemo) 
+		values(#ipid#,#ccode#,#cname#,#buse#,#cmemo#)
+	   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 修改角色 -->
+	<update id="update_role" parameterClass="yssoft.vos.AsRoleVo">
+		begin 
+			update AS_role set ipid=#ipid#,cname=#cname#,
+			cmemo=#cmemo# where iid=#iid#;
+			update AS_role set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode))
+			,buse=#buse# 
+			where ccode like #oldCcode#+'%';
+		end;
+	</update>
+	
+	<!-- 删除角色 -->
+	<delete id="remove_role" parameterClass="int">
+		begin
+			delete from AS_role where iid=#iid#;
+			delete from AS_roleuser where irole=#iid#;
+			delete from as_operauth where irole=#iid#;
+			delete from as_dataauth where irole=#iid#;
+		end;
+	</delete>
+	
+	<!-- 按照角色查询 -->
+	<select id="getRoleuser_by_role" parameterClass="int" resultClass="yssoft.vos.AsRoleUserVo">
+		select ru.iid,p.ccode,p.cname,d.cname as departmentName,j.cname as jobName
+		,po.cname as postName,ru.iperson
+		 from AS_roleuser ru 
+		left join HR_person p on ru.iperson = p.iid 
+		left join HR_department d on  p.idepartment = d.iid
+        left join HR_job j on j.iid =p.ijob1 
+		left join HR_post po on po.iid = p.ipost 
+		where irole=#irole# and p.iid!=1
+		order by p.ccode
+	</select>
+	
+	
+	<!-- 删除角色 -->
+	<delete id="remove_roleUser" parameterClass="java.lang.String">
+		delete from AS_roleuser where $sql$
+	</delete>
+	
+	<!-- 查询启用部门 -->
+	<select id="getepartment_by_cname" resultClass="java.util.HashMap" 
+		parameterClass="java.util.HashMap">	
+		select iid, ipid, ccode, cname, ihead, icharge, iperson,ilead,cabbreviation,istatus from HR_department
+		where 1=1 and isnull(istatus,0)!=2
+		<isNotEmpty prepend="and" property="cname">
+			cname  like '%'+#cname#+'%'
+		</isNotEmpty>
+		order by ccode
+	</select>
+
+    <!-- 查询所有部门 -->
+    <select id="getepartment_by_cname_all" resultClass="java.util.HashMap"
+            parameterClass="java.util.HashMap">
+        select iid, ipid, ccode, cname+(case when isnull(istatus,0)=2 then '  [已撤销]' else '' end ) as cname , ihead, icharge, iperson,ilead,cabbreviation,istatus from HR_department
+        where 1=1
+        <isNotEmpty prepend="and" property="cname">
+            cname  like '%'+#cname#+'%'
+        </isNotEmpty>
+        order by ccode
+    </select>
+	
+	<!-- 查询部门下面人员 -->
+	<select id="getUser_by_cname" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">	
+		select iid, ccode, cname, bjobstatus, busestatus, cusecode, cusepassword, idepartment, 
+		ipost, ijob1, ijob2, isex, dbirthday, ieducation, cdiscipline, ctel, cmobile1, cmobile2,
+		cemail,'false' hasSelected from HR_person where idepartment=#idepartment# and 
+		iid not in(select iperson from as_roleuser where irole=#irole#) and iid!=1
+	</select>
+	
+	<!-- 新增角色 -->
+	<insert id="add_roleUser" parameterClass="java.util.HashMap">
+		insert into as_roleuser(irole,iperson) values(#irole#,#iperson#)
+	   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+</sqlMap>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                          xmlns:s="library://ns.adobe.com/flex/spark"
+                          focusEnabled="true" xmlns:module="yssoft.comps.frame.module.*"
+        >
+    <fx:Script>
+		<![CDATA[
+        import yssoft.comps.frame.module.CrmEapDataGrid;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.tools.CRMtool;
+
+        //所有信息
+        [Bindable]
+        private var _singleType:Object;
+
+        public var paramForm:CrmEapRadianVbox;
+        private var isInit:Boolean = false;
+
+        public var subTableAssignment:Function;
+
+        public var constraintFormula:Function;
+
+        public function set singleType(value:Object):void {
+            this.consultti.singleType = value;
+            _singleType = value;
+        }
+
+        public function get singleType():Object {
+            return this._singleType;
+        }
+
+        override public function set data(value:Object):void {
+
+            super.data = value;
+            consultti.paramForm = this.paramForm;
+            consultti.dataObj = value;
+
+            if (isInit) {
+                doDataChange();
+            }
+        }
+
+        protected function csl_textinput_valueChangeHandler(event:Event):void {
+            var cfield:String = dataGridListData.dataField as String;
+            data[cfield + "_Name"] = consultti.text;
+
+            var dg:CrmEapDataGrid = this.owner as CrmEapDataGrid;
+            if (dg)
+                dg.invalidateList();
+
+            if (data.doCalculate) {
+                var cfield:String = dataGridListData.dataField as String;
+                var ctable:String = singleType.ctable;
+
+
+                if (this._singleType.cresfunction != null && this._singleType.cresfunction != "") {
+                    constraintFormula(cfield, ctable, data[cfield], consultti, data, dataGridListData.owner);
+                }
+
+                if (this._singleType.cfunction != null && this._singleType.cfunction != "") {
+                    subTableAssignment(cfield, ctable, data[cfield], data, true, dataGridListData.owner);
+                }
+
+                data.doCalculate = false;
+            }
+        }
+
+        private function consultti_initializationHandler(event:Event):void {
+            isInit = true;
+            doDataChange();
+        }
+
+        private function doDataChange():void {
+            var cfield:String = dataGridListData.dataField as String;
+            if (_singleType.iconsult == null || _singleType.iconsult <= 0) {
+                //consultti.setFocus();
+            } else if (CRMtool.isStringNotNull(data[cfield]) && CRMtool.isStringNull(data[cfield + "_Name"]) && consultti.text != data[cfield]
+                    && data[cfield] > 0) {
+                consultti.text = data[cfield];
+                consultti.onDataChange();
+            }
+        }
+        ]]>
+	</fx:Script>
+    <module:CrmEapTextInput editable="false" id="consultti" width="100%"
+                            valueChange="csl_textinput_valueChangeHandler(event)"
+                            initialization="consultti_initializationHandler(event)" alpha="0"/>
+</s:MXDataGridItemRenderer>

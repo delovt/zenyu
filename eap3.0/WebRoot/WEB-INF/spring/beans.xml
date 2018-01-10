@@ -1,0 +1,849 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	<!--
+		***************************************************朱毛毛begin***************************************************
+	-->
+	<!--
+		<bean id="ibatisTest" class="test.IbatisTest" parent="BaseDao" />
+	-->
+
+	<!-- beans 管理 -->
+	<bean class="yssoft.utils.ApplicationContextContainerUtil" />
+	<!-- 同步金蝶数据 -->
+	<!--
+		<bean id="SynchHandler" class="yssoft.synchData.SynchHandler" />
+	-->
+	<!-- 预览上传的附件文件 -->
+	<bean id="PreviewFile" class="yssoft.preview.PreviewFile">
+		<property name="uploadFilePath" value="${filePath}"></property>
+		<property name="swfFilePath" value="${swfFilePath"></property>
+		<property name="flashPaperPath" value="${flashPaperPath}"></property>
+	</bean>
+	<!-- 系统初始化 -->
+	<bean id="initEnv" class="yssoft.env.InitEnv">
+		<property name="cacheManager" ref="EhcacheCacheManager" />
+	</bean>
+	<!-- 缓存数据操作 -->
+	<bean id="cacheUtil" class="yssoft.utils.CacheUtil" />
+
+	<!-- 用户管理业务层 -->
+	<bean id="iUserService" class="yssoft.impls.UserServiceImple"
+		parent="BaseDao" />
+	<!-- 用户管理视图层 -->
+	<bean id="userView" class="yssoft.views.UserView">
+		<property name="iUserService" ref="iUserService" />
+		<property name="iMenuService" ref="iMenuService" />
+	</bean>
+	<!-- 文件上传，下载 -->
+	<bean id="fileUtil" class="yssoft.utils.FileUtil" parent="BaseDao">
+		<property name="filePath" value="${filePath}" />
+	</bean>
+	<!--站点升级-->
+	<bean id="updateDog" class="yssoft.utils.UpdateDogUtil" parent="BaseDao"/>
+
+	<!-- 业务单据公共附件表（attachment附件） -->
+	<bean id="iAbInvoiceatmService" class="yssoft.impls.AbInvoiceatmServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 表单协同模板 到 真实协同处理 -->
+	<bean id="iCoopHandlerService" class="yssoft.impls.CoopHandlerImpl"
+		parent="BaseDao" />
+	<!-- 协同管理 -->
+	<!--
+		<bean id="iWorkFlowManageService"
+		class="yssoft.impls.WorkFlowManageServiceImpl" parent="BaseDao" />
+	-->
+	<!-- 协同 消息回复-->
+	<bean id="iWFMessage" class="yssoft.impls.WFMessageImpl" parent="BaseDao" />
+
+	<!-- 单据业务处理 -->
+	<bean id="iYwhandler" class="yssoft.impls.YwhandlerImpl" parent="BaseDao" />
+	<!-- 消息，在线人数处理 -->
+	<bean id="iMsgService" class="yssoft.impls.MsgImpl" parent="BaseDao" />
+	<bean id="msgView" class="yssoft.views.MsgView">
+		<property name="iMsgService" ref="iMsgService" />
+		<property name="iUserService" ref="iUserService" />
+	</bean>
+	<!-- 打印 -->
+	<bean id="iPrintService" class="yssoft.impls.PrintImpl" parent="BaseDao" />
+
+	<!-- 工作流处理 -->
+	<bean id="iWorkFlowService" class="yssoft.impls.WorkFlowServiceImpl"
+		parent="BaseDao" />
+	<bean id="workFlowView" class="yssoft.views.WorkFlowView">
+		<property name="iWorkFlowService" ref="iWorkFlowService" />
+		<property name="iInvoicepropertyService" ref="invoicepropertyService" />
+		<property name="iWFMessageService" ref="iWFMessage" />
+		<property name="iAbInvoiceatmService" ref="iAbInvoiceatmService" />
+		<property name="fileUtil" ref="fileUtil" />
+		<property name="iCoopHandlerService" ref="iCoopHandlerService" />
+		<property name="iYwhandler" ref="iYwhandler" />
+		<property name="iPrintService" ref="iPrintService" />
+		<property name="iMsgService" ref="iMsgService" />
+		<property name="iUserService" ref="iUserService" />
+        <property name="iCommonalityService" ref="iCommonalityService" />
+		<!--
+			<property name="iWorkFlowManageService"
+			ref="iWorkFlowManageService"/>
+		-->
+	</bean>
+
+	<!-- 单据 表单 公共属性 -->
+	<bean id="invoicepropertyService" class="yssoft.impls.InvoicepropertyServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 表单工作流 -->
+	<bean id="iFormWorkFlowService" class="yssoft.impls.FormWorkFlowServiceImpl"
+		parent="BaseDao" />
+	<bean id="formWorkFlowView" class="yssoft.views.FormWorkFlowView">
+		<property name="iFormWorkFlowService" ref="iFormWorkFlowService" />
+	</bean>
+
+	<!-- 切面，后置通知 -->
+	<bean id="invoicepropertyAdvice" class="yssoft.aops.InvoicepropertyAop" />
+	<bean id="workFlowViewAop" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>yssoft.services.IWorkFlowService</value>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>invoicepropertyAdvice</value>
+			</list>
+		</property>
+		<property name="target">
+			<ref bean="iWorkFlowService" />
+		</property>
+	</bean>
+
+	<!-- job 配置 -->
+	<!-- 要调用的工作类 -->
+    <!--XZQWJ 2012-11-26  开始:定时扫描加密狗 ***************************************************************-->
+    <bean id="quartzJob" class="yssoft.job.CRMTimer">
+        <property name="sendMessageView" ref="SendMessageView"/>
+    </bean>
+
+    <!-- 定义调用对象和调用对象的方法 -->
+    <bean id="jobtask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+
+        <!--		 调用的类 -->
+        <property name="targetObject">
+            <ref bean="quartzJob"/>
+        </property>
+        <!--		 调用类中的方法 -->
+        <property name="targetMethod">
+            <value>work</value>
+        </property>
+    </bean>
+
+    <!-- 定义触发时间 -->
+    <bean id="doTime"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+
+        <property name="jobDetail">
+            <ref bean="jobtask"/>
+        </property>
+        <!--		 cron表达式 -->
+        <property name="cronExpression">
+            <!--			 每隔10秒执行一次-->
+            <value>0/10 * * * * ?</value>
+        </property>
+    </bean>
+
+    <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序 -->
+    <bean lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="doTime"/>
+            </list>
+        </property>
+    </bean>
+    <!-- 结束：定时扫描加密狗***********************************************************-->
+
+
+
+	<!--
+		********************** 角色管理 add by zhong_jing begin
+		*************************************
+	-->
+	<!-- 角色管理视图层 -->
+	<bean id="roleView" class="yssoft.views.RoleView">
+		<!-- 引用角色业务层 -->
+		<property name="iRoleService" ref="iRoleService" />
+	</bean>
+	<!-- 角色管理业务层 -->
+	<bean id="iRoleService" class="yssoft.impls.RoleServiceImpl"
+		parent="BaseDao" />
+
+
+	<!-- 部门管理视图层 -->
+	<bean id="hrDepartmentView" class="yssoft.views.HrDepartmentView">
+		<!-- 引用部门业务层 -->
+		<property name="iHrDepartmentService" ref="iHrDepartmentService" />
+	</bean>
+	<!-- 部门管理业务层 -->
+	<bean id="iHrDepartmentService" class="yssoft.impls.HrDepartmentServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 组织管理视图层 -->
+	<bean id="hrCorporationView" class="yssoft.views.HrCorporationView">
+		<!-- 引用组织业务层 -->
+		<property name="iHrCorporationService" ref="iHrCorporationService" />
+	</bean>
+	<!-- 组织管理业务层 -->
+	<bean id="iHrCorporationService" class="yssoft.impls.HrCorporationServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 公司管理人员 -->
+	<bean id="corpCmdPersonView" class="yssoft.views.CorpCmdPersonView">
+		<!-- 引用组织业务层 -->
+		<property name="iCorpCmdPersonService" ref="iCorpCmdPersonService" />
+	</bean>
+	<!-- 公司管理人员业务层 -->
+	<bean id="iCorpCmdPersonService" class="yssoft.impls.CorpCmdPersonServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 客户相关,包括资产,联系人-->
+	<bean id="customerView" class="yssoft.views.CustomerView">
+		<property name="iCustomerService" ref="iCustomerService" />
+	</bean>
+	<bean id="iCustomerService" class="yssoft.impls.CustomerImpl"
+		parent="BaseDao" />
+
+
+
+	<!-- OA相关,费用报销-->
+	<bean id="OAView" class="yssoft.views.OAView">
+		<property name="iOAService" ref="iOAService" />
+	</bean>
+	<bean id="iOAService" class="yssoft.impls.OAServiceImpl" parent="BaseDao" />
+
+
+	<!-- 预警设置 -->
+	<bean id="as_warnsetView" class="yssoft.views.As_warnsetView">
+		<property name="iAs_warnsetService" ref="iAs_warnsetService" />
+	</bean>
+	<bean id="iAs_warnsetService" class="yssoft.impls.As_warnsetImpl"
+		parent="BaseDao" />
+
+	<!-- 刘睿添加   用于处理基础档案中的特殊情况 -->
+	<bean id="basisFileView" class="yssoft.views.BasisFileView">
+		<property name="iBasisFileService" ref="iBasisFileService" />
+	</bean>
+	<bean id="iBasisFileService" class="yssoft.impls.BasisFileImpl"
+		parent="BaseDao" />
+
+	<!-- 回款核销 -->
+	<bean id="checkSalesView" class="yssoft.views.CheckSalesView">
+		<property name="iChecksalesService" ref="iChecksalesService" />
+	</bean>
+	<bean id="iChecksalesService" class="yssoft.impls.CheckSalesServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 职务管理视图层 -->
+	<bean id="hRPostclassView" class="yssoft.views.HRPostclassView">
+		<!-- 引用职务业务层 -->
+		<property name="iHrPostclassService" ref="iHrPostclassService" />
+	</bean>
+	<!-- 职务管理业务层 -->
+	<bean id="iHrPostclassService" class="yssoft.impls.HrPostclassServiceImpl"
+		parent="BaseDao" />
+
+
+	<!--列表管理视图层 -->
+	<bean id="acListsetView" class="yssoft.views.AcListsetView">
+		<!-- 引用列表业务层 -->
+		<property name="iAcListsetService" ref="iAcListsetService" />
+	</bean>
+	<!-- 列表业务层 -->
+	<bean id="iAcListsetService" class="yssoft.impls.AcListsetServiceImpl"
+		parent="BaseDao" />
+
+	<!-- XZQWJ添加 用于初始化单据管理界面的分类视图查询 -->
+	<!-- 分类管理视图层 -->
+	<bean id="acClasssetView" class="yssoft.views.AcClasssetView">
+		<!-- 引用分类业务层 -->
+		<property name="iAcClasssetService" ref="iAcClasssetService" />
+	</bean>
+	<!-- 分类视图业务层 -->
+	<bean id="iAcClasssetService" class="yssoft.impls.AcClasssetServiceImpl" parent="BaseDao"/>
+
+
+
+	<!-- 操作权限管理视图层 -->
+	<bean id="asAuthcontentView" class="yssoft.views.AsAuthcontentView">
+		<!-- 引用操作权限业务层 -->
+		<property name="iAsAuthcontentService" ref="iAsAuthcontentService" />
+	</bean>
+	<!-- 操作权限管理业务层 -->
+	<bean id="iAsAuthcontentService" class="yssoft.impls.AsAuthcontentServiceImpl"
+		parent="BaseDao" />
+
+
+	<!-- 人员档案视图层 -->
+	<bean id="hrPersonView" class="yssoft.views.HrPersonView">
+		<!-- 引用部门业务层 -->
+		<property name="iHrPersonService" ref="iHrPersonService" />
+		<!-- 引用列表业务层 -->
+		<property name="iAcListsetService" ref="iAcListsetService" />
+		<property name="iDatadictonaryService" ref="iDatadictonaryService"/>
+		<property name="i_ab_invoiceuserService" ref="i_ab_invoiceuserService" />
+		<property name="optionsService" ref="ipns" />
+	</bean>
+
+	<!-- 人员档案业务层 -->
+	<bean id="iHrPersonService" class="yssoft.impls.HrPersonServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 操作权限分配 -->
+	<bean id="asOperauthView" class="yssoft.views.AsOperauthView">
+		<!-- 引用部门业务层 -->
+		<property name="iRoleService" ref="iRoleService" />
+		<!-- 引用操作权限业务层 -->
+		<property name="iAsAuthcontentService" ref="iAsAuthcontentService" />
+		<!-- 引用操作权限分配业务层 -->
+		<property name="iAsOperauthService" ref="iAsOperauthService" />
+	</bean>
+	<!-- 操作权限分配业务层 -->
+	<bean id="iAsOperauthService" class="yssoft.impls.AsOperauthServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 客户档案视图层 -->
+	<bean id="csCustomerView" class="yssoft.views.CsCustomerView">
+		<!-- 客户档案业务层 -->
+		<property name="iCsCustomerService" ref="iCsCustomerService" />
+	</bean>
+	<!-- 客户档案业务层 -->
+	<bean id="iCsCustomerService" class="yssoft.impls.CsCustomerServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 出差管理视图层 -->
+	<bean id="favoritesView" class="yssoft.views.FavoritesView">
+		<!-- 出差管理业务层 -->
+		<property name="iFavoritesService" ref="iFavoritesService" />
+	</bean>
+	<!-- 出差管理业务层 -->
+	<bean id="iFavoritesService" class="yssoft.impls.FavoritesServiceImpl"
+		parent="BaseDao" />
+	<!--
+		********************** 角色管理 add by zhong_jing
+		end*************************************
+	-->
+
+	<!--
+		********************** add by liu_lei begin
+		*************************************
+	-->
+
+	<!-- 菜单管理视图层 -->
+	<bean id="menuView" class="yssoft.views.MenuView">
+		<!-- 引用菜单业务层 -->
+		<property name="iMenuService" ref="iMenuService" />
+	</bean>
+
+	<!-- 菜单管理业务层 -->
+	<bean id="iMenuService" class="yssoft.impls.MenuServiceImpl"
+		parent="BaseDao" />
+
+	<!-- 参照配置视图层 -->
+	<bean id="consultView" class="yssoft.views.ConsultView">
+		<!-- 引用参照配置业务层 -->
+		<property name="iAcConsultService" ref="iAcConsultService" />
+		<property name="mydao" ref="BaseDao" />
+	</bean>
+
+	<!-- 参照配置业务层 -->
+	<bean id="iAcConsultService" class="yssoft.impls.AcConsultImpl"
+		parent="BaseDao" />
+
+	<!-- 计划视图层  -->
+	<bean id="OA_workplanView" class="yssoft.views.OA_workplanView">
+		<!-- 引用计划业务层 -->
+		<property name="i_OA_workplanService" ref="i_OA_workplanService" />
+	</bean>
+	<!-- 计划业务层  -->
+	<bean id="i_OA_workplanService" class="yssoft.impls.OA_workplanImpl"
+		parent="BaseDao" />
+
+	<!-- 日志视图层  -->
+	<bean id="OA_workdiaryView" class="yssoft.views.OA_workdiaryView">
+		<!-- 引用日志业务层 -->
+		<property name="i_OA_workdiaryService" ref="i_OA_workdiaryService" />
+	</bean>
+	<!-- 日志业务层  -->
+	<bean id="i_OA_workdiaryService" class="yssoft.impls.OA_workdiaryImpl"
+		parent="BaseDao" />
+
+	<!-- 销售线索视图层  -->
+	<bean id="sa_clueView" class="yssoft.views.sa_clueView">
+		<!-- 引用销售线索业务层 -->
+		<property name="i_sa_clueService" ref="i_sa_clueService" />
+	</bean>
+
+	<!-- 销售线索业务层  -->
+	<bean id="i_sa_clueService" class="yssoft.impls.sa_clueImpl"
+		parent="BaseDao" />
+
+	<!-- 合同订单视图层  -->
+	<bean id="sc_contractView" class="yssoft.views.sc_contractView">
+		<!-- 引用合同订单业务层 -->
+		<property name="i_sc_contractService" ref="i_sc_contractService" />
+	</bean>
+
+	<!-- 合同订单业务层  -->
+	<bean id="i_sc_contractService" class="yssoft.impls.sc_contractImpl"
+		parent="BaseDao" />
+
+	<!-- 合同变更单视图层  -->
+	<bean id="sc_ctrchangeView" class="yssoft.views.sc_ctrchangeView">
+		<!-- 引用合同变更单业务层 -->
+		<property name="i_sc_ctrchangeService" ref="i_sc_ctrchangeService" />
+	</bean>
+
+	<!-- 合同变更单业务层  -->
+	<bean id="i_sc_ctrchangeService" class="yssoft.impls.sc_ctrchangeImpl"
+		parent="BaseDao" />
+
+	<!-- 权限分配视图层  -->
+	<bean id="as_operauthView" class="yssoft.views.as_operauthView">
+		<!-- 引用权限分配业务层 -->
+		<property name="i_as_operauthService" ref="i_as_operauthService" />
+	</bean>
+
+	<!-- 权限分配业务层  -->
+	<bean id="i_as_operauthService" class="yssoft.impls.as_operauthImpl"
+		parent="BaseDao" />
+
+	<!-- 销售报价视图层  -->
+	<bean id="sa_quotationView" class="yssoft.views.sa_quotationView">
+		<!-- 引用销售报价业务层 -->
+		<property name="i_sa_quotationService" ref="i_sa_quotationService" />
+	</bean>
+
+	<!-- 销售报价业务层  -->
+	<bean id="i_sa_quotationService" class="yssoft.impls.sa_quotationImpl"
+		parent="BaseDao" />
+
+	<!-- 数据权限分配视图层  -->
+	<bean id="as_dataauthView" class="yssoft.views.as_dataauthView">
+		<!-- 引用数据权限分配业务层 -->
+		<property name="i_as_dataauthService" ref="i_as_dataauthService" />
+	</bean>
+
+	<!-- 数据权限分配业务层  -->
+	<bean id="i_as_dataauthService" class="yssoft.impls.as_dataauthImpl"
+		parent="BaseDao" />
+
+	<!-- 公共单据负责人员表视图层  -->
+	<bean id="ab_invoiceuserView" class="yssoft.views.ab_invoiceuserView">
+		<!-- 引用公共单据负责人员表业务层 -->
+		<property name="i_ab_invoiceuserService" ref="i_ab_invoiceuserService" />
+	</bean>
+
+	<!-- 公共单据负责人员表业务层  -->
+	<bean id="i_ab_invoiceuserService" class="yssoft.impls.ab_invoiceuserImpl"
+		parent="BaseDao" />
+
+	<!-- 权限控制视图层  -->
+	<bean id="funauthView" class="yssoft.views.funauthView">
+		<!-- 引用权限控制业务层 -->
+		<property name="i_funauthService" ref="i_funauthService" />
+	</bean>
+
+	<!-- 权限控制业务层  -->
+	<bean id="i_funauthService" class="yssoft.impls.funauthImpl"
+		parent="BaseDao" />
+
+	<!-- 数据表  -->
+	<bean id="sysobjectsView" class="yssoft.views.sysobjectsView">
+		<!-- 引用纯数据字典业务层 -->
+		<property name="i_sysobjectsService" ref="i_sysobjectsService" />
+	</bean>
+
+	<!-- 数据表  -->
+	<bean id="i_sysobjectsService" class="yssoft.impls.sysobjectsImpl"
+		parent="BaseDao" />
+
+	<!-- 纯数据字典(表)视图层  -->
+	<bean id="AC_tableView" class="yssoft.views.AC_tableView">
+		<!-- 引用纯数据字典业务层 -->
+		<property name="i_AC_tableService" ref="i_AC_tableService" />
+		<property name="i_AC_fieldsService" ref="i_AC_fieldsService" />
+	</bean>
+
+	<!-- 纯数据字典(表)业务层  -->
+	<bean id="i_AC_tableService" class="yssoft.impls.AC_tableImpl"
+		parent="BaseDao" />
+
+	<!-- 纯数据字典(字段)视图层  -->
+	<bean id="AC_fieldsView" class="yssoft.views.AC_fieldsView">
+		<!-- 引用纯数据字典业务层 -->
+		<property name="i_AC_fieldsService" ref="i_AC_fieldsService" />
+	</bean>
+
+	<!-- 纯数据字典(字段)业务层  -->
+	<bean id="i_AC_fieldsService" class="yssoft.impls.AC_fieldsImpl"
+		parent="BaseDao" />
+	<!--
+		********************** add by liu_lei end
+		*************************************
+	-->
+
+	<bean id="funcregeditView" class="yssoft.views.FuncregeditView">
+		<property name="iHandleService" ref="iFuncregeditService"></property>
+		<property name="iDatadictonaryService" ref="iDatadictonaryService"></property>
+	</bean>
+	<bean id="iFuncregeditService" class="yssoft.impls.FuncregeditServiceImpl"
+		parent="BaseDao"></bean>
+
+	<!-- YJ Add 20110815 数据字典管理 -->
+	<bean id="datadictionaryView" class="yssoft.views.DatadictionaryView">
+		<property name="iDatadictonaryService" ref="iDatadictonaryService"></property>
+	</bean>
+	<bean id="iDatadictonaryService" class="yssoft.impls.DatadictionaryViewImpl"
+		parent="BaseDao"></bean>
+
+	<!-- YJ Add 20110818 查询条件定制管理 -->
+	<bean id="acqueryclmView" class="yssoft.views.ACqueryclmView">
+		<property name="iACqueryclmService" ref="iACqueryclmService"></property>
+	</bean>
+	<bean id="iACqueryclmService" class="yssoft.impls.ACqueryclmServiceImpl"
+		parent="BaseDao"></bean>
+
+	<!--	YJ Add 20110822 档案分类-->
+	<bean id="dataclassView" class="yssoft.views.DataClassView">
+		<property name="iDataClassService" ref="iDataClassService"></property>
+		<property name="iHandleService" ref="iFuncregeditService"></property>
+	</bean>
+	<bean id="iDataClassService" class="yssoft.impls.DataClassServiceImpl"
+		parent="BaseDao"></bean>
+
+	<!--	YJ Add 20110822 档案数据-->
+	<bean id="dataView" class="yssoft.views.DataView">
+		<property name="iDataService" ref="iDataService"></property>
+		<property name="iHandleService" ref="iFuncregeditService"></property>
+	</bean>
+	<bean id="iDataService" class="yssoft.impls.DataServiceImpl"
+		parent="BaseDao"></bean>
+
+	<!--	YJ Add 20110828 单据编码-->
+	<bean id="numbersetView" class="yssoft.views.AcNumberSetView">
+		<property name="iAcNumberSetService" ref="iAcNumberSetService"></property>
+	</bean>
+	<bean id="iAcNumberSetService" class="yssoft.impls.AcNumberSetServiceImpl"
+		parent="BaseDao"></bean>
+
+	<!--	YJ Add 20110923 竞争对手-->
+	<bean id="competitorView" class="yssoft.views.MrCompetitorView">
+		<property name="iMrCompetitorService" ref="iMrCompetitorService"></property>
+	</bean>
+	<bean id="iMrCompetitorService" class="yssoft.impls.MrCompetitorServiceImpl"
+		parent="BaseDao"></bean>
+
+	<!--	YJ Add 2011019 打印设置-->
+	<bean id="acprintsetView" class="yssoft.views.AcPrintSetView">
+		<property name="iAcPrintSetService" ref="iAcPrintSetService"></property>
+		<property name="iAcConsultService" ref="iAcConsultService" />
+	</bean>
+	<bean id="iAcPrintSetService" class="yssoft.impls.AcPrintSetServiceImpl"
+		parent="BaseDao"></bean>
+
+	<!--	YJ Add 20110929 -->
+	<bean id="childrenHandleView" class="yssoft.impls.ChildrenDataHandle"
+		parent="BaseDao">
+		<property name="i_ab_invoiceuserService" ref="i_ab_invoiceuserService" />
+	</bean>
+
+	<!--	YJ Add 20111005 -->
+	<bean id="authcontentView" class="yssoft.impls.AsAuthcontentImpl"
+		parent="BaseDao" />
+
+	<!--	YJ Add 20111024 -->
+	<bean id="moreHandleView" class="yssoft.impls.MoreHandleImpl"
+		parent="BaseDao" />
+
+	<!--	YJ Add 20111005 -->
+	<bean id="excelhadleView" class="yssoft.impls.ExcelHandle" />
+
+	<!-- YJ Add 20120528 Word写入操作 -->
+	<bean id="WordHandleImpl" class="yssoft.impls.WordHandle" />
+
+
+	<!-- SDY  20110907 物料and计量单位 -->
+	<bean id="calculateMaterielView" class="yssoft.views.CalculateMaterielView">
+		<property name="iCalculateMaterielService" ref="iCalculateMaterielService"></property>
+	</bean>
+	<bean id="iCalculateMaterielService" class="yssoft.impls.CalculateMaterielService"
+		parent="BaseDao"></bean>
+
+	<!-- SDY 20330920 费用预算-->
+	<bean id="bmBudgetView" class="yssoft.views.BmBudgetView">
+		<property name="ibmBudget" ref="ibmBudget"></property>
+		<property name="ibmBudgets" ref="ibmBudgets"></property>
+		<property name="ibmItem" ref="ibmItem"></property>
+	</bean>
+	<bean id="ibmBudget" class="yssoft.impls.BmBudgetImpl" parent="BaseDao"></bean>
+	<bean id="ibmBudgets" class="yssoft.impls.BmBudgetsImpl" parent="BaseDao"></bean>
+	<bean id="ibmItem" class="yssoft.impls.BmItemImpl" parent="BaseDao"></bean>
+
+	<!-- SDY 业务请款 -->
+	<bean id="oa_paymentView" class="yssoft.views.oa_paymentView">
+		<property name="i_oa_paymentService" ref="i_oa_paymentService"></property>
+	</bean>
+	<bean id="i_oa_paymentService" class="yssoft.impls.oa_paymentImpl"
+		parent="BaseDao"></bean>
+
+	<!-- Sdy 调试服务 -->
+	<bean id="Sr_RequestView" class="yssoft.views.Sr_RequestView">
+		<property name="i_Sr_RequestService" ref="i_Sr_RequestService"></property>
+	</bean>
+	<bean id="i_Sr_RequestService" class="yssoft.impls.Sr_RequestImpl"
+		parent="BaseDao"></bean>
+
+	<!-- SDY 客户反馈 -->
+	<bean id="Cs_feedbackView" class="yssoft.views.Cs_feedbackView">
+		<property name="i_Cs_feedbackService" ref="i_Cs_feedbackService"></property>
+	</bean>
+	<bean id="i_Cs_feedbackService" class="yssoft.impls.Cs_feedbackImpl"
+		parent="BaseDao"></bean>
+
+	<!-- Sdy 客户商机管理 -->
+	<bean id="Sa_opportunityView" class="yssoft.views.Sa_opportunityView">
+		<property name="i_Sa_opportunityService" ref="i_Sa_opportunityService"></property>
+	</bean>
+	<bean id="i_Sa_opportunityService" class="yssoft.impls.Sa_opportunityImpl"
+		parent="BaseDao"></bean>
+	<!--SDY 开票信息表 -->
+	<!--SDY 功能注册 相关对象 -->
+	<bean id="As_fcrelationView" class="yssoft.views.As_fcrelationView">
+		<property name="aS_fcrelationService" ref="aS_fcrelationService"></property>
+	</bean>
+	<bean id="aS_fcrelationService" class="yssoft.impls.AS_fcrelationImpl"
+		parent="BaseDao"></bean>
+
+	<!--SDY 费用报销 -->
+	<bean id="oa_expenseView" class="yssoft.views.oa_expenseView">
+		<property name="i_oa_expensetService" ref="i_oa_expensetService"></property>
+	</bean>
+	<bean id="i_oa_expensetService" class="yssoft.impls.oa_expenseImpl"
+		parent="BaseDao"></bean>
+
+	<!-- SDY 系统操作日志 -->
+	<bean id="AS_operlogView" class="yssoft.views.As_operlogView">
+		<property name="i_As_operlog" ref="i_As_operlog"></property>
+	</bean>
+	<bean id="i_As_operlog" class="yssoft.impls.As_operlogImpl"
+		parent="BaseDao"></bean>
+
+	<!-- SDY 系统公告 -->
+	<bean id="Oa_noticesView" class="yssoft.views.OA_notices">
+		<property name="i_oa_notices" ref="i_oa_notices"></property>
+	</bean>
+	<bean id="i_oa_notices" class="yssoft.impls.Oa_noticesImpl"
+		parent="BaseDao"></bean>
+
+	<!-- 系统选项 sdy -->
+	<bean id="As_optionsView" class="yssoft.views.As_OptionsView">
+		<property name="ipns" ref="ipns" />
+		<property name="iHrPersonService" ref="iHrPersonService" />
+	</bean>
+	<bean id="ipns" class="yssoft.impls.As_OptionsServiceImpl" parent="BaseDao"></bean>
+
+
+	<!--
+		*******************公共框架 add by zhong_jing
+		*****************************
+	-->
+	<bean id="CommonalityView" class="yssoft.views.CommonalityView">
+		<property name="iCommonalityService" ref="iCommonalityService" />
+	</bean>
+	<bean id="iCommonalityService" class="yssoft.impls.CommonalityServiceImpl" parent="BaseDao">
+		<property name="i_ab_invoiceuserService" ref="i_ab_invoiceuserService" />
+        <property name="utilservice" ref="utilService"/>
+	</bean>
+
+	<!--
+		*******************公共框架 add by zhong_jing
+		*****************************
+	-->
+
+
+	<!--
+		*******************单据关系 zmm
+		*******************************************
+	-->
+
+	<bean id="iFormRelationImpl" class="yssoft.impls.FormRelationImpl"
+		parent="BaseDao"></bean>
+	<bean id="FormRelationView" class="yssoft.views.FormRelationView">
+		<property name="iFormRelationService" ref="iFormRelationImpl" />
+	</bean>
+
+	<bean id="iCallCenterService" class="yssoft.impls.CallCenterImpl"
+		parent="BaseDao"></bean>
+	<bean id="CallCenterView" class="yssoft.views.CallCenterView">
+		<property name="iCallCenterService" ref="iCallCenterService"></property>
+		<property name="wfview" ref="workFlowView"></property>
+		<property name="cpsip" value="${cpsip}"></property>
+		<property name="cpsport" value="${cpsport}"></property>
+	</bean>
+
+	<!-- 桌面屏幕 -->
+	<bean id="iExplorerService" class="yssoft.impls.ExplorerImpl"
+		parent="BaseDao" />
+	<bean id="ExplorerView" class="yssoft.views.ExplorerView">
+		<property name="iExplorer" ref="iExplorerService" />
+	</bean>
+
+	<!--
+		*******************单据关系 zmm
+		end****************************************
+	-->
+
+
+	<!--
+		*******************论坛 hzq end****************************************
+	-->
+	<bean id="TwitterTypeServiceImpl" class="yssoft.impls.twitterImpls.TwitterTypeServiceImpl"
+		parent="BaseDao">
+	</bean>
+
+	<bean id="TwitterTypeView" class="yssoft.views.twitterViews.TwitterTypeView">
+		<property name="iTwitterTypeService" ref="TwitterTypeServiceImpl"></property>
+	</bean>
+
+
+
+	<bean id="TwitterServiceImpl" class="yssoft.impls.twitterImpls.TwitterServiceImpl"
+		parent="BaseDao">
+		<property name="iTwitterReplyService" ref="TwitterReplyServiceImpl"></property>
+	</bean>
+
+	<bean id="TwitterReplyServiceImpl" class="yssoft.impls.twitterImpls.TwitterReplyServiceImpl"
+		parent="BaseDao">
+	</bean>
+
+	<bean id="TwitterView" class="yssoft.views.twitterViews.TwitterView">
+		<property name="iTwitterService" ref="TwitterServiceImpl"></property>
+	</bean>
+
+	<!-- 动态生成sql语句 -->
+	<bean id="AcDatadictionaryImpl" class="yssoft.impls.AcDatadictionaryImpl"
+		parent="BaseDao" />
+	<!--
+		*******************论坛 hzq end****************************************
+	-->
+
+	<!-- YJ Add 20120326 客户分配 -->
+	<bean id="AssignCustomerImpl" class="yssoft.impls.AssignCustomerImpl"
+		parent="BaseDao" />
+	<!-- YJ Add 20120326 黄页客户操作 -->
+	<bean id="MrCustomerImpl" class="yssoft.impls.MrCustomerImpl"
+		parent="BaseDao" />
+	<!-- YJ Add 20120405 服务工单操作 -->
+	<bean id="SrBillImpl" class="yssoft.impls.Sr_BillImpl" parent="BaseDao" />
+	<!-- YJ Add 20120405 服务工单操作 -->
+	<bean id="SrFeedBackImpl" class="yssoft.impls.SrFeedBackImpl"
+		parent="BaseDao" />
+	<!-- YJ Add 20120411 批量授权操作 -->
+	<bean id="BatchAccreditImpl" class="yssoft.impls.BatchAccreditImpl"
+		parent="BaseDao" />
+	<!-- YJ Add 20120506 产品BOMS操作 -->
+	<bean id="ProductBomsImpl" class="yssoft.impls.ProductBomsImpl"
+		parent="BaseDao" />
+	<!-- YJ Add 20120822 数据批改操作 -->
+	<bean id="DataCorrectImpl" class="yssoft.impls.DataCorrectImpl"
+		parent="BaseDao" />
+	<!-- YJ Add 20130121 高级授权操作 -->
+	<bean id="AdvancedAuthImpl" class="yssoft.impls.AdvancedAuthImpl"
+		parent="BaseDao" />
+
+	<!-- 公用，验证相关单据内码相关，目前功能验证是否生成过单据， by lr -->
+	<bean id="PublicCheckiinvoiceImpl" class="yssoft.impls.PublicCheckiinvoiceImpl"
+		parent="BaseDao" />
+
+	<bean id="fditemView" class="yssoft.views.FditemView">
+		<!-- 引用角色业务层 -->
+		<property name="iFditemService" ref="iFditemService" />
+	</bean>
+	<!-- 角色管理业务层 -->
+	<bean id="iFditemService" class="yssoft.impls.FditemServiceImpl"
+		parent="BaseDao" />
+
+	<!-- wtf add ProjectImpl-->
+	<bean id="projectImpl" class="yssoft.impls.ProjectImpl" parent="BaseDao"></bean>
+	<bean id="trainApplyActionImpl" class="yssoft.impls.TrainApplyActionImpl"
+		parent="BaseDao" />
+
+	<bean id="forListHandle" class="yssoft.impls.ForListHandle"
+		parent="BaseDao" />
+	<!-- lzx计划指标 -->
+	<bean id="bm_targetView" class="yssoft.views.Bm_targetView" >
+		<property name="ibm_targetService" ref="ibm_targetService"/>
+	</bean>
+	<bean id="ibm_targetService" class="yssoft.impls.Ibm_targetServiceImpl" parent="BaseDao"/>
+	
+<!-- 	lzx发送短信 -->
+	<bean id="SendMessageView"  class="yssoft.views.SendMessageView" >
+		<property name="ias_smssetService" ref="ias_smssetService"/>
+		<property name="iMessageService" ref="iMessageService"/>
+		<property name="sendMessageTelecomImpl" ref="sendMessageTelecomImpl"/>
+		<property name="sendMessageMobileImpl" ref="sendMessageMobileImpl"/>
+	</bean>
+	<!-- 对短信进行增删改 -->
+	<bean id="iMessageService" class="yssoft.impls.MessageServiceImpl" parent="BaseDao"/>
+	<!-- 电信协议 -->
+	<bean id="sendMessageTelecomImpl" class="yssoft.impls.SendMessageTelecomImpl" >
+		<property name="smsClient" ref="smsClient"/>
+	</bean>
+	<!-- 移动协议 -->
+	<bean id="sendMessageMobileImpl" class="yssoft.impls.SendMessageMobileImpl"/>
+	
+	<bean id="smsClient" class="com.linkage.netmsg.NetMsgclient"/>
+	
+	<!-- lzx服务商配置 -->
+	<bean id="as_smssetView" class="yssoft.views.AS_smssetView" >
+		<property name="ias_smssetService" ref="ias_smssetService"/>
+	</bean>
+	<bean id="ias_smssetService" class="yssoft.impls.Ias_smssetServiceImpl" parent="BaseDao"/>
+	
+	<!-- lzx修改物料借用已经归还数量 -->
+    <!-- tb增加取码 -->
+	<bean id="utilView" class="yssoft.views.UtilView" >
+		<property name="utilService" ref="utilService"/>
+        <property name="acnumberSet" ref="iAcNumberSetService"/>
+	</bean>
+	<bean id="utilService" class="yssoft.impls.UtilServiceImpl" parent="BaseDao"/>
+    <!-- 发票管理 -->
+    <bean id="invoiceManager" class="yssoft.invoice.InvoiceManager">
+        <property name="utilService" ref="utilService"/>
+    </bean>
+    <!-- 收费单管理 -->
+    <bean id="chargeManager" class="yssoft.invoice.ChargeManager">
+        <property name="handle" ref="handle"/>
+    </bean>
+    <bean id="handle" class="yssoft.invoice.Handle">
+        <property name="utilService" ref="utilService"/>
+    </bean>
+
+    <!-- 呼叫中心 -->
+    <bean id="ccallowcount" class="yssoft.callcenter.CallCenterUtil">
+        <property name="utilService" ref="utilService"/>
+    </bean>
+
+    <bean id="localnumber" class="yssoft.callcenter.CallCenterUtil" >
+        <property name="utilService" ref="utilService"/>
+    </bean>
+
+    <bean id="lotcommunicate" class="yssoft.communication.CommunicateUtil" >
+        <property name="utilService" ref="utilService"/>
+        <property name="ipns" ref="ipns"/>
+    </bean>
+
+
+</beans>

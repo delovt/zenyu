@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                styleName="coreBorder"
+                verticalGap="0"
+                width="100%" height="100%"
+                paddingTop="-1" paddingLeft="-1" paddingRight="-1"
+                xmlns:side="yssoft.frameui.side.*"
+                creationComplete="vbox1_creationCompleteHandler(event)"
+                xmlns:renders="yssoft.renders.*"
+        >
+    <fx:Metadata>
+        [Event(name="billMoreClick", type="yssoft.frameui.side.MoreClickEvent")]
+    </fx:Metadata>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <mx:VBox id="xthfPanel" width="100%" height="100%" horizontalAlign="right">
+
+            <mx:VBox width="100%" paddingLeft="10" paddingRight="10" height="100%" borderVisible="false"
+                     horizontalScrollPolicy="off" id="replyView">
+
+                <mx:VBox width="100%" height="100%" borderVisible="false" verticalGap="0">
+                    <mx:Repeater id="rep" dataProvider="{XTHFitems}" width="100%">
+                        <renders:ReplyViewRender item="{rep.currentItem}" width="100%"/>
+                    </mx:Repeater>
+                </mx:VBox>
+            </mx:VBox>
+            <mx:VBox id="optHandlerBar" paddingLeft="10" paddingTop="5" paddingBottom="5" width="{reply.width-10}"
+                     visible="false" includeInLayout="false" horizontalAlign="right">
+                <mx:HBox id="hide" paddingLeft="4" paddingTop="4" paddingBottom="4" cornerRadius="4" width="100%"
+                         borderVisible="false">
+                    <s:TextArea id="cmessage" width="100%" height="50"/>
+                </mx:HBox>
+                <mx:HBox width="100%" height="27" verticalAlign="middle" id="optbar" horizontalAlign="right">
+                    <s:CheckBox id="bhide" label="隐藏" visible="false" width="2"/>
+                    <s:CheckBox id="bdiary" label="日记" visible="false" width="2"/>
+                    <!--<s:Spacer width="80%"/>-->
+                    <s:Button id="submitbt" width="50" label="处理" click="submit_clickHandler('cj')"/>
+                    <mx:ButtonBar itemClick="bb_clickHandler(event);" dataProvider="{this.bb_opt_items}" width="135"/>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:VBox>
+        <mx:TitleWindow width="{attachment.width}" height="140" id="pzWindow" showCloseButton="true"
+                        horizontalAlign="center">
+
+            <mx:HBox horizontalAlign="center" paddingTop="15" paddingBottom="10">
+                <mx:TextArea width="{pzWindow.width-20}" height="60" id="cmemo"/>
+            </mx:HBox>
+
+            <mx:HBox horizontalGap="10" horizontalAlign="right" width="100%">
+                <mx:Button label="提交" id="submit"/>
+                <mx:Button label="取消" id="cancel"/>
+            </mx:HBox>
+
+        </mx:TitleWindow>
+
+    </fx:Declarations>
+    <fx:Script source="../BDZS.as"/>
+    <fx:Script source="../BDFJ.as"/>
+    <fx:Script source="../XTHF.as"/>
+    <fx:Script source="../XGGN.as"/>
+    <fx:Script source="../XGRY.as"/>
+    <fx:Script>
+		<![CDATA[
+        import mx.controls.HRule;
+        import mx.events.CloseEvent;
+        import mx.events.ListEvent;
+        import mx.managers.PopUpManager;
+
+        import yssoft.comps.frame.FrameworkVBoxView;
+
+        private var attachmentButtonList:ArrayCollection;
+        private var noteButtonList:ArrayCollection;
+        private var relateFunButtonList:ArrayCollection;
+        private var relatePerButtonList:ArrayCollection;
+
+        private var allPanelList:ArrayCollection;
+        [Bindable]
+        private var allButtonList:ArrayCollection;
+
+        private var _close:Boolean;
+        [Bindable]
+        private var _buttonState:Object;
+
+        public function get parentForm():Object {
+            return _parentForm;
+        }
+
+        public function set parentForm(value:Object):void {
+            _parentForm = value;
+        }
+
+        public function get buttonState():Object {
+            return _buttonState;
+        }
+
+        public function set buttonState(value:Object):void {
+            _buttonState = value;
+        }
+
+
+        private var i:int = 0;
+
+        [Bindable]
+        private var ifuniid:int = 0;	//单据对应的功能注册码
+        [Bindable]
+        private var outifuniid:int = 0;
+        [Bindable]
+        private var curiid:int = 0;	//单据iid
+        [Bindable]
+        private var wfiid:int = 0		//单据对应的工作流的 iid;
+
+        private var _parentForm:Object;
+
+        [Bindable]
+        public var XGRYAllData:ArrayCollection = new ArrayCollection();//和相关人员功能相关的所有数据
+
+        [Bindable]
+        public var hasItem:Boolean = (XTHFitems == null ? false : true);
+
+        //统一调用
+        /**
+         * ifuniid  单据功能注册码
+         * djiid    单据内码
+         * wfiid    单据对应的 工作流内码
+         */
+        public function refreshData(ifuniid:int, djiid:int, wfiid:int = 0, XGGNenable:Boolean = true, refreshOrNot:Boolean = true):void {
+            /* 				if(ifuniid<=0 || djiid<=0){
+             return;
+             } */
+
+            this.ifuniid = ifuniid;
+            this.curiid = djiid;
+            this.wfiid = wfiid;
+            this.outifuniid = outifuniid;
+
+            //更多操作
+            initMoreHandel();
+
+            //业务注释
+            ywzsHandler();
+
+            //表单附件
+            bdfjHandler();
+
+            //系统回复
+
+
+            XTHFHandler();
+
+            XGGNHandler();
+            //相关人员
+            XGRYHandler();
+        }
+
+        //业务注释
+        public function ywzsHandler():void {
+            this.ifuncregedit = ifuniid;
+            this.iinvoice = curiid;
+            this.ywzs_selete_items();
+
+        }
+
+        //表单附件
+        public function bdfjHandler():void {
+            getCoFileList(wfiid, curiid);
+        }
+
+        public function viewItems():void {
+            note.listDatas.removeAll();
+            for each(var item:Object in items) {
+                var obj:Object = {};
+                obj.mainLabel = item.cname;
+                obj.childLabel = item.dmaker;
+                obj.text = item.cmemo;
+                obj.iid = item.iid;
+                obj.imaker = item.imaker;
+                note.listDatas.addItem(obj);
+            }
+        }
+
+        //查看文件列表
+
+
+        //相关人员
+        public function XGRYHandler():void {
+            XGRYinit();
+        }
+
+
+        protected function vbox1_creationCompleteHandler(event:FlexEvent):void {
+            ininPanels();
+            initButtonLists();
+
+            if (!attachment.hasEventListener("mOver")) {
+                attachment.addEventListener("mOver", listenerHandler);
+            }
+            if (!relateFun.hasEventListener("mClick")) {
+                relateFun.addEventListener("mClick", mClickHandler, true);
+            }
+            reply.plusBox.addChild(xthfPanel);
+
+            close = close;
+        }
+
+        public function mClickHandler(evt:MyEvent):void {
+
+            i = resultArr.length;
+
+            if (!this.relateFun.myList) {
+                return;
+            }
+
+            //点修改时相关功能不可用
+            if (!(parentForm.curButtonStatus == "onEdit")) {
+                queryDatadictionary(evt.data.myData);
+            } else {
+                CRMtool.showAlert("修改状态下，相关功能不可用！");
+            }
+            evt.stopImmediatePropagation();
+        }
+
+        public function queryDatadictionary(obj:Object):void {
+            if (!obj)
+                return;
+            if (obj.mainLabel == obj.cname)
+                return;
+
+            AccessUtil.remoteCallJava("FuncregeditDest", "getSingleFuncregeditByID", function (event:ResultEvent):void {
+                getDatadictionary(event, obj);
+            }, obj.ifuncregedit, "获取相关功能中");
+        }
+
+        private function getDatadictionary(event:ResultEvent, obj:Object):void {
+            if (event.result) {
+                var item:Object = obj;
+
+                //获得注册表信息
+                var funcregeditObj:Object = event.result.funcregeditMap as Object;
+
+                if (parentForm.myState != "openRelated") {
+                    parentForm.myState = "openRelated";
+                }
+
+                if (parentForm is FrameCore) {
+                    var frameCore:FrameCore = parentForm as FrameCore;
+                    frameCore.initTitle();
+                    frameCore.lbl_title.label += (" > " + item.cname);
+                    //frameCore.lbl_title.setStyle("color","#ff8100");
+                }
+
+                funcregeditObj.relatedSql = item.relatedSql;
+                funcregeditObj.onBack = onBack;
+                funcregeditObj.relatedObjectsView = this;
+                funcregeditObj.ifuncregedit = int(item.ifuncregedit);
+                funcregeditObj.outifuncregedit = int(item.outifuncregedit);
+                funcregeditObj.parent = this.owner;
+
+                //lr modify
+                var framVboxView:FrameworkVBoxView;
+                framVboxView = new FrameworkVBoxView();
+                framVboxView.percentHeight = 100;
+                framVboxView.percentWidth = 100;
+
+                (parentForm as FrameCore).coreListBox.removeAllChildren();
+                var hRule:HRule = new HRule();
+                hRule.height = 1;
+                hRule.percentWidth = 100;
+                (parentForm as FrameCore).coreListBox.addChild(hRule);
+                (parentForm as FrameCore).coreListBox.addChild(framVboxView);
+
+                framVboxView.itemObj = funcregeditObj;
+                //framVboxView.init();
+            }
+        }
+
+        //lr add
+        /* 			private var i:int = 0;
+         public function refAddLable():void{
+         for each(var obj:Object in resultArr){
+         obj.addcname="";
+         }
+         } */
+
+        //lr add
+        /* 			public function pageBarListener(event:GetPageComplete):void{
+
+         i++;
+         if(i<resultArr.length)
+         queryDatadictionary(resultArr[i],"init");
+
+
+         for each(var item:Object in resultArr){
+         if(item.ifuncregedit==event.ifuncregedit){
+         item.addcname =event.pageNum;
+         }
+         }
+         resultArr.refresh();
+         } */
+
+        //lr modify
+        public function onBack(event:Event):void {
+            (parentForm as FrameCore).lbl_title_clickHandler();
+        }
+
+        public function listenerHandler(evt:MyEvent):void {
+            var mEvt:MouseEvent = evt.data.evt;
+//				Alert.show(mEvt.stageX+"");
+
+        }
+
+        private function ininPanels():void {
+            allPanelList = new ArrayCollection(panelContainer.getChildren());
+        }
+
+        private function initButtonLists():void {
+            allButtonList = new ArrayCollection();
+            allButtonList.addItem({label: "上传", owner: attachment});
+            allButtonList.addItem({label: "评注", owner: note});
+            allButtonList.addItem({label: "移除", owner: note});
+            allButtonList.addItem({label: "刷新", owner: relateFun});
+            allButtonList.addItem({label: "负责", owner: relatePer});
+            allButtonList.addItem({label: "相关", owner: relatePer});
+            allButtonList.addItem({label: "移除", owner: relatePer});
+
+            initButtonListsEvent();
+
+            for each(var panelItem:CorePanelPro in allPanelList) {
+                var panelButtonList:ArrayCollection = new ArrayCollection();
+                for each(var buttonItem:Object in allButtonList) {
+                    if (buttonItem.owner == panelItem)
+                        panelButtonList.addItem(buttonItem);
+                }
+                panelItem.buttonList = panelButtonList;
+            }
+
+        }
+
+        private function initButtonListsEvent():void {
+            for each(var buttonItem:Object in allButtonList) {
+                buttonItem.buttonEventListener = panelButtonCallBack;
+            }
+        }
+
+
+        private function panelButtonCallBack(event:MouseEvent):void {
+            if (buttonState.curButtonStatus == "onNew" || buttonState.curButtonStatus == "onEdit") {
+                CRMtool.tipAlert("单据只有在浏览状态下才可以使用该功能！");
+                return;
+            }
+            var item:Label = event.target as Label;
+            if (item == getPanelButton(attachment, "上传")) {
+                uploadFile();
+            }
+            if (item == getPanelButton(note, "评注")) {
+
+                pzWindow.styleName = "centertop1";
+                pzWindow.addEventListener(CloseEvent.CLOSE, function (evt:CloseEvent):void {
+                    PopUpManager.removePopUp(pzWindow);
+                });
+                pzWindow.title = "评注";
+
+
+                pzWindow.owner = this.parent;
+                PopUpManager.addPopUp(pzWindow, this.parent, false);
+                PopUpManager.centerPopUp(pzWindow);
+                pzWindow.setFocus();
+                cmemo.setFocus();
+                var flag:Boolean = true;
+                cmemo.addEventListener(KeyboardEvent.KEY_DOWN, function (evt:KeyboardEvent):void {
+                    if (flag && evt.keyCode == Keyboard.ENTER) {
+                        ywzs_insert_item();
+                        PopUpManager.removePopUp(pzWindow);
+
+                        flag = false;
+
+                    }
+                });
+                if (flag) {
+                    submit.addEventListener(MouseEvent.CLICK, function (evt:MouseEvent):void {
+                        ywzs_insert_item();
+                        PopUpManager.removePopUp(pzWindow);
+                        flag = false;
+                        evt.stopImmediatePropagation();
+                    });
+
+                }
+                cancel.addEventListener(MouseEvent.CLICK, function (evt:MouseEvent):void {
+                    PopUpManager.removePopUp(pzWindow);
+
+                    evt.stopImmediatePropagation();
+                });
+            }
+            if (item == getPanelButton(note, "移除")) {
+                for each(var obj:Object in note.myList.selectedItems) {
+                    if (obj && obj.hasOwnProperty("iid")) {
+                        ywzs_delete_item(obj.imaker, obj.iid);
+                    }
+                }
+
+
+            }
+            if (item == getPanelButton(relateFun, "刷新")) {
+                refresh();
+            }
+            if (item == getPanelButton(relatePer, "负责")) {
+                addFZXGR('fz');
+            }
+            if (item == getPanelButton(relatePer, "相关")) {
+                addFZXGR('xg');
+            }
+            if (item == getPanelButton(relatePer, "移除")) {
+                XGRYdeleteItem();
+            }
+
+        }
+
+        protected function applicationcontrolbar_clickHandler(event:MouseEvent):void {
+            checkChildrenPanelAllClose();
+            if (close) {
+                close = false;
+            } else {
+                close = true;
+            }
+        }
+
+        public function get close():Boolean {
+            return _close;
+        }
+
+        public function set close(value:Boolean):void {
+            _close = value;
+            closeOrOpenAllPanel(value);
+        }
+
+        private function checkChildrenPanelAllClose():void {
+            for each(var panelItem:CorePanelPro in allPanelList) {
+                if (!panelItem.close) {
+                    _close = false;
+                    return;
+                }
+            }
+            _close = true;
+        }
+
+        private function closeOrOpenAllPanel(flag:Boolean):void {
+            for each(var panelItem:CorePanelPro in allPanelList) {
+                panelItem.close = flag;
+            }
+        }
+
+        private function getPanelButton(owner:CorePanelPro, label:String):Label {
+            for each(var buttonItem:Object in allButtonList) {
+                if (buttonItem.owner == owner && buttonItem.label == label)
+                    return buttonItem.button;
+            }
+            return null;
+        }
+
+        /* public function getXTHFitems():Boolean{
+         if(XTHFitems.length>0){
+         return true;
+         }
+         return false;
+         } */
+
+        protected function panelContainer_rollOverHandler(event:MouseEvent):void {
+            //panelContainer.verticalScrollPolicy = "auto";
+
+        }
+
+        protected function panelContainer_rollOutHandler(event:MouseEvent):void {
+            //panelContainer.verticalScrollPolicy = "off";
+
+        }
+
+        private var initEventFlag:Boolean = true;
+
+        public function initMoreHandel():void {
+            if (!ifuniid > 0)
+                return;
+
+            var isIn:Boolean = false;
+            for each(var item:Object in CRMmodel.billMoreButtonList) {
+                if (item.ifuncregedit == ifuniid) {
+                    isIn = true;
+                    _do(item.list);
+                    break;
+                }
+            }
+
+            if (isIn == false) {
+                AccessUtil.remoteCallJava("AuthcontentDest", "getListByIfuncregedit", function (event:ResultEvent):void {
+                    var resultList:ArrayCollection = event.result as ArrayCollection;
+                    CRMmodel.billMoreButtonList.addItem({ifuncregedit: ifuniid, list: resultList});
+                    _do(resultList);
+                }, ifuniid, null, false);
+            }
+
+            function _do(resultList:ArrayCollection):void {
+                if (ifuncregedit == 394) {  //批量录入发票
+                    var fc:FrameCore = parentForm as FrameCore;
+                    fc.sideBox.enabled = true;
+                    fc.sideBox.initialize();
+                }
+				if (ifuncregedit == 384) { //活动新建客商
+					var fc:FrameCore = parentForm as FrameCore;
+					fc.sideBox.enabled = true;
+					fc.sideBox.initialize();
+				}
+                if (resultList == null)
+                    return;
+
+                if (resultList.length == 0) {
+                    moreHandle.listDatas.removeAll();
+                    moreHandle.visible = false;
+                    moreHandle.includeInLayout = false;
+                    return;
+                }
+
+                for each(var item:Object in resultList) {
+                    item.mainLabel = item.label;
+                    item.cdetail = "";
+                }
+                moreHandle.listDatas.removeAll();
+                moreHandle.listDatas.addAll(resultList);
+
+                if (initEventFlag) {
+                    moreHandle.myList.addEventListener(ListEvent.ITEM_CLICK, function (event:ListEvent):void {
+                        dispatchEvent(new MoreClickEvent(MoreClickEvent.BillMoreClick, moreHandle.myList.selectedItem));
+                    });
+                    initEventFlag = false;
+                }
+            }
+
+
+        }
+        ]]>
+	</fx:Script>
+    <mx:ApplicationControlBar width="100%" height="32" styleName="frameSideAppBar" dock="true"
+                              click="applicationcontrolbar_clickHandler(event)">
+        <s:Image source="@Embed(source='/yssoft/assets/core/head.png')"/>
+        <s:Label text="业务助手"/>
+    </mx:ApplicationControlBar>
+    <mx:VBox paddingTop="-1" id="panelContainer" width="100%" height="100%" backgroundColor="#FFFFFF"
+             horizontalScrollPolicy="off"
+            >
+        <side:CorePanelPro id="moreHandle" title="更多操作"/>
+        <side:CorePanelPro id="reply" title="协同回复{XTHFitems.length==0?'':'('+XTHFitems.length+')'}"/>
+        <side:CorePanelPro id="attachment" title="{'表单附件'+(fileItems.length==0?'':'('+fileItems.length+')')}"/>
+        <side:CorePanelPro id="note" title="表单注释{items.length==0?'':'('+items.length+')'}"/>
+        <side:CorePanelPro id="relateFun" title="关联数据"/>
+        <side:CorePanelPro id="relatePer" title="授权人员" AllData="{XGRYAllData}"/>
+    </mx:VBox>
+</mx:VDividedBox>

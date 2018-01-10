@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*"
+                width="100%" height="100%" creationComplete="initTree()" styleName="contentHDividedBox">
+    <fx:Script>
+		<![CDATA[
+        import spark.components.gridClasses.GridItemRenderer;
+
+        import yssoft.models.ConstsModel;
+        ]]>
+	</fx:Script>
+    <fx:Script source="../../../yssoft/scripts/OperauthViewScript.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <!-- 角色树 -->
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <s:Label id="titile" text="{ConstsModel.ROLE_LABLE}:" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_role" width="100%" height="100%" change="tre_role_changeHandler(event)"
+                                 dataProvider="{roleTreeXml}"/>
+        </mx:HBox>
+    </mx:VBox>
+
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="contentVBox">
+
+        <mx:ApplicationControlBar width="100%" height="32">
+            <comps:LinkBarVboxComps id="lbr_operauth" width="15%" dataProvider="{ConstsModel.AUTHCONTENTLBRITEM}"
+                                    onSaveEvent="onSave(event)" height="25" styleName="contentButtonBar"
+                                    onGiveUpEvent="onGiveUp(event)"
+                                    onEditEvent="onEdit(event)"/>
+            <s:Spacer width="95%"/>
+        </mx:ApplicationControlBar>
+
+        <comps:TreeCompsVbox id="tre_authcontent" width="100%" height="100%" visible="false"
+                             checkBoxStateField="@state" checkBoxCloseItemsOnUnCheck="true"
+                             checkBoxOpenItemsOnCheck="true" checkBoxEnableState="true" checkBoxCascadeOnCheck="true"
+                             checkBoxBgColor="#FFCE2C" itemDClickSelect="false" isShowCheckBox="true" styleName="tree"
+                             checkBoxBgAlpha="5"
+                             checkBoxBgPadding="0" dataProvider="{authcontentTreeXml}"/>
+    </mx:VBox>
+
+
+</mx:HDividedBox>

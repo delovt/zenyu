@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="256" height="425"
+                        xmlns:comps="yssoft.comps.*"
+                        title="部门人员" creationComplete="getDeptPersonInfo()" close="titlewindow1_closeHandler(event)"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.TextArea;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			
+			[Bindable]
+			private var dept_xml:XML = new XML();
+			[Bindable]
+			public var flag:int = 0;
+			
+			private function getDeptPersonInfo():void{
+				AccessUtil.remoteCallJava("MsgDest","getDeptPersonInfo",onInfoCallBack,null,null,false);
+			}
+			
+			private function onInfoCallBack(event:ResultEvent):void{
+				if(event.result){
+					var ret:Object=event.result;
+					dept_xml =new XML(event.result.dept_xml);
+					var person_xml:XML =new XML(event.result.person_xml);
+					for each(var node:XML in dept_xml..node){
+						node.appendChild(person_xml.node.(@idepartment==node.@iid));
+					}
+				}
+			}
+			
+			protected function titlewindow1_closeHandler(event:CloseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			//加入一个IDS 和表面文字一起新增删除。（主页面，初始化，加载表面文字以及隐藏ids）
+			private function vbox_click():void
+			{
+				var xml:XML = this.treeComps.selectedItem as XML;
+				
+				if(null == xml || xml.hasComplexContent()){
+					return;
+				}else{
+					
+					var options:SysOptionView = (this.owner as SysOptionView);
+					var nameStr:String = "【"+xml.@departname+"】"+ xml.@cname+":("+xml.@personid+") 、";
+					var personId:String = xml.@personid+",";
+					
+					if(flag == 1)  
+					{	
+						if(null != options.clientLoginVal && options.clientLoginVal.indexOf(nameStr) != -1){    //如果包含当前 则 删除
+							options.clientLoginVal = options.clientLoginVal.replace(nameStr,"");   //删除表面文字
+							options.clientLoginValIDS = options.clientLoginValIDS.replace(personId,""); 
+						}else{
+							options.clientLoginVal +=  nameStr ;
+							options.clientLoginValIDS +=  personId;
+						}
+					}
+					else if(flag == 2)
+					{	
+						if(null != options.clearTimerVal && options.clearTimerVal.indexOf(nameStr) != -1){
+							options.clearTimerVal = options.clearTimerVal.replace(nameStr,"");  
+							options.clearTimerValIDS = options.clearTimerValIDS.replace(personId,""); 
+						}else{
+							options.clearTimerVal +=  nameStr ;
+							options.clearTimerValIDS +=  personId ;
+						}
+					}
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<basic:layout>
+		<s:VerticalLayout gap="0" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+	</basic:layout>
+	<mx:VBox width="100%" height="100%" verticalGap="0" doubleClick="vbox_click()" doubleClickEnabled="true">
+		<comps:TreeCompsVbox width="100%" height="100%" dataProvider="{dept_xml}"   id="treeComps" />
+	</mx:VBox>
+	
+</basic:BasicTitleWindow>

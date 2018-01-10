@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%" styleName="contentSubHbox" creationComplete="hbox1_creationCompleteHandler(event)">
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.controls.Label;
+        import mx.controls.TextInput;
+        import mx.core.UIComponent;
+        import mx.events.FlexEvent;
+        import mx.utils.ObjectUtil;
+        import mx.utils.StringUtil;
+
+        import yssoft.skins.CrmTextAreaSkin;
+        import yssoft.tools.CRMtool;
+
+        //所有信息
+        private var _singleType:Object = new Object();
+
+
+        public function set singleType(value:Object):void {
+            this._singleType = value;
+        }
+
+        public function get singleType():Object {
+            return this._singleType;
+        }
+
+        //结果集
+        private var _getValue:Function;
+
+        public function set getValue(value:Function):void {
+            this._getValue = value;
+        }
+
+        //结果集
+        private var _setValue:Function;
+
+        public function set setValue(value:Function):void {
+            this._setValue = value;
+        }
+
+        //计算公式
+        public var subTableAssignment:Function;
+
+        public var constraintFormula:Function;
+
+        public var paramForm:Object;
+
+
+        //lr add 保证点到label上，相应的文本框能够获得焦点
+        private function focusOnTextInputByLabel(event:MouseEvent):void {
+            var lableIndex:int = this.getChildIndex(event.currentTarget as DisplayObject);
+            var focusTextInput:CrmEapTextInput = this.getChildAt(lableIndex + 1) as CrmEapTextInput;
+            if (focusTextInput) {
+                focusTextInput.setFocus();
+            }
+        }
+
+        public function init():void {
+            //类型
+            var objecttype:String = _singleType.objecttype;
+            if (objecttype != "Label") {
+                var singleLable:Label = new Label();
+                singleLable.styleName = "contentLabel";
+                singleLable.addEventListener(MouseEvent.CLICK, focusOnTextInputByLabel);
+                //判断是否存在信息
+                if (CRMtool.isStringNotNull(_singleType.ccaption)) {
+                    singleLable.percentWidth = 20;
+                    singleLable.percentHeight = 5;
+                    singleLable.text = _singleType.ccaption;
+
+                    if (Boolean(this._singleType.bunnull)) {
+                        singleLable.setStyle("color", "red");
+                    }
+                }
+                else {
+                    singleLable.width = 0;
+                    singleLable.height = 0;
+                }
+                this.addChild(singleLable);
+            }
+
+            //类型
+            switch (objecttype) {
+                case "Label":
+                {
+                    var lable_cfield:CrmEapLable = new CrmEapLable();
+                    lable_cfield.styleName = "contentLabel";
+                    lable_cfield.name = _singleType.cobjectname;
+                    lable_cfield.percentWidth = 80;
+                    lable_cfield.text = _singleType.ccaption;
+                    this.addChild(lable_cfield);
+                    break;
+                }
+                case "TextInput":
+                {
+                    var tnp_cfield:CrmEapTextInput = new CrmEapTextInput();
+                    tnp_cfield.percentWidth = 80;
+                    tnp_cfield.singleType = _singleType;
+                    tnp_cfield.parentForm = this;
+                    tnp_cfield.name = _singleType.cobjectname;
+                    tnp_cfield.crmName = _singleType.cobjectname;//lr add
+                    tnp_cfield.conditionSqlFunction = this.conditionSqlFunction;
+                    tnp_cfield.paramForm = paramForm as CrmEapRadianVbox;
+                    tnp_cfield.addEventListener("valueChange", textvalueChange);
+                    if((_singleType.cobjectname+"").indexOf("_showpw_")>-1)
+                        tnp_cfield.displayAsPassword = true;
+
+                    tnp_cfield.ctable = _singleType.ctable;
+                    tnp_cfield.cfield = _singleType.cfield;
+                    (paramForm as CrmEapRadianVbox).textInputList.addItem(tnp_cfield);
+                    (paramForm as CrmEapRadianVbox).crmAllInputList.addItem(tnp_cfield);
+                    this.addChild(tnp_cfield);
+                    break;
+                }
+                case "ComboBox":
+                {
+                    var com_cfield:CrmEapComboBox = new CrmEapComboBox();
+                    com_cfield.singleType = _singleType;
+                    com_cfield.percentWidth = 80;
+                    com_cfield.name = _singleType.cobjectname;
+                    com_cfield.conditionSqlFunction = this.conditionSqlFunction;
+                    com_cfield.addEventListener("valueChange", onChange);
+
+                    com_cfield.ctable = _singleType.ctable;
+                    com_cfield.cfield = _singleType.cfield;
+                    (paramForm as CrmEapRadianVbox).crmAllInputList.addItem(com_cfield);
+                    this.addChild(com_cfield);
+                    break;
+                }
+                case "CheckBox":
+                {
+                    var cb_cfield:CrmEapCheckBox = new CrmEapCheckBox();
+                    cb_cfield.singleType = _singleType;
+                    cb_cfield.percentWidth = 80;
+                    cb_cfield.name = _singleType.cobjectname;
+                    cb_cfield.addEventListener(Event.CHANGE, onCheckBoxChange);
+
+                    cb_cfield.ctable = _singleType.ctable;
+                    cb_cfield.cfield = _singleType.cfield;
+                    (paramForm as CrmEapRadianVbox).crmAllInputList.addItem(cb_cfield);
+                    this.addChild(cb_cfield);
+                    break;
+                }
+                case "RadioButtonGroup":
+                {
+                    var rb_cfield:CrmEapRadioButtonGroup = new CrmEapRadioButtonGroup();
+                    rb_cfield.singleType = _singleType;
+                    rb_cfield.name = _singleType.cobjectname;
+                    rb_cfield.conditionSqlFunction = this.conditionSqlFunction;
+                    rb_cfield.ctable = _singleType.ctable;
+                    rb_cfield.cfield = _singleType.cfield;
+                    rb_cfield.parentForm =  paramForm as CrmEapRadianVbox;
+                    (paramForm as CrmEapRadianVbox).crmAllInputList.addItem(rb_cfield);
+                    this.addChild(rb_cfield);
+                    break;
+                }
+            }
+        }
+
+
+        //lr 参照条件 关键点！
+        public function conditionSqlFunction(cconsultconfld:String):String {
+            var cconsultconfldArr:Array = cconsultconfld.split("|");
+
+            var value:Object = this._getValue();
+            var sql:String = "";
+            for (var i:int = 0; i < cconsultconfldArr.length; i++) {
+                var cconsultconfldObj:String = cconsultconfldArr[i] as String;
+                var cconsultconfldObjArr:Array;
+
+                var isLike:Boolean = true;
+
+                if (cconsultconfldObj.search("=") > -1) {
+                    cconsultconfldObjArr = cconsultconfldObj.split("=");
+                    isLike = false;
+                }
+                else if (cconsultconfldObj.search("%") > -1) {
+                    cconsultconfldObjArr = cconsultconfldObj.split("%");
+                    isLike = true;
+                } else {
+                    continue;
+                }
+
+
+                sql += " and " + StringUtil.trim(cconsultconfldObjArr[0]);
+                var cfield:String = StringUtil.trim(cconsultconfldObjArr[1]);
+
+
+                //从非传统子表取值
+                if (cfield && cfield.indexOf(".") != -1) {
+                    var cfield2:String = cfield.substr(cfield.indexOf(".") + 1);
+                    var valueArr:ArrayCollection = value[cfield.substr(0, cfield.indexOf("."))] as ArrayCollection;//特殊子表
+                    if (valueArr && valueArr.length > 0) {
+                        var valueObje:Object = valueArr.getItemAt(0);
+                        if (valueObje[cfield2] == null) {
+                            //lr modify
+                            if (isLike)
+                                sql += " like '%' ";
+                            else
+                                sql += " is null ";
+
+                        }
+                        else {
+                            sql += "='" + valueObje[cfield2] + "'";
+                        }
+                    }//从表头取出值作为条件
+                    else if (value[cfield2] == null) {
+                        if (isLike) {
+                            sql += " like '%' ";
+                        }
+                        else {
+                            sql += " is null ";
+                        }
+                    }
+                    else {
+                        sql += "='" + value[cfield2] + "'";
+                    }
+                }
+                //从表体本身(当前行)取值作为条件
+                else if (value.hasOwnProperty(cfield)) {
+                    if (value[cfield] == null) {
+                        //lr modify
+                        if (isLike)
+                            sql += " like '%' ";
+                        else
+                            sql += " is null ";
+                    }
+                    else {
+                        sql += "='" + value[cfield] + "'";
+                    }
+                }
+                //常量
+                else {
+                    sql += cfield;
+                }
+            }
+            return sql;
+        }
+
+        public function assignment(objArr:ArrayCollection):void {
+            var result:Object = _getValue();
+
+            var objInfo:Object = ObjectUtil.getClassInfo(result);
+            var fieldName:Array = objInfo["properties"] as Array;
+
+            var mainObj:Object = new Object();
+            var mainValue:Object = new Object();
+            mainObj.mainValue = mainValue;
+            for each(var q:QName in fieldName) {
+                if (result[q.localName] is ArrayCollection) {
+                    var valueArr:ArrayCollection = result[q.localName] as ArrayCollection;
+                    mainObj[q.localName] = valueArr;
+                }
+                else {
+                    var value:String = result[q.localName];
+                    mainValue[q.localName] = value;
+                }
+            }
+
+            for (var i:int = 0; i < objArr.length; i++) {
+                var obj:Object = objArr.getItemAt(i);
+                if (CRMtool.isStringNotNull(obj.ctable)) {
+                    var objValue:ArrayCollection = obj.value as ArrayCollection;
+                    data[obj.cfield] = objValue.getItemAt(0)[value];
+                    if (objValue.length > 1) {
+                        objValue.removeItemAt(0);
+                        ArrayCollection(mainObj[obj.ctable]).addAll(objValue);
+                    }
+                }
+                else {
+                    mainObj.mainValue[obj.cfield] = obj.value;
+                }
+            }
+            _setValue(mainObj, 1, 1);
+        }
+
+        private function textvalueChange(event:Event):void {
+            var te:CrmEapTextInput = event.target as CrmEapTextInput;
+            if (te.editable) {
+                if (te.singleType.iconsult != null && int(te.singleType.iconsult) > 0) {
+                    if (null != te.consultList && te.consultList.length > 0) {
+                        if (this._singleType.cresfunction != null && this._singleType.cresfunction != "") {
+                            constraintFormula(te.singleType.cfield, te.singleType.ctable, te.consultList.getItemAt(0)[te.singleType.cconsultbkfld], te);
+                        }
+
+                        if (this._singleType.cfunction != null && this._singleType.cfunction != "") {
+                            if (Boolean(this._singleType.bmain)) {
+                                subTableAssignment(te.singleType.cfield, te.singleType.ctable, te.consultList.getItemAt(0)[te.singleType.cconsultbkfld], null, true);
+                            }
+                            else {
+                                var valueMap:Object = _getValue();
+                                var valueMapArr:ArrayCollection = valueMap[te.singleType.ctable] as ArrayCollection;
+                                if (valueMapArr.length > 0) {
+                                    subTableAssignment(te.singleType.cfield, te.singleType.ctable, te.consultList.getItemAt(0)[te.singleType.cconsultbkfld], valueMapArr.getItemAt(0), true);
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if (this._singleType.cresfunction != null && this._singleType.cresfunction != "") {
+                            constraintFormula(te.singleType.cfield, te.singleType.ctable, te.text, te);
+                        }
+
+                        if (te.singleType.cfunction != null && te.singleType.cfunction != "") {
+                            if (Boolean(this._singleType.bmain)) {
+                                subTableAssignment(te.singleType.cfield, te.singleType.ctable, te.text, null, true);
+                            }
+                            else {
+                                var valueMap:Object = _getValue();
+                                var valueMapArr:ArrayCollection = valueMap[te.singleType.ctable] as ArrayCollection;
+                                if (valueMapArr.length > 0) {
+                                    subTableAssignment(te.singleType.cfield, te.singleType.ctable, te.text, valueMapArr.getItemAt(0), true);
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    if (this._singleType.cresfunction != null && this._singleType.cresfunction != "") {
+                        constraintFormula(te.singleType.cfield, te.singleType.ctable, te.text, te);
+                    }
+
+                    if (this._singleType.cfunction != null && this._singleType.cfunction != "") {
+                        if (Boolean(this._singleType.bmain)) {
+                            subTableAssignment(te.singleType.cfield, te.singleType.ctable, te.text, null, true);
+                        }
+                        else {
+                            var valueMap:Object = _getValue();
+                            var valueMapArr:ArrayCollection = valueMap[te.singleType.ctable] as ArrayCollection;
+                            if (valueMapArr.length > 0) {
+                                subTableAssignment(te.singleType.cfield, te.singleType.ctable, te.text, valueMapArr.getItemAt(0), true);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        private function onChange(event:Event):void {
+            var te:CrmEapComboBox = event.target as CrmEapComboBox;
+            subTableAssignment(te.singleType.cfield, te.singleType.ctable, te.selectedItem[te.singleType.cconsultbkfld], null, true);
+        }
+
+        private function onCheckBoxChange(event:Event):void {
+            var te:CrmEapCheckBox = event.target as CrmEapCheckBox;
+            if (this._singleType.cfunction != null && this._singleType.cfunction != "") {
+                var i:int = 0;
+                if (te.selected)
+                    i = 1;
+                subTableAssignment(te.singleType.cfield, te.singleType.ctable, i, null, true);
+            }
+        }
+
+        protected function hbox1_creationCompleteHandler(event:FlexEvent):void {
+            this.paramForm = this.owner;
+        }
+        ]]>
+	</fx:Script>
+</mx:HBox>

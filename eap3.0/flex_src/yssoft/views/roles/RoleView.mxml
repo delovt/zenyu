@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*"
+                width="100%" height="100%"
+                creationComplete="getRoleTree();" styleName="contentHDividedBox"
+                implements="yssoft.impls.ICRMWindow">
+    <fx:Script>
+		<![CDATA[
+        import spark.components.gridClasses.GridItemRenderer;
+
+        import yssoft.models.ConstsModel;
+        ]]>
+	</fx:Script>
+    <fx:Script source="../../../yssoft/scripts/RoleViewScript.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <!-- 角色树 -->
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <mx:Label text="{ConstsModel.ROLE_LABLE}" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_role" width="100%" height="100%" click="tre_role_changeHandler()"/>
+        </mx:HBox>
+    </mx:VBox>
+
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="centerbg4">
+
+        <mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+            <comps:LinkBarVboxComps horizontalAlign="left" id="lbr_role" dataProvider="{ConstsModel.LBRITEM}"
+                                    onDeleteEvent="onDelete(event)"
+                                    onSaveEvent="onSave(event)" height="25" styleName="contentButtonBar"
+                                    onGiveUpEvent="onGiveUp(event)"
+                                    onNewEvent="onNew(event)" onEditEvent="onEdit(event)"/>
+            <mx:Spacer width="100%"/>
+            <comps:LinkBarVboxComps horizontalAlign="right" id="lbr_roleUser" dataProvider="{ConstsModel.LBRUSERITEM}"
+                                    onSaveEvent="openRoleUserWin(event);" onDeleteEvent="deleteRole();"
+                                    height="25" styleName="LcontentButtonBar"/>
+        </mx:ApplicationControlBar>
+
+        <!-- 角色管理 -->
+        <!--<mx:ApplicationControlBar width="100%" height="2%">-->
+        <!--<mx:Label text="{ConstsModel.ROLE_MESS_LABLE}"/>-->
+        <!--</mx:ApplicationControlBar>-->
+        <mx:VBox width="100%" height="100%" verticalGap="10" styleName="rolecontentHbox">
+
+            <mx:VBox id="myBorder" width="100%" height="30%" styleName="content">
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="{ConstsModel.ROLE_CCODE_LABLE}" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_ccode" height="100%" text="{this.tre_role.selectedItem.@ccode}"
+                                  styleName="contentTextInput"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label text="{ConstsModel.ROLE_CNAME_LABLE}" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_cname"
+                                  text="{this.tre_role.selectedItem.@cname}" styleName="contentTextInput"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="{ConstsModel.ROLE_BUSE_LABLE}" styleName="contentLabel"/>
+                    <!--<mx:TextInput id="buse"  color="#4F9CD4" text="01" height="100%"/>-->
+                    <mx:RadioButtonGroup id="rbtgn_buse"/>
+                    <mx:RadioButton id="rbtn_enabled" label="{ConstsModel.ROLE_ENABLED_LABLE}"
+                                    groupName="rbtgn_buse" value="{ConstsModel.ROLE_ENABLED_VALUE}"
+                                    styleName="contentRadioButton"/>
+                    <mx:RadioButton id="rbtn_disable" label="{ConstsModel.ROLE_DISABLE_LABLE}"
+                                    groupName="rbtgn_buse" value="{ConstsModel.ROLE_DISABLE_VALUE}"
+                                    styleName="contentRadioButton"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="{ConstsModel.ROLE_CMEMO_LABLE}" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_cmemo" height="100%"
+                                  text="{this.tre_role.selectedItem.@cmemo}" styleName="contentTextInput"/>
+                </mx:HBox>
+            </mx:VBox>
+
+            <mx:HBox width="100%" height="100%" borderStyle="solid" borderAlpha="1" borderColor="#c4cccc"
+                     paddingLeft="1" paddingRight="1" paddingBottom="1" paddingTop="1">
+                <comps:CRMDataGridForCheckBox allowMulti="true" width="100%" height="100%"
+                                              dataProvider="{roleUserArr}" id="myDataGrid" horizontalScrollPolicy="auto"
+                                              wordWrap="false" variableRowHeight="false"
+                                              doubleClickEnabled="true">
+
+                </comps:CRMDataGridForCheckBox>
+                <!--<s:DataGrid id="myDataGrid"  alternatingRowColors="[#eff3fa, #ffffff]" width="100%" height="100%" dataProvider="{roleUserArr}" borderVisible="true" borderAlpha="1" borderColor="#c4cccc">
+                        <s:columns>
+                            <s:ArrayList>
+                                <checkBoxColumn:checkBoxColumn mydataGrid="{this.myDataGrid}"/>
+                                <s:GridColumn headerText="全选" dataField="hasSelected" width="40">
+                                    <s:headerRenderer>
+                                        <fx:Component>
+                                            <s:GridItemRenderer>
+                                                <mx:HBox verticalAlign="middle" horizontalAlign="center">
+                                                    <s:CheckBox id="checkMain" selected="{outerDocument.isChecked}" click="{outerDocument.selectAll(checkMain.selected)}"/>
+                                                </mx:HBox>
+                                            </s:GridItemRenderer>
+                                        </fx:Component>
+                                    </s:headerRenderer>
+                                    <s:itemRenderer>
+                                        <fx:Component>
+                                            <s:GridItemRenderer>
+                                                <mx:HBox verticalAlign="middle" horizontalAlign="center">
+                                                    <s:CheckBox id="chackSing" selected="{outerDocument.isChecked}" click="{outerDocument.selectSingle(chackSing.selected,data)}"/>
+                                                </mx:HBox>
+                                            </s:GridItemRenderer>
+                                        </fx:Component>
+                                    </s:itemRenderer>
+                                </s:GridColumn>
+                                <s:GridColumn headerText="编码" dataField="ccode"/>
+                                <s:GridColumn headerText="名称" dataField="cname"/>
+                                <s:GridColumn headerText="部门" dataField="departmentName"/>
+                                <s:GridColumn headerText="主岗" dataField="jobName"/>
+                                <s:GridColumn headerText="职务" dataField="postName"/>
+                            </s:ArrayList>
+                        </s:columns>
+                    </s:DataGrid>-->
+            </mx:HBox>
+
+        </mx:VBox>
+    </mx:VBox>
+
+</mx:HDividedBox>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+        width="100%" height="100%" horizontalAlign="center"
+        backgroundColor="white" backgroundAlpha="0"
+        click="clickHandler(event)" creationComplete="creationCompleteHandler(event)"
+        >
+
+    <mx:Script><![CDATA[
+        import mx.events.FlexEvent;
+
+        import yssoft.comps.frame.module.Basic.BasicMxDataGrid;
+
+        [Bindable]
+        var dg:BasicMxDataGrid;
+
+        private function clickHandler(event:MouseEvent):void {
+            if (event.target == cb)
+                return;
+
+            if(!dg.isMultiColEnable)
+                return;
+
+            cb.selected = !cb.selected;
+            data.checked = !data.checked;
+        }
+
+        private function cb_changeHandler(event:Event):void {
+            data.checked = !data.checked;
+            dg.dispatchEvent(new Event("itemCheckedChangeEvent"));
+        }
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            dg = this.owner as BasicMxDataGrid;
+        }
+        ]]></mx:Script>
+
+    <mx:CheckBox id="cb" selected="{data.checked}" change="cb_changeHandler(event)" enabled="{dg.isMultiColEnable}"/>
+</mx:HBox>

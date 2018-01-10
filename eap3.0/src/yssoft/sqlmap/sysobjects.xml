@@ -1,0 +1,19 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：sysobjects
+ * 创建人：刘磊
+ * 创建时间：2012-2-8 16:40:20
+ * 修改人：刘磊
+ * 修改时间：2012-2-8 16:40:20
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_sysobjects" parameterClass="String" resultClass="java.util.HashMap">
+      select LOWER(A.name) name,B.iid,B.ccaption,B.cmemo from sysobjects A inner join AC_table B on A.name=B.ctable $condition$ order by B.ctable
+     </select>
+</sqlMap>

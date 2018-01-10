@@ -1,0 +1,201 @@
+<ReportSettings version="1.1">
+  <PageHeight>12</PageHeight>
+  <TopMargin>1</TopMargin>
+  <BottomMargin>1</BottomMargin>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>免签考勤单</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>18</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>编号：</Value>
+          <Width>3</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>编号</BindingValue>
+          <Width>6</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>填表时间：</Value>
+          <Width>3</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>填表时间</BindingValue>
+          <Width>9</Width>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+      <Dynamic>true</Dynamic>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>所属部门</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>所属部门</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>员工姓名</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>员工姓名</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.7</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>开始时间</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>开始时间</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>结束时间</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>结束时间</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>免签备注</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>免签备注</BindingValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>免签事项</Value>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>免签事项</BindingValue>
+          <ColSpan>5</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>相关客户</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>相关客户</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>联系人员</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>联系人员</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>联系电话</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>联系电话</BindingValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表1参数.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>6</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+      <TableDetailSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批人</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理人</BindingColumn>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批时间</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理时间</BindingColumn>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批意见</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理意见</BindingColumn>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableDetailSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

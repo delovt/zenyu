@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%" fontFamily="Arial"
+				fontSize="14.5" xmlns:comps="yssoft.comps.*" creationComplete="itemrenderer1_creationCompleteHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.CRMtool;
+			
+			//日期时间敬区间格式
+			public var cdateformat;
+			//时间区间显示值
+			[Bindable]
+			public var clongdate:String;
+			//是否显示第一列
+			[Bindable]
+			public var isShowFirstCol=true;
+			[Bindable]
+			public var item:Object;
+			[Bindable]
+			public var isShowResult=true;
+			
+			public function getShowDate():void
+			{
+				//存在该属性为计划
+				if (null!= item && item.hasOwnProperty("cfeedback"))
+				{
+				   cdateformat="YYYY-MM-DD";
+				}
+				else
+				{
+				   cdateformat="HH:NN:SS";
+				}
+
+				clongdate=CRMtool.convertDateToString(DateFormatter.parseDateString(item.dbegin),cdateformat)+"  到  "+ CRMtool.convertDateToString(DateFormatter.parseDateString(item.dend),cdateformat);
+								
+			}
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				getShowDate();
+				//存在该属性为计划
+				if (item.hasOwnProperty("cfeedback"))
+				{
+				    isShowResult=(item.cfeedback!=null);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox width="100%" height="100%" horizontalGap="0">
+			<mx:VBox height="100%" width="10" visible="{isShowFirstCol}" includeInLayout="{isShowFirstCol}" backgroundColor="{item.backcolor}"/>
+			<mx:VBox width="100%" height="100%" paddingTop="5" paddingBottom="5" paddingLeft="4" paddingRight="1">
+				<mx:HBox width="100%">
+					<mx:Label id="lbl_dbegindend" color="{yssoft.models.ConstsModel.PLAN_DBEGINDEND_COLOR}" text="{clongdate}"/>
+					<mx:Label id="lbl_iassign" color="{item.iassigncolor}" text="{item.assign}" />
+					<mx:Label id="lbl_dassign" color="gray" text="{CRMtool.convertDateToString(DateFormatter.parseDateString(item.dassign),'YYYY-MM-DD')}" />
+					<mx:Label id="txt_icustomer" text="{item.customer}" color="gray"/>
+				</mx:HBox>
+				<mx:VBox width="100%">
+					<mx:Text id="lbl_cdetail" text="{item.cdetail}" width="100%"/>
+					<mx:Text id="lbl_cfeedback" text="{item.cfeedback}" color="{yssoft.models.ConstsModel.PLAN_CFEEDBACK_COLOR}" visible="{isShowResult}" includeInLayout="{isShowResult}" width="100%"/>
+				</mx:VBox>
+			</mx:VBox>
+		</mx:HBox>
+	</mx:VBox>		
+</s:ItemRenderer>

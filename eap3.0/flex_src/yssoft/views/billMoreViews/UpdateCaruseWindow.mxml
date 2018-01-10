@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="归还车辆"
+                        width="650" height="350"
+                        close="onCloseHandler()" updateComplete="setTabIndex()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+
+    <fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var iid:int;
+			private var crmeap:CrmEapRadianVbox;
+			
+			private var ui_ifcar:CrmEapTextInput;
+			
+			public function myinit(iid:int, crmeap:CrmEapRadianVbox):void {
+				var isolution:int = 0;
+				this.iid = iid;
+				this.crmeap = crmeap;
+				isolution = (crmeap.getValue() as Object).isolution;
+			    initConsult();
+				CRMtool.openView(this);
+			}
+			
+			private function initConsult():void {
+				var obj1:Object = new Object();
+				obj1.cobjectname = "ui_ifcar";
+				obj1.ifuncregedit = "465";
+				obj1.cfield = "ifcar";
+				
+				AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+					
+					if (evt.result != null) {
+						var consultObj:Object = evt.result;
+						
+						ui_ifcar = new CrmEapTextInput();
+						ui_ifcar.percentWidth = 100;
+						ui_ifcar.name = "UI_C1";
+						consultObj.cobjectname = "UI_C1";
+						ui_ifcar.singleType = consultObj;
+						ui_ifcar_box.addChild(ui_ifcar);
+						//ui_iresult.editable = false;
+					}
+				}, obj1);
+
+			}
+			
+			override protected function onSubmit():void {
+				var valueObj:Object = crmeap.getValue();
+				valueObj.dfbegin = ui_dfbegin.text;
+				valueObj.dfend = ui_dfend.text;
+				valueObj.fbmileage = ui_fbmileage.text;
+				valueObj.femileage = ui_femileage.text;
+				valueObj.fmileage = ui_fmileage.text;
+				valueObj.fpetrol = ui_fpetrol.text;
+				valueObj.froadtoll = ui_froadtoll.text;
+				valueObj.fotherfee = ui_fotherfee.text;
+				valueObj.cmemo = ui_cmemo.text;
+				if (ui_ifcar && CRMtool.isStringNotNull(ui_ifcar.text)) {
+					valueObj.ifcar = ui_ifcar.consultList.getItemAt(0)[ui_ifcar.singleType.cconsultbkfld];
+				}
+				var upSql:String="update OA_caruse set dfbegin='"+valueObj.dfbegin +"',dfend='"+valueObj.dfend+"',fbmileage="+valueObj.fbmileage+",femileage="+valueObj.femileage+",fmileage="+valueObj.fmileage+"," +
+					" fpetrol="+valueObj.fpetrol+",froadtoll="+valueObj.froadtoll+",fotherfee="+valueObj.fotherfee+",cmemo='"+valueObj.cmemo+"',ifcar="+valueObj.ifcar+"  where iid="+valueObj.iid;
+				AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function ():void {
+					CRMtool.tipAlert("提交成功！");
+					var obj:Object = new Object();
+					obj.mainValue = valueObj;
+					crmeap.setValue(obj, 1, 1);
+					onCloseHandler();
+				}, upSql);
+			}
+			private function setTabIndex():void {
+				CRMtool.setTabIndex(this.myBorder);
+			}
+		
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+    </fx:Declarations>
+    <mx:VBox id="myBorder" width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10"
+             paddingBottom="10" verticalGap="10">
+		<mx:VBox width="100%" height="33" styleName="content" >
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%">
+					<mx:Label text="实际用车时间:" styleName="contentLabel" color="red"/>
+					<comps:DateControl id="ui_dfbegin" isStyle="true" width="100%" borderStyle="none"/>
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="实际归车时间:" styleName="contentLabel" color="red"/>
+					<comps:DateControl id="ui_dfend" isStyle="true" width="100%" borderStyle="none"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="66" styleName="content" >
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%" id="ui_ifcar_box">
+					<mx:Label text="实际用车车牌号:" styleName="contentLabel" color="red"/> 
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="出发前里程:" styleName="contentLabel" color="red"/>
+					<mx:TextInput id="ui_fbmileage" styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+			<mx:HRule width="100%"/>
+			    <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+					<mx:HBox width="50%">
+						<mx:Label text="归车后里程:" styleName="contentLabel" color="red"/>
+						<mx:TextInput id="ui_femileage" styleName="contentTextInput" width="100%"/>
+					</mx:HBox>
+					<mx:HBox width="50%">
+						<mx:Label text="实际用车里程:" styleName="contentLabel" color="red"/>
+						<mx:TextInput id="ui_fmileage" styleName="contentTextInput" width="100%"/>
+					</mx:HBox>
+			    </mx:HBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="66" styleName="content" >
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%">
+					<mx:Label text="途中加油金额:" styleName="contentLabel"/>
+					<mx:TextInput id="ui_fpetrol" styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="途中过路停车费用:" styleName="contentLabel" />
+					<mx:TextInput id="ui_froadtoll" styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+			<mx:HRule width="100%"/>
+		        <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+					<mx:HBox width="50%">
+						<mx:Label text="途中其他费用:" styleName="contentLabel"/>
+						<mx:TextInput id="ui_fotherfee" styleName="contentTextInput" width="100%"/>
+					</mx:HBox>
+		        </mx:HBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="33" styleName="content" >
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="100%">
+					<mx:Label text="途中事务:" styleName="contentLabel"/>
+					<mx:TextInput id="ui_cmemo" styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
+        <mx:HBox verticalAlign="middle" paddingRight="10" paddingLeft="10">
+            <s:Spacer width="455"/>
+            <s:Button label="确定" click="onSubmit()"/>
+            <s:Button label="放弃" click="onCloseHandler()"/>
+        </mx:HBox>
+    </mx:VBox>
+</basic:BasicTitleWindow>

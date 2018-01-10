@@ -1,0 +1,74 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+    <!--最终传入注册表、用户变量后获得的完整操作权限语句-->
+	<select id="get_funoperauth" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+       select right(ccode,2) as operid,ccode,ccaption,(case when a.ccode=b.copercode then 1 else 0 end) benable from
+       (select ccode,ccaption,0 benable from as_authcontent where  left(ccode,charindex('.',ccode)-1)=#ifuncregedit# and buse=1) a
+       left join
+       (select distinct copercode from as_operauth where irole in (select irole from as_roleuser where iperson=#iperson#)) b
+       on a.ccode=b.copercode
+	</select>
+    <!--lc add 2017年8月4日 最终传入注册表、用户变量后获得的完整操作权限语句-->
+    <select id="get_funoperauthPerson" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select right(ccode,2) as operid,ccode,ccaption,(case when a.ccode=b.copercode then 1 else 0 end) benable from
+        (select ccode,ccaption,0 benable from as_authcontent where  left(ccode,charindex('.',ccode)-1) = #ifuncregedit# and buse=1) a
+        left join (select distinct copercode from as_opersauths where iperson = #iperson#) b
+        on a.ccode=b.copercode
+    </select>
+    <!--最终传入注册表、用户变量后获得的完整数据权限语句-->
+    <select id="get_fundataauth" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select * from
+        (
+        select 1 as sortid,as_funcregedit.iid,as_funcregedit.ctable,max(substring(cdatavalue,1,1))+max(substring(cdatavalue,2,1))+max(substring(cdatavalue,3,1))+max(substring(cdatavalue,4,1))
+        +max(substring(cdatavalue,5,1))+max(substring(cdatavalue,6,1)) as dataauth from as_dataauth
+        inner join  as_funcregedit on as_dataauth.ifuncregedit=as_funcregedit.iid and (as_funcregedit.bdataauth1=1 or as_funcregedit.bdataauth2=1)
+        where as_dataauth.ifuncregedit=#ifuncregedit# and irole in (select irole from as_roleuser where iperson=#iperson#)
+        group by as_funcregedit.iid,as_funcregedit.ctable
+        union
+        select 2 as sortid,as_funcregedit.iid,as_funcregedit.ctable,max(substring(cdatavalue,1,1))+max(substring(cdatavalue,2,1))+max(substring(cdatavalue,3,1))+max(substring(cdatavalue,4,1))
+        +max(substring(cdatavalue,5,1))+max(substring(cdatavalue,6,1)) as dataauth from as_dataauth
+        inner join  as_funcregedit on as_dataauth.ifuncregedit=as_funcregedit.iid and (as_funcregedit.bdataauth1=1 or as_funcregedit.bdataauth2=1)
+        where as_dataauth.ifuncregedit=44 and irole in (select irole from as_roleuser where iperson=#iperson#)
+        group by as_funcregedit.iid,as_funcregedit.ctable
+        ) A order by sortid
+    </select>
+    <!--lc add 2017年8月7日10:32:56最终传入注册表、用户变量后获得的完整人员数据权限语句-->
+    <select id="get_fundataauths" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select * from (
+        select 1 as sortid,as_funcregedit.iid,as_funcregedit.ctable,max(substring(cdatavalue,1,1))+max(substring(cdatavalue,2,1))+max(substring(cdatavalue,3,1))
+        +max(substring(cdatavalue,4,1))+max(substring(cdatavalue,5,1))+max(substring(cdatavalue,6,1)) as dataauth from as_dataauths
+        inner join  as_funcregedit on as_dataauths.ifuncregedit=as_funcregedit.iid and (as_funcregedit.bdataauth1=1 or as_funcregedit.bdataauth2=1)
+        where as_dataauths.ifuncregedit=#ifuncregedit# and iperson=#iperson#
+        group by as_funcregedit.iid,as_funcregedit.ctable
+        union
+        select 2 as sortid,as_funcregedit.iid,as_funcregedit.ctable,max(substring(cdatavalue,1,1))+max(substring(cdatavalue,2,1))+max(substring(cdatavalue,3,1))
+        +max(substring(cdatavalue,4,1))+max(substring(cdatavalue,5,1))+max(substring(cdatavalue,6,1)) as dataauth from as_dataauths
+        inner join  as_funcregedit on as_dataauths.ifuncregedit=as_funcregedit.iid and (as_funcregedit.bdataauth1=1 or as_funcregedit.bdataauth2=1)
+        where as_dataauths.ifuncregedit=44 and iperson=#iperson#
+        group by as_funcregedit.iid,as_funcregedit.ctable
+        ) A order by sortid
+    </select>
+	<!--根据功能注册内码获得相关注册内码-->
+	<select id="get_ifuncregedit" parameterClass="int" resultClass="int">
+	       select ifuncregedit from as_funcregedit where iid=#iid#
+	</select>
+	<!--根据功能注册内码、单据内码控制在工作流上的单据是否可以修改-->
+	<select id="get_editinvoice" parameterClass="java.util.HashMap" resultClass="int">
+	       select count(iid) as ct from oa_invoice where iid = 
+           (
+               select distinct ioainvoice from wf_node where ioainvoice = (select distinct iid from oa_invoice where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice# )  
+               and (istatus=4 or istatus=5)
+           ) 
+           or iid =
+           (
+               select distinct ioainvoice from wf_nodes where ioainvoice = (select distinct iid from oa_invoice where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice# ) 
+               and (istatus=4 or istatus=5)
+           )
+	</select>
+	<!--根据功能注册内码、单据内码控制在工作流上的单据是否可以删除-->
+	<select id="get_delinvoice" parameterClass="java.util.HashMap" resultClass="int">
+	       select count(iid) as ct from oa_invoice  where  ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice#
+	</select>
+	<!--动态执行SQL获得记录集-->
+	<select id="get_sqldata" parameterClass="String" resultClass="java.util.HashMap" remapResults="true">$sql$</select>
+</sqlMap>

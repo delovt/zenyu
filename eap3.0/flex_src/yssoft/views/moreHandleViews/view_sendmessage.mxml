@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="774" height="524"
+                        title="短信群发" close="onCloseHandler()" creationComplete="onIni()" xmlns:comps="yssoft.comps.*"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.controls.dataGridClasses.DataGridColumn;
+        import mx.events.ItemClickEvent;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.rpc.soap.WebService;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.vos.AbSmsVo;
+
+        [Bindable]
+        private var zcitem:Object = null;//存放政采接口
+
+        private var smsSetList:ArrayCollection;
+
+        [Bindable]
+        private var bb_item:ArrayCollection = new ArrayCollection(
+                [
+                    {label: "删除接受人", name: "deletePeople"    },
+                    {label: "暂存待发", name: "save"    },
+                    {label: "刷新", name: "refresh" }
+                ]
+        );
+
+        [Bindable]
+        private var selectedNum:int = 0;
+
+        [Bindable]
+        private var allOrMine:String = "mine";
+
+        [Bindable]
+        private var hrPersons:ArrayCollection = new ArrayCollection();
+
+        private var _dgDataSet:ArrayCollection;//数据集
+
+        [Bindable]
+        public var dgDataSetForSearch:ArrayCollection = new ArrayCollection();
+
+        public function set dgDataSet(value:ArrayCollection):void {
+
+            this._dgDataSet = value;
+
+        }
+
+        [Bindable]
+        private var _ifuncregedit:int;
+
+        [Bindable]
+        public function get ifuncregedit():int {
+            return _ifuncregedit;
+        }
+
+        //单据注册码
+
+        public function set ifuncregedit(value:int):void {
+
+            this._ifuncregedit = value;
+
+        }
+
+        protected function onIni():void {
+
+            for (var i:int; i < this._dgDataSet.length; i++) {
+                this.dgDataSetForSearch.addItem(this._dgDataSet[i]);
+            }
+            hrPersons.removeAll();
+            var sql:String = "select iid,cname from hr_person";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                hrPersons = event.result as ArrayCollection;
+                onIniDataGrid();
+            }, sql);
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                smsSetList = event.result as ArrayCollection;
+                if (smsSetList != null) {
+                    for each(var item:Object in smsSetList) {
+                        if (item.cname + "" == "4" && CRMtool.isStringNotNull(item.caddress) && CRMtool.isStringNotNull(item.cuser)
+                                && CRMtool.isStringNotNull(item.cpassword))
+                            zcitem = item;
+                    }
+                }
+            }, "select * from as_smsset");
+        }
+
+        //初始化DataGrid的相关信息
+        private function onIniDataGrid():void {
+            dglist.dataProvider = this.dgDataSetForSearch;
+            selectedNum = dglist.getSelectRows().length;
+        }
+
+
+        //删除事件
+        protected function onDel():void {
+            //if(this.dglist.selectedIndex == -1){CRMtool.tipAlert("请选择删除的数据!");return;}
+            var arrc:ArrayCollection = this.dglist.getSelectRows();
+            if (arrc.length < 1) {
+                CRMtool.tipAlert("请选择删除的数据!");
+                return;
+            }
+            var arrForDel:ArrayCollection = new ArrayCollection();
+            arrForDel.removeAll();
+            for (var i:int = 0; i < arrc.length; i++) {
+                this.dgDataSetForSearch.removeItemAt(this.dgDataSetForSearch.getItemIndex(arrc[i]));
+                if (arrc[i].iid != -1) {
+                    var abSmsVo:AbSmsVo = new AbSmsVo();
+                    abSmsVo.iid = arrc[i].iid;
+                    arrForDel.addItem(abSmsVo);
+                }
+            }
+            AccessUtil.remoteCallJava("SendMessageDest", "deleteMessage", null, arrForDel);
+        }
+
+        protected function dglist_clickHandler(event:MouseEvent):void {
+            // TODO Auto-generated method stub
+            this.selectedNum = dglist.getSelectRows().length;
+        }
+
+        private function send_clickHandler():void {
+            var arrCo:ArrayCollection = dglist.getSelectRows();
+            var abSmsVos:ArrayCollection = new ArrayCollection();
+            var names:String = "";
+            if (arrCo.length == 0) {
+                CRMtool.tipAlert("请选择要发送的人员");
+                return;
+            }
+            abSmsVos.removeAll();
+            for each(var item:Object in arrCo) {
+                if (String(item.cdetail).length > 250 || this.cdetail.text.length > 250) {
+                    CRMtool.tipAlert("短信内容不能超过250个字！");
+                    return;
+                }
+                var abSmsVo:AbSmsVo = new AbSmsVo();
+                abSmsVo.iid = item.iid == null ? -1 : item.iid;
+                abSmsVo.ifuncregedit = item.ifuncregedit;
+                abSmsVo.ctitle = item.ctitle;
+                abSmsVo.cpsnname = item.cpsnname;
+                abSmsVo.cmobile = item.cmobile;
+                abSmsVo.ccusname = item.ccusname == null ? "" : item.ccusname;
+                abSmsVo.imaker = CRMmodel.userId;
+                abSmsVo.cdetail = this.cdetail.text.length == 0 ? item.cdetail : this.cdetail.text;
+                abSmsVo.istate = 0;
+                if (CRMtool.isStringNull(item.cmobile)) {
+                    names += item.cpsnname + ",";
+
+                    CRMtool.tipAlert((CRMtool.isStringNotNull(item.cpsnname) ? item.cpsnname + '的' : '') + "手机号为空，不进行发送！");
+                } else {
+                    abSmsVos.addItem(abSmsVo);
+                }
+            }
+            /*names = names.substring(0, names.length-1);
+             if(names.length > 0) {
+             CRMtool.tipAlert(names + "的手机号为空，不进行发送！");
+             }	*/
+
+            if (abSmsVos.length > 0) {
+                if (isZC.selected) {
+                    sendByZC(abSmsVos, cdetail.text);
+                } else {
+                    AccessUtil.remoteCallJava("SendMessageDest", "SendMessage", sendBack, abSmsVos);
+                }
+            }
+        }
+
+        private function sendBack(e:ResultEvent):void {
+            var resultStr:String = e.result as String;
+            if (resultStr == "success") {
+                CRMtool.tipAlert("发送成功！");
+            } else if (resultStr == "fail") {
+                CRMtool.tipAlert("发送失败！");
+            } else if (resultStr == "noConnect") {
+                CRMtool.tipAlert("请先进行短信配置，再发送短信！");
+            }
+
+        }
+
+        public function refresh():void {
+            var param:Object = new Object();
+            param.ifuncregedit = _ifuncregedit;
+            param.allOrMine = allOrMine;
+            param.imaker = CRMmodel.userId;
+            AccessUtil.remoteCallJava("SendMessageDest", "getMessage", function (evt:ResultEvent):void {
+                var arrResult:ArrayCollection = evt.result as ArrayCollection;
+                dgDataSetForSearch = arrResult;
+                dglist.dataProvider = dgDataSetForSearch;
+                dglist.invalidateDisplayList();
+            }, param);
+        }
+
+        protected function button1_clickHandler(event:MouseEvent):void {
+            // TODO Auto-generated method stub
+            var arr:ArrayCollection = dglist.getSelectRows();
+            if (arr.length < 1) {
+                CRMtool.tipAlert("请选择要保存短信的人员");
+                return;
+            }
+            var ta:String = this.cdetail.text;
+            for each(var item:Object in arr) {
+                item.cdetail = ta;
+            }
+            dglist.dataProvider = dgDataSetForSearch;
+            dglist.invalidateDisplayList();
+        }
+
+        private function getDateText(item:Object, column:DataGridColumn):String {
+            var strdate:String;
+            if (item[column.dataField] != null) {
+                strdate = item[column.dataField].toString();
+                if (strdate.length > 10) {
+                    return CRMtool.convertDateToString(item[column.dataField], "YYYY-MM-DD");
+                }
+                else {
+                    return strdate;
+                }
+            }
+            else {
+                return null;
+            }
+        }
+
+        private function getIstate(item:Object, column:DataGridColumn):String {
+            var istate:String;
+            if (item[column.dataField] != null) {
+                istate = item[column.dataField].toString();
+                if (istate == "0") {
+                    return "待发";
+                } else {
+                    return "已发";
+                }
+            }
+            else {
+                return null;
+            }
+        }
+
+        protected function importButton_clickHandler(event:MouseEvent):void {
+            // TODO Auto-generated method stub
+            var importMessageView:ImportMessageView = new ImportMessageView();
+            importMessageView.myinit(this);
+            CRMtool.openView(importMessageView);
+        }
+
+        protected function justSave():void {
+            var arr:ArrayCollection = dglist.getSelectRows();
+            var abSmsVos:ArrayCollection = new ArrayCollection();
+            if (arr.length < 1) {
+                CRMtool.tipAlert("请选择要保存短信的人员！");
+                return;
+            }
+            if (this.cdetail.text == "" || this.cdetail.text == null) {
+                CRMtool.tipAlert("请输入短信内容！");
+                return;
+            } else if (this.cdetail.text.length > 250) {
+                CRMtool.tipAlert("短信内容不能超过250个字！");
+                return;
+            }
+            abSmsVos.removeAll();
+            for each(var item:Object in arr) {
+                var abSmsVo:AbSmsVo = new AbSmsVo();
+                abSmsVo.ifuncregedit = item.ifuncregedit;
+                abSmsVo.ctitle = item.ctitle;
+                abSmsVo.cpsnname = item.cpsnname;
+                abSmsVo.cmobile = item.cmobile;
+                abSmsVo.ccusname = item.ccusname == null ? "" : item.ccusname;
+                abSmsVo.imaker = CRMmodel.userId;
+                abSmsVo.cdetail = this.cdetail.text == null ? "" : this.cdetail.text;
+                abSmsVo.istate = 0;
+                abSmsVos.addItem(abSmsVo);
+            }
+            AccessUtil.remoteCallJava("SendMessageDest", "addMessage", function (evt:ResultEvent):void {
+                var strResult:String = evt.result as String;
+                if (strResult == "success") {
+                    CRMtool.tipAlert("保存成功！");
+                } else {
+                    CRMtool.tipAlert("保存失败！");
+                }
+            }, abSmsVos);
+        }
+
+        protected function buttonbar1_itemClickHandler(event:ItemClickEvent):void {
+            // TODO Auto-generated method stub
+            if (event.index == 0) {
+                onDel();
+            } else if (event.index == 1) {
+                justSave();
+            } else if (event.index == 2) {
+                refresh();
+            }
+        }
+
+        private function getImaker(item:Object, column:DataGridColumn):String {
+            var result:String = "";
+            var imaker:String = "";
+            if (item[column.dataField] != null) {
+                imaker = item[column.dataField].toString();
+                for each(var it:Object in hrPersons) {
+                    if (it.iid.toString() == imaker) {
+                        result = it.cname.toString();
+                        break;
+                    }
+                }
+                return result;
+            }
+            else {
+                return null;
+            }
+        }
+
+        protected function sendByZC(abSmsVos:ArrayCollection, cdetail:String):void {
+
+            if (CRMtool.isStringNull(cdetail)) {
+                CRMtool.showAlert("请填写短信内容。");
+                return;
+            }
+
+            var s:String = "";
+            var i:int = 1;
+            for each(var item:Object in abSmsVos) {
+                if (i > 1) {
+                    s += ",";
+                }
+                s += item.cmobile;
+                i++;
+            }
+
+            //============================发送对webService的请求==========================
+            var service:WebService = new WebService();
+            service.loadWSDL(zcitem.caddress);
+            service.addEventListener(ResultEvent.RESULT, onResult);
+            service.addEventListener(FaultEvent.FAULT, onFault);
+            service.MongateCsSpSendSmsNew(
+                    zcitem.cuser,
+                    zcitem.cpassword,
+                    s,
+                    cdetail,
+                    abSmsVos.length,
+                    zcitem.cport,
+                    '', '', '', '', '', 1, '',
+                    '', '', 1);
+
+            addAndUpdateSMS(abSmsVos);
+        }
+
+        private function addAndUpdateSMS(abSmsVos:ArrayCollection):void {
+            var addList:ArrayCollection = new ArrayCollection();
+            var updateList:ArrayCollection = new ArrayCollection();
+
+            for each(var item:AbSmsVo in abSmsVos) {
+                if (item.iid == -1) {
+                    item.istate = 1;
+                    addList.addItem(item);
+                } else {
+                    updateList.addItem(item);
+                }
+            }
+
+            if (addList.length > 0)
+                AccessUtil.remoteCallJava("SendMessageDest", "addMessage", null, addList);
+            if (updateList.length > 0)
+                AccessUtil.remoteCallJava("SendMessageDest", "updateMessage", null, updateList);
+        }
+
+        internal function onResult(evt:ResultEvent):void {
+            if (parseInt(evt.result.toString()) == -1) {
+                CRMtool.showAlert("参数为空。信息、电话号码等有空指针，登陆失败!");
+            }
+            if (parseInt(evt.result.toString()) == -2) {
+                CRMtool.showAlert("电话号码个数超过1000!");
+            }
+            if (parseInt(evt.result.toString()) == -10) {
+                CRMtool.showAlert("申请缓存空间失败!");
+            }
+            if (parseInt(evt.result.toString()) == -11) {
+                CRMtool.showAlert("电话号码中有非数字字符!");
+
+            }
+            if (parseInt(evt.result.toString()) == -12) {
+                CRMtool.showAlert("有异常电话号码!");
+
+            }
+            if (parseInt(evt.result.toString()) == -13) {
+                CRMtool.showAlert("电话号码个数与实际个数不相等!");
+
+            }
+            if (parseInt(evt.result.toString()) == -14) {
+                CRMtool.showAlert("实际号码个数超过1000!");
+
+            }
+            if (parseInt(evt.result.toString()) == -101) {
+                CRMtool.showAlert("发送消息等待超时！");
+
+            }
+            if (parseInt(evt.result.toString()) == -102) {
+                CRMtool.showAlert("发送或接收消息失败!");
+
+            }
+            if (parseInt(evt.result.toString()) == -103) {
+                CRMtool.showAlert("接收消息超时!");
+
+            }
+            if (parseInt(evt.result.toString()) == -200) {
+                CRMtool.showAlert("其他错误!");
+
+            }
+            if (parseInt(evt.result.toString()) == -999) {
+                CRMtool.showAlert("web服务器内部错误!");
+            }
+            else {
+                CRMtool.showAlert("短信发送成功!");
+            }
+        }
+
+        internal function onFault(evt:FaultEvent):void {
+            CRMtool.showAlert("发送失败：" + evt.fault.faultDetail.toString());
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!--<s:RadioButtonGroup id="rbgPerson"/>-->
+    </fx:Declarations>
+    <mx:VBox x="0" y="0" width="100%" height="488" verticalGap="0">
+
+
+        <mx:ApplicationControlBar styleName="consultTree" cornerRadius="0" id="menuBar2" x="0" y="0" width="100%"
+                                  height="32" dock="true">
+            <mx:ButtonBar dataProvider="{bb_item}" itemClick="buttonbar1_itemClickHandler(event)">
+            </mx:ButtonBar>
+            <s:Button id="importButton" click="importButton_clickHandler(event)" label="外部待发导入"/>
+            <s:Spacer width="100%"/>
+            <s:RadioButton id="RBmine" label="我的待发" selected="{allOrMine == 'mine'}" click="{allOrMine = 'mine'}"/>
+            <s:RadioButton id="RBall" label="全部待发" selected="{allOrMine == 'all'}" click="{allOrMine = 'all'}"/>
+        </mx:ApplicationControlBar>
+
+        <mx:VBox width="100%" height="456" horizontalAlign="center">
+            <basic:BasicMxDataGrid id="dglist" width="99%" height="342" horizontalScrollPolicy="auto"
+                                   variableRowHeight="false" isAllowMulti="true"
+                                   click="dglist_clickHandler(event)">
+                <basic:columns>
+                    <mx:DataGridColumn dataField="ccusname" headerText="客户" width="100" visible="{ifuncregedit!=32}"/>
+                    <mx:DataGridColumn dataField="cpsnname" headerText="人员" width="50"/>
+                    <mx:DataGridColumn dataField="ctitle" headerText="称呼" width="60"/>
+                    <mx:DataGridColumn dataField="cdetail" headerText="短信内容" width="140"
+                                       visible="{!(isZC.visible &amp;&amp; isZC.selected)}"/>
+                    <mx:DataGridColumn dataField="cmobile" headerText="手机号" width="80"/>
+                    <mx:DataGridColumn dataField="imaker" headerText="提交人" width="55" labelFunction="getImaker"/>
+                    <mx:DataGridColumn dataField="dmaker" headerText="提交时间" width="90"
+                                       labelFunction="CRMtool.formatDateHHNNSS"/>
+                    <mx:DataGridColumn dataField="iverify" headerText="发送人" width="55" labelFunction="getImaker"/>
+                    <mx:DataGridColumn dataField="dverify" headerText="发送时间" width="90"
+                                       labelFunction="CRMtool.formatDateHHNNSS"/>
+                    <mx:DataGridColumn dataField="istate" headerText="状态" width="20" labelFunction="getIstate"/>
+                </basic:columns>
+            </basic:BasicMxDataGrid>
+
+            <mx:VBox width="99%" height="104" verticalGap="0">
+
+                <s:HGroup width="100%">
+                    <mx:VBox width="100%" borderStyle="inset" cornerRadius="8" paddingBottom="4"
+                             paddingTop="4" styleName="content">
+                        <mx:TextArea id="cdetail" width="100%" height="60" borderVisible="false"
+                                     text="{}" verticalScrollPolicy="auto"/>
+                    </mx:VBox>
+                </s:HGroup>
+
+                <s:HGroup width="100%" height="32" verticalAlign="middle">
+                    <s:Button width="124" label="短信内容暂存" click="button1_clickHandler(event)"/>
+                    <s:Label text="输入字数：{cdetail.text.length}"/>
+                    <s:Spacer width="100%"/>
+                    <mx:CheckBox id="isZC" label="通过{CRMtool.isStringNotNull(zcitem.cmemo)?zcitem.cmemo:'政采接口'}发送"
+                                 selected="true"
+                                 visible="{zcitem!=null}"/>
+                    <s:Button label="发送" click="send_clickHandler()"/>
+                    <s:Button label="取消" click="onCloseHandler()"/>
+                </s:HGroup>
+
+            </mx:VBox>
+        </mx:VBox>
+
+    </mx:VBox>
+</basic:BasicTitleWindow>

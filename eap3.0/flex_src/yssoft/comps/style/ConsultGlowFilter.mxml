@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:fc="http://ns.adobe.com/flashcatalyst/2009"  xmlns:s="library://ns.adobe.com/flex/spark"
+		  		  xmlns:d="http://ns.adobe.com/fxg/2008/dt"  xmlns:mx="library://ns.adobe.com/flex/mx"  width="100%" height="100%" creationComplete="init()">
+	<!-- 初始化后加载长宽 -->
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.LinkButton;
+			import mx.core.UIComponent;
+			import spark.filters.GlowFilter;
+			
+			private var _ui:UIComponent;
+			/**
+			 * 设置将要发光的对象
+			 */ 
+			public function set ui(val:UIComponent):void
+			{
+				this._ui = val;
+			}
+			public function get ui():UIComponent
+			{
+				return _ui;
+			}
+			
+			
+			private var _spreadTime:Number = 800;
+			/**
+			 * 设置光晕扩散的时间差(默认800毫秒)
+			 */ 
+			public function set spreadTime(val:Number):void
+			{
+				this._spreadTime = val;
+			}
+			public function get spreadTime():Number
+			{
+				return _spreadTime;
+			}
+			
+			
+			private var _repeatCount:int = 0;
+			/**
+			 * 设置循环的次数，默认为0（无限循环）
+			 */ 
+			public function set repeatCount(val:int):void
+			{
+				this._repeatCount = val;
+			}
+			public function get repeatCount():int
+			{
+				return _repeatCount;
+			}
+			
+			
+			private var _glowColor:String = "#2D75D2";
+			/**
+			 * 设置光晕颜色 格式:（多种光晕格式为 #FFFFFF,#DDDDDD,#...）
+			 */ 
+			public function set glowColor(val:String):void
+			{
+				this._glowColor = val;
+			}
+			public function get glowColor():String
+			{
+				return _glowColor;
+			}
+			
+			
+			private var _blurXY:Number = 10;
+			/**
+			 * 设置光晕扩散的大小（0~255）
+			 */ 
+			public function set blurXY(val:Number):void
+			{
+				this._blurXY = val;
+			}
+			public function get blurXY():Number
+			{
+				return _blurXY;
+			}
+			
+			
+			private var _isShowGlow:Boolean = true;
+			/**
+			 * 设置是否显示光晕
+			 */ 
+			public function set isShowGlow(val:Boolean):void
+			{
+				this._isShowGlow = val;
+			}
+			public function get isShowGlow():Boolean
+			{
+				return _isShowGlow;
+			}
+			
+			
+			private var _isUsing:Boolean = true;
+			/**
+			 * 设置是否启动闪烁光晕
+			 */ 
+			public function set isUsing(val:Boolean):void
+			{
+				this._isUsing = val;
+				try{playGlow(); }catch(error:Error){}
+			}
+			public function get isUsing():Boolean
+			{
+				return _isUsing;
+			}
+			
+			
+			/**
+			 * 光晕的圆角度 
+			 */
+			private var radius:Number =30;
+			
+			/**
+			 * 光晕高度
+			 */ 
+			private var glowHeight:Number =10;
+			
+			/**
+			 * 光晕宽度
+			 */
+			private var glowWidth:Number=10;
+			
+			/**
+			 * 初始化加载发光对象 
+			 */
+			private function init():void
+			{
+				var uiObject:UIComponent = new UIComponent();
+				var glowObject:GlowFilter = new GlowFilter();
+				glowObject.alpha=1; glowObject.inner=false;
+				glowObject.knockout=false; glowObject.quality=2;
+				glowObject.strength=2;
+				
+				this.container.addElement(_ui);
+				
+				//判断是否为LinkButton按钮
+				if(_ui.hasOwnProperty("cornerRadius"))
+				{
+					uiObject = _ui as LinkButton;
+					radius = uiObject.getStyle("cornerRadius");
+				}
+				
+				glowWidth = 100;//uiObject.width;
+				glowHeight = 100;//uiObject.height;
+				
+				if(this._glowColor.indexOf(",")!=-1)
+				{
+					var arr:Array = _glowColor.split(",");
+					
+					for each(var color:String in arr)
+					{
+						glowObject.color = uint(this._glowColor);
+						glowObject.blurX = int(this.blurXY /arr.length);
+						glowObject.blurY = int(this.blurXY /arr.length);
+						this.rect.filters.addChild(glowObject); 
+					}
+				}
+				else
+				{ 
+					glowObject.color = uint(this._glowColor);  //加载光晕颜色
+					this.rect.filters.concat(glowObject);       //加载滤镜 
+				}
+
+				this.container.addElement(uiObject);
+				
+				playGlow();
+			}
+			
+			
+			/**
+			 * 是否启用闪烁光晕 
+			 */ 
+			public function playGlow():void
+			{
+				if(this._isUsing)this.parallel.play();
+				else{
+					this.parallel.stop();
+					this.rect.visible = false;
+				}
+			}
+			
+		]]>
+		
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+
+		<s:Parallel id="parallel">
+			<s:Parallel target="{rect}">
+				<s:Fade alphaFrom="1" alphaTo="0" duration="{_spreadTime}" repeatCount="{_repeatCount}"/>
+			</s:Parallel>
+		</s:Parallel>
+	</fx:Declarations>
+	
+	<mx:VBox>
+		<s:Group id="container">
+			<s:Rect id="rect" width="{glowWidth}" height="{glowHeight}" radiusX="{radius}" visible="{_isShowGlow}">
+				<!-- 定义内圈实心线条(层次效果) -->
+				<s:stroke> <s:SolidColorStroke caps="none" color="#5C5C5C" joints="miter" miterLimit="4" weight="1"/> </s:stroke>
+				<s:fill> <s:SolidColor color="#FFFFFF"/></s:fill>
+			</s:Rect>
+		</s:Group>
+	</mx:VBox>
+</mx:Canvas>

@@ -1,0 +1,59 @@
+﻿/**
+ * 单据操作，自定义执行命令
+ * 方法定义规则：public function onExcute_IFun功能内码(cmdparam:CommandParam):void
+ * cmdparam参数属性：
+ *  param:*;						  //传递的参数
+	nextCommand:ICommand;			  //要执行的下一个命令
+	excuteNextCommand:Boolean=false;  //是否立即执行下一条命令
+	context:Container=null;           //环境容器变量
+	optType:String="";                //操作类型
+	cmdselfName:String="";            //自定义命令名称
+ */
+package yssoft.scripts.selfoptimp
+{
+	import mx.collections.ArrayCollection;
+	
+	import yssoft.comps.frame.module.CrmEapRadianVbox;
+	import yssoft.tools.CRMtool;
+	import yssoft.vos.CommandParam;
+
+	public class PrintBeforeCommandSelfImp
+	{
+		public function PrintBeforeCommandSelfImp()
+		{
+		}
+		/**
+		 * 方法功能：
+		 * 编写作者：
+		 * 创建日期：
+		 * 更新日期：
+		 */
+		/*public function onExcute_IFun162(cmdparam:CommandParam):void
+		{
+		}*/
+		
+		/**
+		 * 方法功能：服务工单打印时，非现场处理方式友好提示
+		 * 编写作者：刘磊
+		 * 创建日期：2012年6月13日
+		 * 更新日期：2012年6月13日
+		 */
+		public function onExcute_IFun150(cmdparam:CommandParam):void
+		{
+            var formValue = (cmdparam.context as CrmEapRadianVbox).getValue();
+            if(formValue.iid>0){
+                if (formValue.isolution!=370)
+                {
+                    CRMtool.showAlert("非现场处理，禁止打印！");
+                    cmdparam.excuteNextCommand=false;
+                }
+                else
+                {
+                    cmdparam.excuteNextCommand=true;
+                }
+            }else{
+                cmdparam.excuteNextCommand=true;
+            }
+		}
+	}
+}

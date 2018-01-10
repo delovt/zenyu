@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" verticalScrollPolicy="off"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" verticalGap="0" borderVisible="false">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import yssoft.models.CRMmodel;
+			
+			[Bindable]
+			public var _item:Object
+			
+			public function set item(value:Object):void{
+				this._item=value;
+				if(value){
+					if(this._item.isperson==CRMmodel.userId){// 发送人 为 本人
+						//this.namelb.toolTip="发送人:"+this._item.ispersonname;
+						//this.namelb.text=this._item.ispersonname;
+						this.namelb.setStyle("color","red");
+					}else{
+						this.namelb.setStyle("color","blue");
+					}
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:HBox horizontalGap="0" width="100%">
+		<mx:Label id="namelb" text="{this._item.ispersonname}" textIndent="5" fontWeight="bold" width="60" toolTip="发起者:{this._item.ispersonname}"/>
+		<mx:Label id="datelb" text="{_item.dsend}" color="#549C00" />
+	</mx:HBox>
+	<mx:Text id="detailtxt" textIndent="5" text="{_item.cdetail}" width="100%"/>
+</mx:VBox>

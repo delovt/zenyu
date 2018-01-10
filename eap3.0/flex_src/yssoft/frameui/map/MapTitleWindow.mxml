@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        xmlns:code="http://code.google.com/p/flex-iframe/" xmlns:mx="library://ns.adobe.com/flex/mx"
+                        initialize="initializeHandler()" isMove="false"
+                        title="地理位置{CRMtool.isStringNotNull(cname)?'：'+cname:''} {CRMtool.isStringNotNull(_ccoordinate)?'@ '+_ccoordinate:''}"
+                        >
+
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.views.sysmanage.SysOptionView;
+
+        private var _crmeap:CrmEapRadianVbox;
+        private var _cname:String = "";
+
+        [Bindable]
+        private var _lngAndlat:String = "";
+        [Bindable]
+        private var _ccoordinate:String = "";
+        [Bindable]
+        private var source:String = "map/bmap.html";
+
+
+        public var parentView:SysOptionView;
+
+
+        private function mapFrame_creationCompleteHandler(event:FlexEvent):void {
+            if (parentView == null)
+                searchCustomerOnMap();
+            else {
+                source = "map/bmapSystem.html"
+                if (CRMtool.isStringNotNull(parentView.ccoordinate)) {
+                    var myccoordinate = parentView.ccoordinate;
+                    var arr:Array = myccoordinate.split(",");
+                    mapFrame.callIFrameFunction('initMyPoint', arr);
+                } else {
+                    mapFrame.callIFrameFunction('setMapCenter');
+                }
+            }
+
+            getLngAndLatTime();
+        }
+
+        private function searchCustomerOnMap():void {
+            if (!crmeap)
+                return;
+
+            var myccoordinate = CRMtool.getOptionValue(98);
+            if (CRMtool.isStringNull(myccoordinate)) {
+                //mapFrame.callIFrameFunction('initMap');
+            }
+            else {
+                var arrArray = myccoordinate.split(",");
+                mapFrame.callIFrameFunction('initMyPoint', arrArray);
+            }
+
+
+            var mainValue:Object = crmeap.getValue();
+            cname = mainValue.cname;
+
+
+            var infoArr:Array = [cname];
+
+            //按地址 与 名称同时搜素的话  反而搜不到结果，所以暂时不使用地址
+            //var cofficeaddress:String = mainValue.cofficeaddress;
+            //if(CRMtool.isStringNotNull(cofficeaddress))
+            //    infoArr = infoArr.concat(cofficeaddress);
+            mapFrame.callIFrameFunction('setKeys', infoArr);
+
+            var iid:int = mainValue.iid;
+            if (iid > 0) {
+                var sql:String = "select ccoordinate from cs_customer where iid=" + iid;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac && ac.length > 0) {
+                        var ccoordinate:String = ac[0].ccoordinate;
+                        if (mapFrame && CRMtool.isStringNotNull(cname)) {
+                            if (CRMtool.isStringNotNull(ccoordinate)) {
+                                _ccoordinate = ccoordinate;
+                                var arr:Array = ccoordinate.split(",");
+                                arr = arr.concat(cname);
+                                mapFrame.callIFrameFunction('showCustomer', arr);
+                            } else {
+                                mapFrame.callIFrameFunction('searchCustomer', infoArr);
+                            }
+                        }
+
+                    }
+                }, sql, null, false);
+            }
+        }
+
+        public function get crmeap():CrmEapRadianVbox {
+            return _crmeap;
+        }
+
+        public function set crmeap(value:CrmEapRadianVbox):void {
+            _crmeap = value;
+        }
+
+        private function initializeHandler():void {
+            this.width = this.stage.width * 0.75;
+            this.height = this.stage.height * 0.8;
+        }
+
+        private function vBox1_creationCompleteHandler(event:FlexEvent):void {
+            mainStack.selectedIndex = 1;
+        }
+
+        [Bindable]
+        public function get cname():String {
+            return _cname;
+        }
+
+        public function set cname(value:String):void {
+            _cname = value;
+        }
+
+        //每隔一秒 请求地图上选中的节点。
+        var _timer:Timer = new Timer(200);
+
+        private function getLngAndLatTime():void {
+            _timer.addEventListener(TimerEvent.TIMER, function (event:TimerEvent):void {
+                getLngAndLat();
+            });
+            _timer.start();
+        }
+
+        private function getLngAndLat():void {
+            mapFrame.callIFrameFunction('getMakerInfo', null, function (result:Object):void {
+                var address:String = result + "";
+
+                if (CRMtool.isStringNotNull(address) && _lngAndlat != address) {
+                    if (parentView == null) {
+                        var mainValue:Object = crmeap.getValue();
+                        if (mainValue.iid > 0) {
+                            var sql:String = "update cs_customer set ccoordinate ='" + address + "' where iid=" + mainValue.iid;
+                            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                            }, sql, null, false);
+                            _ccoordinate = address;
+                        }
+                    } else {
+                        parentView.ccoordinate = address;
+                    }
+                }
+
+                _lngAndlat = address;
+            });
+        }
+
+        override protected function onCloseHandler():void {
+            super.onCloseHandler();
+            _timer.stop();
+        }
+        ]]></fx:Script>
+
+    <mx:HBox width="100%" height="100%" horizontalGap="0">
+        <mx:ViewStack id="mainStack" width="100%" height="100%">
+            <mx:VBox creationComplete="vBox1_creationCompleteHandler(event)"/>
+            <mx:VBox id="mainBox" width="100%" height="100%">
+                <code:IFrame id="mapFrame" width="100%" height="100%" source="{source}" overlayDetection="true"
+                             creationComplete="mapFrame_creationCompleteHandler(event)"/>
+            </mx:VBox>
+        </mx:ViewStack>
+    </mx:HBox>
+
+</basic:BasicTitleWindow>

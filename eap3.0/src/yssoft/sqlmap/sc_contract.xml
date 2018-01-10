@@ -1,0 +1,58 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：
+ * SqlMap表名：sc_contract
+ * 创建人：刘磊
+ * 创建时间：2011-10-4 9:24:15
+ * 修改人：刘磊
+ * 修改时间：2011-10-4 9:24:15
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_sc_contract" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,isourceregedit,isource,icorp,ccode,cname,ddate,dbegin,dend,iproperty,irdtype,icustomer,icustperson,ccusttel,ccustfax,ccustpost,ccustaddress,ireceivecust,ireceivelkps,creceivetel,creceivefax,creceivepost,creceiveaddress,ddelivery,cpayment,itransport,iperson,idepartment,cdetail,fsum,frdsum,fspsum,frpsum,issignatory,icsignatory,csignatoryaddress,cmemo,istatus,cdefine1,cdefine2,cdefine3,cdefine4,cdefine5,fdefine1,fdefine2,fdefine3,fdefine4,fdefine5,ddefine1,ddefine2,ddefine3,ddefine4,ddefine5,bdefine1,bdefine2,imaker,dmaker,imodify,dmodify,iverify,dverify,iclose,dclose from sc_contract 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_sc_contract" parameterClass="java.util.HashMap">
+            insert into sc_contract(isourceregedit,isource,icorp,ccode,cname,ddate,dbegin,dend,iproperty,irdtype,icustomer,icustperson,ccusttel,ccustfax,ccustpost,ccustaddress,ireceivecust,ireceivelkps,creceivetel,creceivefax,creceivepost,creceiveaddress,ddelivery,cpayment,itransport,iperson,idepartment,cdetail,fsum,frdsum,fspsum,frpsum,issignatory,icsignatory,csignatoryaddress,cmemo,istatus,cdefine1,cdefine2,cdefine3,cdefine4,cdefine5,fdefine1,fdefine2,fdefine3,fdefine4,fdefine5,ddefine1,ddefine2,ddefine3,ddefine4,ddefine5,bdefine1,bdefine2,imaker,dmaker,imodify,dmodify,iverify,dverify,iclose,dclose) 
+            values (#isourceregedit#,#isource#,#icorp#,#ccode#,#cname#,#ddate#,#dbegin#,#dend#,#iproperty#,#irdtype#,#icustomer#,#icustperson#,#ccusttel#,#ccustfax#,#ccustpost#,#ccustaddress#,#ireceivecust#,#ireceivelkps#,#creceivetel#,#creceivefax#,#creceivepost#,#creceiveaddress#,#ddelivery#,#cpayment#,#itransport#,#iperson#,#idepartment#,#cdetail#,#fsum#,#frdsum#,#fspsum#,#frpsum#,#issignatory#,#icsignatory#,#csignatoryaddress#,#cmemo#,#istatus#,#cdefine1#,#cdefine2#,#cdefine3#,#cdefine4#,#cdefine5#,#fdefine1#,#fdefine2#,#fdefine3#,#fdefine4#,#fdefine5#,#ddefine1#,#ddefine2#,#ddefine3#,#ddefine4#,#ddefine5#,#bdefine1#,#bdefine2#,#imaker#,#dmaker#,#imodify#,#dmodify#,#iverify#,#dverify#,#iclose#,#dclose#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_sc_contract" parameterClass="java.util.HashMap">
+            update sc_contract set isourceregedit=#isourceregedit#,isource=#isource#,icorp=#icorp#,ccode=#ccode#,cname=#cname#,ddate=#ddate#,dbegin=#dbegin#,dend=#dend#,iproperty=#iproperty#,irdtype=#irdtype#,icustomer=#icustomer#,icustperson=#icustperson#,ccusttel=#ccusttel#,ccustfax=#ccustfax#,ccustpost=#ccustpost#,ccustaddress=#ccustaddress#,ireceivecust=#ireceivecust#,ireceivelkps=#ireceivelkps#,creceivetel=#creceivetel#,creceivefax=#creceivefax#,creceivepost=#creceivepost#,creceiveaddress=#creceiveaddress#,ddelivery=#ddelivery#,cpayment=#cpayment#,itransport=#itransport#,iperson=#iperson#,idepartment=#idepartment#,cdetail=#cdetail#,fsum=#fsum#,frdsum=#frdsum#,fspsum=#fspsum#,frpsum=#frpsum#,issignatory=#issignatory#,icsignatory=#icsignatory#,csignatoryaddress=#csignatoryaddress#,cmemo=#cmemo#,istatus=#istatus#,cdefine1=#cdefine1#,cdefine2=#cdefine2#,cdefine3=#cdefine3#,cdefine4=#cdefine4#,cdefine5=#cdefine5#,fdefine1=#fdefine1#,fdefine2=#fdefine2#,fdefine3=#fdefine3#,fdefine4=#fdefine4#,fdefine5=#fdefine5#,ddefine1=#ddefine1#,ddefine2=#ddefine2#,ddefine3=#ddefine3#,ddefine4=#ddefine4#,ddefine5=#ddefine5#,bdefine1=#bdefine1#,bdefine2=#bdefine2#,imaker=#imaker#,dmaker=#dmaker#,imodify=#imodify#,dmodify=#dmodify#,iverify=#iverify#,dverify=#dverify#,iclose=#iclose#,dclose=#dclose# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_sc_contract" parameterClass="String">
+            delete from sc_contract
+            where $condition$
+     </delete>
+     <!--检查客户内码是否为空-->
+     <select id="check_cusnb_notnull" parameterClass="int" resultClass="String">
+            select isnull(ltrim(cmnemonic),'') as cmnemonic from cs_customer where iid=#iid#
+     </select>
+     <!--检查销售区域内码是否为空-->
+     <select id="check_pernb_notnull" parameterClass="int" resultClass="String">
+            select isnull(ltrim(coutkey),'') from hr_person where iid=#iid#
+     </select>
+     <!--检查销售区域内码是否为空-->
+     <select id="check_xsqynb_notnull" parameterClass="int" resultClass="String">
+            select isnull(ltrim(coutkey),'') from aa_data where iclass=17 where iid=#iid#
+     </select>
+     <!--检查行业类型内码是否为空-->
+     <select id="check_hylxnb_notnull" parameterClass="int" resultClass="String">
+            select isnull(ltrim(coutkey),'') from aa_data where iclass=10 where iid=#iid#
+     </select>
+     <!--检查产品类别内码是否为空-->
+     <select id="check_cplbnb_notnull" parameterClass="int" resultClass="String">
+            select isnull(ltrim(coutkey),'') from aa_data where iclass=42 where iid=#iid#
+     </select>
+</sqlMap>

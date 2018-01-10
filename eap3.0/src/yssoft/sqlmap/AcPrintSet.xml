@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 获取菜单列表 -->
+	<select id="AcPrintSetDest.getMenuList" resultClass="java.util.HashMap" >
+		select iid,ipid,ccode,cname,ctable from as_funcregedit where bprint=1 
+		order by ccode
+	</select>
+	
+	<select id="AcPrintSetDest.getListByIfuncregeit" parameterClass="int" resultClass="java.util.HashMap">
+		select ac_printset.iid,ac_printset.ifuncregedit,ac_printset.cname,as_funcregedit.cname fcname,itype,ctemplate,ccondit,ac_printset.buse,bdefault,cmemo from ac_printset
+		left join as_funcregedit
+		on ac_printset.ifuncregedit = as_funcregedit.iid
+		where ac_printset.ifuncregedit=#condition#
+		order by ac_printset.iid
+	</select>
+	  
+	<!-- 添加打印设置表信息 -->
+	<insert id="AcPrintSetDest.addPrintSet" parameterClass="yssoft.vos.AcPrintSetVO">
+		Insert Into ac_printset(ifuncregedit,cname,itype,ctemplate,ccondit,buse,bdefault,cmemo) 
+ 						values (#ifuncregedit#,#cname#, #itype# , #ctemplate# , #ccondit# , #buse#,#bdefault#,#cmemo# )
+ 		<selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	    </selectKey>
+	</insert>
+	
+<!--	更新打印设置表信息	-->
+	<update id="AcPrintSetDest.updatePrintSet" parameterClass="yssoft.vos.AcPrintSetVO">
+		begin
+			update ac_printset set ifuncregedit	=	#ifuncregedit#,
+								   cname		=	#cname#,
+								   itype 		= 	#itype#,
+								   ctemplate	= 	#ctemplate#,
+								   ccondit	 	= 	#ccondit#,
+								   buse 		= 	#buse#,								   
+								   bdefault 	= 	#bdefault#,								   
+								   cmemo 		= 	#cmemo#	
+			Where iid=#iid#
+		end;
+	</update>
+	
+	<delete id="AcPrintSetDest.deletePrintSet" parameterClass="int">
+		begin
+		 delete from ac_printclm where iprints=(select iid from  ac_printsets where iprint=#iid#);
+		 delete from ac_printsets where iprint=#iid#;
+		 Delete ac_printset   Where iid=#iid#;
+		end;
+	</delete>
+	
+	<select id="AcPrintSetDest.getPrintSetList" resultClass="java.util.HashMap" parameterClass="int">
+		select iid,ifuncregedit,cname,itype,ctemplate,ccondit,buse,bdefault,cmemo from ac_printset where iid=#iid#
+	</select>
+	
+ <!--	ac_printsets表操作	-->    
+      <!--获得记录列表-->
+     <select id="get_bywhere_ac_printsets" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,iprint,bhead,csql from ac_printsets 
+			where $condition$ order by iid 
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_ac_printsets" parameterClass="java.util.HashMap">
+            insert into ac_printsets(iprint,bhead,csql) 
+            values (#iprint#,#bhead#,#csql#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_ac_printsets" parameterClass="java.util.HashMap">
+            update ac_printsets set iprint=#iprint#,bhead=#bhead#,csql=#csql# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_ac_printsets" parameterClass="String">
+            delete from ac_printsets
+            where $condition$
+     </delete>
+
+<!--	ac_printclm表操作	-->
+	
+	 <!--获得记录列表-->
+     <select id="get_bywhere_ac_printclm" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,iprints,cfield,ccaption,cnewcaption,ifieldtype,buse from ac_printclm 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_ac_printclm" parameterClass="java.util.HashMap">
+            insert into ac_printclm(iprints,cfield,ccaption,cnewcaption,ifieldtype,buse) 
+            values (#iprints#,#cfield#,#ccaption#,#cnewcaption#,#ifieldtype#,#buse#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_ac_printclm" parameterClass="java.util.HashMap">
+            update ac_printclm set iprints=#iprints#,cfield=#cfield#,ccaption=#ccaption#,cnewcaption=#cnewcaption#,ifieldtype=#ifieldtype#,buse=#buse# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_ac_printclm" parameterClass="String">
+            delete from ac_printclm
+            where $condition$
+     </delete>
+     <!-- 查询表中的所有文件名 -->
+     <select id="query_ac_printset_ctemplate"  resultClass="java.util.HashMap">
+            select ctemplate from ac_printset
+			
+     </select>
+</sqlMap>

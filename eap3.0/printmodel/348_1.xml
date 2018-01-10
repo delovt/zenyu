@@ -1,0 +1,173 @@
+<ReportSettings version="1.1">
+  <PageHeight>12</PageHeight>
+  <TopMargin>1</TopMargin>
+  <BottomMargin>1</BottomMargin>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>物品借用单</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>18</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>借用部门：</Value>
+          <Width>2.5</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>借用部门</BindingValue>
+          <Width>3</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>借用人员：</Value>
+          <Width>2.5</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>借用人员</BindingValue>
+          <Width>3</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>借用时间：</Value>
+          <Width>2.5</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>借用时间</BindingValue>
+          <Width>5</Width>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+      <Dynamic>true</Dynamic>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>借用物品</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>规格</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>借用数量</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>预计归还时间</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>借用物品</BindingColumn>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>规格</BindingColumn>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>借用数量</BindingColumn>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>预计归还时间</BindingColumn>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableFooterSettings>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表1参数.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>6</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+      <TableDetailSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批人</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理人</BindingColumn>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批时间</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理时间</BindingColumn>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批意见</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理意见</BindingColumn>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableDetailSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

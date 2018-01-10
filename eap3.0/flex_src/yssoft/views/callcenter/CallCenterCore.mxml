@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx" verticalGap="0" paddingBottom="0" paddingTop="0"
+		  xmlns:flexlib="http://code.google.com/p/flexlib/"
+		  width="100%" height="100%" xmlns:callcenter="yssoft.views.callcenter.*" implements="yssoft.interfaces.IMainViewStackSearch">
+	<fx:Script>
+		<![CDATA[
+			import flexlib.controls.tabBarClasses.SuperTab;
+			import flexlib.events.SuperTabEvent;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			public var cc:HotLineView;
+			protected function onCompleteHandler(event:FlexEvent):void
+			{
+				cc=new HotLineView();
+				cc.owner=this.stnav;
+				cc.setStyle("closable",false);
+				this.stnav.addChild(cc);
+			}
+			public function searchFromMain(s:String):void{
+                cc=new HotLineView();
+
+				cc.cti.text = s;
+				cc.onSearchHandler();
+			}
+			
+			protected function tabCloseHandler(event:SuperTabEvent):void
+			{
+				// TODO Auto-generated method stub
+				//Alert.show(""+event.tabIndex);
+				if(event.tabIndex==0){
+					event.preventDefault();
+					return;
+				}
+			}
+			
+			
+			protected function ccshow_msgChangeHandler(event:Event):void
+			{
+				if(cc){
+					cc.onSearchHandler2();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<!--<callcenter:ConCallCenterView/>-->
+	<mx:VBox  height="100%" verticalGap="0" paddingTop="1">
+        <mx:VBox styleName="reportSideAppBar" height="29" width="100%"  paddingTop="4" verticalAlign="middle" paddingLeft="10">
+             <mx:Label id="curState" text="{ccshow.ctelState}" color="{ccshow.ctelState=='连接成功'?new uint(0x333333):new uint(0xFF0000)}"  fontWeight="bold"/>
+  	    </mx:VBox>
+	    <callcenter:CCShow id="ccshow" height="100%" owner="{stnav}" msgChange="ccshow_msgChangeHandler(event)" />
+	</mx:VBox>
+	<flexlib:SuperTabNavigator id="stnav" width="100%" height="100%" dragEnabled="false" tabClose="tabCloseHandler(event)"
+							   paddingBottom="0" paddingTop="1" closePolicy="{SuperTab.CLOSE_TAB_EVENT}"
+							   creationComplete="onCompleteHandler(event)">
+		<!--<callcenter:HotLineView owner="{stnav}"/>-->
+	</flexlib:SuperTabNavigator>
+</mx:HBox>

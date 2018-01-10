@@ -1,0 +1,16 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+mx|ApplicationControlBar{
+    /*	是否显示边框阴影*/
+    dropShadowEnabled:true;
+    /*	边框圆角度数值从0-20*/
+    cornerRadius:1;
+    /*	投影大小数值从0-20*/
+    shadowDistance:1;
+    /*	填充渐变色透明度*/
+    fillAlphas:2,50;
+    /*	填充渐变色*/
+    fillColors:#F1F1F1,#C8C8C8;
+}

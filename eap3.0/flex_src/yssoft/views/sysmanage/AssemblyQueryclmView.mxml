@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        width="100%" height="100%"
+                        title="查询条件"
+                        creationComplete="inidata();" xmlns:comps="yssoft.comps.*"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+    <fx:Script>
+		<![CDATA[
+        import mx.managers.PopUpManager;
+
+        import yssoft.models.ConstsModel;
+        ]]>
+	</fx:Script>
+    <fx:Script source="../../../yssoft/scripts/AssemblyQueryclmViewScript.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:VBox width="100%" height="100%" paddingBottom="0" cornerRadius="10">
+        <mx:TabNavigator tabHeight="25" paddingTop="0" backgroundColor="#ffffff" width="100%" height="100%" id="myTab">
+            <mx:VBox id="vbx_common" width="100%" height="100%" paddingLeft="10" paddingRight="10" label="常用条件"
+                     backgroundColor="white" styleName="rolecontentHbox">
+
+            </mx:VBox>
+            <mx:VBox id="vbx_advanced" width="100%" height="100%" label="高级条件" paddingLeft="10" paddingRight="10"
+                     paddingBottom="10" paddingTop="0" verticalCenter="0" horizontalGap="0">
+                <comps:AssembledConditionVbox id="abc_advanced" width="100%" height="100%" cfieldArr="{cfieldArr}"
+                                              advancedArr="{advancedArr}" arrDataList="{arrDataList}"/>
+            </mx:VBox>
+            <mx:VBox id="vbx_sort" width="100%" height="100%" label="排序" paddingLeft="10" paddingRight="10"
+                     paddingBottom="10" backgroundColor="white">
+                <mx:HBox width="100%" height="100%">
+                    <mx:DataGrid id="dgrd_sort" borderStyle="solid" borderColor="#c4cccc" borderAlpha="1" width="98%"
+                                 height="100%" editable="false" dataProvider="{sortArr}">
+                        <mx:columns>
+                            <mx:DataGridColumn headerText="序号" dataField="isortno" editable="false" width="50"/>
+                            <mx:DataGridColumn headerText="字段" dataField="cfiled" editable="false"
+                                               labelFunction="cfiedFormat"/>
+                            <mx:DataGridColumn headerText="排序规则" dataField="isttype" editable="false">
+                                <mx:itemRenderer>
+                                    <fx:Component>
+                                        <mx:HBox>
+                                            <fx:Script>
+												<![CDATA[
+                                                /**
+                                                 * 单击某组radiobutton，显示相应值
+                                                 */
+                                                private function showDefault(item:Object, value:String):Boolean {
+                                                    if (item == value) {
+                                                        return true;
+                                                    }
+                                                    else {
+                                                        return false;
+                                                    }
+                                                }
+                                                ]]>
+											</fx:Script>
+
+                                            <mx:RadioButtonGroup id="rbtgn_isttype"
+                                                                 change="outerDocument.onChange(data,rbtgn_isttype);"
+                                                                 selectedValue="{data.isttype}"/>
+                                            <mx:RadioButton id="rbtn_ascending" label="升序"
+                                                            groupName="rbtgn_isttype" value="1"
+                                                            selected="{showDefault(rbtgn_isttype.selectedValue,'1')}"/>
+                                            <mx:RadioButton id="rbtn_descending" label="降序"
+                                                            groupName="rbtgn_isttype" value="2"
+                                                            selected="{showDefault(rbtgn_isttype.selectedValue,'2')}"/>
+                                            <mx:RadioButton id="rbtn_disorder" label="无序"
+                                                            groupName="rbtgn_isttype" value="0"
+                                                            selected="{showDefault(rbtgn_isttype.selectedValue,'0')}"/>
+                                        </mx:HBox>
+                                    </fx:Component>
+                                </mx:itemRenderer>
+                            </mx:DataGridColumn>
+                        </mx:columns>
+                    </mx:DataGrid>
+
+                    <mx:VBox width="2%" height="100%" verticalAlign="middle" horizontalAlign="center">
+                        <mx:LinkButton icon="{ConstsModel._UPENDICON}" click="CRMtool.rowMoveEndUp(dgrd_sort,'isortno')"
+                                       toolTip="置顶"/>
+                        <mx:LinkButton icon="{ConstsModel._UPICON}" click="CRMtool.rowMoveUp(dgrd_sort,'isortno')"
+                                       toolTip="上移"/>
+                        <mx:LinkButton icon="{ConstsModel._DOWNICON}" click="CRMtool.rowMoveDown(dgrd_sort,'isortno')"
+                                       toolTip="下移"/>
+                        <mx:LinkButton icon="{ConstsModel._DOWNENDICON}"
+                                       click="CRMtool.rowMoveEndDown(dgrd_sort,'isortno')" toolTip="置底"/>
+                    </mx:VBox>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:TabNavigator>
+        <mx:HBox width="100%" height="38" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+            <mx:HBox width="20%" horizontalAlign="left">
+                <s:Button label="查询条件设置" click="openConsultSet()"/>
+            </mx:HBox>
+
+            <mx:HBox width="80%" horizontalAlign="right">
+                <s:Button label="确定" click="sumbit();"/>
+                <s:Button label="取消" click="PopUpManager.removePopUp(this)"/>
+            </mx:HBox>
+        </mx:HBox>
+    </mx:VBox>
+</basic:BasicTitleWindow>

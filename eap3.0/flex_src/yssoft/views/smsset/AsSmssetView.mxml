@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+                height="100%"
+                xmlns:comps="yssoft.comps.*"
+                creationComplete="ini();CRMtool.containerChildsEnabled(container,false);"
+                implements="yssoft.impls.ICRMWindow">
+    <!-- 角色树 -->
+    <mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+        <mx:VBox width="20%" height="100%" styleName="lefttree">
+            <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                <mx:Label text="指标列表" styleName="contentTitle"/>
+            </mx:ApplicationControlBar>
+            <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                <comps:TreeCompsVbox id="tree" width="100%" height="100%" labelFunction="treeLabelFunc"
+                                     change="CRMtool.toolButtonsEnabled(btn_menubar,null);CRMtool.containerChildsEnabled(container,false)"
+                                     dropShadowVisible="false" itemClick="tree_itemClickHandler(event)"/>
+            </mx:HBox>
+        </mx:VBox>
+        <mx:Canvas width="80%" height="100%" styleName="centerbg4"
+                   creationComplete="CRMtool.setTabIndex(this.container)">
+            <mx:ApplicationControlBar styleName="centertop" width="100%" height="32" dock="true">
+                <mx:ButtonBar id="btn_menubar" width="10%" height="80%"
+                              creationComplete="CRMtool.toolButtonsEnabled(btn_menubar,null)"
+                              dataProvider="{arr_menubar}" styleName="contentButtonBar"
+                              itemClick="btn_menubar_itemClickHandler(event)"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox width="100%" height="100%" top="42" left="10" right="10" verticalGap="10" id="container">
+                <mx:VBox width="100%" cornerRadius="8" styleName="content" id="tabVbox">
+
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:HBox width="50%">
+                            <mx:Label text="服务商编码" height="100%" color="red" styleName="contentLabel"/>
+                            <mx:TextInput id="ccode" width="100%" height="100%" text="{tree.selectedItem.@ccode}"
+                                          borderVisible="false" styleName="contentTextInput" restrict="0-9\."/>
+                        </mx:HBox>
+                        <mx:HBox width="50%">
+                            <mx:Label text="服务商名称" height="100%" styleName="contentLabel" color="red"/>
+                            <mx:ComboBox id="cname" width="100" styleName="contentComboBox"
+                                         dataProvider="{this.menuArray}"
+                                         selectedIndex="{int(Number(this.tree.selectedItem.@cname))}">
+                            </mx:ComboBox>
+                        </mx:HBox>
+                        <!--						<mx:TextInput id="cname" width="50%" height="100%" text="{tree.selectedItem.@cname}"
+                                                              borderVisible="false" styleName="contentTextInput"/>-->
+                    </mx:HBox>
+
+                    <mx:HRule width="100%"/>
+
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:HBox width="50%">
+                            <mx:Label text="服务商通讯IP地址" height="100%" styleName="contentLabel"/>
+                            <mx:TextInput id="caddress" width="100%" height="100%" text="{tree.selectedItem.@caddress}"
+                                          borderVisible="false" styleName="contentTextInput"/>
+                        </mx:HBox>
+                        <mx:HBox width="50%">
+                            <mx:Label text="服务商通讯端口" height="100%" styleName="contentLabel"/>
+                            <mx:TextInput id="cport" width="100%" height="100%" text="{tree.selectedItem.@cport}"
+                                          borderVisible="false" styleName="contentTextInput"/>
+                        </mx:HBox>
+                    </mx:HBox>
+
+                    <mx:HRule width="100%"/>
+
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:HBox width="50%">
+                            <mx:Label text="账        号" height="100%" styleName="contentLabel"/>
+                            <mx:TextInput id="cuser" width="100%" height="100%" text="{tree.selectedItem.@cuser}"
+                                          borderVisible="false" styleName="contentTextInput"/>
+                        </mx:HBox>
+                        <mx:HBox width="50%">
+                            <mx:Label text="密        码" height="100%" styleName="contentLabel"/>
+                            <mx:TextInput id="cpassword" width="100%" height="100%"
+                                          borderVisible="false" displayAsPassword="true"
+                                          styleName="contentTextInput"
+                                          text="{tree.selectedItem.@cpassword}"/>
+                        </mx:HBox>
+                    </mx:HBox>
+
+                    <mx:HRule width="100%"/>
+
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:HBox width="50%">
+                            <mx:Label text="电话前缀" height="100%" styleName="contentLabel"/>
+                            <mx:TextInput id="cphoneprefix" width="100%" height="100%"
+                                          text="{tree.selectedItem.@cphoneprefix}"
+                                          borderVisible="false" styleName="contentTextInput"/>
+                        </mx:HBox>
+                        <mx:HBox width="50%">
+                            <mx:Label text="备        注" height="100%" styleName="contentLabel"/>
+                            <mx:TextInput id="cmemo" width="100%" height="100%" text="{tree.selectedItem.@cmemo}"
+                                          borderVisible="false" styleName="contentTextInput"/>
+                        </mx:HBox>
+                    </mx:HBox>
+
+                </mx:VBox>
+            </mx:VBox>
+
+        </mx:Canvas>
+    </mx:HDividedBox>
+    <fx:Script><![CDATA[
+        /**
+         * 模块说明：短信服务商设置
+         * 创建人：LZX
+         * 创建日期：20110810
+         * 修改人：
+         * 修改日期：
+         *
+         */
+
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.ItemClickEvent;
+        import mx.events.ListEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.vos.AsSmssetVO;
+
+        public var iid:int;
+        public var crm:CrmEapTextInput;
+
+        [Bindable]
+        protected var arr_fields:ArrayCollection = new ArrayCollection();
+        [Bindable]
+        protected var instanceInfo:XML = null;
+        [Bindable]
+        protected var properties:XMLList = null;
+        [Bindable]
+        public var operType:String;
+        [Bindable]
+        protected var treeCompsXml:XML;
+        [Bindable]
+        protected var asSmssetVO:AsSmssetVO = new AsSmssetVO();
+
+        [Bindable]
+        protected var arr_menubar:ArrayCollection = new ArrayCollection(
+                [
+                    {label: "增加", name: "onNew"},
+                    {label: "修改", name: "onEdit"},
+                    {label: "删除", name: "onDelete"},
+                    {label: "保存", name: "onSave"},
+                    {label: "放弃", name: "onGiveUp"}
+                ]
+        );
+
+        [Bindable]
+        protected var menuArray:ArrayCollection = new ArrayCollection(
+                [
+                    {label: " ", value: "0"},
+                    {label: "电信", value: "1"},
+                    {label: "移动", value: "2"},
+                    {label: "联通", value: "3"},
+                    {label: "政采", value: "4"}
+                ]
+        );
+
+
+        [Bindable]
+        private var singleType:Object;
+
+        /**
+         * 函数名称：ini
+         * 函数说明：功能注册表初始化相关业务操作，主要是初始化树菜单
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110810
+         * 修改日期：
+         *
+         */
+        protected function ini():void {
+            AccessUtil.remoteCallJava("AsSmssetDest", "get_all_as_smsset", onGetMenuListBack);
+        }
+
+        private function onGetMenuListBack(e:ResultEvent):void {
+            if (e.result != null) {
+                var treexml:XML = new XML(e.result as String);
+                this.tree.treeCompsXml = treexml;
+            }
+        }
+
+
+        /**
+         *
+         * 函数名：btn_menubar_itemClickHandler
+         * 作者：YJ
+         * 日期：2011-08-04
+         * 功能：工具栏按钮点击事件处理
+         * 参数：无
+         * 返回值：无
+         * 修改记录：
+         */
+        public function btn_menubar_itemClickHandler(event:ItemClickEvent):void {
+            var enabled:Boolean;
+            var node:Object = this.tree.selectedItem;
+
+            switch (event.item.name) {
+                case "onNew":
+                    enabled = true;
+                    operType = event.item.name;
+                    onNew();
+                    break;
+                case "onEdit":
+                {
+                    if (!onEdit())return;
+
+                    if (node == null) {
+                        CRMtool.showAlert(ConstsModel.MENU_CHOOSE);
+                        return;
+                    }
+                    else {
+                        enabled = true;
+                        operType = event.item.name;
+                        /*onClearAll(operType,0);*/
+                        break;
+                    }
+                }
+                case "onDelete":
+                {
+                    operType = event.item.name;
+                    if (node == null) {
+                        CRMtool.showAlert(ConstsModel.MENU_CHOOSE);
+                        return;
+                    }
+                    else {
+                        var ccode:String = String(node.@ccode);
+                        if (this.tree.isExistsChild(ccode, ConstsModel.MENU_ROMEVE_PID)) {
+                            return;
+                        }
+                        removeTreeXml(this.tree.selectedItem, operType);
+                    }
+                    break;
+                }
+                case "onSave":
+                    enabled = false;
+                    if (onBeforeSave()) {
+                        onSave();
+                    }
+                    else {
+                        return;
+                    }
+                    break;
+                case "onGiveUp":
+                {
+                    enabled = false;
+                    operType = event.item.name;
+                    onGiveUp();
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            //调用按钮互斥
+            CRMtool.toolButtonsEnabled(this.btn_menubar, event.item.name)
+            //调用统一设置BorderContainer容器内控件enabled属性
+            CRMtool.containerChildsEnabled(this.container, enabled);
+
+        }
+
+        /**
+         * 函数名称：onGiveUp
+         * 函数说明：放弃操作
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        private function onGiveUp():void {
+
+            onClearAll(operType, 1);
+            setFuncregeditVO();
+            setValue();
+        }
+
+        /**
+         * 函数名称：onEdit
+         * 函数说明：修改前的验证
+         * 函数参数：无
+         * 函数返回：Boolean
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        private function onEdit():Boolean {
+            if (this.tree.selectedItem == null) {
+                CRMtool.showAlert(ConstsModel.MENU_CHOOSE);
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * 函数名称：onNew
+         * 函数说明：增加数据时清空页面元素
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        private function onNew():void {
+            onClearAll(this.operType, 0);
+        }
+
+        /**
+         * 函数名称：onClearAll
+         * 函数说明：清除页面上的元素信息，原始状态
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        private function onClearAll(operType:String, flag:int):void {
+            //清除控件值
+            if (operType != "onEdit") {
+                /*for each(var propertyInfo:XML in properties){
+                 var propertyName:String =propertyInfo.@name;
+                 TextInput(this[propertyName]).text="";
+                 }*/
+                this.ccode.text = "";
+                this.cname.selectedIndex = -1;
+                this.cmemo.text = "";
+                this.cuser.text = "";
+                this.cpassword.text = "";
+                this.cport.text = "";
+                this.cphoneprefix.text = "";
+                this.caddress.text = "";
+            }
+
+            if (operType == "onNew" || operType == "onEdit")this.ccode.setFocus();
+
+        }
+
+        /**
+         * 函数名称：onSave
+         * 函数说明：保存数据
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+
+        private function onSave():void {
+            switch (operType) {
+                case "onNew":
+                {
+                    AccessUtil.remoteCallJava("AsSmssetDest", "add_as_smsset", onFuncrededitBack, asSmssetVO);
+                    break;
+                }
+                case "onEdit":
+                {
+                    AccessUtil.remoteCallJava("AsSmssetDest", "update_as_smsset", onFuncrededitBack, asSmssetVO);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+        }
+
+        private function onFuncrededitBack(evt:ResultEvent):void {
+            if (evt.result || evt.result.toString() != "fail") {
+                var result:String = evt.result as String;
+
+                if (this.operType == "onNew") {
+                    asSmssetVO.iid = int(Number(result));
+                }
+                else if (this.operType == "onDelete") {
+                }
+                else if (this.operType == "onEdit") {
+                    //update_initdata();
+                }
+
+                CRMtool.tipAlert("操作成功。");
+
+                this.updateTreeItem();
+                onAfterSave();
+            }
+            else {
+                CRMtool.tipAlert(ConstsModel.MENU_FAIL);
+            }
+        }
+
+        /**
+         * 函数名称：onAfterSave
+         * 函数说明：数据保存后数据处理
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        private function onAfterSave():void {
+
+            //清除样式
+            onClearAll(operType, 1);
+        }
+
+        /**
+         * 函数名称：setFuncregeditVO
+         * 函数说明：给VO赋值
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        public function setFuncregeditVO():void {
+
+            if (this.operType == "onEdit") {
+                asSmssetVO.iid = int(Number(this.tree.selectedItem.@iid));
+                asSmssetVO.oldCcode = this.tree.selectedItem.@ccode;
+            }
+            asSmssetVO.ipid = this.tree.getIpid(this.ccode.text);
+            asSmssetVO.ccode = this.ccode.text;
+            if (this.cname.selectedItem) {
+                asSmssetVO.cname = String(this.cname.selectedItem.value);
+            } else {
+                asSmssetVO.cname = "0";
+            }
+            asSmssetVO.cmemo = this.cmemo.text;
+            asSmssetVO.cport = this.cport.text;
+            asSmssetVO.cuser = this.cuser.text;
+            asSmssetVO.cpassword = this.cpassword.text;
+            asSmssetVO.cphoneprefix = this.cphoneprefix.text;
+            asSmssetVO.caddress = this.caddress.text;
+        }
+
+        /**
+         *
+         * 函数名：
+         * 作者：刘磊
+         * 日期：2011-08-04
+         * 功能： 刷新树节点
+         * 参数：无
+         * 返回值：无
+         * 修改记录：
+         */
+        public function updateTreeItem():void {
+            switch (operType) {
+                case "onNew":
+                    this.tree.AddTreeNode(asSmssetVO);
+                    break;
+                case "onEdit":
+                    var curxml:XML = this.tree.selectedItem as XML;
+                    var ccode:String = curxml.@ccode; //原选中编码
+                    this.tree.EditTreeNode(asSmssetVO);
+                    setValue();
+                    break;
+                case "onDelete":
+                    this.tree.DeleteTreeNode();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /**
+         * 函数名称：deleteTreeItems
+         * 函数说明：删除树节点
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        public function deleteTreeItems():void {
+            delete (treeCompsXml.descendants("*").(@iid == this.tree.selectedItem.@iid) as XMLList)[0] as XML;
+        }
+
+        /**
+         * 函数名称：addTreeItems
+         * 函数说明：增加树节点
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        private function addTreeItems():void {
+            if (treeCompsXml == null)treeCompsXml = new XML("<root></root>");
+            var node:XML = ((this.treeCompsXml.descendants("*").(@iid == asSmssetVO.ipid) as XMLList)[0] as XML);
+            if (node == null) {
+                asSmssetVO.ipid = -1;
+            }
+            var newnode:String = "<node iid=" + "'" + asSmssetVO.iid
+                    + "' ipid='" + asSmssetVO.ipid
+                    + "' ccode='" + asSmssetVO.ccode
+                    + "' cname='" + asSmssetVO.cname
+                    + "' cmemo='" + asSmssetVO.cmemo
+                    + "' cuser='" + asSmssetVO.cuser
+                    + "' cpassword='" + asSmssetVO.cpassword
+                    + "' cport='" + asSmssetVO.cport
+                    + "' cpersonfield='" + asSmssetVO.cphoneprefix
+                    + "' caddress='" + asSmssetVO.caddress
+                    + "'/>";
+            if (node == null) {
+                treeCompsXml.appendChild(XML(newnode));
+            }
+            else {
+                node.appendChild(XML(newnode));
+            }
+        }
+
+        /**
+         * 函数名称：onBeforeSave
+         * 函数说明：数据保存前检验数据
+         * 函数参数：无
+         * 函数返回：Boolean
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        private function onBeforeSave():Boolean {
+            var t_arr:ArrayCollection = new ArrayCollection();
+
+            //新增时检查编码是否重复
+            if (operType == "onNew") {
+                if (this.tree.isExistsCcode(this.ccode.text, ConstsModel.MENU_CCODE_WARNMSG)) {
+                    return false;
+                }
+            }
+            //编辑时校验
+            if (operType == "onEdit") {
+                if (!this.tree.selectedItem) {
+                    CRMtool.tipAlert(ConstsModel.MENU_CHOOSE);
+                    return false;
+                }
+                if (this.tree.selectedItem.@ccode != this.ccode.text) {
+                    if (this.tree.isExistsCcode(this.ccode.text, ConstsModel.MENU_CCODE_WARNMSG)) {
+                        return false;
+                    }
+                }
+            }
+
+            if (this.ccode.text == "" || this.ccode.text == null) {
+                CRMtool.showAlert("服务商编码不能为空！");
+                return false;
+            }
+
+            if (this.cname.text == "" || this.cname.text == null) {
+                CRMtool.showAlert("服务商名称不能为空！");
+                return false;
+            }
+
+            if (!this.tree.isExistsParent(this.ccode.text, ConstsModel.MENU_PID_WARNMSG)) {
+                return false;
+            }
+
+            //检验不为空的字段值是否为空
+            /*for each (var DataInfo:Object in arr_fields){
+             var name:String=DataInfo.cfield;
+             if(StringUtil.trim(TextInput(this[name]).text) ==""){Alert.show("请填写必输项");return false;break;}
+             }*/
+
+            setFuncregeditVO();
+
+            return true;
+        }
+
+        private function onDelete():void {
+            var node:Object = this.tree.selectedItem;
+            if (node == null) {
+                CRMtool.showAlert(ConstsModel.MENU_CHOOSE);
+                return;
+            }
+            else {
+                var ccode:String = String(node.@ccode);
+                if (this.tree.isExistsChild(ccode, ConstsModel.MENU_ROMEVE_PID)) {
+                    return;
+                }
+                removeTreeXml(this.tree.selectedItem, operType);
+            }
+        }
+
+        /**
+         * 函数名称：removeTreeXml
+         * 函数说明：移除树节点
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        public function removeTreeXml(node:Object, operType:String):void {
+            iid = int(Number(node.@iid));
+            CRMtool.tipAlert(ConstsModel.MENU_DETERMINE_HEAD + node.@ccname + ConstsModel.MENU_DETERMINE_TAIL, null, "AFFIRM", this, "onDeleteTree");
+        }
+
+        /**
+         * 函数名称：onDeleteTree
+         * 函数说明：从数据库中删除树节点
+         * 函数参数：无
+         * 函数返回：void
+         *
+         * 创建人：YJ
+         * 修改人：
+         * 创建日期：20110811
+         * 修改日期：
+         *
+         */
+        public function onDeleteTree():void {
+            AccessUtil.remoteCallJava("AsSmssetDest", "delete_as_smsset_byiid", onFuncrededitBack, iid, ConstsModel.MENU_REMOVE_INFO);
+        }
+
+        public function setValue():void {
+
+            this.ccode.text = asSmssetVO.ccode;
+            this.cname.selectedIndex = int(Number(asSmssetVO.cname));
+            this.cmemo.text = asSmssetVO.cmemo;
+            this.cuser.text = asSmssetVO.cuser;
+            this.cpassword.text = asSmssetVO.cpassword;
+            this.cport.text = asSmssetVO.cport;
+            this.cphoneprefix.text = asSmssetVO.cphoneprefix;
+            this.caddress.text = asSmssetVO.caddress;
+
+        }
+
+        protected function tree_itemClickHandler(event:ListEvent):void {
+            this.ccode.text = this.tree.selectedItem.@ccode;
+            this.cname.selectedIndex = int(Number(this.tree.selectedItem.@cname));
+            this.cmemo.text = this.tree.selectedItem.@cmemo;
+            this.cuser.text = this.tree.selectedItem.@cuser;
+            this.cpassword.text = this.tree.selectedItem.@cpassword;
+            this.cport.text = this.tree.selectedItem.@cport;
+            this.cphoneprefix.text = this.tree.selectedItem.@cphoneprefix;
+            this.caddress.text = this.tree.selectedItem.@caddress;
+
+        }
+
+        /**
+         *
+         * 作者：liulei
+         * 日期：2011-10-12
+         * 功能 修改数据权限勾选初始化数据权限分配
+         * 参数：无
+         * 返回值：无
+         * 修改人：
+         * 修改时间：
+         * 修改记录：
+         *
+         */
+        public function update_initdata():void {
+            AccessUtil.remoteCallJava("as_dataauthViewDest", "update_initdata", getupdate_initdataCallBackHandler, asSmssetVO.iid, null, false);
+        }
+
+        public function getupdate_initdataCallBackHandler(evt:ResultEvent):void {
+            if (evt.result.toString() != "sucess") {
+                Alert.show("初始化数据权限分配失败！！");
+            }
+        }
+
+
+        //窗体初始化
+        public function onWindowInit():void {
+
+        }
+
+        //窗体打开
+        public function onWindowOpen():void {
+            ini();
+            onGiveUp();
+            CRMtool.toolButtonsEnabled(this.btn_menubar, "onGiveUp");
+
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+
+        }
+
+        private function treeLabelFunc(item:XML):String {
+            for each(var i:Object in menuArray){
+                if(i.value==item.@cname)
+                    return "("+item.@ccode+")" + i.label;
+            }
+            return ""
+        }
+        ]]></fx:Script>
+</mx:HDividedBox>

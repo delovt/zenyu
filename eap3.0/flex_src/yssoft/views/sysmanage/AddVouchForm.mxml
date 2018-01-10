@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" creationComplete="init()"
+                        close="PopUpManager.removePopUp(this);" title="单据配置字段"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var _ivouch:int=0;
+			
+			public function set ivouch(value:int):void
+			{
+				this._ivouch=value;
+			}
+			
+			public function get ivouch():int
+			{
+				return this._ivouch;
+			}
+			
+			private var _ifuncregedit:int
+			
+			public function set ifuncregedit(value:int):void
+			{
+				this._ifuncregedit=value;
+			}
+			
+			public function get ifuncregedit():int
+			{
+				return this._ifuncregedit;
+			}
+			[Bindable]
+			private var _ctable:String;
+			
+			public function set ctable(value:String):void
+			{
+				this._ctable = value;
+			}
+			
+			public function get ctable():String
+			{
+				return this._ctable;
+			}
+			
+			[Bindable]
+			public var epartmentUserArr:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var roleUserArr:ArrayCollection = new ArrayCollection();
+			
+			//添加用户 
+			[Bindable]
+			public var addUserArr:ArrayCollection = new ArrayCollection();
+			
+			//删除用户
+			[Bindable]
+			public var romveUserArr:ArrayCollection = new ArrayCollection();
+			
+			public var parentForm:Object;
+			
+			public function init():void
+			{
+				 parentForm = this.owner; 
+				 var paramMap:Object = new Object();
+				paramMap.ifuncregedit=this._ifuncregedit;
+				paramMap.ctable = this._ctable;
+				paramMap.cfield= this.tnp_cname.text;
+				AccessUtil.remoteCallJava("DatadictionaryDest","queryVouchAndDia",getllBackHandler,paramMap); 
+			}
+			
+			public function getllBackHandler(event:ResultEvent):void
+			{
+				var resultArr:ArrayCollection= event.result.notInDataList as ArrayCollection;
+				for(var j:int=0;j<this.romveUserArr.length;j++)
+				{
+					var item2:Object = romveUserArr.getItemAt(j);
+					for(var i:int=0;i<resultArr.length;i++)
+					{
+						var item:Object = resultArr.getItemAt(i);
+						if(item.cfield==item2.cfield&&item2.ctable==item.ctable)
+						{
+							romveUserArr.removeItemAt(i);
+							break;
+						}
+						else if(item2.ctable!=item.ctable)
+						{
+							romveUserArr.removeItemAt(j);
+							break;
+						}
+					}
+				}
+				resultArr.addAll(romveUserArr);
+				romveUserArr.removeAll();
+				this.epartmentUserArr.removeAll();
+				this.epartmentUserArr.addAll(resultArr);
+			}
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 查询部门下的人员
+			 * 参数：userAll 查询出来的结果（要往该数据集插入的）
+			 * 参数：addAll 临时变量用来记录用户选择了哪些记录要添加
+			 * 参数：deleteAll 查询出来的结果（要从该数据集删除）
+			 * 参数：deleteemo 临时变量，用来记录删除哪些记录
+			 * 参数：chooseObj 当前选择了哪些记录，如果选择方式为1，单独选择的时候，生效，全选的时候不生效
+			 * 参数：mode  方式1，全部新增/删除 2选择时删除
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			public function add(mode:String="1"):void
+			{
+				// 全选
+				if(mode=="2")
+				{
+					//查询出来的结果
+					this.roleUserArr.addAll(this.epartmentUserArr);
+					//临时变量
+					this.addUserArr.addAll(this.epartmentUserArr);
+					//从临时变量中删除插入记录
+					deleteArr(this.romveUserArr,this.epartmentUserArr);
+					//从结果集中删除记录
+					this.epartmentUserArr.removeAll();
+				}
+				else
+				{
+					if(this.allUser.selectedItem)
+					{
+						//往j结果集中插入记录
+						this.roleUserArr.addAll(new ArrayCollection(this.allUser.selectedItems));
+						//往临时变量中插入记录
+						this.addUserArr.addAll(new ArrayCollection(this.allUser.selectedItems));
+						//从结果集钟删除数据
+						deleteArr(this.epartmentUserArr,new ArrayCollection(this.allUser.selectedItems));
+						//从临时变量删除数据.
+						deleteArr(this.romveUserArr,new ArrayCollection(this.allUser.selectedItems));
+					}
+					else
+					{
+						CRMtool.tipAlert("请选择要添加的记录");
+					}
+				}
+			}
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 查询部门下的人员
+			 * 参数：deleteAll 查询出来的结果（要从该数据集删除）
+			 * 参数：deleteemo 临时变量，用来记录删除哪些记录
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */  
+			private function deleteArr(deleteAll:ArrayCollection,deleteemo:ArrayCollection):void
+			{
+				for(var i:int=0;i<deleteemo.length;i++)
+				{
+					for(var j:int=0;j<deleteAll.length;j++)
+					{
+						if(deleteAll.getItemAt(j).idatadictionary==deleteemo.getItemAt(i).idatadictionary)
+						{
+							deleteAll.removeItemAt(j);
+							break;
+						}
+					}
+				}
+			}
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 查询部门下的人员
+			 * 参数：userAll 查询出来的结果（要往该数据集插入的）
+			 * 参数：addAll 临时变量用来记录用户选择了哪些记录要添加
+			 * 参数：deleteAll 查询出来的结果（要从该数据集删除）
+			 * 参数：deleteemo 临时变量，用来记录删除哪些记录
+			 * 参数：chooseObj 当前选择了哪些记录，如果选择方式为1，单独选择的时候，生效，全选的时候不生效
+			 * 参数：mode  方式1，全部新增/删除 2选择时删除
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			public function remove(mode:String="1"):void
+			{
+				// 全选
+				if(mode=="2")
+				{
+					//查询出来的结果
+					this.epartmentUserArr.addAll(this.roleUserArr);
+					//临时变量
+					this.romveUserArr.addAll(this.roleUserArr);
+					//从临时变量中删除插入记录
+					deleteArr(this.addUserArr,this.roleUserArr);
+					//从结果集中删除记录
+					this.roleUserArr.removeAll();
+				}
+				else
+				{
+					if(this.roleUser.selectedItem)
+					{
+						//往j结果集中插入记录
+						this.epartmentUserArr.addAll(new ArrayCollection(this.roleUser.selectedItems));
+						//往临时变量中插入记录
+						this.romveUserArr.addAll(new ArrayCollection(this.roleUser.selectedItems));
+						//从结果集钟删除数据
+						deleteArr(this.roleUserArr,new ArrayCollection(this.roleUser.selectedItems));
+						//从临时变量删除数据.
+						deleteArr(this.addUserArr,new ArrayCollection(this.roleUser.selectedItems));
+					}
+					else
+					{
+						CRMtool.tipAlert("请选择要删除的记录");
+					}
+				}
+			}
+			
+			public function addRoleUsr():void
+			{
+				if(this.addUserArr.length==0&&this.romveUserArr.length==0)
+				{
+					CRMtool.tipAlert("请选择选后，在操作");
+					return;
+				}
+				for each(var item:Object in this.addUserArr)
+				{
+					item.ctable= this._ctable;
+				}
+				 parentForm.addCfield(this.romveUserArr,this.addUserArr); 
+				 PopUpManager.removePopUp(this);
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<basic:layout>
+		<s:VerticalLayout gap="0" paddingLeft="10"  paddingTop="10" paddingRight="10"/>
+	</basic:layout>
+	<mx:VBox width="100%" height="100%">
+		<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox"  borderStyle="none">
+			<mx:VBox width="42%" height="100%" borderStyle="solid">
+				<mx:ApplicationControlBar width="100%" height="32" dock="true">
+					<mx:Label text="字段查询" styleName="contentTitle"/>
+					<mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+						<s:TextInput id="tnp_cname"/>
+						<s:Button label="查询" click="init();"/>
+					</mx:HBox>
+				</mx:ApplicationControlBar>
+				<mx:List id="allUser" width="100%" height="100%" dataProvider="{epartmentUserArr}" allowMultipleSelection="true" labelField="cfield" borderStyle="none"/>
+			</mx:VBox>
+			<mx:VBox width="15%" height="100%" verticalAlign="middle" horizontalAlign="center">
+				<mx:Button label="添加" click="add()"/>
+				<mx:Button label="全部添加" click="add('2')"/>
+				<mx:Button label="移除" click="remove()"/>
+				<mx:Button label="全部移除" click="remove('2')"/>
+			</mx:VBox>
+			<mx:VBox width="42%" height="100%" styleName="contentVBox">
+				<mx:ApplicationControlBar width="100%" height="32" dock="true">
+					<mx:Label text="{this._ctable}" styleName="contentTitle"/>
+				</mx:ApplicationControlBar>
+				<mx:List id="roleUser"  width="100%" dataProvider="{roleUserArr}" allowMultipleSelection="true" height="100%" labelField="cfield"/>
+			</mx:VBox>
+		</mx:HDividedBox>
+		<mx:HBox width="100%" height="38" horizontalAlign="center" verticalAlign="middle">
+			<s:Button label="确定" click="addRoleUsr();"/>
+			<s:Button label="取消" click="PopUpManager.removePopUp(this);"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+</basic:BasicTitleWindow>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        title="请选择对应关系"
+                        width="176" height="104" close="onCloseHandler()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+
+			private function resultParam():void
+			{
+				var formType:int=parseInt(rbg.selection.name);
+				(this.owner as RelationDesign).swresult(formType)
+			}
+			
+			private function onSure():void
+			{
+				resultParam();
+				onCloseHandler();
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:RadioButtonGroup id="rbg"/>
+	</fx:Declarations>
+	<s:RadioButton x="31" y="10" label="下游表" name="0" group="{rbg}" selected="true"/>
+	<s:RadioButton x="97" y="10" label="上游表" name="2" group="{rbg}"/>
+	<s:Button x="34" y="40" width="50" label="确定" click="onSure()"/>
+	<s:Button x="90" y="40" width="50" label="关闭" click="onCloseHandler()"/>
+</basic:BasicTitleWindow>

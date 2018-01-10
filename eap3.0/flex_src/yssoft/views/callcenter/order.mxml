@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		   label="应收明细{size>0?'('+size+')':''}">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.comps.frame.CompositeReportVBox;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var _winParam:Object;
+			
+			[Bindable]
+			private var size:int=0;
+			
+			private var basicAC:ArrayCollection;
+			
+			private var _filterObj:Object;
+			
+			public function get filterObj():Object
+			{
+				return _filterObj;
+			}
+			
+			public function set filterObj(value:Object):void
+			{
+				_filterObj = value;
+				if(value&&value.idepartment&&basicAC){					
+					var filterAC:ArrayCollection = new ArrayCollection();
+					for each(var item:Object in basicAC){					
+						if(value.isCollect){
+							if(item.dccode&&(item.dccode as String).search("^"+value.ccode)>-1){
+								filterAC.addItem(item);
+							}								
+						}else if(item.dccode==value.ccode)
+							filterAC.addItem(item);
+					}	
+					mainDG.dataProvider = filterAC;
+					size = filterAC.length;
+				}
+			}
+
+			
+			private var _myParent:CompositeReportVBox;
+			
+			public function get myParent():CompositeReportVBox
+			{
+				return _myParent;
+			}
+			
+			public function set myParent(value:CompositeReportVBox):void
+			{
+				_myParent = value;
+			}
+			
+			public function set winParam(value:Object):void
+			{
+				this._winParam=value;
+				if(this._winParam){
+					callRequest(this._winParam);
+				}
+				if(value==null){
+					mainDG.dataProvider = null;
+					size=0;
+				}
+			}
+			
+			public function get winParam():Object
+			{
+				return this._winParam;
+			}
+			
+			private function callRequest(param:Object):void
+			{
+				var sql:String="select sc_order.iid,sc_order.ddate,sc_order.ccode,sc_order.idepartment,as_funcregedit.cname as fun_cname," +
+					"cs_customer.cname as icustomer_cname,hr_department.cname as idepartment_cname,hr_department.ccode as dccode," +
+					"hr_person.cname as iperson_cname,sc_order.fsum,sc_order.cmemo,sc_order.iifuncregedit,SC_order.frpsum,isnull(SC_order.fsum,0)-isnull(SC_order.frpsum,0) as yingshou" +
+					" from sc_order " +
+					" left join as_funcregedit on as_funcregedit.iid = sc_order.iifuncregedit" +
+					" left join cs_customer on sc_order.icustomer = cs_customer.iid" +
+					" left join hr_department on hr_department.iid = sc_order.idepartment" +
+					" left join hr_person on hr_person.iid = sc_order.iperson where 1=1 and isnull(SC_order.frpsum,0)!=isnull(SC_order.fsum,0) ";
+				
+				
+				//if(CRMtool.isStringNotNull(param.rpinvoice_sddate))
+				//	sql += (" and ddate >='"+param.rpinvoice_sddate+"'");
+				if(CRMtool.isStringNotNull(param.rpinvoice_eddate))
+					sql += (" and ddate <='"+param.rpinvoice_eddate+"'");
+				if(param.idepartment>0)
+					sql += (" and sc_order.idepartment in(select iid from hr_department where ccode like (select ccode from hr_department where iid="+param.idepartment+")+'%')");		
+				if(param.iperson>0)
+					sql += (" and sc_order.iperson ="+param.iperson);	
+				
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var eventAC:ArrayCollection =event.result as ArrayCollection;
+					if(eventAC)
+						searchBack(eventAC);					
+				},sql+param.orderAuthSql+" order by ddate,sc_order.icustomer ");	
+			}
+			
+			private function searchBack(ac:ArrayCollection):void{
+				mainDG.dataProvider = ac;
+				size = ac.length;
+				basicAC = ac;
+				for each(var ditem:Object in winParam.mainDGData){
+					ditem.fsum =0;
+				}
+				
+				for each(var item:Object in ac){
+					for each(var ditem:Object in winParam.mainDGData){
+						if(item.idepartment==ditem.idepartment){
+							ditem.fsum += item.yingshou;
+						}
+					}
+				}
+				
+				this.myParent.sum();
+			}
+						
+			private function doLineNum(item:Object, column:DataGridColumn):String{	
+				var lineNum:int = mainDG.dataProvider.getItemIndex(item)+1;
+				return lineNum+"";
+			}
+			
+			protected function mainDG_doubleClickHandler(event:MouseEvent):void
+			{
+				CRMtool.openbillonbrowse(mainDG.selectedItem.iifuncregedit,mainDG.selectedItem.iid,mainDG.selectedItem.fun_cname);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:DataGrid width="100%" height="100%" id="mainDG"
+				 doubleClickEnabled="true" doubleClick="mainDG_doubleClickHandler(event)">
+		<mx:columns>
+			<mx:DataGridColumn labelFunction="{doLineNum}" width="40"/>
+			<mx:DataGridColumn id="ddate" width="60" headerText="业务日期" dataField="ddate" labelFunction="{CRMtool.formatDate}"/>
+			<mx:DataGridColumn id="fun_cname" headerText="合同类型" dataField="fun_cname"  width="100"/>	
+			<mx:DataGridColumn headerText="合同号" dataField="ccode" width="90"/>
+			<mx:DataGridColumn headerText="部门" dataField="idepartment_cname" width="90"/>
+			<mx:DataGridColumn id="iperson_cname" headerText="人员"  dataField="iperson_cname" width="60" />
+			<mx:DataGridColumn id="icustomer_cname" headerText="客户" dataField="icustomer_cname"  width="140"/>		
+			<mx:DataGridColumn id="fsum" headerText="成交金额"  dataField="fsum" textAlign="right" labelFunction="{CRMtool.formatFloat}"/>
+			<mx:DataGridColumn id="frpsum" headerText="累计回款"  dataField="frpsum" textAlign="right" labelFunction="{CRMtool.formatFloat}"/>
+			<mx:DataGridColumn id="yingshou" headerText="应收余额"  dataField="yingshou" textAlign="right" labelFunction="{CRMtool.formatFloat}"/>
+			<mx:DataGridColumn id="cmemo" headerText="备注" dataField="cmemo"  />	
+			
+		</mx:columns>
+	</mx:DataGrid>
+</mx:Canvas>

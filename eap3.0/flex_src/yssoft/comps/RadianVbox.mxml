@@ -1,0 +1,1638 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:comps="yssoft.comps.*" creationComplete="initElement()">
+	
+	<!--YJ Add -->
+	<fx:Script source="../scripts/BillDataGridHandle.as"/>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<mx:DateFormatter id="df" formatString="YYYY-MM-DD JJ:NN:SS"/>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="onChange",type="flash.events.Event")]
+		[Event(name="myCB_changeHandler",type="flash.events.Event")]
+		[Event(name="onClick",type="flash.events.Event")]
+		[Event(name="onItemDoubleClick",type="flash.events.Event")]
+		[Event(name="complete",type="flash.events.Event")]
+		[Event(name="onChangeDoubleEvent",type="flash.events.Event")]
+		[Event(name="cleanClick",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.containers.Box;
+			import mx.containers.HBox;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.controls.ColorPicker;
+			import mx.controls.DataGrid;
+			import mx.controls.HRule;
+			import mx.controls.Label;
+			import mx.controls.RadioButton;
+			import mx.controls.RadioButtonGroup;
+			import mx.controls.TextArea;
+			import mx.controls.TextInput;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.DataGridEvent;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import spark.components.CheckBox;
+			import spark.components.ComboBox;
+			import spark.events.GridEvent;
+			
+			import yssoft.comps.dataGridRenderer.ItemRendererCheckBox;
+			import yssoft.comps.dataGridRenderer.ItemRendererComboBox;
+			import yssoft.comps.dataGridRenderer.ItemRendererConsult;
+			import yssoft.comps.dataGridRenderer.ItemRendererDate;
+			import yssoft.comps.dataGridRenderer.ItemRendererHearderTextColor;
+			import yssoft.comps.dataGridRenderer.ItemRendererTextInputNumber;
+			import yssoft.evts.onItemDoubleClick;
+			import yssoft.models.CRMmodel;
+			import yssoft.renders.DGCheckBox;
+			import yssoft.renders.DGConsultTextInput;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.ElementVo;
+			import yssoft.vos.SubElementsVo;
+			
+			//YJ Add
+			
+			//承载单据中的datagrid的id和标题信息
+			public var dginfo:Array = new Array();
+			
+			public var consultFun:Function;//参照方法
+			[Bindable]
+			public var restrainArr:ArrayCollection = new ArrayCollection();//承载DataGrid约束信息(字段名,约束公式)
+			
+			[Bindable]
+			public var serverdate:Object = {};
+			//End 
+			
+			[Bindable]
+			private var _sum:int = 0;
+			
+			private var _fun:Function;
+			
+			public var formula:Function;
+			
+			public var subformula:Function;
+			
+			private var parentForm:Object;
+			
+			public function set fun(value:Function):void
+			{
+				_fun = value;	
+			}
+			
+			public function get sum():int{
+				return _sum;
+			}
+			
+			private var _elementArr:ArrayCollection; 
+			
+			
+			public var componentsArr:ArrayCollection = new ArrayCollection();
+			
+			private var _cou:int;
+			
+			private var _datadictionaryArr:ArrayCollection;
+			
+			[Bindable]
+			public var paramObj:Object;
+			
+			public function set datadictionaryArr(value:ArrayCollection):void
+			{
+				_datadictionaryArr = value;
+			}
+			
+			/**
+			 * 
+			 * 表单IID（动态创建dataGrid时使用）
+			 */
+			[Bindable]
+			public var mainTableiid:int ; 
+			
+			/**
+			 * 表单操作 (add,modity,del...)
+			 */ 
+			[Bindable]
+			public var operate:String = "";
+			 
+			private var _parametersObj:Object;
+			
+			//获得输入值
+			private var _cname:String;
+			
+			private var _selecteItem:Object;
+			
+			//按钮的lable
+			private var _btnName:String;
+			
+			public var item:String;
+			
+			//DataGrid数据集
+			private var dgDsArr:ArrayCollection = new ArrayCollection();
+			
+			public function get btnName():String
+			{
+				return _btnName;
+			}
+			
+			public function get selecteItem():Object
+			{
+				return _selecteItem;
+			}
+			
+			public function get cname():String
+			{
+				return this._cname;
+			}
+			
+			
+			public function set parametersObj(value:Object):void
+			{
+				_parametersObj =value;
+			}
+			
+			public function set cou(value:int):void
+			{
+				_cou = value;
+			}
+			
+			public function set elementArr(value:ArrayCollection):void
+			{
+				this._elementArr= value;
+			}
+			
+			public var dgnumber:ArrayCollection = new ArrayCollection();//YJ Add 记录单据中DataGrid个数
+			
+			
+			private function initElement():void
+			{
+				parentForm = this.owner;
+				
+				//YJ Add 
+				this.dgnumber = parentForm.dgnumber;
+				parentForm.childfun = onGetColValue;
+				parentForm.mainFun = onSetValueByPTable;
+				consultFun = onSetDataByConsult;
+				//End
+				
+				//空值行数
+				var count:int = 0;
+				for(var i:int=0;i<this._elementArr.length;i++)
+				{
+					//得到里面子元素
+					var elements:ElementVo = this._elementArr.getItemAt(i) as ElementVo;
+					var hbx_coulmn:Box;
+					var hbx_row:Box = new Box();
+					
+					var hrule:HRule;
+					//判断一行显示几列
+					if(_cou==1)
+					{
+						if(elements.subElement.getItemAt(0).ifieldtype != "10" && elements.subElement.getItemAt(0).ifieldtype != "9")
+						{
+							this.styleName="content";
+							hbx_coulmn = new VBox();
+							hbx_coulmn.styleName="contentSubHbox"; 
+							hbx_coulmn.percentWidth=100;
+							hbx_coulmn.percentHeight =100;
+							this.addChild(hbx_coulmn);
+							
+							hbx_row = new HBox();
+							hbx_row.percentWidth = 100;
+							hbx_row.percentHeight =100;
+							hbx_coulmn.addChild(hbx_row);
+							
+							if(i<this._elementArr.length-1&&this._elementArr.length>1)
+							{
+								hrule = new HRule();
+								hrule.percentWidth =100;
+								this.addChild(hrule);
+							}
+						}
+					}
+					else
+					{
+						if(elements.subElement.getItemAt(0).ifieldtype != "10" && elements.subElement.getItemAt(0).ifieldtype != "9")
+						{
+							this.styleName="content";
+							//列数平均分
+							hbx_row = new HBox();
+							if(_cou==1)
+							{
+								hbx_coulmn = new HBox();
+								hbx_coulmn.styleName="contentSubHbox";
+								hbx_coulmn.percentWidth=100;
+								hbx_row.percentHeight =100;
+								this.addChild(hbx_coulmn);
+								if(i<this._elementArr.length)
+								{
+									hrule = new HRule();
+									hrule.percentWidth =100;
+									this.addChild(hrule);
+								}
+							}
+							else
+							{
+								if(count%_cou==0)
+								{
+									hbx_coulmn = new HBox();
+									hbx_coulmn.styleName="contentSubHbox";
+									hbx_coulmn.percentWidth=100;
+									this.addChild(hbx_coulmn);
+									
+									if(i<this._elementArr.length-_cou)
+									{
+										hrule = new HRule();
+										hrule.percentWidth =100;
+										this.addChild(hrule);
+									}
+								}
+								hbx_row.percentWidth = (100/_cou);
+							}
+							
+							hbx_coulmn.addChild(hbx_row);
+						}
+					}
+					var lbe_ccaption:Label=null;
+					//判断是否显示lable
+					//YJ Modify 20110925 如果是9=DataGrid 无需在创建标签
+					if (!(elements.subElement.getItemAt(0).ifieldtype == 9 || elements.subElement.getItemAt(0).ifieldtype == 7)){
+						if(CRMtool.isStringNotNull(elements.ccaption))
+						{
+							if(!elements.isLine)
+							{
+								lbe_ccaption = new Label;
+								lbe_ccaption.text = elements.ccaption;
+								lbe_ccaption.styleName ="contentLabel";
+								lbe_ccaption.percentWidth=20;
+								hbx_row.addChild(lbe_ccaption);
+							}
+						}
+					}
+					
+					var componentsObj:Object = new Object();
+					var size:int=0;
+					
+					
+					
+					for(var j:int=0;j<elements.subElement.length;j++)
+					{
+						var subEle:SubElementsVo = elements.subElement.getItemAt(j) as SubElementsVo;
+						if(CRMtool.isStringNotNull(subEle.verticalAlign))
+						{
+							hbx_row.setStyle("verticalAlign",subEle.verticalAlign);
+						}
+						
+						if(CRMtool.isStringNotNull(subEle.horizontalAlign))
+						{
+							hbx_row.setStyle("horizontalAlign",subEle.horizontalAlign);
+						}
+						for each(var datadictionaryObj:Object in this._datadictionaryArr)
+						{
+							if(subEle.cfield==datadictionaryObj.cfield||subEle.ifieldtype==9)
+							{
+								// YJ Modify 动态创建控件
+								switch(subEle.ifieldtype)
+								{
+									case 1:
+									{
+										var crmtnp_cfield: CRMReferTextInput= new CRMReferTextInput();
+										crmtnp_cfield.iid = subEle.dataIid;
+									/* 	if(subEle.defaultsvalue!="0")
+										{
+											crmtnp_cfield.te = subEle.defaultsvalue;
+										} */
+										crmtnp_cfield.visibleIcon =crmtnp_cfield.editable;
+										crmtnp_cfield.styleName = "contentTextInput";
+										crmtnp_cfield.percentWidth =100;
+										crmtnp_cfield.cfield = subEle.cfield;
+										crmtnp_cfield.name = subEle.cfield;
+										crmtnp_cfield.consultFun =consultFun;
+										crmtnp_cfield.item = this.item;
+										/* crmtnp_cfield.paramObj = this.paramObj; */
+										crmtnp_cfield.fun =this._fun;
+										hbx_row.addChild(crmtnp_cfield);
+										crmtnp_cfield.addEventListener(onItemDoubleClick.eventtype,onDoubleEvent);
+										crmtnp_cfield.addEventListener("onChangeDoubleEvent",onChangeDoubleEvent);
+										crmtnp_cfield.addEventListener("cleanClick",cleanClick);
+										//元素的某个方法
+										componentsObj = new Object();
+										componentsObj.components=crmtnp_cfield;
+										componentsObj.type ="CRMReferTextInput";
+										componentsObj.cfield = subEle.cfield;
+										componentsObj.defaultsvalue =subEle.defaultsvalue;
+										componentsObj.iseditable = subEle.iseditable;
+										componentsObj.verificationArr =subEle.verificationArr;
+										//所有元素
+										componentsArr.addItem(componentsObj);
+										break;
+									}
+									case 2:
+									{
+										var tnp_cfield:TextInput = new TextInput();
+										switch(datadictionaryObj.idatatype)
+										{
+											case 1:
+											{
+												tnp_cfield.restrict="[0-9]";
+												break;
+											}
+											case 2:
+											{
+												tnp_cfield.restrict="[0-9]\.";
+												break;
+											}
+											default:
+											{
+												break;
+											}
+										}
+										if(datadictionaryObj.bshow!=1)
+										{
+											tnp_cfield.visible = false;
+											tnp_cfield.width=0;
+											tnp_cfield.height=0;
+											hrule.visible=false;
+											hrule.width=0;
+											hrule.height=0;
+											count--;
+										}
+										else
+										{
+											tnp_cfield.percentWidth=100;
+											tnp_cfield.styleName = "contentTextInput";
+										}
+										tnp_cfield.editable = subEle.iseditable;
+										tnp_cfield.name =subEle.cfield;
+										
+										hbx_row.addChild(tnp_cfield);
+									/* 	if(subEle.isChange)
+										{ */
+											tnp_cfield.addEventListener(FocusEvent.FOCUS_OUT
+												,onChange);
+											tnp_cfield.addEventListener(Event.CHANGE,change);
+										/* } */
+										componentsObj = new Object();
+										componentsObj.components=tnp_cfield;
+										componentsObj.type ="TextInput";
+										componentsObj.cfield = subEle.cfield;
+										componentsObj.defaultsvalue =subEle.defaultsvalue;
+										componentsObj.iseditable = subEle.iseditable;
+										componentsObj.verificationArr =subEle.verificationArr;
+										componentsArr.addItem(componentsObj);
+										break;
+									}
+									case 3:
+									{
+										var dfl_cfield:DateControl = new DateControl();
+										dfl_cfield.percentWidth=100;
+									/* 	dfl_cfield.text =subEle.defaultsvalue; */
+										var idatetype:int = int(datadictionaryObj.idatetype);
+										
+										if(idatetype==3)
+										{
+											dfl_cfield.showShape = 0;
+										}
+										else
+										{
+											dfl_cfield.showShape = datadictionaryObj.idatetype;
+										}
+										dfl_cfield.isStyle = true;
+										dfl_cfield.editable = true;
+										dfl_cfield.name=subEle.cfield;
+										hbx_row.addChild(dfl_cfield);
+										
+										dfl_cfield.addEventListener(FocusEvent.FOCUS_OUT
+											,dateOnchange);
+										componentsObj = new Object();
+										componentsObj.components=dfl_cfield;
+										componentsObj.type ="DateControl";
+										componentsObj.cfield = subEle.cfield;
+										componentsObj.defaultsvalue =subEle.defaultsvalue;
+										componentsObj.iseditable = subEle.iseditable;
+										componentsObj.verificationArr =subEle.verificationArr;
+										componentsArr.addItem(componentsObj);
+										
+										//YJ Add 2011-11-07 日期控件添加事件
+										/* var eventArr:ArrayCollection = subEle.eventArr;
+										dfl_cfield.addEventListener(FlexEvent.CREATION_COMPLETE,function(e:Event):void{
+											if(eventArr!=null)
+											{ 
+												for(var k:int=0;k<eventArr.length;k++)
+												{
+													var eventObje:Object = eventArr.getItemAt(k);
+													
+													if(dfl_cfield.date)														
+														dfl_cfield.date.addEventListener(eventObje.eventType,eventObje._function(componentsArr,eventObje.parameter));
+												}
+											}
+											
+										}); */
+										//End
+										
+										break;
+									}
+									case 4:
+									{
+										var rbtnArr:ArrayCollection;
+										var rbtn_group:RadioButtonGroup;
+										if(size==0)
+										{
+											rbtn_group= new RadioButtonGroup();
+										}
+										var rbtn_cfield:RadioButton = new RadioButton();
+										rbtn_cfield.group = rbtn_group;
+										rbtn_cfield.label =subEle.eleLable;
+										rbtn_cfield.value = subEle.eleVaue;
+										hbx_row.addChild(rbtn_cfield);
+										
+										if(subEle.defaultsvalue==subEle.eleVaue)
+										{
+											rbtn_cfield.selected = true;
+											rbtn_group.selectedValue = subEle.defaultsvalue;
+										}
+										else
+										{
+											rbtn_cfield.selected = false;
+										}
+										hbx_row.addChild(rbtn_cfield);
+										if(size==0)
+										{	
+											rbtnArr = new ArrayCollection();
+											componentsObj = new Object();
+											componentsObj.components=rbtn_group;
+											componentsObj.type ="RadioButtonGroup";
+											componentsObj.cfield = subEle.cfield;
+											componentsObj.rbtnArr =rbtnArr;
+											componentsObj.defaultsvalue =subEle.defaultsvalue;
+											componentsObj.verificationArr =subEle.verificationArr;
+											componentsArr.addItem(componentsObj);
+										}
+										rbtnArr.addItem(rbtn_cfield);
+										size++;
+										break;
+									}
+									case 5:
+									{
+										var cmb_cfield:ComboBox = new ComboBox();
+										cmb_cfield.dataProvider = subEle.comBoxArr;
+										cmb_cfield.labelField = subEle.eleLable;
+										
+										var eventArr:ArrayCollection = subEle.eventArr;
+										if(eventArr!=null)
+										{ 
+											for(var k:int=0;k<eventArr.length;k++)
+											{
+												var eventObje:Object = eventArr.getItemAt(k);
+												onItemDoubleClick.eventtype =eventObje.eventType;
+												cmb_cfield.addEventListener(eventObje.eventType,function(e:Event){eventObje._function(e,comDatdPr)});
+											}
+										}
+										/* cmb_cfield.addEventListener(Event.CHANGE,myCB_changeHandler); */
+										cmb_cfield.selectedIndex =-1;
+										
+										cmb_cfield.percentWidth =100;
+										hbx_row.addChild(cmb_cfield);
+										
+										componentsObj = new Object();
+										componentsObj.components=cmb_cfield;
+										componentsObj.type ="ComboBox";
+										componentsObj.cfield = subEle.cfield;
+										componentsObj.eleValue = subEle.eleVaue;
+										componentsObj.defaultsvalue =subEle.defaultsvalue;
+										componentsObj.verificationArr =subEle.verificationArr;
+										componentsObj.initArr =subEle.initArr;
+										componentsArr.addItem(componentsObj);
+										break;
+									}
+									case 6:
+									{
+										var chbx_cfield:CheckBox = new CheckBox();
+										chbx_cfield.label =subEle.eleLable;
+										if(subEle.defaultsvalue=="true")
+										{
+											chbx_cfield.selected = true;
+										}
+										else
+										{
+											chbx_cfield.selected = false;
+										}
+										hbx_row.addChild(chbx_cfield);
+										
+										componentsObj = new Object();
+										componentsObj.components=chbx_cfield;
+										componentsObj.type ="CheckBox";
+										componentsObj.cfield = subEle.cfield;
+										componentsObj.defaultsvalue =subEle.defaultsvalue;
+										componentsObj.verificationArr =subEle.verificationArr;
+										componentsArr.addItem(componentsObj);
+										break;
+									}
+									case 7:
+									{
+										var txr_cfield:TextArea = new TextArea();
+										txr_cfield.percentWidth=100;
+										txr_cfield.percentHeight=100;
+										if(subEle.defaultsvalue!="0")
+										{
+											txr_cfield.text =  subEle.defaultsvalue;
+										}
+										txr_cfield.styleName = "contentTextInput";
+										hbx_row.addChild(txr_cfield);
+										
+										componentsObj = new Object();
+										componentsObj.components=txr_cfield;
+										componentsObj.type ="TextArea";
+										componentsObj.cfield = subEle.cfield;
+										componentsObj.defaultsvalue =subEle.defaultsvalue;
+										componentsObj.verificationArr =subEle.verificationArr;
+										componentsArr.addItem(componentsObj);
+										break;
+									}
+									case 8:
+									{
+										var btn_cfield:Button = new Button();
+										btn_cfield.label = subEle.eleLable;
+										btn_cfield.addEventListener(MouseEvent.CLICK,onClick);
+										hbx_row.addChild(btn_cfield);
+										break;
+									}
+									case 9:{ // 动态创建 datagrid
+										var dg:DataGrid = new DataGrid();
+										dg.percentWidth = 100;
+										dg.height = 150;
+										dg.horizontalScrollPolicy = "auto";
+										dg.enabled = subEle.iseditable;
+										dg.lockedColumnCount=1;//锁定第一列
+										dg.focusEnabled = true;
+	
+										if(this.operate == "onEdit")
+										{
+											dg.editable= true;
+										}
+										
+										dg.draggableColumns = false;
+										dg.id = subEle.cfield;
+										dg.addEventListener(KeyboardEvent.KEY_DOWN,CRMtool.doKeyDown);//增加回车事件
+										
+										//DataGrid_DRAG
+										if(null != subEle.conditionObj){
+											dg.data = subEle.conditionObj.itype+"";
+										}else dg.data = null;
+										
+										var tablename:String = subEle.cfield;//在子表中设置的是子表表名
+										var objvalue:Object = {};
+										objvalue.tablename = tablename;
+										
+										if(null != subEle.conditionObj){
+											objvalue.condition = subEle.conditionObj.condition + mainTableiid;  //  ' obj. 主表Id = ' + mainTableId
+										}
+										
+										this.addChild(dg);
+										
+										//添加datagrid的相关信息
+										var objdg:Object = {};
+										objdg.dgid = dg.id;//datagrid的ID标识
+										objdg.dgname = elements.ccaption;//datagrid的标题
+										this.dginfo.push(objdg);
+										
+										AccessUtil.remoteCallJava("CompetitorDest","getSublistInfo",function(evt:ResultEvent):void{
+											
+											var arr_table:ArrayCollection = evt.result.tablelist as ArrayCollection;//获取表结构
+											var arr_datalist:ArrayCollection = evt.result.datalist as ArrayCollection;//获取数据集合
+											serverdate = evt.result.serverdate;//获取服务器时间
+											
+											//初始化DataGrid表头
+											iniDataGridColumns(elements.ccaption,arr_table,dg);
+											
+											//子表表体运算
+											onDataGridOperation(arr_table,dg,elements.ccaption);
+											
+											
+											if(operate != "onNew"){
+												dg.dataProvider = arr_datalist;
+											}
+											
+											
+										},objvalue,null,false);
+									
+										
+										componentsObj = new Object();
+										componentsObj.components=dg;
+										componentsObj.type ="DataGrid";
+										componentsObj.cfield = subEle.cfield; 
+										componentsArr.addItem(componentsObj);
+										break;
+									}
+									case 10:
+									{
+										var rte_cfield:CRMRichTextEditor=new CRMRichTextEditor();
+										
+										rte_cfield.percentWidth = 100;
+										rte_cfield.percentHeight = 100;
+										this.addChild(rte_cfield);
+										
+										componentsObj = new Object();
+										componentsObj.components=rte_cfield;
+										componentsObj.type ="CRMRichTextEditor";
+										componentsObj.cfield = subEle.cfield;
+										componentsObj.defaultsvalue =subEle.defaultsvalue;
+										componentsObj.verificationArr =subEle.verificationArr;
+										componentsArr.addItem(componentsObj);
+										break;
+									}
+									default:
+									{
+										break;
+									}
+								}
+								
+								if(lbe_ccaption!=null&&datadictionaryObj.bunnull=="1")
+								{
+									lbe_ccaption.setStyle("color","red");
+								}
+								
+								if(subEle.isLine&&size==0)
+								{
+									if(i==this._elementArr.length-_cou)
+									{
+										var hrule:HRule = new HRule();
+										hrule.percentWidth =100;
+										this.addChild(hrule);
+									}
+									if(datadictionaryObj.bshow==1)
+									{
+										count++;
+									}
+								}
+								break;
+							
+							}
+						}
+					}
+					count++;
+					if(i==this._elementArr.length-1&&count%_cou!=0)
+					{
+						lbe_ccaption.percentWidth=8;
+						hbx_coulmn.percentWidth=100;
+						hbx_coulmn.percentHeight =100;
+						hbx_row.percentWidth = 100;
+						hbx_row.percentHeight =100;
+					}
+				}
+				this.dispatchEvent(new Event("complete"));
+			}
+			
+			public function dateOnchange(event:FocusEvent):void
+			{
+				var cfieldTex:DateControl = event.currentTarget as DateControl;
+				var cname:String = cfieldTex.text;
+				var cfield:String=cfieldTex.name;
+			/* 	if(this.item=="onNew"||this.item=="onEdit")
+				{ */
+					formula(cfield,cname);
+					parentForm.constraintFormula(cfield,cname);
+				/* } */
+				
+				
+			}
+						
+			private function cleanClick(event:Event):void
+			{
+				var cfieldTex:CRMReferTextInput = event.currentTarget as CRMReferTextInput;
+				var cfield:String = cfieldTex.name;
+				var value:String = "";
+				formula(cfield,value);
+				parentForm.constraintFormula(cfield,value);
+				this.dispatchEvent(new onItemDoubleClick("cleanClick",cfield));
+			}
+			
+			public var paramArr:ArrayCollection = new ArrayCollection();
+			
+			private function onDoubleEvent(event:onItemDoubleClick):void
+			{
+				var cfieldTex:CRMReferTextInput = event.currentTarget as CRMReferTextInput;
+				var cfield:String = cfieldTex.name;
+				var value:String = "";
+				if( cfieldTex.cconsultbkfld.length>0&&null!=cfieldTex.cconsultbkfld[0])
+				{
+					value=cfieldTex.cconsultbkfld[0];	
+				}
+				formula(cfield,cfieldTex.text);
+				parentForm.constraintFormula(cfield,cfieldTex.text);
+			/* 	var evntObj:Object = event.param as Object; */
+				/* paramArr.removeAll(); */
+				/* for(var i:int=0;i<paramArr.length;i++)
+				{
+					var obj:Object = paramArr.getItemAt(i);
+					if(obj.cfield==evntObj.cfield)
+					{
+						this.paramArr.removeItemAt(i);
+					}
+				} */
+				/* paramArr.addItem(event.param); */
+				this.dispatchEvent(new onItemDoubleClick("onItemDoubleClick",event.param));
+			}
+			
+			private function onChangeDoubleEvent(event:onItemDoubleClick):void
+			{
+				var cfieldTex:CRMReferTextInput = event.currentTarget as CRMReferTextInput;
+				var cfield:String = cfieldTex.name;
+				var value:String = "";
+				if( cfieldTex.cconsultbkfld.length>0)
+				{
+					value=cfieldTex.cconsultbkfld[0].toString();	
+				}
+				formula(cfield,cfieldTex.text);
+				parentForm.constraintFormula(cfield,cfieldTex.text);
+				this.dispatchEvent(new onItemDoubleClick("onChangeDoubleEvent",event.param));
+			}
+			//YJ Add 动态创建DataGrid列
+			//arr_columns:列集合数据集，dataGrid：实例化的DataGrid,	serverdate(服务器时间)
+			private function iniDataGridColumns(caption:String,arr_columns:ArrayCollection,dataGrid:DataGrid):void{
+				var sumColWidth:int = 0;
+				var columns:Array=new Array();
+				//增加序号
+				var columnxh:DataGridColumn = new DataGridColumn();
+				columnxh.headerText = "序号";
+				columnxh.setStyle("textAlign","center");
+				columnxh.width = 50;
+				columnxh.editable = false;
+				columnxh.itemRenderer = new ClassFactory(yssoft.comps.ItemRendererNumber);
+				columns.push(columnxh);
+				
+				//必输项
+				var fieldArr:Array = new Array();
+				var gridArr:Array = new Array();
+				var obj:Object = {};
+				obj.dg = dataGrid.id;//datagrid的ID
+				obj.dgname = caption.substring(0,caption.indexOf(":"));//datagrid的标题
+				gridArr.push(obj);
+				
+				//新增默认值
+				var cdefaultArr:Array = new Array();
+				//修改默认值
+				var ceditArr:Array = new Array();
+				
+				for(var i:int=0;i<arr_columns.length;i++){
+					var column:DataGridColumn = new DataGridColumn();
+					var iid:int				= arr_columns[i]["iid"];//主键
+					var dataField:String 	= arr_columns[i]["cfield"];//字段
+					var dataType:String  	= arr_columns[i]["idatatype"];//字段类型
+					var header:String		= arr_columns[i]["ccaption"];//标题
+					var width:int 		 	= arr_columns[i]["ilength"];//列宽度
+					var bchildshow:Boolean = arr_columns[i]["bchildshow"];//子表是否显示
+					var iconsult:String		= arr_columns[i]["iconsult"];//参照信息
+					var cselsetvalues:String = arr_columns[i]["cselsetvalues"];//参照赋值公式
+					var bunnull:Boolean		= arr_columns[i]["bunnull"];//必输项
+					var cnewdefault:String = arr_columns[i]["cnewdefault"];//新增默认值
+					var cnewdefaultfix:String = arr_columns[i]["cnewdefaultfix"];//新增自定义默认值
+					var ceditdefault:String	  = arr_columns[i]["ceditdefault"];//修改默认值
+					var cresfunction:String = arr_columns[i]["cresfunction"];//约束公式
+					var cresmessage:String = arr_columns[i]["cresmessage"];//约束提醒
+					
+					if(i==arr_columns.length-1)
+						column.width = 200;
+					
+					//渲染控件,如果固定值不为空，说明该字段的展现方式可能是ComboBox，将dataType赋值为ComboBox
+					var objpara:Object = {};
+					objpara.dataField = dataField;
+					if(iconsult != "" && iconsult != "0"){
+						dataType = "consultControl";//参照类型
+						objpara.iconsult = iid;
+						objpara.cselsetvalues = cselsetvalues;//参照赋值公式
+					}
+					
+					column.dataField = dataField;
+					column.headerText = header;
+//					column.sortable = false;
+//					column.resizable = false;
+					
+					//必输项设置
+					if(bunnull){
+						var fobj:Object = {};
+						fobj.field = dataField;//字段名
+						fobj.fname = header; //字段显示名称
+						fieldArr.push(fobj);
+						
+						var heardercolor:ClassFactory = new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererHearderTextColor);
+						column.headerRenderer = heardercolor;
+						
+					}
+					
+					columnRenderer(column,dataType,objpara);//开始处理渲染控件
+					
+					if(bchildshow) sumColWidth += column.width;
+					if(!bchildshow || dataField == "iid") column.visible = false;
+					columns.push(column);
+					
+					if(i==arr_columns.length-1){//最后一列设置宽度
+						//column.width = dataGrid.width-sumColWidth;
+					}
+					
+					//新增默认值
+					if(cnewdefault != "" || (cnewdefaultfix != null && cnewdefaultfix != "")){
+						var objdf:Object = {};
+						objdf.dataField = dataField;
+						
+						if(cnewdefaultfix != null && cnewdefaultfix != "")
+							objdf.dataValue = cnewdefaultfix;
+						else							
+							objdf.dataValue = onGetDefaultValue(cnewdefault);//系统定义新增默认值
+						
+						cdefaultArr.push(objdf);
+					}
+					//修改默认值
+					if(ceditdefault != null && ceditdefault != ""){
+						var objedit:Object = {};
+						objedit.dataField = dataField;
+						objedit.dataValue = onGetDefaultValue(ceditdefault);//系统定义新增默认值
+						
+						ceditArr.push(objedit);
+					}
+					
+					//约束
+					if(cresfunction != null && cresfunction != ""){
+						var objrestrain:Object = {};
+						objrestrain.cfield = dataField;//约束字段
+						objrestrain.fname = header;//约束字段名称
+						objrestrain.cresfun = cresfunction;//约束公式
+						objrestrain.cresmes = cresmessage;//约束提示信息
+						this.restrainArr.addItem(objrestrain);
+					}
+					
+				}
+				
+				//必输项
+				var objun:Object = {};
+				objun.gridArr = gridArr;
+				objun.fieldArr = fieldArr;				
+				((parentForm.childBUnNullArr) as ArrayCollection).addItem(objun);//将必输项信息添加
+				
+				//新增默认值
+				var objdefault:Object = {};
+				objdefault.dgid = dataGrid.id;
+				objdefault.defaultArr = cdefaultArr;
+				((parentForm.childDefaultArr) as ArrayCollection).addItem(objdefault);//将默认值信息添加
+				
+				//修改默认值
+				var objeditdefault:Object = {};
+				objeditdefault.dgid = dataGrid.id;
+				objeditdefault.defaultArr = ceditArr;
+				((parentForm.childEditDefaultArr) as ArrayCollection).addItem(objeditdefault);//将修改默认值信息添加
+				
+				
+				//约束项
+				var objcres:Object = {};
+				objcres.gridid = dataGrid.id;
+				objcres.gridname = caption.substring(0,caption.indexOf(":"));//datagrid的标题
+				objcres.restrainArr = restrainArr;
+				((parentForm.childBCresArr) as ArrayCollection).addItem(objcres);//将约束项信息添加
+				
+				
+				if(columns.length >0){
+					dataGrid.columns = dataGrid.columns.concat(columns);
+				}
+			}
+			
+			//YJ Add 动态创建DataGrid时渲染控件,根据数据类型的不同创建不同的控件
+			private function columnRenderer(column:DataGridColumn,dataType:String,obj:Object):void{
+			
+				switch(dataType){
+					case "int"://整型只能输入数字
+						column.itemEditor = new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererTextInputNumber);
+//						column.editorDataField="text";
+//						column.rendererIsEditor=true;
+						break;
+					case "datetime"://日期
+						var dtrender:ClassFactory=new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererDate);
+						column.itemRenderer = dtrender;
+						column.editable = false;
+						break;
+					case "bit"://checkbox
+						var bitrender:ClassFactory = new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererCheckBox);
+						column.itemRenderer = bitrender;
+						column.editable = false;
+						break;
+					case "float"://只能输入数字
+						column.itemEditor = new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererTextInputNumber);
+						break;
+					case "ComboBox"://下拉列表
+						//获取数据源
+						var cbrender:ClassFactory = new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererComboBox);
+						/* cbrender.properties = {dataProvider:cbdata};
+						column.itemRenderer = cbrender;
+						column.editable = false; */
+						break;
+					case "consultControl"://参照
+						var consultrender:ClassFactory = new ClassFactory(yssoft.renders.DGConsultTextInput);
+						var ciid:int = obj.iconsult;
+						var cselsetvalues:String = obj.cselsetvalues;
+						consultrender.properties = {iid:ciid,visibleIcon:true,fun:_fun,cselsetValues:cselsetvalues};
+						column.itemRenderer=consultrender;
+						column.editorDataField = "text";
+						column.rendererIsEditor=true;
+						break;
+					default:
+						break;
+				}
+				
+			}
+			
+			//YJ Add 渲染combobox时初始化数据源,  fixvalue:数据库中存储的数据源(0:男，1:女)
+			private function iniCbData(fixvalue:String):ArrayCollection{
+			
+				if(fixvalue ==null || fixvalue == "") return null;
+				
+				var returnArr:ArrayCollection = new ArrayCollection();
+				var strArr:Array = fixvalue.split(",");
+				
+				for(var i:int=0;i<strArr.length;i++){
+					var obj:Object = {};
+					var itemArr:Array = strArr[i].toString().split(":");//针对一条记录进行分割，1:女
+					
+					obj.label = itemArr[1];//combobox显示值
+					obj.value = itemArr[0];//combobox存储值
+					
+					returnArr.addItem(obj);
+				}
+				
+				return returnArr;
+				
+			}
+			
+			//获取新增系统默认值(DataGrid) YJ Add
+			private function onGetDefaultValue(cnewdefault:String):Object{
+				
+				var robj:Object = {};
+				
+				switch(cnewdefault){
+					case "登录用户名":
+						robj = CRMmodel.hrperson.cname;
+						break;
+					case "登录用户职员ID":
+						robj = CRMmodel.userId;
+						break;
+					case "登录用户职务ID":
+						robj = CRMmodel.hrperson.ipost;
+						break;
+					case "登录用户部门ID":
+						robj = CRMmodel.hrperson.idepartment;
+						break;
+					case "服务器当前日期":
+						if(serverdate == null) return null;
+						robj = serverdate.toString().substring(0,10);
+						break;
+					case "服务器当前时间":
+						if(serverdate == null) return null;
+						robj = serverdate;
+						break;
+					case "本机当前日期":
+						var formatter:DateFormatter = new DateFormatter();
+						formatter.formatString = "YYYY-MM-DD"; 
+						robj= formatter.format(new Date());
+						break;
+					case "本机当前时间":
+						robj = new Date();
+						break;
+					default:
+						break;
+				}
+				return robj;
+			}
+			
+			
+			//button点击事件
+			private function onClick(event:MouseEvent):void
+			{
+				_btnName=(event.currentTarget as Button).label;
+				this.dispatchEvent(new Event("onClick"));
+			}
+			private var _ifFir:Boolean = false;
+			
+			private function change(event:Event):void
+			{
+				_ifFir = false;
+			}
+			//TextInput鼠标离开事件
+			private function onChange(e:FocusEvent):void
+			{
+				var cfieldTex:TextInput = e.currentTarget as TextInput;
+				var cname:String = cfieldTex.text;
+				var cfield:String=cfieldTex.name;
+				/* /* if(this.item=="onNew"||this.item=="onEdit")
+				{ */ 
+					formula(cfield,cname);
+					parentForm.constraintFormula(cfield,cname);
+				/* } */
+				if(!_ifFir)
+				{
+					_ifFir = true;
+					var paramObj:Object = new Object();
+					paramObj.cabbreviation=cname;
+					paramObj.cfield=cfield;
+					this.dispatchEvent(new onItemDoubleClick("onChange",paramObj));
+				}
+			}
+			
+			//ComboBox change事件
+			private function myCB_changeHandler(event:Event):void
+			{
+				var cmb_cfield:ComboBox =(event.currentTarget as ComboBox);
+//				if(cmb_cfield.selectedIndex == ComboBox.CUSTOM_SELECTED_ITEM)
+//				{
+//					cmb_cfield.selectedItem="";
+//				}
+				_selecteItem = cmb_cfield.selectedItem;
+				this.dispatchEvent(new Event("myCB_changeHandler"));
+			}
+			
+			public function getResult():Object
+			{
+				var result:Object = new Object();
+				var checkArr:ArrayCollection = new ArrayCollection();
+				var chckBoxStr:String=null;
+				for each(var obj:Object  in componentsArr)
+				{
+					switch(obj.type)
+					{
+						case "CRMReferTextInput":
+						{
+							var crmtnp_cfield:CRMReferTextInput = obj.components as CRMReferTextInput;
+							if (crmtnp_cfield.cconsultbkfld.length>0)
+							{
+							   result[obj.cfield]= crmtnp_cfield.cconsultbkfld[0];
+							}
+							else
+							{
+								result[obj.cfield]= null;
+							}
+							break;
+						}
+						case "TextInput":
+						{
+							var tnp_cfield:TextInput = obj.components as TextInput;
+							result[obj.cfield]=tnp_cfield.text;
+							break;
+						}
+						case "DateControl":
+						{
+							var dfl_cfield:DateControl = obj.components as DateControl;
+							result[obj.cfield]=StringUtil.trim(dfl_cfield.text);
+							break;
+						}
+						case "CheckBox":
+						{
+							var chbx_cfield:CheckBox = obj.components as CheckBox;
+							
+							result[obj.cfield]=((chbx_cfield.selected)?1:0);
+							break;
+						}
+						case "RadioButtonGroup":
+						{
+							var rbtn_group:RadioButtonGroup =  obj.components as RadioButtonGroup;
+							result[obj.cfield] = rbtn_group.selectedValue;
+							break;
+						}
+						case "ComboBox":	
+						{
+							var cob_cfield:ComboBox = obj.components as ComboBox;
+							if(cob_cfield.selectedIndex!=-1)
+							{
+								result[obj.cfield] = cob_cfield.selectedItem[obj.eleValue];
+							}
+							break;
+						}
+						case "TextArea":
+						{
+							var txr_cfield:TextArea = obj.components as TextArea;
+							result[obj.cfield]  = mx.utils.StringUtil.trim(txr_cfield.text);
+							break;
+						}
+						case "DataGrid":{
+							var dg:DataGrid = obj.components as DataGrid;
+							result[obj.dgArr] = dg.dataProvider as ArrayCollection;
+							break;
+						}
+						case "CRMRichTextEditor":{
+							var rte_cfield:CRMRichTextEditor = obj.components as CRMRichTextEditor;
+							result[obj.cfield]  =rte_cfield.htmlText;
+							break;
+						}
+					}
+				}
+				return result;
+			}
+			
+			//清空
+			public function clean():void
+			{
+				for each(var obj:Object  in componentsArr)
+				{
+					switch(obj.type)
+					{
+						case "CRMReferTextInput":
+						{
+							var crmtnp_cfield:CRMReferTextInput = obj.components as CRMReferTextInput;
+							crmtnp_cfield.text ="";
+							crmtnp_cfield.te="";
+							crmtnp_cfield.cconsultbkfld =new ArrayCollection();
+							crmtnp_cfield.allList = new ArrayCollection();
+							crmtnp_cfield.referSql = null;
+							crmtnp_cfield.cabbreviation=null;
+							break;
+						}
+						case "TextInput":
+						{
+							var tnp_cfield:TextInput = obj.components as TextInput;
+							tnp_cfield.text="";
+							break;
+						}
+						case "DateControl":
+						{
+							var dfl_cfield:DateControl = obj.components as DateControl;
+							dfl_cfield.text="";
+							break;
+						}
+						case "CheckBox":
+						{
+							var chbx_cfield:CheckBox = obj.components as CheckBox;
+							chbx_cfield.selected = false;
+							break;
+						}
+						case "RadioButtonGroup":
+						{
+							var rbtn_group:RadioButtonGroup = obj.components as RadioButtonGroup;
+							rbtn_group.selectedValue =0;
+							
+							var rbtnArr:ArrayCollection =obj.rbtnArr as ArrayCollection;
+							for(var i:int=0;i<rbtnArr.length;i++)
+							{
+								var rbtn_cfield:RadioButton = rbtnArr.getItemAt(i) as RadioButton;
+								if(rbtn_cfield.value=="0")
+								{
+									rbtn_cfield.selected = true;
+								}
+								else
+								{
+									rbtn_cfield.selected = false;
+								}
+							}
+							break;
+						}
+						case "ComboBox":	
+						{
+							var cob_cfield:ComboBox = obj.components as ComboBox;
+							cob_cfield.selectedIndex =-1;
+							break;
+						}
+						case "TextArea":
+						{
+							var txr_cfield:TextArea = obj.components as TextArea;
+							txr_cfield.text="";
+							break;
+						}
+						case "DataGrid":
+						{
+							var dg:DataGrid = obj.components as DataGrid;
+							dg.dataProvider = null;
+							break;
+						}
+						case "CRMRichTextEditor":{
+							var rte_cfield:CRMRichTextEditor = obj.components as CRMRichTextEditor;
+							rte_cfield.text="";
+						}
+					}
+				}
+			}
+			
+			//获得参照的值
+			public function getconsultsetResult(cfield:String):String
+			{
+				var result:String ="";
+				for each(var obj:Object  in componentsArr)
+				{
+					switch(obj.type)
+					{
+						case "CRMReferTextInput":
+						{
+							var crmtnp_cfield:CRMReferTextInput = obj.components as CRMReferTextInput;
+							if(cfield==obj.cfield)
+							{
+								result= crmtnp_cfield.text;
+								break;
+							}
+						}
+					}
+				}
+				return result;
+			}
+			
+			
+			//清空
+			public function cleanPart(cfields:ArrayCollection):void
+			{
+				for(var i:int=0;i<cfields.length;i++)
+				{
+					for each(var obj:Object  in componentsArr)
+					{
+						if(cfields.getItemAt(i)==obj.cfield)
+						{
+							switch(obj.type)
+							{
+								case "CRMReferTextInput":
+								{
+									var crmtnp_cfield:CRMReferTextInput = obj.components as CRMReferTextInput;
+									crmtnp_cfield.text ="";
+									crmtnp_cfield.cconsultbkfld = new ArrayCollection();
+									crmtnp_cfield.allList = new ArrayCollection();
+									crmtnp_cfield.te="";
+									break;
+								}
+								case "TextInput":
+								{
+									var tnp_cfield:TextInput = obj.components as TextInput;
+									if(CRMtool.isStringNotNull(obj.defaultsvalue))
+									{
+										var str:Array = String(obj.defaultsvalue).split(",");
+										if(str.length>1)
+										{
+											tnp_cfield.text = CRMmodel[str[0]][str[2]];
+										}
+										else
+										{
+											tnp_cfield.text = CRMmodel[str[0]];
+										}
+									}
+									else
+									{
+										tnp_cfield.text="";
+									}
+									break;
+								}
+								case "DateControl":
+								{
+									var dfl_cfield:DateControl = obj.components as DateControl;
+									dfl_cfield.text="";
+									break;
+								}
+								case "CheckBox":
+								{
+									var chbx_cfield:CheckBox = obj.components as CheckBox;
+									chbx_cfield.selected = false;
+									break;
+								}
+								case "RadioButtonGroup":
+								{
+									var rbtn_group:RadioButtonGroup = obj.components as RadioButtonGroup;
+									rbtn_group.selectedValue =0;
+									
+									var rbtnArr:ArrayCollection =obj.rbtnArr as ArrayCollection;
+									for(var i:int=0;i<rbtnArr.length;i++)
+									{
+										var rbtn_cfield:RadioButton = rbtnArr.getItemAt(i) as RadioButton;
+										if(rbtn_cfield.value=="0")
+										{
+											rbtn_cfield.selected = true;
+										}
+										else
+										{
+											rbtn_cfield.selected = false;
+										}
+									}
+									break;
+								}
+								case "ComboBox":	
+								{
+									var cob_cfield:ComboBox = obj.components as ComboBox;
+									cob_cfield.selectedIndex =-1;
+									break;
+								}
+								case "TextArea":
+								{
+									var txr_cfield:TextArea = obj.components as TextArea;
+									txr_cfield.text="";
+									break;
+								}
+								case "DataGrid":
+								{
+									var dg:DataGrid = obj.components as DataGrid;
+									dg.dataProvider = null;
+									break;
+								}
+								case "CRMRichTextEditor":{
+									var rte_cfield:CRMRichTextEditor = obj.components as CRMRichTextEditor;
+									rte_cfield.text="";
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			public function reset():void
+			{
+				for each(var obj:Object  in componentsArr)
+				{
+					if(_parametersObj.hasOwnProperty(obj.cfield))
+					{
+						switch(obj.type)
+						{
+							case "CRMReferTextInput":
+							{
+								var crmtnp_cfield:CRMReferTextInput = obj.components as CRMReferTextInput;
+								crmtnp_cfield.fun =_fun;
+								if(_parametersObj[obj.cfield]!="0")
+								{
+									crmtnp_cfield.te =_parametersObj[obj.cfield];
+								}
+								break;
+							}
+								
+							case "TextInput":
+							{
+								var tnp_cfield:TextInput = obj.components as TextInput;
+								tnp_cfield.text=_parametersObj[obj.cfield];
+								break;
+							}
+							case "DateControl":
+							{
+								var dfl_cfield:DateControl = obj.components as DateControl;
+								dfl_cfield.text=df.format(_parametersObj[obj.cfield]);
+								break;
+							}
+							case "CheckBox":
+							{
+								var chbx_cfield:CheckBox = obj.components as CheckBox;
+								if(_parametersObj[obj.cfield]==true)
+								{
+									chbx_cfield.selected = true;
+								}
+								else
+								{
+									chbx_cfield.selected = false;
+								}
+								break;
+							}
+							case "RadioButtonGroup":
+							{
+								var rbtn_group:RadioButtonGroup = obj.components as RadioButtonGroup;
+								rbtn_group.selectedValue =_parametersObj[obj.cfield];
+								
+								var rbtnArr:ArrayCollection =obj.rbtnArr as ArrayCollection;
+								for(var i:int=0;i<rbtnArr.length;i++)
+								{
+									var rbtn_cfield:RadioButton = rbtnArr.getItemAt(i) as RadioButton;
+									if(rbtn_cfield.value==_parametersObj[obj.cfield])
+									{
+										rbtn_cfield.selected = true;
+									}
+									else
+									{
+										rbtn_cfield.selected = false;
+									}
+								}
+								break;
+							}
+							case "TextArea":
+							{
+								var txr_cfield:TextArea = obj.components as TextArea;
+								txr_cfield.text = _parametersObj[obj.cfield];                                      
+								break;
+							}
+							case "DataGrid":
+							{
+							}
+							case "CRMRichTextEditor":{
+								var rte_cfield:CRMRichTextEditor = obj.components as CRMRichTextEditor;
+								/* 	var _str:String = _parametersObj[obj.cfield].toString(); */
+								if(_parametersObj.hasOwnProperty(obj.cfield))
+								{
+									this.callLater(function():void{
+										rte_cfield.htmlText = _parametersObj[obj.cfield];
+									});
+									
+								}
+								
+								//rte_cfield.htmlText= "1";
+							}	
+						}	
+					}
+				}
+			}
+			
+			
+			public function getcabbreviation(cfied:String):String
+			{
+				for each(var obj:Object  in componentsArr)
+				{
+					switch(obj.type)
+					{
+						case "CRMReferTextInput":
+						{
+							var crmtnp_cfield:CRMReferTextInput = obj.components as CRMReferTextInput;
+							if(cfied==obj.cfield)
+							{
+								return crmtnp_cfield.cabbreviation;
+							}
+							break;
+						}
+					}
+				}
+				return null;
+			}
+			
+			//重新赋数据源
+			public function comDatdPr(cfied:String,datapr:ArrayCollection):void
+			{
+				for each(var obj:Object  in componentsArr)
+				{
+					switch(obj.type)
+					{
+						case "ComboBox":	
+						{
+							var cob_cfield:ComboBox = obj.components as ComboBox;
+							if(obj.cfield==cfied)
+							{
+								cob_cfield.dataProvider = datapr;
+							}
+							break;
+						}
+					}
+				}
+			}
+			
+			//默认选择
+			public function sele(cfied:String=null,item:int=0,paramObj:Object=null):void
+			{
+				for each(var obj:Object  in componentsArr)
+				{
+					switch(obj.type)
+					{
+						case "ComboBox":	
+						{
+							var cob_cfield:ComboBox = obj.components as ComboBox;
+							if(cfied==null)
+							{
+								var cobDataPri:ArrayCollection = cob_cfield.dataProvider as ArrayCollection;
+								for(var i:int=0;i<cobDataPri.length;i++)
+								{
+									var cobDataPriObj:Object = cobDataPri.getItemAt(i);
+									if(paramObj[obj.cfield]==cobDataPriObj[obj.eleValue])
+									{
+										cob_cfield.selectedIndex =i;
+									}
+								}
+							}
+							else
+							{
+								if(obj.cfield==cfied)
+								{ 
+									cob_cfield.selectedIndex = item; 
+								} 
+							}
+							break;
+						}
+					}
+				}
+			}
+			
+			//是否可用
+			public function endi():void
+			{
+				for each(var obj:Object  in componentsArr)
+				{
+					for each(var datadictionaryObj:Object in this._datadictionaryArr)
+					{
+						if(obj.cfield==datadictionaryObj.cfield)
+						{
+							switch(obj.type)
+							{
+								case "CRMReferTextInput":
+								{
+									var crmtnp_cfield:CRMReferTextInput = obj.components as CRMReferTextInput;
+									if (datadictionaryObj.bread==1)
+									{
+										crmtnp_cfield.editable = false;
+									}
+									break;
+								}
+								case "TextInput":
+								{
+									var tnp_cfield:TextInput = obj.components as TextInput;
+									if (datadictionaryObj.bread==1)
+									{
+										tnp_cfield.editable = false;
+									}
+									break;
+								}
+								case "DateControl":
+								{
+									var dfl_cfield:DateControl = obj.components as DateControl;
+									if (datadictionaryObj.bread==1)
+									{
+										dfl_cfield.enabled = false;
+									}
+									break;
+								}
+								case "CheckBox":
+								{
+									var chbx_cfield:CheckBox = obj.components as CheckBox;
+									if (datadictionaryObj.bread==1)
+									{
+										chbx_cfield.enabled = false;
+									}
+									break;
+								}
+								case "RadioButtonGroup":
+								{
+									var rbtn_group:RadioButtonGroup =  obj.components as RadioButtonGroup;
+									if (datadictionaryObj.bread==1)
+									{
+										rbtn_group.enabled = false;
+									}
+									break;
+								}
+								case "ComboBox":	
+								{
+									var cob_cfield:ComboBox = obj.components as ComboBox;
+									if (datadictionaryObj.bread==1)
+									{
+										cob_cfield.enabled = false;
+									}
+									break;
+								}
+								case "TextArea":
+								{
+									var txr_cfield:TextArea = obj.components as TextArea;
+									if (datadictionaryObj.bread==1)
+									{
+										txr_cfield.editable = false;
+									}
+									break;
+								}
+							}
+						}
+					}
+				}
+				
+			}
+			
+			public function initRadianVobx(objup:Object):void
+			{
+				for each(var obj:Object  in componentsArr)
+				{
+					var verificationArr:ArrayCollection = obj.initArr as ArrayCollection;
+					
+					if(verificationArr!=null)
+					{
+						for each(var verificationObj:Object in verificationArr)
+						{
+							verificationObj._function(objup,this,verificationObj.parameter);
+						}
+					}
+				}
+			}
+			import mx.events.DataGridEventReason;
+			//YJ Add onEditEnd 编辑后操作
+			
+			private function onEditEnd(evt:DataGridEvent):void{
+				evt.preventDefault();
+				if (evt.reason == DataGridEventReason.CANCELLED){
+					return;
+				} 
+				var beingEditField:String = evt.dataField;  //获得当前列的dataField   
+				if(beingEditField == "fexpense") {
+					var input:TextInput = TextInput((evt.target as DataGrid).itemEditorInstance);
+					
+					var newData:String= TextInput(evt.currentTarget.itemEditorInstance).text;
+					
+					var value:String=evt.currentTarget.itemEditorInstance.text;
+					
+//					var cols:DataGridColumn=(evt.target as DataGrid).columns[evt.columnIndex];  
+//
+//					var oldLocal:String = evt.itemRenderer.data.fexpense;   
+//					
+//					var newLocale:String = (evt.target as DataGrid).itemEditorInstance[cols.editorDataField]; //hashMap Key is String 
+//					
+					if(value != ""){
+						_sum += Number(value);
+					}
+					Alert.show("您正在编辑列: " + beingEditField +"  值："+value ); //在此处可以加入需要的数据验证,或是自动修正等等功能.可以使用    e.preventDefault()来阻止默认行为   
+				}   
+
+			}
+			
+			
+		]]>
+		
+	</fx:Script>
+</mx:VBox>

@@ -1,0 +1,1037 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:comps="yssoft.comps.*"
+         width="100%" height="100%">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.events.ItemClickEvent;
+        import mx.graphics.codec.PNGEncoder;
+        import mx.rpc.events.ResultEvent;
+        
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.frameui.map.MapTitleWindow;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        public var options:Object = new Object();
+        [Bindable]
+        public var clientLoginVal:String = "";
+        [Bindable]
+        public var clearTimerVal:String = "";
+
+        [Bindable]
+        public var clientLoginValIDS:String = "";
+        [Bindable]
+        public var clearTimerValIDS:String = "";
+        [Bindable]
+        public var icopyright:String = "";
+		[Bindable]
+		public var icshortname:String = "";
+        [Bindable]
+        public var inetAddress:String = "";
+        [Bindable]
+        public var STATE_ARRAY:Array = [
+            {label: " 公共设置 ", data: "0"},
+            {label: " 安全策略 ", data: "1"},
+            {label: " 销售设置 ", data: "2"},
+            {label: " 服务设置 ", data: "3"},
+            {label: " 协同设置 ", data: "4"},
+            {label: " LOGO设置", data: "5"},
+            {label: " 加密狗升级", data: "6"}
+        ];
+
+        [Bindable]
+        public var ccoordinate:String = "";//我公司坐标信息
+
+        [Bindable]
+        private var isOrderPush162:Boolean = false;//新购
+        [Bindable]
+        private var isOrderPush161:Boolean = false;//升级
+        [Bindable]
+        private var isOrderPush210:Boolean = false;//开发
+
+        private var ui_irole:CrmEapTextInput;
+        private var ui_istatus:CrmEapTextInput;
+
+        protected function init():void {
+            loadas_option();
+            /* loadPersonOptions();		 */
+        }
+
+
+        //加载系统选项
+        private function loadas_option():void {
+            AccessUtil.remoteCallJava("As_optionsDest", "getOptionsByCclass", asoptionCallBack, {cclass: "safe"});
+        }
+
+        private function asoptionCallBack(evt:ResultEvent):void {
+            var _options:ArrayCollection = evt.result.mainOptions as ArrayCollection;
+
+            this.initPwd.text = _options[0].cvalue;
+            this.enforceModityPwd.selected = _options[1].cvalue == 1 ? true : false;
+            this.pwdMinLength.text = _options[2].cvalue;
+            this.pwdMaxDay.text = _options[3].cvalue;
+            this.pwdMaxCheckCount.text = _options[4].cvalue;
+            this.notLogin.selected = _options[5].cvalue == 1 ? true : false;
+            this.clearTimer.text = _options[6].cvalue;
+			this.account_identify.text=_options[7].cvalue;
+			this.key_permanent.text=_options[8].cvalue;	
+			this.cust_account.text=_options[9].cvalue;
+			this.app_key.text=_options[10].cvalue;
+			
+    //多点登陆特例人员
+            this.clientLoginValIDS = evt.result.bmorelogin_ids == null ? "" : evt.result.bmorelogin_ids;
+            this.clientLoginVal = evt.result.bmorelogin_text == null ? "" : evt.result.bmorelogin_text;
+
+            //清时特例人员信息
+            this.clearTimerValIDS = evt.result.bnotremove_ids == null ? "" : evt.result.bnotremove_ids;
+            this.clearTimerVal = evt.result.bnotremove_text == null ? "" : evt.result.bnotremove_text;
+        }
+
+        /**
+         * 加载用户系统关联选项人员
+         */
+        private function loadPersonOptions():void {
+            AccessUtil.remoteCallJava("As_optionsDest", "getPersonOptions", personOptionsCallBack, new Object());
+        }
+
+        private function personOptionsCallBack():void {
+
+        }
+
+
+        public function getParamer():Object {
+            var params:Object = new Object();
+            params._1 = this.initPwd.text;
+            params._2 = this.enforceModityPwd.selected;
+            params._3 = this.pwdMinLength.text;
+            params._4 = this.pwdMaxDay.text;
+            params._5 = this.pwdMaxCheckCount.text;
+            params._6 = this.notLogin.selected;
+            params._7 = this.clearTimer.text;
+			params._100 = this.account_identify.text;
+			params._101 = this.key_permanent.text;
+			params._102 = this.cust_account.text;
+			params._103 = this.app_key.text;
+			
+
+            params._6_ids = clientLoginValIDS != null ? clientLoginValIDS.substr(0, clientLoginValIDS.length - 1) : null;
+            params._7_ids = clearTimerValIDS != null ? clearTimerValIDS.substr(0, clearTimerValIDS.length - 1) : null;
+
+            return params;
+        }
+
+        private function getParamObj():Object {
+            var params:Object = new Object();
+            params._21 = this.checkBox1.selected;
+            params._22 = this.checkBox2.selected;
+            params._23 = this.checkBox3.selected;
+            params._24 = this.checkBox4.selected;
+            params._25 = this.checkBox5.selected;
+            params._26 = this.checkBox6.selected;
+            //wxh add
+            params._231  = this.checkBox7.selected;
+            return params;
+        }
+
+        public function updateOptions():void {
+            if (myViewStack.selectedChild == basicSetCanvas) {
+                var obj:Object = new Object();
+                obj._90 = this.basicSetCheckBox.selected;
+                obj._92 = this.basicSetCheckBox2.selected;
+                obj._93 = this.shareRateSetCheckBox.selected;
+                obj._95 = this.basicSetCheckBox3.selected;
+				obj._232 = this.basicSetCheckBox4.selected;
+                obj._2204 = this.iintelcount.text;       //内线位数
+                obj._2205 = this.bdealinput.selected;   //是否自动处理内线电话
+				
+                if (ui_istatus && CRMtool.isStringNotNull(ui_istatus.text)) {
+                    obj._91 = ui_istatus.consultList.getItemAt(0)[ui_istatus.singleType.cconsultbkfld];
+                } else if (CRMtool.isStringNull(ui_istatus.text)) {
+                    obj._91 = "";
+                }
+
+                if (CRMtool.isStringNotNull(telephoneNumberOut.text)) {
+                    obj._94 = this.telephoneNumberOut.text;
+                } else {
+                    obj._94 = "";
+                }
+                AccessUtil.remoteCallJava("As_optionsDest", "updateOptions", updateCallBack, obj);
+
+                var sql:String = "update as_options set cvalue='" + ccoordinate + "' where iid=98";
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                }, sql, null, false);
+
+            } else if (myViewStack.selectedChild == safeSetCanvas)
+                AccessUtil.remoteCallJava("As_optionsDest", "updateOptions", updateCallBack, getParamer());
+            else if (myViewStack.selectedChild == serviceSetCanvas) {
+                var obj:Object = new Object();
+                if (ui_irole && CRMtool.isStringNotNull(ui_irole.text)) {
+                    obj._11 = ui_irole.consultList.getItemAt(0)[ui_irole.singleType.cconsultbkfld];
+                } else if (CRMtool.isStringNull(ui_irole.text)) {
+                    obj._11 = "";
+                }
+                AccessUtil.remoteCallJava("As_optionsDest", "updateOptions", updateCallBack, obj);
+            }
+            else if (myViewStack.selectedChild == oaCanvas) {
+
+                AccessUtil.remoteCallJava("As_optionsDest", "updateOptions", updateCallBack, getParamObj());
+            } else if (myViewStack.selectedChild == LogoCan) {
+				if(this.cshortname.text.length>6){
+				CRMtool.tipAlert("公司简称的字数不能超过6个！");
+				return;
+				}
+                var logoParam:Object = new Object();
+                logoParam._96 = this.copyright.text;
+                logoParam._97 = this.netAddress.text;
+				logoParam._2300 = this.cshortname.text;
+                AccessUtil.remoteCallJava("As_optionsDest", "updateOptions", updateCallBack, logoParam);
+            } else if (myViewStack.selectedChild == SalesSet) {  //wxh add
+                var salesSetParam:Object = new Object();
+                salesSetParam._61 = this.opportunities1.selected == true;
+                //salesSetParam._62 = this.cbOrder.selected;
+                AccessUtil.remoteCallJava("As_optionsDest", "updateOptions", updateCallBack, salesSetParam);
+
+                var sql:String = "update as_authcontent set buse = " + (isOrderPush162 ? '0' : '1') + " where ccode in('162.02','162.01','178.02') " +
+                        "update as_authcontent set buse = " + (isOrderPush161 ? '0' : '1') + " where ccode in('161.02','161.01','214.02') " +
+                        "update as_authcontent set buse = " + (isOrderPush210 ? '0' : '1') + " where ccode in('210.02','210.01','211.02') ";
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", null, sql, null, false);
+            }
+//				else if(myViewStack.selectedChild==shareRateSetCanvas){
+//					AccessUtil.remoteCallJava("As_optionsDest","updateOptions",updateCallBack,{_93:shareRateSetCheckBox.selected});
+//				}
+//								
+        }
+
+        private function updateCallBack(e:ResultEvent):void {
+            if (e.result == "suc")CRMtool.tipAlert("信息设置成功！");
+            else CRMtool.tipAlert("信息设置失败！");
+        }
+
+
+        private function openSysPerson(num:int):void {
+            var person:SysPersonView = new SysPersonView();
+            person.flag = num;
+            person.owner = this;
+            CRMtool.openView(person);
+        }
+
+
+        protected function tabbar1_itemClickHandler(event:ItemClickEvent):void {
+            var targetComp:TabBar = TabBar(event.currentTarget);
+            var index:int = targetComp.selectedIndex;
+            if (index == 0) {
+                textname.text = "公共设置";
+                myViewStack.selectedChild = basicSetCanvas;
+                myBox.visible = true;
+                myBox.includeInLayout = true;
+            } else if (index == 1) {
+                textname.text = "安全策略";
+                myViewStack.selectedChild = safeSetCanvas;
+            }
+            else if (index == 3) {
+                textname.text = "服务设置";
+                myViewStack.selectedChild = serviceSetCanvas;
+                myBox.visible = true;
+                myBox.includeInLayout = true;
+            }
+            else if (index == 4) {
+                textname.text = "协同设置";
+                myViewStack.selectedChild = oaCanvas;
+                myBox.visible = true;
+                myBox.includeInLayout = true;
+            }
+            else if (index == 5) {
+                textname.text = "LOGO设置";
+                myViewStack.selectedChild = LogoCan;
+                myBox.visible = true;
+                myBox.includeInLayout = true;
+            }
+            else if (index == 6) {
+                textname.text = "加密狗升级";
+                myViewStack.selectedChild = shareRateSetCanvas;
+                myBox.visible = true;
+                myBox.includeInLayout = true;
+            } else if (index == 2) {
+                textname.text = "销售设置";
+                myViewStack.selectedChild = SalesSet;
+                myBox.visible = true;
+                myBox.includeInLayout = true;
+            }
+        }
+
+        protected function serviceSetCanvas_creationCompleteHandler():void {
+            initConsult();
+        }
+
+        private function initConsult():void {
+
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_irole";
+            obj1.ifuncregedit = "135";
+            obj1.cfield = "cvalue";
+
+            if (ui_irole) {
+                service_role_box.removeChild(ui_irole);
+            }
+
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+
+                if (evt.result != null) {
+                    var consultObj:Object = evt.result;
+
+                    ui_irole = new CrmEapTextInput();
+                    ui_irole.percentWidth = 100;
+                    ui_irole.name = "UI_C1";
+                    consultObj.cobjectname = "UI_C1";
+                    ui_irole.singleType = consultObj;
+                    service_role_box.addChild(ui_irole);
+
+                    AccessUtil.remoteCallJava("As_optionsDest", "getOptionsByCclass", asoptionServiceCallBack, {cclass: "service"});
+                }
+            }, obj1);
+
+
+        }
+
+        //销售状态参照初始化
+        private function initOrderStatusConsult():void {
+
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_istatus";
+            obj1.ifuncregedit = "44";
+            obj1.cfield = "isalesstatus";
+
+            if (ui_istatus) {
+                order_status_box.removeChild(ui_istatus);
+            }
+
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+
+                if (evt.result != null) {
+                    var consultObj:Object = evt.result;
+
+                    ui_istatus = new CrmEapTextInput();
+                    ui_istatus.percentWidth = 100;
+                    ui_istatus.name = "UI_C2";
+                    consultObj.cobjectname = "UI_C2";
+                    ui_istatus.singleType = consultObj;
+                    order_status_box.addChild(ui_istatus);
+
+                    AccessUtil.remoteCallJava("As_optionsDest", "getOptionsByCclass", asoptionServiceCallBack2, {cclass: "public"});
+                }
+            }, obj1);
+
+        }
+
+        private function asoptionServiceCallBack2(evt:ResultEvent):void {
+            var _options2:ArrayCollection = evt.result.mainOptions as ArrayCollection;
+
+            if (_options2[1].cclass == "public") {
+                ui_istatus.text = _options2[1].cvalue;
+                ui_istatus.onDataChange();
+            }
+        }
+
+        private function onClick():void {
+            AccessUtil.remoteCallJava("As_optionsDest", "getOptionsByCclass", onClinkBack, {cclass: "oa"}, null, false);
+        }
+
+        private function onClinkBack(e:ResultEvent):void {
+            var _options:ArrayCollection = e.result.mainOptions as ArrayCollection;
+            this.checkBox1.selected = _options.getItemAt(0).cvalue == 1 ? true : false;
+            this.checkBox2.selected = _options.getItemAt(1).cvalue == 1 ? true : false;
+            this.checkBox3.selected = _options.getItemAt(2).cvalue == 1 ? true : false;
+            this.checkBox4.selected = _options.getItemAt(3).cvalue == 1 ? true : false;
+            this.checkBox5.selected = _options.getItemAt(4).cvalue == 1 ? true : false;
+            this.checkBox6.selected = _options.getItemAt(5).cvalue == 1 ? true : false;
+            //wxh add
+            this.checkBox7.selected = _options.getItemAt(6).cvalue == 1 ? true : false;
+        }
+
+        private function asoptionServiceCallBack(evt:ResultEvent):void {
+            var _options:ArrayCollection = evt.result.mainOptions as ArrayCollection;
+
+            if (_options[0].cclass == "service") {
+                ui_irole.text = _options[0].cvalue;
+                ui_irole.onDataChange();
+            }
+        }
+
+        protected function reset_clickHandler(event:MouseEvent):void {
+            if (myViewStack.selectedChild == basicSetCanvas) {
+                basicSetCanvas_creationCompleteHandler(null);
+            }
+            if (myViewStack.selectedChild == safeSetCanvas)
+                loadas_option();
+            else if (myViewStack.selectedChild == serviceSetCanvas) {
+                serviceSetCanvas_creationCompleteHandler()
+            }
+            else if (myViewStack.selectedChild == oaCanvas) {
+                onClick();
+            }
+            else if (myViewStack.selectedChild == shareRateSetCanvas) {
+                shareRateSetCanvas_creationCompleteHandler(null);
+            }
+        }
+
+        //登录界面
+        private var fileReference:FileReference;
+        private var fileFilter:FileFilter = new FileFilter("选择图片", "*.png;");
+
+        protected function selectbt_clickHandler(event:MouseEvent):void {
+            fileReference = new FileReference();
+            fileReference.addEventListener(Event.SELECT, onFileSelectHandler);
+            fileReference.addEventListener(Event.COMPLETE, onFileCompleteHandler);
+            fileReference.browse([fileFilter]);
+        }
+
+        private function onFileSelectHandler(event:Event):void {
+            fileReference.load();
+        }
+
+        private function onFileCompleteHandler(event:Event):void {
+            var loader:Loader = new Loader();
+            loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
+            loader.loadBytes(fileReference.data);
+            this.imgname.text = fileReference.name;
+        }
+
+        private var bd:BitmapData;
+
+        public function loader_complete(event:Event):void {
+            try {
+                var sourceBMP:Bitmap = event.currentTarget.loader.content as Bitmap;
+                bd = sourceBMP.bitmapData;
+                this.sourceimg.source = sourceBMP;
+            } catch (e:Error) {
+            }
+        }
+
+        private function uploadbt_clickHandler(event:MouseEvent):void {
+            if (fileReference == null || this.imgname.text == "") {
+                return;
+            }
+            var param:Object = {};
+            param.fileName = "logo";
+            param.fileType = "png";
+            param.uploadType = "0";
+            param.styleType = "login";
+            param.filePath = CRMmodel.tomcatURLStr + "/yssoft/assets/login/";
+
+            param.content = new PNGEncoder().encode(bd);
+
+            AccessUtil.remoteCallJava("FileDest", "uploadFileLogo", upload_callBack, param, "图片上传中...");
+        }
+
+        private function upload_callBack(event:ResultEvent):void {
+            if (event.result && (event.result as String) == "suc") {
+                CRMtool.tipAlert("上传成功...");
+            }
+            else {
+                CRMtool.tipAlert("上传失败...");
+            }
+        }
+
+        //**************开始：XZQWJ 修改日期:2012-12-08 功能：获取加密狗升级文件***************************************************
+        private var fileReference2:FileReference;
+        private var fileFilter2:FileFilter = new FileFilter("选择升级文件", "*.license;");
+        private var dog_file:ByteArray;
+        private var temp:String = "";
+        //加密狗升级
+        protected function selectbtdog_clickHandler1(event:MouseEvent):void {
+            fileReference2 = new FileReference();
+            fileReference2.addEventListener(Event.SELECT, onFileDogSelectHandler1);
+            fileReference2.addEventListener(Event.COMPLETE, onFileGogCompleteHandler1);
+            fileReference2.browse([fileFilter2]);
+        }
+
+        private function onFileDogSelectHandler1(event:Event):void {
+            fileReference2.load();
+        }
+
+        private function onFileGogCompleteHandler1(event:Event):void {
+            this.dogtxt.text = fileReference2.name;
+            dog_file = fileReference2.data;
+            for (var i:int = 0; i < dog_file.length; i++) {
+                temp += String.fromCharCode(dog_file[i]);
+            }
+//				CRMtool.tipAlert(temp);
+        }
+
+        private function uploaddogbt_clickHandler1(event:MouseEvent):void {
+            if (fileReference2 == null || CRMtool.isStringNull(this.dogtxt.text)) {
+                CRMtool.tipAlert("请选择升级文件!");
+                return;
+            }
+            var param:Object = {};
+            param.dog = temp;
+            AccessUtil.remoteCallJava("UpdateDog", "updateDog", uploaddog_callBack, param, "加密狗升级中，请稍后...");
+        }
+
+        private function uploaddog_callBack(event:ResultEvent):void {
+
+            var messge:Object = event.result;
+
+            CRMtool.tipAlert(messge.toString());
+        }
+
+
+        //*******************结束***********************************************************************************
+
+        //主页面
+        private var fileReference1:FileReference;
+
+        protected function selectbt_clickHandler1(event:MouseEvent):void {
+            fileReference1 = new FileReference();
+            fileReference1.addEventListener(Event.SELECT, onFileSelectHandler1);
+            fileReference1.addEventListener(Event.COMPLETE, onFileCompleteHandler1);
+            fileReference1.browse([fileFilter]);
+        }
+
+        private function onFileSelectHandler1(event:Event):void {
+            fileReference1.load();
+        }
+
+        private function onFileCompleteHandler1(event:Event):void {
+            var loader:Loader = new Loader();
+            loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete1);
+            loader.loadBytes(fileReference1.data);
+            this.imgname1.text = fileReference1.name;
+        }
+
+        private var bd1:BitmapData;
+
+        public function loader_complete1(event:Event):void {
+            try {
+                var sourceBMP:Bitmap = event.currentTarget.loader.content as Bitmap;
+                bd1 = sourceBMP.bitmapData;
+                this.sourceimg1.source = sourceBMP;
+            } catch (e:Error) {
+            }
+        }
+
+        private function uploadbt_clickHandler1(event:MouseEvent):void {
+            if (fileReference1 == null || this.imgname1.text == "") {
+                return;
+            }
+            var param:Object = {};
+            param.fileName = "logo";
+            param.fileType = "png";
+            param.uploadType = "0";
+            param.styleType = "main";
+            param.filePath = CRMmodel.tomcatURLStr + "/yssoft/assets/index";
+            param.content = new PNGEncoder().encode(bd1);
+
+            AccessUtil.remoteCallJava("FileDest", "uploadFileLogo", upload_callBack, param, "图片上传中...");
+        }
+
+        protected function basicSetCanvas_creationCompleteHandler(event:FlexEvent):void {
+            initOrderStatusConsult();
+            AccessUtil.remoteCallJava("As_optionsDest", "getOptionsByCclass", basicCallBack, {cclass: "public"}, null, false);
+        }
+
+        protected function basicCallBack(evt:ResultEvent):void {
+            var basicSetResult:Object = evt.result;
+            var basicSetArr:ArrayCollection = basicSetResult.mainOptions;
+            basicSetCheckBox.selected = basicSetArr[0].cvalue == 1 ? true : false;
+            basicSetCheckBox2.selected = basicSetArr[2].cvalue == 1 ? true : false;
+            shareRateSetCheckBox.selected = basicSetArr[3].cvalue == 1 ? true : false;
+            this.telephoneNumberOut.text = basicSetArr[4].cvalue;
+            basicSetCheckBox3.selected = basicSetArr[5].cvalue == 1 ? true : false;
+			basicSetCheckBox4.selected = basicSetArr[9].cvalue == 1 ? true : false;
+            bdealinput.selected = basicSetArr[11].cvalue == 0?false:true;  //是否自动处理内线电话
+            iintelcount.text = basicSetArr[10].cvalue;      //内线位数
+        }
+
+        /**
+         * 初始化logo信息
+         *创建人：王炫皓
+         * 创建时间：2013-02-18
+         * */
+        protected function initLogo():void {
+            AccessUtil.remoteCallJava("As_optionsDest", "getOptionsByCclass", logoCallBack, {cclass: "public"}, null, false);
+        }
+
+        private function logoCallBack(e:ResultEvent):void {
+            var result:Object = e.result;
+            this.icopyright = result.mainOptions[6].cvalue;
+            this.inetAddress = result.mainOptions[7].cvalue;
+			this.icshortname = result.mainOptions[12].cvalue;
+        }
+
+        protected function shareRateSetCanvas_creationCompleteHandler(event:FlexEvent):void {
+            AccessUtil.remoteCallJava("As_optionsDest", "getOptionsByCclass", shareCallBack, {cclass: "public"}, null, false);
+        }
+
+        protected function shareCallBack(evt:ResultEvent):void {
+            var shareSetResult:Object = evt.result;
+            var shareSetArr:ArrayCollection = shareSetResult.mainOptions;
+            shareRateSetCheckBox.selected = shareSetArr[3].cvalue == 1 ? true : false;
+        }
+
+        protected function SalesSet_creationCompleteHandler(event:FlexEvent):void {
+            AccessUtil.remoteCallJava("As_optionsDest", "getOptionsByCclass", function (res:ResultEvent):void {
+                var obj:Object = res.result;
+                var salesSetArr:ArrayCollection = obj.mainOptions;
+                if (salesSetArr && salesSetArr.length > 0) {
+                    opportunities1.selected = true;
+                    opportunities1.selected = salesSetArr[0].cvalue == 0 ? false : true;
+                    //cbOrder.selected = salesSetArr[1].cvalue == 0 ? false : true;
+                }
+            }, {cclass: "sale"}, null, false);
+
+            var sql:String = "select buse,ccode from as_authcontent where ccode in ('162.02','161.02','210.02')";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+                for each(var item:Object in ac) {
+                    if (item.ccode == "162.02" && !item.buse)
+                        isOrderPush162 = true;
+
+                    if (item.ccode == "161.02" && !item.buse)
+                        isOrderPush161 = true;
+
+                    if (item.ccode == "210.02" && !item.buse)
+                        isOrderPush210 = true;
+                }
+            }, sql, null, false);
+        }
+
+        private function button1_clickHandler(event:MouseEvent):void {
+            var map:MapTitleWindow = new MapTitleWindow();
+            map.parentView = this;
+            map.open();
+        }
+
+        private function vBox1_creationCompleteHandler(event:FlexEvent):void {
+            var sql:String = "select cvalue from  as_options where iid=98";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var value:String = (event.result as ArrayCollection)[0].cvalue;
+                ccoordinate = (value == null ? "" : value);
+            }, sql, null, false);
+        }
+        ]]>
+	</fx:Script>
+    <mx:HBox width="100%" height="100%" horizontalGap="7">
+        <mx:VBox width="252" height="100%" styleName="lefttree">
+            <!-- 菜单树 -->
+            <mx:TabBar x="2" width="100%"
+                       direction="vertical" dropShadowVisible="true" itemClick="tabbar1_itemClickHandler(event)">
+                <mx:dataProvider>{STATE_ARRAY}</mx:dataProvider>
+            </mx:TabBar>
+        </mx:VBox>
+
+        <!-- 菜单信息维护 -->
+        <mx:VBox width="100%" height="100%" styleName="centerbg4" horizontalAlign="center">
+            <mx:ApplicationControlBar styleName="centertop" id="menuBar2" width="100%" height="32" dock="true">
+                <mx:Label id="textname" text="公共设置" fontSize="12" fontWeight="bold"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox width="100%" paddingLeft="10" paddingRight="10" height="100%" paddingTop="10">
+                <mx:ViewStack id="myViewStack" width="100%" height="100%">
+                    <mx:Canvas id="basicSetCanvas" creationComplete="basicSetCanvas_creationCompleteHandler(event)">
+                        <mx:VBox width="100%" verticalGap="0">
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text="协同提交处理后自动关闭当前页面：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="basicSetCheckBox"/>
+                                </mx:HBox>
+
+                            </mx:VBox>
+                            <s:Spacer height="10"/>
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text="是否允许零出库：" styleName="contentLabel"/>
+                                    <s:Spacer width="97" height="28"/>
+                                    <s:CheckBox id="basicSetCheckBox2"/>
+                                    <s:Spacer width="110" height="28"/>
+                                    <s:Label text="是否允许加密狗零出库：" styleName="contentLabel"/>
+                                    <s:Spacer width="97" height="28"/>
+                                    <s:CheckBox id="basicSetCheckBox3"/>
+									<s:Spacer width="110" height="28"/>
+									<s:Label text=" 产品入库单是否回写销售合同成本：" styleName="contentLabel"/>
+									<s:Spacer width="97" height="28"/>
+									<s:CheckBox id="basicSetCheckBox4"/>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                            <s:Spacer height="10"/>
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text="业绩比例严格分摊：" styleName="contentLabel"/>
+                                    <s:Spacer width="97" height="28"/>
+                                    <s:CheckBox id="shareRateSetCheckBox"/>
+                                </mx:HBox>
+
+                            </mx:VBox>
+                            <s:Spacer height="10"/>
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                                    <mx:HBox width="100%" id="order_status_box">
+                                        <mx:Label text="新购、升级合同自动更新客户状态：" styleName="contentLabel"/>
+
+                                    </mx:HBox>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                            <s:Spacer height="10"/>
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                                    <mx:HBox width="100%" id="numberout">
+                                        <mx:Label text="外拨电话出局号：" styleName="contentLabel"/>
+                                        <mx:TextInput id="telephoneNumberOut" restrict="0-9#*" width="100%"
+                                                      borderStyle="none"/>
+                                    </mx:HBox>
+                                    <mx:HBox width="100%">
+                                        <mx:Label text="内线位数：" styleName="contentLabel"/>
+                                        <mx:TextInput id="iintelcount" restrict="0-9" width="100%" borderStyle="none"/>
+                                    </mx:HBox>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                            <s:Spacer height="10"/>
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                                    <!--<mx:HBox width="100%" visible="false" includeInLayout="false">-->
+                                        <!--<mx:Label text="热线显示线路（1~32）：" styleName="contentLabel"/>-->
+                                        <!--<mx:TextInput id="hotlinecount" restrict="0-9" width="100%" borderStyle="none"/>-->
+                                    <!--</mx:HBox>-->
+                                    <mx:HBox width="100%" >
+                                        <mx:Label text="是否自动处理内线电话：" styleName="contentLabel"/>
+                                        <mx:CheckBox id="bdealinput"  />
+                                    </mx:HBox>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                            <s:Spacer height="10"/>
+                            <mx:VBox width="100%" height="100%" styleName="content"
+                                     creationComplete="vBox1_creationCompleteHandler(event)">
+                                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                                    <mx:HBox width="100%">
+                                        <mx:Label text="我公司坐标信息" styleName="contentLabel"/>
+                                        <mx:TextInput width="100%" text="{ccoordinate}" editable="false"
+                                                      borderStyle="none"/>
+                                        <mx:Button label="选取" click="button1_clickHandler(event)"/>
+                                    </mx:HBox>
+                                </mx:HBox>
+                            </mx:VBox>
+
+
+                        </mx:VBox>
+                    </mx:Canvas>
+
+
+                    <mx:Canvas id="safeSetCanvas" width="100%" height="100%" horizontalScrollPolicy="off">
+                        <mx:VBox width="100%" verticalGap="0">
+
+                            <mx:VBox width="100%" cornerRadius="8" styleName="content" creationComplete="init()">
+                                <mx:HBox width="100%" verticalAlign="middle">
+                                    <s:Label text=" 设置用户初始化密码："/>
+                                    <s:Spacer width="17" height="28"/>
+                                    <comps:CrmTextInput id="initPwd" width="99%" height="98%"
+                                                        styleName="contentTextInput" displayAsPassword="true"
+                                                        restrict="0-9a-zA-Z" iShowIcon="false"/>
+                                    <s:Spacer width="2"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" verticalAlign="middle">
+                                    <s:Label text=" 用户使用初始密码时强制修改："/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="enforceModityPwd" selected="{options.cvalue1}"/>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                            <s:Spacer height="10"/>
+
+
+                            <mx:VBox width="100%" cornerRadius="8" styleName="content">
+                                <mx:HBox width="100%" verticalAlign="middle">
+                                    <s:Label text=" 设置密码最小长度："/>
+                                    <s:Spacer width="29" height="28"/>
+                                    <s:TextInput width="100%" height="98%" id="pwdMinLength"
+                                                 styleName="contentTextInput"/>
+                                    <s:Spacer width="2"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" verticalAlign="middle">
+                                    <s:Label text=" 密码最长使用天数："/>
+                                    <s:Spacer width="29" height="28"/>
+                                    <s:TextInput width="100%" height="98%" id="pwdMaxDay" styleName="contentTextInput"/>
+                                    <s:Spacer width="2"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" verticalAlign="middle">
+                                    <s:Label text=" 登录时密码验证的最多次数："/>
+                                    <s:Spacer width="14" height="28"/>
+                                    <s:TextInput width="100%" height="98%" id="pwdMaxCheckCount"
+                                                 styleName="contentTextInput"/>
+                                    <s:Spacer width="2"/>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                            <s:Spacer height="10"/>
+
+                            <mx:VBox width="100%" cornerRadius="8" styleName="content">
+                                <mx:HBox width="100%" verticalAlign="middle" paddingRight="10">
+                                    <mx:HBox width="100%" verticalAlign="middle">
+                                        <s:Label text=" 不允许同一客户端同时登录："/>
+                                        <s:Spacer width="15" height="28"/>
+                                        <s:CheckBox id="notLogin"/>
+                                    </mx:HBox>
+                                    <s:Button label="设置例外" click="openSysPerson(1)" visible="false"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+								<mx:HBox width="100%" verticalAlign="middle">
+									<s:Label text=" 多方通话标识："/>
+									<s:Spacer width="29" height="28"/>
+									<s:TextInput width="100%" height="98%" id="account_identify" styleName="contentTextInput"/>
+									<s:Spacer width="2"/>
+								</mx:HBox>
+								<mx:HRule width="100%"/>
+								<mx:HBox width="100%" verticalAlign="middle">
+									<s:Label text=" 多方通话密钥："/>
+									<s:Spacer width="29" height="28"/>
+									<s:TextInput width="100%" height="98%" id="key_permanent" styleName="contentTextInput" displayAsPassword="true"/>
+									<s:Spacer width="2"/>
+								</mx:HBox>
+								
+								<mx:HRule width="100%"/>
+								<mx:HBox width="100%" verticalAlign="middle">
+									<s:Label text=" 公司组织账号："/>
+									<s:Spacer width="29" height="28"/>
+									<s:TextInput width="100%" height="98%" id="cust_account" styleName="contentTextInput" displayAsPassword="true"/>
+									<s:Spacer width="2"/>
+								</mx:HBox>
+								<mx:HBox width="100%" verticalAlign="middle">
+									<s:Label text=" 公司应用KEY："/>
+									<s:Spacer width="29" height="28"/>
+									<s:TextInput width="100%" height="98%" id="app_key" styleName="contentTextInput" displayAsPassword="true"/>
+									<s:Spacer width="2"/>
+								</mx:HBox>
+								
+								<mx:HRule width="100%"/>
+								
+                                <mx:HBox width="100%" verticalAlign="middle" visible="false">
+                                    <s:TextArea y="5" width="100%" height="65" id="clientLoginTxt"
+                                                text="{clientLoginVal}" editable="false" styleName="contentTextInput"/>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                            <s:Spacer height="10"/>
+
+                            <mx:VBox width="100%" cornerRadius="8" styleName="content" visible="false">
+                                <mx:HBox width="100%" verticalAlign="middle" paddingRight="10">
+                                    <mx:HBox width="100%">
+                                        <s:Label verticalAlign="middle" height="100%" text=" 客户端自动清退时间(分钟)："/>
+                                        <s:Spacer width="1" height="28"/>
+                                        <s:TextInput id="clearTimer" width="100%" height="98%"
+                                                     styleName="contentTextInput"/>
+                                    </mx:HBox>
+                                    <s:Button label="设置例外" click="openSysPerson(2)" />
+                                </mx:HBox>
+                                <mx:HRule width="100%" visible="false"/>
+                                <mx:HBox width="100%" verticalAlign="middle" visible="false">
+                                    <s:TextArea y="5" width="100%" height="65" id="clearTimerTxt" text="{clearTimerVal}"
+                                                editable="false" styleName="contentTextInput"/>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                        </mx:VBox>
+                    </mx:Canvas>
+
+                    <mx:Canvas id="SalesSet" creationComplete="SalesSet_creationCompleteHandler(event)">
+                        <mx:VBox width="100%" height="100%" verticalGap="10">
+                            <mx:VBox width="100%" styleName="content">
+                                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                                    <mx:Label text="控制客户负责人才允许建商机：" styleName="contentLabel"/>
+                                    <s:CheckBox id="opportunities1"/>
+                                </mx:HBox>
+                            </mx:VBox>
+                            <mx:VBox width="100%" styleName="content">
+                                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                                    <mx:Label text="新购合同必由商机推单生成：" styleName="contentLabel"
+                                              toolTip="勾选后则传统新增按钮停用，只能通过商机卡片更多操作生成"/>
+                                    <s:CheckBox id="cb162" selected="{isOrderPush162}"
+                                                change="{isOrderPush162 = cb162.selected}"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%" height="1"/>
+                                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                                    <mx:Label text="升级合同必由商机推单生成：" styleName="contentLabel"
+                                              toolTip="勾选后则传统新增按钮停用，只能通过商机卡片更多操作生成"/>
+                                    <s:CheckBox id="cb161" selected="{isOrderPush161}"
+                                                change="{isOrderPush161 = cb161.selected}"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%" height="1"/>
+                                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                                    <mx:Label text="开发合同必由商机推单生成：" styleName="contentLabel"
+                                              toolTip="勾选后则传统新增按钮停用，只能通过商机卡片更多操作生成"/>
+                                    <s:CheckBox id="cb210" selected="{isOrderPush210}"
+                                                change="{isOrderPush210 = cb210.selected}"/>
+                                </mx:HBox>
+                                <!--<mx:HRule width="100%" height="1"/>
+                                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                                   <mx:Label text="合同录入金额是否允许为0：" styleName="contentLabel" />
+                                   <s:CheckBox id="cbOrder"/>
+                               </mx:HBox>-->
+                            </mx:VBox>
+                        </mx:VBox>
+                    </mx:Canvas>
+
+
+                    <mx:Canvas id="serviceSetCanvas" creationComplete="serviceSetCanvas_creationCompleteHandler()">
+                        <mx:VBox width="100%" verticalGap="0">
+                            <mx:VBox width="100%" height="33" styleName="content">
+                                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                                    <mx:HBox width="100%" id="service_role_box">
+                                        <mx:Label text="技术值班对应角色：" styleName="contentLabel"/>
+
+                                    </mx:HBox>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                        </mx:VBox>
+                    </mx:Canvas>
+                    <mx:Canvas id="oaCanvas" creationComplete="onClick()">
+                        <mx:VBox width="100%" verticalGap="0">
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 日志活动是否参与费用报销：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="checkBox1"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 售前支持是否参与费用报销：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="checkBox2"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 服务工单是否参与费用报销：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="checkBox3"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 实施日志是否参与费用报销：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="checkBox4"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 服务工单报销是否控制电话报岗：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="checkBox5"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 实施工单报销是否控制电话报岗：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="checkBox6"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 服务工单未解决是否参与报销：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:CheckBox id="checkBox7"/>
+                                </mx:HBox>
+                            </mx:VBox>
+
+                        </mx:VBox>
+                    </mx:Canvas>
+                    <mx:Canvas id="LogoCan" creationComplete="initLogo()">
+
+                        <mx:VBox width="100%" verticalGap="0">
+                            <!--wxh add begin -->
+                            <mx:VBox width="100%" verticalGap="0" styleName="content">
+                                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                                    <s:Label text="版权信息：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:TextInput id="copyright" width="100%" borderVisible="false"
+                                                 text="{this.icopyright}"/>
+                                </mx:HBox>
+                            </mx:VBox>
+                            <s:Spacer height="10"/>
+							<mx:VBox width="100%" verticalGap="0" styleName="content">
+								<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+									<s:Label text="公司简称：" styleName="contentLabel"/>
+									<s:Spacer width="1" height="28"/>
+									<s:TextInput id="cshortname" width="100%" borderVisible="false"
+												 text="{this.icshortname}"/>
+								</mx:HBox>
+							</mx:VBox>
+							<s:Spacer height="10"/>
+                            <mx:VBox width="100%" verticalGap="0" styleName="content">
+                                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                                    <s:Label text="链接地址：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:TextInput id="netAddress" width="100%" borderVisible="false"
+                                                 text="{this.inetAddress}"/>
+                                </mx:HBox>
+                            </mx:VBox>
+                            <s:Spacer height="10"/>
+                            <!--wxh add end -->
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 登录页Logo：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:TextInput id="imgname" width="150" borderVisible="false"/>
+                                    <s:Button id="selectbt" label="选择" click="selectbt_clickHandler(event)"/>
+                                    <s:Button id="uploadbt" label="确定" click="uploadbt_clickHandler(event)"/>
+                                    <s:Label width="100%" text=" （png格式文件，最佳尺寸：295*35）" verticalAlign="middle"/>
+                                </mx:HBox>
+                                <mx:HBox width="100%" id="rectUI1" styleName="contentSubHbox" verticalAlign="middle">
+                                    <mx:Image id="sourceimg" x="0" y="0" maxHeight="35" maxWidth="121"/>
+                                </mx:HBox>
+                            </mx:VBox>
+                            <s:Spacer height="10"/>
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text=" 主页面Logo：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:TextInput id="imgname1" width="150" borderVisible="false"/>
+                                    <s:Button id="selectbt1" label="选择" click="selectbt_clickHandler1(event)"/>
+                                    <s:Button id="uploadbt1" label="确定" click="uploadbt_clickHandler1(event)"/>
+                                    <s:Label width="100%" text=" （png格式文件，最佳尺寸：175*45）" verticalAlign="middle"/>
+                                </mx:HBox>
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <mx:Image id="sourceimg1" x="0" y="0" maxHeight="50" maxWidth="155"/>
+                                </mx:HBox>
+                            </mx:VBox>
+                        </mx:VBox>
+                    </mx:Canvas>
+                    <mx:Canvas id="shareRateSetCanvas">
+                        <mx:VBox width="100%" verticalGap="0">
+                            <mx:VBox width="100%" height="100%" styleName="content">
+                                <mx:HBox width="100%" styleName="contentSubHbox" verticalAlign="middle">
+                                    <s:Label text="升级文件：" styleName="contentLabel"/>
+                                    <s:Spacer width="1" height="28"/>
+                                    <s:TextInput id="dogtxt" width="150" editable="false" borderVisible="false"/>
+                                    <s:Button id="selectbtdog" label="选择" click="selectbtdog_clickHandler1(event)"/>
+                                    <s:Button id="uploadbtdog" label="确定" click="uploaddogbt_clickHandler1(event)"/>
+                                </mx:HBox>
+
+                            </mx:VBox>
+
+                        </mx:VBox>
+                    </mx:Canvas>
+                </mx:ViewStack>
+                <mx:HBox width="100%" height="32" horizontalAlign="right" verticalAlign="middle" id="myBox">
+                    <s:Button id="ok" label=" 确 认 " click="updateOptions()"></s:Button>
+                    <s:Button id="reset" label=" 重 置 " click="reset_clickHandler(event)"></s:Button>
+                </mx:HBox>
+            </mx:VBox>
+
+        </mx:VBox>
+    </mx:HBox>
+
+
+</mx:VBox>

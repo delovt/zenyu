@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:homeView="yssoft.views.homeView.*"
+         horizontalAlign="center" horizontalGap="0"
+         horizontalScrollPolicy="off"
+         verticalScrollPolicy="off"
+         width="100%"
+         creationComplete="buttonBox_creationCompleteHandler(event)">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.views.homeView.EditSmartDesktopTitleWindow;
+
+
+        protected function buttonBox_creationCompleteHandler(event:FlexEvent):void
+        {
+            getSmartButtonList();
+
+            this.addEventListener("SmartButtonListChange",function(e:Event):void{
+                getSmartButtonList();
+            });
+        }
+
+        private function getSmartButtonList():void{
+            var getSql:String = "select ac_start.*,af.cprogram,af.ctable,af.ccaptionfield,af.ifuncregedit as outifuncregedit  from ac_start " +
+                    "left join as_funcregedit af on ac_start.ifuncregedit = af.iid where ac_start.iperson="+CRMmodel.userId;
+            AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",getSmartButtonListBack,getSql,null,false);
+        }
+
+        private function getSmartButtonListBack(event:ResultEvent):void{
+            var list:ArrayCollection = event.result as ArrayCollection;
+            if(list&&list.length>0){
+                for each(var item:Object in list){
+                    (this["b"+item.ino] as SmartButton).mydata = item;
+                }
+            }
+
+            for (var i:int=1;i<=8;i++){
+                var isIn:Boolean = false;
+                for each(var item:Object in list){
+                    if(i==item.ino as int)
+                        isIn = true;
+                }
+                if(!isIn){
+                    var insertSql:String = "insert into ac_start	(iperson,ino)" +
+                            "values("+CRMmodel.userId+"," +i+")"
+                    AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+                        getSmartButtonList();
+                    },insertSql,null,false);
+                }
+            }
+        }
+
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:VBox verticalGap="4">
+        <homeView:SmartButton id="b1" typeid="1"  ownerBox="{this}" ino="1" clickAble="true" />
+        <homeView:SmartButton id="b3"  typeid="1"   ownerBox="{this}" ino="3" clickAble="true" />
+        <homeView:SmartButton id="b5"  typeid="1"  ownerBox="{this}" ino="5" clickAble="true" />
+        <homeView:SmartButton id="b7" typeid="1"   ownerBox="{this}" ino="7" clickAble="true" />
+    </mx:VBox>
+    <s:Spacer width="4"/>
+    <mx:VBox verticalGap="4">
+        <homeView:SmartButton id="b2" typeid="1"   ownerBox="{this}" ino="2" clickAble="true" />
+        <homeView:SmartButton id="b4" typeid="1"   ownerBox="{this}" ino="4" clickAble="true" />
+        <homeView:SmartButton id="b6"  typeid="1"  ownerBox="{this}" ino="6" clickAble="true" />
+        <homeView:SmartButton id="b8" typeid="1"   ownerBox="{this}" ino="8" clickAble="true" />
+    </mx:VBox>
+</mx:HBox>

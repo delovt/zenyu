@@ -1,0 +1,399 @@
+<?xml version="1.0"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:comps="yssoft.comps.*"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         width="100%" height="100%" creationComplete="creationCompleteHandler(event)" paddingTop="8">
+    <mx:VBox width="350" height="100%">
+        <mx:VBox width="100%" height="50%">
+            <mx:HBox height="28" width="100%" paddingLeft="6" verticalAlign="middle">
+                <mx:RadioButtonGroup id="typeRadioButtonGroup" change="typeRadioButton_changeHandler(event)" enabled="{isEdit}"/>
+                <mx:RadioButton id="rb1" label="业务部门" group="{typeRadioButtonGroup}" selected="true" value="1"/>
+            </mx:HBox>
+            <s:BorderContainer width="100%" height="100%">
+                <comps:TreeCompsVbox id="tree" width="100%" height="100%" itemClick="tree_itemClickHandler(event)"
+                                     enabled="{isEdit}" showRoot="true"
+                                     dragMoveEnabled="false"
+                                     dragEnabled="true"/>
+            </s:BorderContainer>
+        </mx:VBox>
+
+        <mx:HBox height="28" verticalAlign="middle" width="100%" paddingLeft="6">
+            <mx:Label text="接收单位："/>
+            <mx:Spacer width="100%"/>
+            <mx:LinkButton id="addSelectedButton" label="添加" click="addSelectedButton_clickHandler(event)"
+                           enabled="{isEdit}" icon="{ConstsModel._ADDITIONICON}" toolTip="添加"/>
+            <mx:LinkButton id="delSelectedButton" label="清空" click="delSelectedButton_clickHandler(event)"
+                           icon="{ConstsModel._CLEARICON}" toolTip="清空"
+                           enabled="{isEdit}"/>
+            <mx:Spacer width="10"/>
+        </mx:HBox>
+        <mx:List id="selectedList" width="100%" height="50%" labelField="cname" dropEnabled="true"
+                 dataProvider="{selectedAc}"
+                 itemRenderer="{selectedListItemRender}"
+                 dragOver="selectedList_dragOverHandler(event)"
+                 dragEnter="selectedList_dragEnterHandler(event)"
+                 dragDrop="selectedList_dragDropHandler(event)"
+                 itemClick="selectedList_itemClickHandler(event)"/>
+    </mx:VBox>
+    <mx:VBox width="100%" height="100%">
+        <mx:HBox height="28" width="100%" verticalAlign="middle" paddingLeft="2">
+            <mx:Label
+                    text="{selectedList.selectedItem!=null? selectedList.selectedItem.cname:tree.selectedItem!=null?tree.selectedItem.@cname:null}"/>
+            <mx:Spacer width="100%"/>
+            <mx:Label text="{dPersonNum}" visible="{!(alreadyPush.length>0)}"/>
+            <mx:Spacer width="5"/>
+        </mx:HBox>
+        <mx:List width="100%" height="100%" dataProvider="{personList}" labelField="cname"
+                 itemRenderer="{personItemRender}"/>
+    </mx:VBox>
+
+    <fx:Declarations>
+        <fx:Component id="selectedListItemRender">
+            <mx:HBox width="100%" paddingRight="4">
+                <mx:Label text="{data.cname}"/>
+                <mx:Spacer width="100%"/>
+                <mx:LinkButton toolTip="删除" click="button1_clickHandler(event)" enabled="{outerDocument.isEdit}"
+                               icon="{ConstsModel._SUBTRACTIONICON}"/>
+                <fx:Script><![CDATA[
+                    import mx.collections.ArrayCollection;
+
+                    import yssoft.models.ConstsModel;
+
+                    private function button1_clickHandler(event:MouseEvent):void {
+                        outerDocument.selectedAc.removeItemAt(outerDocument.selectedAc.getItemIndex(data));
+
+                        if (!outerDocument.tree.selectedItem)
+                            outerDocument.personList = new ArrayCollection();
+                    }
+                    ]]></fx:Script>
+            </mx:HBox>
+        </fx:Component>
+        <fx:Component id="personItemRender">
+            <mx:HBox width="100%" paddingRight="4" horizontalScrollPolicy="off">
+                <mx:Label text="{data.cname}" width="100%"
+                          color="{outerDocument.alreadyPush.length>0?data.bread==1?new uint(0x000000):new uint(0xFF0000):new uint(0x000000)}"/>
+                <mx:Spacer width="100%"/>
+                <mx:Label text="{data.ddate}"/>
+            </mx:HBox>
+        </fx:Component>
+    </fx:Declarations>
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.core.IUIComponent;
+        import mx.events.DragEvent;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+        import mx.managers.DragManager;
+        import mx.rpc.events.ResultEvent;
+
+        import spark.collections.Sort;
+        import spark.collections.SortField;
+
+        import yssoft.frameui.FrameCore;
+
+        import yssoft.models.CRMmodel;
+
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        private var dPersonNum:int = 0;
+        [Bindable]
+        public var personList:ArrayCollection;
+        [Bindable]
+        public var selectedAc:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        public var alreadyPush:ArrayCollection = new ArrayCollection();
+
+        public var parentFrameCore:FrameCore;
+
+        public var _currid:int;
+        [Bindable]
+        public var funcregedit:int;
+        [Bindable]
+        public var isEdit:Boolean = true;
+
+        public var itype:int = 1;
+
+        public var iifuncregedit:int = 116;//默认公告通知
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            initDepartmentTree();
+            if (parentFrameCore)
+                parentFrameCore.addEventListener("statusChanged", function (e:Event):void {
+                    if (parentFrameCore.curButtonStatus == "onGiveUp") {
+                        isEdit = false;
+                    } else if (parentFrameCore.curButtonStatus == "onEdit" || parentFrameCore.curButtonStatus == "onNew") {
+                        isEdit = true;
+                        if (parentFrameCore.curButtonStatus == "onNew") {
+                            initDepartmentTree();
+                            rb1.selected;
+                            currid = 0;
+                        }
+                    }
+                });
+        }
+
+        private function initDepartmentTree():void {
+            AccessUtil.remoteCallJava("RoleDest", "getDepartment", getTreeBack, {icorp: 0, isAll: false}, ConstsModel.EPARTMENT_GET_INFO);
+        }
+
+        private function initCustomerTree():void {
+            var sql:String = "select * from cs_customerarea where isnull(icorp,0)=0 ";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+                AccessUtil.remoteCallJava("UtilViewDest", "buildTreeXML", getTreeBack, {list: ac});
+            }, sql, null, false);
+        }
+        private function initSupplierTree():void {
+            var sql:String = "select * from vd_vendorclass where isnull(icorp,0)=0 " ;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+                AccessUtil.remoteCallJava("UtilViewDest", "buildTreeXML", getTreeBack, {list: ac});
+            }, sql, null, false);
+        }
+        private function getTreeBack(e:ResultEvent):void {
+            if (e.result != null) {
+                var xml:String = e.result as String;
+                if (CRMtool.isStringNotNull(xml)) {
+                    tree.treeCompsXml = new XML(xml);
+                    tree.expandRoot();
+                } else
+                    tree.treeCompsXml = null;
+            } else {
+                tree.treeCompsXml = null;
+            }
+        }
+
+        private function tree_itemClickHandler(event:ListEvent):void {
+            if (!tree.selectedItem)
+                return;
+
+            selectedList.selectedIndex = -1;
+
+            var sql:String;
+            if (rb1.selected) {
+                sql = "select an.iid,'['+ht.cname+']'+an.cname as cname from hr_person an left join hr_department ht on ht.iid = an.idepartment " +
+                        " where ht.ccode like '" + tree.selectedItem.@ccode + "%' ";
+            }
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                personList = event.result as ArrayCollection;
+                dPersonNum = personList.length;
+            }, sql, null, false);
+        }
+
+        private function selectedList_dragEnterHandler(event:DragEvent):void {
+            event.preventDefault();
+            if (event.dragInitiator == tree && tree.selectedItem) {
+                DragManager.acceptDragDrop(event.currentTarget as IUIComponent);
+            }
+        }
+
+        private function selectedList_dragDropHandler(event:DragEvent):void {
+            event.preventDefault();
+            if (event.dragInitiator == tree && tree.selectedItem) {
+                DragManager.acceptDragDrop(event.currentTarget as IUIComponent);
+                addSelected();
+            }
+        }
+
+        private function selectedList_dragOverHandler(event:DragEvent):void {
+            event.preventDefault();
+        }
+
+        private function addSelectedButton_clickHandler(event:MouseEvent):void {
+            if (tree.selectedItem)
+                addSelected();
+        }
+
+        private function addSelected():void {
+            var itype:int;
+            var sql:String;
+            if (rb1.selected) {
+                itype = 1;
+                sql = "select " + itype + " as itype,iid,cname from hr_department where isnull(istatus,0)!=2 and  ccode like '" + tree.selectedItem.@ccode + "%' order by ccode";
+            }
+
+            //selectedAc.addItem({itype: itype, iid: tree.selectedItem.@iid, cname: tree.selectedItem.@cname})
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+                for each(var item:Object in ac) {
+                    if (item.itype == 1)
+                        item.cname = "[部门]" + item.cname;
+                    if (item.itype == 11)
+                        item.cname = "[经销商]" + item.cname;
+                    if (item.itype == 12)
+                        item.cname = "[供应商]" + item.cname;
+                    var isIn:Boolean = false;
+                    for each(var sitem:Object in selectedAc) {
+                        if (item.itype == sitem.itype && item.iid == sitem.iid)
+                            isIn = true;
+                    }
+                    item.inodetype = item.itype;
+                    item.inodevalue = item.iid;
+                    if (!isIn)
+                        selectedAc.addItem(item);
+                }
+
+            }, sql, null, false);
+        }
+
+        private function selectedList_itemClickHandler(event:ListEvent):void {
+            if (!selectedList.selectedItem)
+                return;
+            tree.selectedIndex = -1;
+
+            var sql:String;
+            if (selectedList.selectedItem.itype == 1) {
+                sql = "select an.iid,'['+ht.cname+']'+an.cname as cname from hr_person an left join hr_department ht on ht.iid = an.idepartment " +
+                        " where an.idepartment=" + selectedList.selectedItem.iid+"order by cname";
+                //wxh add 已发送的读取原始记录人
+                if (alreadyPush.length > 0) {
+                    sql = "select an.iid,'['+ht.cname+']'+an.cname as cname from hr_person an left join hr_department ht on ht.iid = an.idepartment " +
+                            " where an.idepartment=" + selectedList.selectedItem.iid+" and an.iid in (select ons.iperson from oa_noticenode oc left join oa_noticenodes ons on ons.inoticenode = oc.iid where oc.inotice = "+currid+" and oc.iifuncregedit = "+iifuncregedit+") order by cname";
+                }
+            }
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+
+
+                if (alreadyPush.length > 0) {
+                    for each(var item:Object in ac) {
+                        var isIn:Boolean = false;
+                        for each(var person:Object in alreadyPush) {
+                            if (person.bread == 1 && item.iid == person.iperson) {
+                                item.bread = 1;
+                                item.ddate = CRMtool.formatDateWithHNS(person.ddate);
+                                isIn = true;
+                            }
+                        }
+                        if (!isIn)
+                            item.cname += "  未读";
+                    }
+
+                }
+                personList = ac;
+                var sort:Sort = new Sort();
+                //按照优先序号升序排序
+                sort.fields = [new SortField("bread",true,true),new SortField("cname")];
+                personList.sort = sort;
+                personList.refresh();
+                dPersonNum = personList.length;
+            }, sql, null, false);
+        }
+
+        [Bindable]
+        public function get currid():int {
+            return _currid;
+        }
+
+        private var _flagI:int = 0;
+
+        public function set currid(value:int):void {
+
+            if (parentFrameCore.formIfunIid != 377 && parentFrameCore.formIfunIid != 608)
+                return;
+
+            dPersonNum = 0;
+            isSum = false;
+            selectedAc = new ArrayCollection();
+            alreadyPush = new ArrayCollection();
+            personList = new ArrayCollection();
+
+            _currid = value;
+            if (value > 0) {
+                initData();
+            }
+        }
+
+        public function initData():void {
+            flagI = 0;
+            getAlreadyPush();
+            getAlreadySelect();
+        }
+
+        public function getAlreadySelect():void {
+            var sql:String = "  select oe.iid as inoticenode,oe.inodetype as  itype,oe.inodevalue as iid,'[部门]'+ht.cname as cname  from oa_noticenode oe left join  hr_department ht on oe.inodevalue=ht.iid  " +
+                    "where inodetype=1 and  inotice=" + currid + " and oe.iifuncregedit = "+ iifuncregedit +
+                    " union " +
+                    "select oe.iid as inoticenode,oe.inodetype as  itype,oe.inodevalue as iid,'[经销商]'+an.cname as cname  from oa_noticenode oe left join  cs_customerarea an on oe.inodevalue=an.iid " +
+                    "where inodetype=11 and  inotice=" + currid + " and oe.iifuncregedit = "+ iifuncregedit +
+                    " union "+
+                    "select oe.iid as inoticenode,oe.inodetype as  itype,oe.inodevalue as iid,'[供应商]'+an.cname as cname  from oa_noticenode oe left join  vd_vendorclass an on oe.inodevalue=an.iid " +
+                    "where inodetype=12 and  inotice=" + currid + " and oe.iifuncregedit = "+ iifuncregedit ;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+
+                selectedAc = event.result as ArrayCollection;
+                for each(var item:Object in selectedAc) {
+                    item.inodetype = item.itype;
+                    item.inodevalue = item.iid;
+                }
+
+                flagI++;
+            }, sql, null, false);
+        }
+
+
+        public function getAlreadyPush():void {
+            var sql:String = "select os.iid,isnull(os.bread,0) as bread,os.ddate,os.iperson,oe.inodetype,os.inoticenode from oa_noticenodes os left join oa_noticenode oe on os.inoticenode=oe.iid where oe.iifuncregedit = "+iifuncregedit+" and inotice=" + currid;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+
+                alreadyPush = event.result as ArrayCollection;
+                if (alreadyPush.length > 0) {
+                    isEdit = false;
+                }
+
+                flagI++;
+            }, sql, null, false);
+        }
+
+        private function typeRadioButton_changeHandler(event:Event):void {
+            var rbg:RadioButtonGroup = event.currentTarget as RadioButtonGroup;
+            itype = int(rbg.selectedValue);
+            if (rbg.selectedValue == "1"){
+                initDepartmentTree();
+            }else if(rbg.selectedValue == "11"){
+                initCustomerTree();
+            }else{
+                initSupplierTree();
+            }
+
+        }
+
+        public function get flagI():int {
+            return _flagI;
+        }
+
+        private var isSum:Boolean = false;
+
+        public function set flagI(value:int):void {
+            _flagI = value;
+            if (!isSum && alreadyPush && alreadyPush.length > 0 && selectedAc && selectedAc.length > 0) {
+                for each(var ditem:Object in selectedAc) {
+
+                    var allNum:int = 0;
+                    var readNum:int = 0;
+                    for each(var pitem:Object in alreadyPush) {
+                        if (pitem.inodetype == ditem.itype && pitem.inoticenode == ditem.inoticenode) {
+                            allNum++;
+                            if (pitem.bread == 1)
+                                readNum++;
+                        }
+                    }
+
+                    ditem.cname = (ditem.cname + " （" + readNum + "/" + allNum + "）");
+                }
+                selectedAc.refresh();
+                isSum = true;
+            }
+        }
+
+        private function delSelectedButton_clickHandler(event:MouseEvent):void {
+            selectedAc = new ArrayCollection();
+            if (!tree.selectedItem)
+                personList = new ArrayCollection();
+        }
+        ]]></fx:Script>
+</mx:HBox>

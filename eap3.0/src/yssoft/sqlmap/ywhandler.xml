@@ -1,0 +1,74 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+	<!-- 业务注释 -->
+    <select id="ywhd.ywzs_selete_items" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select ab.iid,ab.ifuncregedit,ab.iinvoice,ab.cmemo,ab.imaker,convert(varchar,ab.dmaker,120) dmaker,p.cname
+		from ab_invoicenote ab left join hr_person p on ab.imaker=p.iid
+		where ab.ifuncregedit=#ifuncregedit# and ab.iinvoice=#iinvoice#
+		order by ab.dmaker desc
+    </select>
+    <insert id="ywhd.ywzs_insert_item" parameterClass="java.util.HashMap">
+		insert into ab_invoicenote(ifuncregedit,iinvoice,cmemo,imaker,dmaker)
+		values
+		(#ifuncregedit#,#iinvoice#,#cmemo#,#imaker#,convert(varchar,getdate(),120))
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+    </insert>
+    <delete id="ywhd.ywzs_delete_item" parameterClass="java.util.HashMap">
+    	delete from ab_invoicenote where iid=#iid# and imaker=#imaker#
+    </delete>
+    
+    
+    
+    <!-- 业务对象 -->
+    
+    
+    <!-- 相关人员 -->
+    <select id="ywhd.xgry_selete_items" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+    	select '-1' pid,ab.iid,ab.ifuncregedit,ab.iinvoice,ab.iperson,ab.idepartment,ab.irole,p.cname pcname,d.cname dcname
+		from ab_invoiceuser ab 
+		left join hr_person p on ab.iperson=p.iid
+		left join hr_department d on ab.idepartment=d.iid
+		where ab.ifuncregedit=#ifuncregedit# and ab.iinvoice=#iinvoice#
+		order by ab.irole
+    </select>
+    <insert id="ywhd.xgry_insert_item" parameterClass="java.util.HashMap">
+    	insert into ab_invoiceuser(ifuncregedit,iinvoice,iperson,idepartment,irole)
+		values 
+		(#ifuncregedit#,#iinvoice#,#iperson#,#idepartment#,#irole#)
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+    </insert>
+    <!-- 判断 指定表单中，是否已有该人员了 -->
+	<select id="ywhd.xgry_selete_items_count" resultClass="int" parameterClass="java.util.HashMap">
+		select count(*) from ab_invoiceuser 
+		where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice# and iperson=#iperson#
+	</select>
+	<!-- 获取负责人的个数 -->
+	<select id="ywhd.xgry_selete_fz_items_count" resultClass="int" parameterClass="java.util.HashMap">
+		select count(*) from ab_invoiceuser 
+		where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice# and irole=1
+	</select>
+	<delete id="ywhd.xgry_delete_item" parameterClass="java.util.HashMap">
+		delete from ab_invoiceuser where 1=1 
+		<isNotEmpty prepend="and" property="iid">
+			iid=#iid#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="iinvoice">
+			iinvoice=#iinvoice#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="iperson">
+			iperson=#iperson#
+		</isNotEmpty>
+	</delete>
+	
+	<!-- 业务对象 -->
+	<!-- 获取数据集 -->
+	<select id="ywhd.ywdx_selete_items" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select * from AS_fcrelation where ifuncregedit=#ifuncregedit# and ifcrelation=#iinvoice# and buse=1 order by ino 
+	</select>
+	
+	
+</sqlMap>

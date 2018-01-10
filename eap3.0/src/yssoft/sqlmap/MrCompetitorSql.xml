@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+	<select id="CompetitorDest.getCompetitor" parameterClass="String" resultClass="java.util.HashMap">
+		select ccode,cname,caddress,ccharge,ctel,chttp,cdetail from mr_competitor
+		where $condition$
+	</select>
+	
+	<insert id="CompetitorDest.addCompetitor" parameterClass="java.util.HashMap">
+		insert into mr_competitor(ccode,cname,caddress,ccharge,ctel,chttp,cdetail)
+		values(#ccode#,#cname#,#caddress#,#ccharge#,#ctel#,#chttp#,#cdetail#)
+		
+		<selectKey resultClass="int" keyProperty="iid" >
+ 				SELECT @@IDENTITY AS iid
+	    </selectKey>
+	</insert>
+	
+	<delete id="CompetitorDest.delCompetitor" parameterClass="String">
+		delete from mr_competitor where $condition$
+	</delete>
+	
+	<update id="CompetitorDest.updateCompetitor" parameterClass="java.util.HashMap">
+		update mr_competitor set ccode=#ccode#,cname=#cname#,caddress=#caddress#,
+								 ccharge=#ccharge#,ctel=#ctel#,chttp=#chttp#,
+								 cdetail=#cdetail#
+		where iid=#iid#
+	</update>
+	
+	
+<!--	通过数据字典获取子表表结构	-->
+	<select id="CompetitorDest.getTableFormation" parameterClass="String" resultClass="java.util.HashMap">
+		select ac_datadictionary.iid,
+			   ifuncregedit,
+			   ctable,
+			   cfield,
+			   ccaption,
+			   ctype idatatype,
+			   ilength,
+			   bunnull,
+			   bread,
+			   cnewdefault,
+			   cnewdefaultfix,
+			   ceditdefault,
+			   bprefix,
+			   iconsult,
+			   cconsulttable,
+			   cconsultbkfld,
+			   cconsultswfld,
+			   cconsultipvf,
+			   cconsultdtvw,
+			   bconsultmtbk,
+			   bconsultendbk,
+			   bconsultlistsw,
+			   bconsultlistdf,
+			   bwfentry,
+			   bwfcd,
+			   bchildshow,
+			   ichildno,bchildcn,
+			   cfunction,cselsetvalues,
+			   cresfunction,cresmessage 
+			   
+		from ac_datadictionary 
+		left join as_datatype on ac_datadictionary.idatatype=as_datatype.iid where ctable=#tablename# order by ichildno
+			   
+	</select>
+	
+	<select remapResults="true" id="CompetitorDest.getDataInfo" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		$sqlValue$
+	</select>
+	
+	<insert id="CompetitorDest.add" parameterClass="java.util.HashMap" >
+		$sqlValue$
+		 <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	    </selectKey>
+	</insert>
+	
+	<delete id="CompetitorDest.del" parameterClass="java.util.HashMap">
+		$sqlValue$
+	</delete>
+	
+	<update id="CompetitorDest.update" parameterClass="java.util.HashMap">
+		$sqlValue$
+	</update>
+	
+	
+	
+</sqlMap>

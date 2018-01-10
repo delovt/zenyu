@@ -1,0 +1,1198 @@
+<?xml version="1.0"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:basic="yssoft.comps.frame.module.Basic.*"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:base="yssoft.comps.frame.module.Basic.*"
+         xmlns:comps="yssoft.comps.*"
+         verticalGap="0" horizontalGap="0"
+         implements="yssoft.interfaces.IMainViewStackSearch"
+         width="100%" height="100%" creationComplete="creationCompleteHandler(event)" xmlns:dataGridRenderer="yssoft.comps.dataGridRenderer.*" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+
+    <mx:HBox height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalGap="0">
+        <mx:VBox width="257" id="leftBox" height="100%" horizontalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+            <mx:ApplicationControlBar width="100%" height="32" dock="true" verticalGap="0">
+                <s:Label styleName="contentTitle" text="查询条件："/>
+            </mx:ApplicationControlBar>
+            <mx:VBox width="100%" height="100%" paddingTop="-1" >
+                <mx:VBox width="100%" height="100%" borderVisible="true" borderStyle="inset" >
+                    <mx:VBox id="vbx_common" width="100%" height="100%" paddingTop="10" backgroundColor="#FFFFFF"  >
+                        <mx:HBox id="ui_ctitle_box" width="100%" height="33" styleName="contentSubHbox">
+                            <mx:Label text="活动主题：" color="red" styleName="contentLabel" width="30%"/>
+                            <mx:HBox id="ui_iinvoice_box" width="70%" creationComplete="titleHboxinit(event)"/>
+                        </mx:HBox>
+                        <mx:HBox id="ui_person_box" width="100%" height="33" styleName="contentSubHbox">
+                            <mx:Label text="业务人员：" styleName="contentLabel" width="30%"/>
+                            <mx:HBox id="ui_iperson_box" width="70%" creationComplete="personHboxinit(event)"/>
+                        </mx:HBox>
+                        <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                            <mx:Label text="邀请客户：" styleName="contentLabel" width="30%"/>
+                            <mx:HBox id="ui_icustomer_box" width="70%" creationComplete="customerHboxinit(event)"/>
+                        </mx:HBox>
+                        <mx:HBox id="ui_custperson_box" width="100%" height="33" styleName="contentSubHbox">
+                            <mx:Label text="客户人员：" styleName="contentLabel" width="30%"/>
+                            <mx:HBox id="ui_ccustperson_box" width="70%" creationComplete="ccustpersonHboxinit(event)"/>
+                        </mx:HBox>
+                        <mx:HBox id="ui_isclose_box" width="100%" height="33" styleName="contentSubHbox">
+                            <mx:Label text="确认状态：" styleName="contentLabel" width="30%"/>
+                            <basic:BasicDropDownList id="sureState" labelField="type" dataProvider="{sureStates}" width="70%"
+                                                     selectedIndex="3"/>
+                        </mx:HBox>
+                        <mx:HBox id="ui_active_box" width="100%" height="33" styleName="contentSubHbox">
+                            <mx:Label text="活动状态：" styleName="contentLabel" width="30%"/>
+                            <basic:BasicDropDownList id="activeState" labelField="type" dataProvider="{activeStates}" width="70%"
+                                                     selectedIndex="2"/>
+                        </mx:HBox>
+						<mx:HBox id="ui_invite_box" width="100%" height="33" styleName="contentSubHbox">
+							<mx:Label text="邀请状态：" styleName="contentLabel" width="30%"/>
+							<basic:BasicDropDownList id="inviteState" labelField="type" dataProvider="{inviteStates}" width="70%"
+													 selectedIndex="2"/>
+						</mx:HBox>
+						<mx:VBox/>
+						<mx:VBox paddingBottom="5" paddingLeft="17" >
+							<mx:HBox height="25"/>
+							<mx:HBox verticalAlign="middle" height="25">
+								<mx:Label text="目  标："  styleName="contentLabel"/>
+								<mx:Label id="orderNum" text="{tPernum}人/{tCustpernum}家"/>
+							</mx:HBox>
+							<mx:VBox/>
+							<mx:HBox verticalAlign="middle" visible="true"  height="25">
+								<mx:Label text="已邀请："/>
+								<mx:Label id="yInvite" text="{yInvitePernum}人/{yInviteCusnum}家"/>
+							</mx:HBox>
+							<mx:VBox/>
+							<mx:HBox verticalAlign="middle" visible="true"  height="25">
+								<mx:Label text="未邀请：" />
+								<mx:Label id="wInvite" text="{wInvitePernum}人/{wInviteCusnum}家"/>
+							</mx:HBox>
+							
+							<mx:VBox/>
+							<mx:HBox verticalAlign="middle" visible="true"  height="25">
+								<mx:Label text="确  定：" styleName="contentLabel"/>
+								<mx:Label id="ensure" text="{ensurePernum+'人/'+ensureCusnum+'家'}"/>
+							</mx:HBox>
+							<mx:VBox/>
+							<mx:HBox verticalAlign="middle" visible="true"  height="25">
+								<mx:Label text="不确定：" styleName="contentLabel"/>
+								<mx:Label id="unsureness" text="{unsurenessPernum+'人/'+unsurenessCusnum+'家'}"/>
+							</mx:HBox>
+							
+							<mx:VBox/>
+							<mx:HBox verticalAlign="middle" visible="true"  height="25">
+								<mx:Label text="确定不：" styleName="contentLabel"/>
+								<mx:Label id="notSure" text="{notSurePernum+'人/'+notSureCusnum+'家'}"/>
+							</mx:HBox>
+							<mx:VBox/>
+							<mx:HBox verticalAlign="middle" visible="true"  height="25">
+								<mx:Label text="参  会：" styleName="contentLabel"/>
+								<mx:Label id="joinNum" text="{pernum}人/{custpernum}家"/>
+							</mx:HBox>
+							<mx:VBox/>
+							<mx:HBox verticalAlign="middle" height="25">
+								<mx:Label text="已跟踪：" styleName="contentLabel"/>
+								<mx:Label id="yTailAfter" text="{yTailAfterCusnum}家"/>
+							</mx:HBox>
+							<mx:VBox/>
+							<mx:HBox verticalAlign="middle" visible="true"  height="25">
+								<mx:Label text="未跟踪：" styleName="contentLabel"/>
+								<mx:Label id="wTailAfter" text="{wTailAfterCusnum}家"/>
+							</mx:HBox>
+						</mx:VBox>
+                    </mx:VBox>
+                </mx:VBox>
+            </mx:VBox>
+            <!--<mx:HRule width="100%" height="1"/>-->
+            <mx:VBox width="100%" height="50" horizontalAlign="center" borderStyle="solid" verticalAlign="middle">
+                <mx:HBox width="100%" height="100%" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+                    <mx:Button label="清除" click="clear()" width="50" height="25"/>
+                    <s:Spacer width="100%"/>
+                    <mx:Button label="查询" id="searchButton" click="search()" width="50" height="25"/>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:VBox>
+        <!--用于控制组件的伸缩-->
+        <s:BorderContainer id="jiange" width="10" height="100%" borderStyle="solid" click="jiange_clickHandler(event)"
+                           borderVisible="false">
+            <s:layout>
+                <s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+            </s:layout>
+            <s:Image id="img" buttonMode="true" source="{arrowsLeft}" top="245"/>
+        </s:BorderContainer>
+
+        <mx:VBox width="100%" height="100%" paddingLeft="0" horizontalGap="0">
+
+            <mx:VBox width="100%" height="32">
+                <mx:ApplicationControlBar width="100%" height="100%" styleName="centertop1" verticalAlign="middle"
+                                          paddingLeft="10" paddingRight="10" paddingBottom="5" paddingTop="5">
+					<mx:Button id="addMarkets" label="新增邀请" click="openMarkets()"/>
+					<mx:Button id="addWorkdiary" label="生成活动" click="openWorkdiary()"/>
+					<mx:Button id="addClue" label="生成线索" click="openClue()"/>
+					
+                    <!--<s:Spacer width="2%"/>
+                    <mx:HBox verticalAlign="middle">
+                        <mx:Label text="预约家数："  styleName="contentLabel"/>
+                        <mx:Label id="orderNum" text="{custpernum}/{tCustpernum}"/>
+                    </mx:HBox>
+                    <mx:HBox verticalAlign="middle" visible="true" >
+                        <mx:Label text="预约人数：" styleName="contentLabel"/>
+                        <mx:Label id="orderPerNum" text="{pernum}/{tPernum}"/>
+
+                    </mx:HBox>
+                    <mx:HBox verticalAlign="middle">
+                        <mx:Label text="参会人数：" styleName="contentLabel"/>
+                        <mx:Label id="joinNum"/>
+                    </mx:HBox>-->
+                    <s:Spacer width="95%"/>
+					<mx:HBox id="invite_box"  styleName="contentLabel">
+						<basic:BasicDropDownList id="ui_invite" labelField="type" dataProvider="{inviteStates}"  selectedIndex="2"/>
+						<mx:Button label="批量邀请状态" click="button3_clickHandler()" />
+					</mx:HBox>
+                    <mx:HBox id="plsurestate_box"  styleName="contentLabel">
+						<basic:BasicDropDownList id="ui_istatus" labelField="type" dataProvider="{sureStates}"  selectedIndex="3"/>
+                        <mx:Button label="批量确认状态" click="button1_clickHandler()" />
+                    </mx:HBox>
+
+                    <mx:HBox id="ui_actives_box"  styleName="contentLabel">
+                        <basic:BasicDropDownList id="actDDState" labelField="type" dataProvider="{actState}"  selectedIndex="2"/>
+                        <mx:Button label="批量活动状态" click="button2_clickHandler()"/>
+                    </mx:HBox>
+
+					<!--<mx:Button label="删除"/>-->
+                    <!--<s:Spacer width="3%"/>-->
+
+                </mx:ApplicationControlBar>
+
+
+            </mx:VBox>
+
+            <basic:BasicMxDataGrid id="dg" width="100%" height="100%" borderVisible="true"
+                                   borderStyle="inset" editable="true"
+                                   dataProvider="{datalist}" horizontalScrollPolicy="auto" verticalScrollPolicy="auto"
+                                   lockedColumnCount="4"
+                                 >
+                <!--rowColorFunction="rowColorFunction" itemColorFunction="itemColorFunction">-->
+                <basic:columns>
+
+                    <mx:DataGridColumn id="ck" editable="false" width="30" headerText=" " dataField="chicks"
+                                       sortable="false">
+                        <mx:headerRenderer>
+                            <fx:Component>
+                                <mx:HBox verticalAlign="middle" horizontalAlign="center" width="100%">
+                                    <mx:CheckBox id="allCheckBox" change="allCheckBox_changeHandler(event)"/>
+                                    <fx:Script><![CDATA[
+                                        private function allCheckBox_changeHandler(event:Event):void {
+                                            if (outerDocument.dg.dataProvider.length > 0) {
+                                                outerDocument.isAllchecked = allCheckBox.selected;
+                                            }
+                                        }
+                                        ]]></fx:Script>
+                                </mx:HBox>
+                            </fx:Component>
+                        </mx:headerRenderer>
+                        <mx:itemRenderer>
+                            <fx:Component>
+                                <mx:HBox horizontalAlign="center" verticalAlign="middle" width="100%">
+                                    <mx:CheckBox id="selectBox" textAlign="center"  click="selectBox_clickHandler(event)"
+                                                 selected="{(data.chicks==0)?false:true}">
+                                        <fx:Script><![CDATA[
+                                            import mx.collections.ArrayCollection;
+                                            private function selectBox_clickHandler(event:MouseEvent):void {
+                                                data.chicks = !data.chicks;
+                                                if (selectBox.selected) {
+                                                    outerDocument.perList.addItem(data);
+                                                    outerDocument.custList.addItem(data);
+                                                    //预约人数
+                                                   // outerDocument.pernum = outerDocument.perList.length;
+                                                    //预约家数
+                                                    //outerDocument.custpernum = outerDocument.custList.length;
+                                                    var arr:ArrayCollection = new ArrayCollection();
+                                                    for each(var head:Object in outerDocument.custList) {
+                                                        var flag:Boolean = false;
+                                                        if (arr.length == 0) {
+                                                            arr.addItem(head);
+                                                        } else {
+                                                            for each(var o:Object in arr) {
+                                                                if(head.custname == o.custname) {
+                                                                    flag = true;
+                                                                }
+                                                            }
+                                                            if(!flag) {
+                                                                arr.addItem(head);
+                                                            }
+                                                        }
+
+                                                    }
+                                                   // outerDocument.custpernum = arr.length;
+                                                   // outerDocument.selectList.addItem(data);//获取总选择行数
+                                                } else {
+													/*var arr1:ArrayCollection = new ArrayCollection();
+													for each(var item:Object in outerDocument.perList) {
+														if(item.iid!=data.iid){
+															arr1.addItem(item);
+														}
+													}
+													outerDocument.perList.removeAll();
+													outerDocument.perList.addAll(arr1);
+													outerDocument.custList.removeAll();
+													outerDocument.custList.addAll(arr1);*/
+                                                    outerDocument.perList.removeItemAt(outerDocument.perList.getItemIndex(data));
+                                                    outerDocument.custList.removeItemAt(outerDocument.custList.getItemIndex(data));
+                                                    var arr:ArrayCollection = new ArrayCollection();
+                                                    for each(var head:Object in outerDocument.custList) {
+                                                        var flag:Boolean = false;
+                                                        if (arr.length == 0) {
+                                                            arr.addItem(head);
+                                                        } else {
+                                                            for each(var o:Object in arr) {
+                                                                if(head.custname == o.custname) {
+                                                                    flag = true;
+                                                                }
+                                                            }
+                                                            if(!flag) {
+                                                                arr.addItem(head);
+                                                            }
+                                                        }
+
+                                                    }
+                                                    outerDocument.selectList.removeItem(data);
+                                                    //预约人数
+                                                  //  outerDocument.pernum = outerDocument.perList.length;
+                                                    //预约家数
+                                                 //   outerDocument.custpernum = arr.length;
+                                                }
+                                            }
+                                            ]]></fx:Script>
+                                    </mx:CheckBox>
+                                </mx:HBox>
+                            </fx:Component>
+                        </mx:itemRenderer>
+                    </mx:DataGridColumn>
+                    <mx:DataGridColumn headerText="序号" dataField="sort_id" editable="false"
+                                       labelFunction="lineNumColFunction" width="40" textAlign="center"/>
+                    <mx:DataGridColumn headerText="内码" dataField="iid" editable="false" visible="false"/>
+                    <mx:DataGridColumn headerText="活动主题" dataField="ctitle" width="200" editable="false" visible="false"/>
+                    <mx:DataGridColumn headerText="客户编码" dataField="custcode" width="60" editable="false"/>
+                    <mx:DataGridColumn headerText="客户名称" dataField="custname" width="200" editable="false"/>
+                    <mx:DataGridColumn headerText="业务人员" dataField="pername" width="60" editable="false" />
+                    <mx:DataGridColumn headerText="人员" dataField="cperson" width="60" editable="false"/>
+                    <mx:DataGridColumn headerText="部门" dataField="cdepartment" width="100" editable="false" visible="true"/>
+                    <mx:DataGridColumn headerText="职务" dataField="cjob" width="60" editable="false" />
+					<mx:DataGridColumn headerText="手机" dataField="cmobile" width="80" editable="false"/>
+                    <mx:DataGridColumn headerText="固话" dataField="ctel" width="70" editable="false"/>
+					<mx:DataGridColumn headerText="负责人" dataField="hpcname" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="行业" dataField="cindustry" width="160" editable="false" visible="false"/>
+					<mx:DataGridColumn headerText="销售状态" dataField="salestate" width="70" editable="false"/>
+					<mx:DataGridColumn headerText="级别" dataField="clevel" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="是否回访" dataField="isback" width="60" editable="false">
+						<mx:itemRenderer>
+						     <fx:Component>
+								<mx:HBox width="100%">
+									<mx:Label  id="isBackId" text="{data.isback}"   color="{new uint('0x'+data.isbackcolor)}">
+									</mx:Label>
+								</mx:HBox>
+							 </fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="邀请状态"   width="80" editable="false">
+					  <mx:itemRenderer>
+						  <fx:Component >
+							  <mx:HBox width="100%" >
+							  <mx:ComboBox id="inviteId" dataProvider="{outerDocument.inviteStateac}"  labelField="type"  selectedIndex="{data.iinvite}"   change="activeId_changeHandler()" color="{new uint('0x'+data.iinvitecolor)}">
+								  <fx:Script><![CDATA[
+									  import mx.rpc.events.ResultEvent;
+									  
+									  import yssoft.tools.AccessUtil;
+									  import yssoft.tools.CRMtool;
+									  
+									  protected function activeId_changeHandler():void
+									  {
+										  var iinviteV:Number;
+										  if(inviteId.selectedIndex==0){
+											  inviteId.setStyle("color",new uint('0x0017BC'));
+											  iinviteV=0;
+										  }else{
+											  inviteId.setStyle("color",new uint('0x000000'))
+											  iinviteV=1;
+										  }
+										  var sql:String="update mr_marketsperson set iinvite ="+iinviteV+"  where iid ="+data.msiid;
+										  AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+										  }, sql);
+									  }
+								  ]]></fx:Script>
+							  </mx:ComboBox>
+								  </mx:HBox>
+						  </fx:Component>
+					  </mx:itemRenderer>
+					</mx:DataGridColumn>
+                    <mx:DataGridColumn headerText="确认状态"  width="100" editable="false" >
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:HBox width="100%" >
+								<mx:ComboBox id="isureState" dataProvider="{outerDocument.sureStateac}" labelField="type"  selectedIndex="{data.sureState}"   change="activeId_changeHandler()" color="{new uint('0x'+data.sureStatecolor)}">
+									<fx:Script><![CDATA[
+										import mx.rpc.events.ResultEvent;
+										
+										import yssoft.tools.AccessUtil;
+										
+										protected function activeId_changeHandler():void
+										{   
+											var istatusV:Number;
+											if(isureState.selectedIndex==0){
+												isureState.setStyle("color",new uint('0x0017BC'));
+												istatusV=788;
+											}else if(isureState.selectedIndex==1){
+												isureState.setStyle("color",new uint('0xFF0000'))
+												istatusV=789;
+											}else if(isureState.selectedIndex==2){
+												isureState.setStyle("color",new uint('0x000000'))
+												istatusV=790;
+											}
+											var sql:String="update mr_marketsperson set istatus ="+istatusV+"  where iid ="+data.msiid;
+											AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+											}, sql);
+										}
+									]]></fx:Script>
+								</mx:ComboBox>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+                    <mx:DataGridColumn headerText="活动状态"  width="60" editable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:HBox width="100%" >
+									
+									<mx:ComboBox id="activeId" dataProvider="{outerDocument.actState}" labelField="type" selectedIndex="{data.activeState}"    change="activeId_changeHandler()" color="{new uint('0x'+data.activeStatecolor)}">
+										<fx:Script><![CDATA[
+											import mx.rpc.events.ResultEvent;
+											
+											import yssoft.tools.AccessUtil;
+											
+											protected function activeId_changeHandler():void
+											{
+												var bstatusV:Number;
+												if(activeId.selectedIndex==1){
+													activeId.setStyle("color",new uint('0x0017BC'));
+													bstatusV=1;
+												}else{
+													activeId.setStyle("color",new uint('0x000000'))
+													bstatusV=0;
+												}
+												var sql:String="update mr_marketsperson set bstatus ="+bstatusV+"  where iid ="+data.msiid;
+												AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+												}, sql);
+											}
+										
+										]]></fx:Script>
+									</mx:ComboBox>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+                </basic:columns>
+            </basic:BasicMxDataGrid>
+
+           <!-- <mx:VBox width="100%" height="36" horizontalAlign="center" borderStyle="solid" verticalAlign="middle">
+                <mx:HBox width="100%" height="100%" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+                    <mx:Label styleName="contentLabel"
+                              text="已选中：{selcount}/{counts}   数量合计：{CRMtool.round(selfquantity,7)}/{CRMtool.round(fsum,7)}"/>
+                </mx:HBox>
+            </mx:VBox>-->
+        </mx:VBox>
+    </mx:HBox>
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.formatters.DateFormatter;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.ObjectUtil;
+
+        import yssoft.comps.frame.module.Basic.datagrid.ListItemColor;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.DateHadle;
+        import yssoft.skins.OnlyBottomBorderTextInputSkin;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        public  var sureStates:ArrayCollection = new ArrayCollection([
+			{id: 0, type: "确定来"},
+            {id: 1, type: "不确定来"},
+            {id: 2, type: "确定不来"},
+			{id: 3, type: ""}
+            
+        ]);
+        [Bindable]
+        public  var activeStates:ArrayCollection = new ArrayCollection([
+
+            {id: "0", type: "未参加"},
+            {id: "1", type: "已参加"},
+            {id: "2", type: ""}
+
+        ]);
+		[Bindable]
+		public  var sureStateac:ArrayCollection = new ArrayCollection([
+			{id: 0, type: "确定来"},
+			{id: 1, type: "不确定来"},
+			{id: 2, type: "确定不来"}
+			
+		]);
+        [Bindable]
+        public  var actState:ArrayCollection = new ArrayCollection([
+
+            {id: 0, type: "未参加"},
+            {id: 1, type: "已参加"}
+
+        ]);
+		[Bindable]
+		public  var inviteStates:ArrayCollection = new ArrayCollection([
+			{id: 0, type: "已邀请"},
+			{id: 1, type: "未邀请"},
+			{id: 2, type: ""}
+			
+		]);
+		
+		[Bindable]
+		public  var inviteStateac:ArrayCollection = new ArrayCollection([
+			{id: 0, type: "已邀请"},
+			{id: 1, type: "未邀请"}
+			
+		]);
+
+        [Bindable]
+        public var datalist:ArrayCollection = new ArrayCollection();
+       [Bindable]
+        public var pernum:Number=0;  //参会人数
+        [Bindable]
+        public var custpernum:Number=0; //参会家数
+        [Bindable]
+        public var tPernum:Number=0;  //目标人数
+        [Bindable]
+        public var tCustpernum:Number=0; //目标家数
+		[Bindable]
+		public var ensurePernum:Number=0; //确定来人数
+		[Bindable]
+		public var ensureCusnum:Number=0; //确定来家数
+		[Bindable]
+		public var unsurenessPernum:Number=0; //不确定来
+		[Bindable]
+		public var unsurenessCusnum:Number=0; //不确定来家数
+		[Bindable]
+		public var notSurePernum:Number=0; //确定不来
+		[Bindable]
+		public var notSureCusnum:Number=0; //确定不来家数
+		[Bindable]
+		public var yInvitePernum:Number=0; //已邀请
+		[Bindable]
+		public var yInviteCusnum:Number=0; //已邀请家数
+		[Bindable]
+		public var wInvitePernum:Number=0; //未邀请
+		[Bindable]
+		public var wInviteCusnum:Number=0; //未邀请家数
+		[Bindable]
+		public var yTailAfterPernum:Number=0; //已跟踪
+		[Bindable]
+		public var yTailAfterCusnum:Number=0; //已跟踪家数
+		[Bindable]
+		public var wTailAfterPernum:Number=0; //未跟踪
+		[Bindable]
+		public var wTailAfterCusnum:Number=0; //未跟踪家数
+		
+        //public var vistList:ArrayCollection = new ArrayCollection();
+        // public var poorderslist:ArrayCollection = new ArrayCollection();
+        //public var poorders:ArrayCollection = new ArrayCollection();
+
+        private var _isAllchecked:Boolean = false;
+        private var authSql:String = "";
+
+        [Bindable]
+        public var selcount:int = 0;
+        [Bindable]
+        public var counts:int = 0;
+
+        [Bindable]
+        public var fsum:Number = 0.0;
+        [Bindable]
+        var perList:ArrayCollection=new ArrayCollection();
+        [Bindable]
+        var custList:ArrayCollection=new ArrayCollection();
+        [Bindable]
+        var selectList:ArrayCollection=new ArrayCollection();
+        public function set isAllchecked(value:Boolean):void {
+            _isAllchecked = value;
+            if (value) {
+                perList.removeAll();
+                custList.removeAll();
+                selectList=ObjectUtil.clone(datalist) as ArrayCollection;
+                perList=ObjectUtil.clone(datalist) as ArrayCollection;
+            //    pernum=perList.length;
+                var arr:ArrayCollection=ObjectUtil.clone(datalist) as ArrayCollection;
+                //custList=arr;
+                for (var i:int=0 ;i< arr.length;i++) {
+                    for(var j:int=arr.length-1;j>i;j--){
+                        if(arr[j].custname==arr[i].custname){
+                            arr.removeItemAt(j);
+                        }
+                    }
+                }
+                custList=arr;
+               // custpernum=arr.length;
+
+            } else {
+                perList.removeAll();
+                custList.removeAll();
+                //selectList.removeAll();
+              //  pernum = 0;
+               // custpernum = 0;
+            }
+            for each(var item:Object in dg.dataProvider) {
+                item.chicks = value == true ? 1 : 0;
+            }
+            dg.dataProvider.refresh();
+        }
+
+        public function get isAllchecked():Boolean {
+            return _isAllchecked;
+        }
+
+        [Bindable]
+        /**
+         * 查询信息
+         */
+
+        private var icustomer:int;
+        private var ui_iinvoice:CrmEapTextInput;
+        private var ui_iperson:CrmEapTextInput;//业务人员参照
+        public var ui_icustomer:CrmEapTextInput;
+        public var ui_ccustperson:CrmEapTextInput;//客户人员
+        //public var ui_istatus:CrmEapTextInput;//客户人员
+        public var identifying:Boolean = false; //标识组件是伸展还是缩小
+        //窗口折叠显示的图片 左箭头
+        [Bindable]
+        [Embed(source="/yssoft/assets/images/gap/left.png")]
+        public var arrowsLeft:Class;
+        //窗口折叠显示的图片 右箭头
+        [Bindable]
+        [Embed(source="/yssoft/assets/images/gap/right.png")]
+        public var arrowsRight:Class;
+        //权限类对象
+        public var auth:OperDataAuth;
+
+        private function initConsultItem(name:String, ifuncregedit:int):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = ifuncregedit;
+            obj1.cfield = name;
+			if(ifuncregedit == 384) {
+				obj1.ctable = 'mr_markets';
+			}
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+
+        private function initConsultBack(evt:ResultEvent):void {
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+                var flag:Boolean = consultObj.cfield == "icustomer" ? true : false
+                /*     if (CRMmodel.user.itype == 5 && flag)
+                 consultTextInput.editable = false;*/
+                consultTextInput.width = 150;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.setStyle("borderStyle", "inset");
+                consultTextInput.styleName = "borderStyle";
+                consultTextInput.singleType = consultObj;
+                ;
+
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+
+        private function titleHboxinit(event:FlexEvent):void {
+            initConsultItem("iinvoice", 384);
+        }
+
+        //批量参会确认状态
+        private function plsurestateHboxinit(event:FlexEvent):void {
+            initConsultItem("istatus", 384);
+        }
+
+        //业务人员（参照）
+        private function personHboxinit(event:FlexEvent):void {
+            initConsultItem("iperson", 380);
+        }
+
+        //客户人员（参照）
+        private function ccustpersonHboxinit(event:FlexEvent):void {
+            initConsultItem("ccustperson", 384);
+        }
+
+        private function customerHboxinit(event:FlexEvent):void {
+            initConsultItem("icustomer", 384);
+        }
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            this.dg.isAllowMulti = false;
+            this.dg.isShowLineNum = false;
+            activeState.selectedIndex = 2;
+            /*var params1:Object = new Object();
+             params1.ifuncregedit = 380;
+             params1.iperson = CRMmodel.userId;
+             auth.get_fundataauth(params1);
+             auth.get_funoperauth(params1);*/
+        }
+
+
+        public function searchFromMain(s:String):void {
+        }
+
+        private function clear():void {
+            ui_iinvoice.text = "";
+            ui_iperson.text = "";
+			sureState.selectedIndex = 3;
+            activeState.selectedIndex = 2;
+			inviteState.selectedIndex=2;
+            ui_ccustperson.text = "";
+            ui_icustomer.text = "";
+        }
+
+        /**
+         * LC 20160303 修改
+         * 活动人员增加子表后sql语句修改
+         */
+
+        private function search():void {
+			tPernum=0;
+			tCustpernum=0;
+			yInvitePernum=0;
+			yInviteCusnum=0;
+			wInvitePernum=0;
+			wInviteCusnum=0;
+			ensurePernum=0;
+			ensureCusnum=0;
+			unsurenessPernum=0;
+			unsurenessCusnum=0;
+			notSurePernum=0;
+			notSureCusnum=0;
+			pernum=0;
+			custpernum=0;
+			yTailAfterCusnum=0;
+			wTailAfterCusnum=0;
+            var icustomer:String = "";
+            var ipurperson:String = "";
+            var ititle:String = "";
+            var iperson:String = "";
+
+            if (ui_iinvoice) {
+                ititle = this.ui_iinvoice.text;//活动主题
+            }
+            if (this.ui_iinvoice.text == null || this.ui_iinvoice.text == "") {
+                CRMtool.showAlert("红色标签项必填！！");
+                return;
+            }
+
+            if (ui_iperson) {
+                iperson = this.ui_iperson.text;//业务人员
+            }
+            if (ui_ccustperson) {
+                ipurperson = this.ui_ccustperson.text;//客商联系人
+            }
+            if (ui_icustomer) {
+                icustomer = this.ui_icustomer.text;//客商
+            }
+
+            var sql:String = "select  *  from  ( "+
+								" select market.cname ctitle,mar.iid mariid,ms.iid msiid,ipreperson,iprecust,mar.iinvoice,per.cname pername,cus.hpcname, per.iid periid,cus.ccode custcode ,cus.cname custname,cus.iid cusiid , " +
+								" industory.cname cindustry,salestate.cname salestate, ISNULL(mar.ccustperson,ms.ccustperson ) cperson,cper.iid cperiid,ISNULL(mar.cdepartment,ms.cdepartment) cdepartment,  "+ 
+								" ISNULL(mar.cpost,ms.cpost) cjob,ISNULL(mar.ctel,ms.ctel) ctel, ms.cmobile cmobile,  "+
+								" case ms.istatus when 788 then '0' when 789 then '1' when 790 then '2' else '1' end sureState, "+
+								" case ms.istatus when 788 then '0017BC' when 789 then 'FF0000' when 790 then '000000' else 'FF0000' end sureStatecolor,   "+
+								" case ms.bstatus when 1 then '1' else '0' end as activeState ,case ms.bstatus when 1 then '0017BC' else '000000' end as activeStatecolor ,   "+
+								" case ms.iinvite when 0 then '0' when 1 then '1' else '1'  end iinvite,case  ms.iinvite when 0 then '0017BC' when 1 then '000000' else '000000'  end iinvitecolor,   "+
+								" case isnull(ss.icustomer,0) when 0 then '未回访' else '已回访' end isback ,  case isnull(ss.icustomer,0) when 0 then '000000' else '0017BC' end isbackcolor  "+
+								" from mr_markets mar  "+   
+								" left join mr_marketsperson ms on mar.iid = ms.imarkets "+
+								" left join mr_market market on mar.iinvoice=market.iid   "+    
+								" left join  CS_custperson cper on cper.cname=mar.ccustperson and cper.icustomer=mar.icustomer "+    
+								" left join hr_person per on market.iperson=per.iid   "+   
+								" left join ( "+
+									" select hr_person.cname hpcname,cs.iid,cs.iindustry,cs.ccode,cs.isalesstatus,cs.cname  "+
+									" from CS_customer cs  "+
+									" left join hr_person on hr_person.iid=cs.isalesperson) cus on mar.icustomer=cus.iid   "+
+								" left join (select iid,ccode,cname from aa_data where iclass=10)industory on cus.iindustry=industory.iid  "+     
+								" left join (select iid,ccode,cname from aa_data where iclass=16)salestate on cus.isalesstatus=salestate.iid  "+    
+								" left join (select mar.icustomer,ow.cname custperson from mr_markets mar "+    
+									" left join mr_market mr on mr.iid=mar.iinvoice  "+   
+									" left join(select oa_workdiary.icustomer,oa_workdiary.dend,CS_custperson.cname from  oa_workdiary "+
+										" left join CS_custperson on oa_workdiary.icustperson=CS_custperson.iid ) ow on ow.icustomer=mar.icustomer "+    
+								" where ow.dend >dateadd(day,1,mr.dactivity) and ow.dend<mr.dend and ow.cname=mar.ccustperson)ss   on ss.icustomer=mar.icustomer )a "+
+                                "where 1=1    ";
+            if (CRMtool.isStringNotNull(ititle)) {
+                sql += " and ctitle like " + "'%" + ititle + "%'";
+            }
+            if (CRMtool.isStringNotNull(icustomer)) {
+                sql += " and custname like " + "'%" + icustomer + "%'";
+            }
+            if (CRMtool.isStringNotNull(iperson)) {
+                sql += " and pername like " + "'%" + iperson + "%'";
+            }
+            if (ui_iperson.consultList != null) {
+                if (ui_iperson.consultList.length > 0) {
+                    sql += " and periid = " + ui_iperson.consultList[0].iid + " ";
+                }
+            }
+            if (ui_ccustperson.consultList != null) {
+                if (ui_ccustperson.consultList.length > 0) {
+                    sql += " and cperson = " + "'" + ui_ccustperson.consultList[0].cname + "'" + " ";
+                }
+            }
+            var sureState:String = this.sureState.selectedItem.id;//确认状态
+            var activeaState:String = this.activeState.selectedItem.id;//活动状态
+			var inviteState:String=this.inviteState.selectedItem.id;//邀请状态
+            if (sureState != null && sureState != "" && sureState!="3") {
+                sql += " and surestate = " +sureState ;
+            }
+            if (activeaState != null && activeaState != "" && activeaState!="2") {
+                sql += " and activeState = " +  activeaState ;
+            }
+			
+			if (inviteState != null && inviteState != "" && inviteState!="2") {
+				sql += " and iinvite = " + inviteState ;
+			}
+			
+
+            if (ui_iinvoice.consultList != null) {
+                if (ui_iinvoice.consultList.length > 0) {
+                    sql += " and iinvoice = " + ui_iinvoice.consultList[0].iid + " ";
+                }
+            }
+            if (ui_icustomer.consultList != null) {
+                if (ui_icustomer.consultList.length > 0) {
+                    sql += " and cusiid = " + ui_icustomer.consultList[0].iid + " ";
+                }
+            }
+            if (authSql != "") {
+                sql += authSql;
+            }
+            sql += " order by custname";
+            //目标人数、家数       LC  20160304    判断查询条目是否为空
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var arr:ArrayCollection = event.result as ArrayCollection;
+
+                if(null == arr || arr.length == 0){
+                    CRMtool.showAlert("没有查询到相关信息！");
+                    return;
+                }
+
+                for each(var item:Object in arr){
+                    item.chicks=0;
+                }
+				datalist.removeAll();
+                datalist=arr;
+				dg.dataProvider.refresh();
+
+                //参会人数
+				//dg.dataProvider;
+                 tPernum = datalist[0].ipreperson;
+                //参会家数
+                 tCustpernum = datalist[0].iprecust;
+                
+            }, sql);
+            //确定来人数、家数
+			var sureSql1:String="select SUM(pernum)pernum,COUNT(custnum)custnum from( "+
+                        " select COUNT(*) pernum,custnum from mr_market  AA "+
+                        " left join (select A.iid,A.iinvoice,A.icustomer custnum,B.ccustperson  from mr_markets A left join mr_marketsperson B on A.iid=B.imarkets where B.istatus = 788)BB "+
+                        " on AA.iid=BB.iinvoice where BB.iinvoice = "+ui_iinvoice.consultList[0].iid+" group by custnum )CC ";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+			    if(arr.length==0){
+				  return;
+				}
+				ensurePernum=arr[0].pernum;
+				ensureCusnum=arr[0].custnum;
+			},sureSql1);
+            //不确定来人数、家数
+			var sureSql2:String="select SUM(pernum)pernum,COUNT(custnum)custnum from( "+
+                        " select COUNT(*) pernum,custnum from mr_market  AA "+
+                        " left join (select A.iid,A.iinvoice,A.icustomer custnum,B.ccustperson  from mr_markets A left join mr_marketsperson B on A.iid=B.imarkets where isnull(B.istatus,789) = 789)BB "+
+                        " on AA.iid=BB.iinvoice where BB.iinvoice = "+ui_iinvoice.consultList[0].iid+" group by custnum )CC ";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+				if(arr.length==0){
+					return;
+				}
+				unsurenessPernum=arr[0].pernum;
+				unsurenessCusnum=arr[0].custnum;
+			},sureSql2);
+            //确定不来人数、家数
+			var sureSql3:String="select SUM(pernum)pernum,COUNT(custnum)custnum from( "+
+                        " select COUNT(*) pernum,custnum from mr_market  AA "+
+                        " left join (select A.iid,A.iinvoice,A.icustomer custnum,B.ccustperson  from mr_markets A left join mr_marketsperson B on A.iid=B.imarkets where B.istatus = 790)BB "+
+                        " on AA.iid=BB.iinvoice where BB.iinvoice = "+ui_iinvoice.consultList[0].iid+" group by custnum )CC ";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+				if(arr.length==0){
+					return;
+				}
+				notSurePernum=arr[0].pernum;
+				notSureCusnum=arr[0].custnum;
+			},sureSql3);
+            //参会人数、家数
+			var Sql1:String="select SUM(pernum)pernum,COUNT(custnum)custnum from( "+
+                    " select COUNT(*) pernum,custnum from mr_market  AA "+
+                    " left join (select A.iid,A.iinvoice,A.icustomer custnum,B.ccustperson  from mr_markets A left join mr_marketsperson B on A.iid=B.imarkets where isnull(B.bstatus,0) = 1)BB "+
+                    " on AA.iid=BB.iinvoice where BB.iinvoice = "+ui_iinvoice.consultList[0].iid+" group by custnum )CC ";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+				if(arr.length==0){
+					return;
+				}
+				pernum=arr[0].pernum;
+				custpernum=arr[0].custnum;
+			},Sql1);
+            //已邀请人数/家数
+			var inviteSql1:String="select SUM(pernum)pernum,COUNT(custnum)custnum from( "+
+                        " select COUNT(*) pernum,custnum from mr_market  AA "+
+                        " left join (select A.iid,A.iinvoice,A.icustomer custnum,B.ccustperson  from mr_markets A left join mr_marketsperson B on A.iid=B.imarkets where B.iinvite=0) BB "+
+                        " on AA.iid=BB.iinvoice where BB.iinvoice = "+ui_iinvoice.consultList[0].iid+" group by custnum )CC ";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+				if(arr.length==0){
+					return;
+				}
+				yInvitePernum=arr[0].pernum;
+				yInviteCusnum=arr[0].custnum;
+			},inviteSql1);
+            //未邀请人数/家数
+			var inviteSql2:String="select SUM(pernum)pernum,COUNT(custnum)custnum from( "+
+                        " select COUNT(*) pernum,custnum from mr_market  AA "+
+                        " left join (select A.iid,A.iinvoice,A.icustomer custnum,B.ccustperson  from mr_markets A left join mr_marketsperson B on A.iid=B.imarkets where isnull(B.iinvite,1)=1) BB "+
+                        " on AA.iid=BB.iinvoice where BB.iinvoice = "+ui_iinvoice.consultList[0].iid+" group by custnum )CC ";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+				if(arr.length==0){
+					return;
+				}
+				wInvitePernum=arr[0].pernum;
+				wInviteCusnum=arr[0].custnum;
+			},inviteSql2);
+            //已跟踪家数
+			var tailAfterSql1:String="select count(distinct a.icustomer)isbackNum"+
+                         "  from (select case isnull(s.icustomer,0) when 0 then '未回访' else '已回访' end isback ,ms.iinvoice,ms.icustomer"+
+                         "  from mr_markets ms  left join (select distinct mar.icustomer  from mr_markets mar  "+
+                         "  left join mr_market mr on mr.iid=mar.iinvoice  left join(select oa_workdiary.icustomer,oa_workdiary.dend from  oa_workdiary ) ow "+
+                         "  on ow.icustomer=mar.icustomer    where ow.dend >dateadd(day,1,mr.dactivity) and ow.dend<mr.dend )s on s.icustomer=ms.icustomer  "+
+                         "  where s.icustomer is not  null)a   where a.iinvoice="+ui_iinvoice.consultList[0].iid+" group by a.iinvoice";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+				if(arr.length==0){
+					return;
+				}
+				yTailAfterCusnum=arr[0].isbackNum;
+			},tailAfterSql1);
+            //未跟踪家数
+			var tailAfterSql2:String="select count(distinct a.icustomer)isbackNum"+
+                        "  from (select case isnull(s.icustomer,0) when 0 then '未回访' else '已回访' end isback ,ms.iinvoice,ms.icustomer"+
+                        "  from mr_markets ms  left join (select distinct mar.icustomer  from mr_markets mar  "+
+                        "  left join mr_market mr on mr.iid=mar.iinvoice  left join(select oa_workdiary.icustomer,oa_workdiary.dend from  oa_workdiary ) ow "+
+                        "  on ow.icustomer=mar.icustomer    where ow.dend >dateadd(day,1,mr.dactivity) and ow.dend<mr.dend )s on s.icustomer=ms.icustomer  "+
+				"  where s.icustomer is   null)a   where a.iinvoice="+ui_iinvoice.consultList[0].iid+" group by a.iinvoice";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+				if(arr.length==0){
+					return;
+				}
+				wTailAfterCusnum=arr[0].isbackNum;
+			},tailAfterSql2);
+        }
+
+
+        protected function jiange_clickHandler(event:MouseEvent):void {
+            if (identifying) {
+                identifying = false;
+                this.stretch.stop();
+                this.stretch.play();
+
+                this.img.source = arrowsLeft;
+            } else {
+                identifying = true;
+                this.contract.stop();
+                this.contract.play();
+                this.img.source = arrowsRight;
+
+            }
+        }
+
+
+        private function lineNumColFunction(item:Object, column:DataGridColumn):String {
+            if (dg.dataProvider) {
+                for (var i:int = 1; i <= dg.dataProvider.length; i++) {
+                    if (dg.dataProvider[i - 1] == item) {
+                        item.sort_id = i;
+                        return i + "";
+                    }
+                }
+
+            }
+            return "0";
+        }
+
+        public function operrecord(type:String):Boolean {
+            var operid:String = auth.getOperidByName(type);
+            var warning:String = auth.reuturnwarning(operid);
+
+            var flag:Boolean = warning == null ? true : false;
+            if (!flag) {
+                CRMtool.showAlert(warning);
+            }
+            return flag;
+        }
+
+        private function doubleClick_handel(event:MouseEvent) {
+            //CRMtool.openbillonbrowse(380, dg.selectedItem.iid, "市场活动");
+
+        }
+		
+		private function openMarkets():void {
+			var paramObj:Object = new Object();
+			if(ui_iinvoice.text==null || ui_iinvoice.text==""){
+				CRMtool.tipAlert("请选择活动主题！");
+				return;
+			}
+			if(ui_iinvoice.consultList[0].iid==0 || ui_iinvoice.consultList[0].iid=="" || ui_iinvoice.consultList[0].iid==null){
+			   CRMtool.tipAlert("请选择活动主题！");
+			   return;
+			}
+			
+			paramObj.iinvoice = ui_iinvoice.consultList[0].iid;
+		
+			var param:Object = new Object();
+			param.ifuncregedit = "384";
+			param.ctable = "mr_markets";
+			param.itemType = "onNew";
+			param.operId = "onListNew";
+			param.formTriggerType = "fromOther";
+			
+			param.injectObj = paramObj;
+			var iid:ArrayCollection = new ArrayCollection();
+			param.personArr = iid;
+			
+			CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "加载中 ...", "");
+		}
+		private function openClue():void {
+			var arr:ArrayCollection=new ArrayCollection();
+			for each (var item:Object in datalist){
+				if(item.chicks==1 || item.chicks=="true"){
+					arr.addItem(item);
+				}
+			}	
+			if(arr.length==0){
+				CRMtool.tipAlert("请选择一条数据！");
+				return;
+			}
+			if(arr.length>1){
+				CRMtool.tipAlert("每次只能选择一条数据！");
+				return;
+			}
+			var paramObj:Object = new Object();
+			
+			paramObj.iinvoice = arr[0].mariid;
+			paramObj.ifuncregedit = "384";
+			paramObj.icustomer=arr[0].cusiid;
+			paramObj.ccustomer=arr[0].custname;
+			paramObj.icustperson=arr[0].cperiid;
+			paramObj.ccustpersonpost=arr[0].cdepartment;
+			paramObj.ccustpersontel=arr[0].ctel;
+			var param:Object = new Object();
+			param.ifuncregedit = "62";
+			param.ctable = "sa_clue";
+			param.itemType = "onNew";
+			param.operId = "onListNew";
+			param.formTriggerType = "fromOther";
+			
+			param.injectObj = paramObj;
+			var iid:ArrayCollection = new ArrayCollection();
+			param.personArr = iid;
+			
+			CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "加载中 ...", "");
+		}
+		private function openWorkdiary():void {
+			var arr:ArrayCollection=new ArrayCollection();
+			for each (var item:Object in datalist){
+				if(item.chicks==1 || item.chicks=="true"){
+					arr.addItem(item);
+				}
+			}	
+			if(arr.length==0){
+				CRMtool.tipAlert("请选择一条数据！");
+				return;
+			}
+			if(arr.length>1){
+				CRMtool.tipAlert("每次只能选择一条数据！");
+				return;
+			}
+			var paramObj:Object = new Object();
+			
+			paramObj.iinvoice = arr[0].mariid;
+			paramObj.ifuncregedit = "384";
+			paramObj.icustomer = arr[0].cusiid;
+			paramObj.icustperson = arr[0].cperiid;
+			paramObj.cname = arr[0].ctitle;
+			paramObj.itype = 504;	//504	活动类型
+			paramObj.itype_Name = "活动邀请";
+			paramObj.istyle = 45;	//45	活动方式
+			paramObj.istyle_Name = "客户现场";	
+			var param:Object = new Object();
+			param.ifuncregedit = "46";
+			param.ctable = "oa_workdiary";
+			param.itemType = "onNew";
+			param.operId = "onListNew";
+			param.formTriggerType = "fromOther";
+			
+			param.injectObj = paramObj;
+			var iid:ArrayCollection = new ArrayCollection();
+			param.personArr = iid;
+			
+			CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "加载中 ...", "");
+		}
+
+        /**
+         * LC   20160303    修改
+         * 批量处理邀请、确认、活动修改为子表信息
+         */
+		private function button1_clickHandler():void {
+			if(dg.dataProvider.length==0 || dg.dataProvider==null){
+				CRMtool.showAlert("请先勾选需要处理的数据！");
+				return;
+			}
+			var countNum:Number=0;
+			var str:String = "";
+			var istatusValue:Number=0;
+			if(ui_istatus.selectedItem.id==0){
+				istatusValue=788;
+			}
+			if(ui_istatus.selectedItem.id==1){
+				istatusValue=789;
+			}
+			if(ui_istatus.selectedItem.id==2){
+				istatusValue=790;
+			}
+			for each (var item:Object in dg.dataProvider){
+			  if(item.chicks==1 || item.chicks=='true'){
+				  str += "update mr_marketsperson set istatus=" + istatusValue+ " where iid ="+item.msiid+";";
+				  countNum++;
+			  }
+			}
+			if(countNum==0){
+				CRMtool.showAlert("请先勾选需要处理的数据！");
+				return;
+			}
+			/*if(selectList.length<=0){
+				CRMtool.showAlert("请先勾选需要处理的数据！");
+				return;
+			}*/
+			
+			/*if(this._isAllchecked==true){
+				var arr:ArrayCollection=new ArrayCollection();
+				
+				for each (var item:Object in datalist){
+					if(item.chicks==1 || item.chicks='true'){
+						arr.addItem(item);
+					}
+				}
+				for each (var item:Object in arr) {
+					str += "update mr_markets set istatus=" + istatusValue+ " where iid="+item.mariid+";";
+				}
+			}
+			else{
+				for each (var item:Object in selectList) {
+					str += "update mr_markets set istatus=" + istatusValue + " where iid="+item.mariid+";";
+				}
+			}*/
+			
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				
+				this._isAllchecked=false;
+				selectList.removeAll();
+				custList.removeAll();
+				perList.removeAll();
+				countNum=0;
+				search();
+			}, str);
+		}
+        //批量邀请状态
+        private function button3_clickHandler():void {
+			if(dg.dataProvider.length==0 || dg.dataProvider==null){
+				CRMtool.showAlert("请先勾选需要处理的数据！");
+				return;
+			}
+			var countNum:Number=0;
+			var str:String = "";
+			for each (var item:Object in dg.dataProvider){
+				if(item.chicks==1 || item.chicks=='true'){
+					str += "update mr_marketsperson set iinvite=" + ui_invite.selectedItem.id + " where iid ="+item.msiid+";";
+					countNum++;
+				}
+			}
+			if(countNum==0){
+				CRMtool.showAlert("请先勾选需要处理的数据！");
+				return;
+			}
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+
+                this._isAllchecked=false;
+                selectList.removeAll();
+                custList.removeAll();
+                perList.removeAll();
+				countNum=0;
+                search();
+            }, str);
+        }
+
+        private function button2_clickHandler():void {
+			if(dg.dataProvider.length==0 || dg.dataProvider==null){
+				CRMtool.showAlert("请先勾选需要处理的数据！");
+				return;
+			}
+			var countNum:Number=0;
+			var str:String = "";
+			for each (var item:Object in dg.dataProvider){
+				if(item.chicks==1 || item.chicks=='true'){
+					str += "update mr_marketsperson set bstatus=" + actDDState.selectedItem.id + " where iid ="+item.msiid+";";
+					countNum++;
+				}
+			}
+			if(countNum==0){
+				CRMtool.showAlert("请先勾选需要处理的数据！");
+				return;
+			}
+           
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                //selectList=new ArrayCollection();
+                this._isAllchecked=false;
+                selectList.removeAll();
+                custList.removeAll();
+                perList.removeAll();
+				countNum=0;
+                search();
+            }, str);
+        }
+        ]]></fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="stretch" target="{leftBox}" duration="700" widthTo="257"/>
+        <s:Resize id="contract" target="{leftBox}" duration="700" widthTo="0"/>
+    </fx:Declarations>
+</mx:VBox>

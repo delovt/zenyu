@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<mx:TextInput xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+              xmlns:mx="library://ns.adobe.com/flex/mx">
+    <!-- To change this template use File | Settings | File Templates. -->
+    <fx:Script><![CDATA[
+        private var _textInputType:int;//输入类型 varchar:0; int:1; float:2; bit:3; datetime:3
+
+        public function get textInputType():int {
+            return _textInputType;
+        }
+
+        public function set textInputType(value:int):void {
+            _textInputType = value;
+        }
+        ]]></fx:Script>
+</mx:TextInput>

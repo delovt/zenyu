@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:comps="yssoft.comps.*"
+		 width="100%" height="100%" xmlns:s="library://ns.adobe.com/flex/spark" creationComplete="init()">
+	
+	<fx:Script source="../../scripts/MPTYReportVBoxScript.as"/>
+	
+	<mx:VBox width="100%" height="100%">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="34" dock="true">
+				<s:RadioButton id="rb1" label="添加同事" selected="true" click="this.onIniGrid(0)"/>
+				<s:RadioButton id="rb2" label="添加客户" click="this.onIniGrid(1)"/>
+				<s:TextInput id="tnp_search0" width="200"/>
+				<mx:Button label="搜索" id="search" width="50" click="this.search_clickHandler()"/>
+			</mx:ApplicationControlBar>
+		
+		<mx:HBox width="100%" height="100%">
+			<mx:DataGrid id="personAC" width="100%" height="100%" dataProvider="{this.hrperson}">
+				<mx:columns>
+					<mx:DataGridColumn dataField="iid" headerText="序号" labelFunction="lineNumColFunction" sortable="false" editable="true" width="50" />
+					<mx:DataGridColumn dataField="corpname" headerText="公司" sortable="false" editable="true"/>
+					<mx:DataGridColumn dataField="cname" headerText="姓名" sortable="false" editable="true" width="100"/>
+					<mx:DataGridColumn dataField="cmobile" headerText="电话" sortable="false" editable="true" width="100"/>
+					<mx:DataGridColumn dataField="cpost" headerText="职务" sortable="false" editable="true" width="200"/>
+					<mx:DataGridColumn width="100" headerText="操作" textAlign="center">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:HBox  width="100%"  horizontalAlign="center" verticalAlign="middle">
+
+									
+									<mx:LinkButton id="onadd" textAlign="center" label="添加" click="linkbutton1_clickHandler(event)" color="#0273c3"  textDecoration="none" textRollOverColor="#0273c3">
+										<fx:Script>
+											<![CDATA[
+												import mx.collections.ArrayCollection;
+												import mx.rpc.events.ResultEvent;
+												import yssoft.models.CRMmodel;
+												import yssoft.tools.AccessUtil;
+												import yssoft.tools.CRMtool;
+												protected function linkbutton1_clickHandler(event:MouseEvent):void
+												{												
+													var obj:Object = data as Object;													
+													var arrchar:Array=[",","/","、","，"];													
+													for(var a:String in arrchar){
+														if((obj.cmobile.toString()).indexOf(arrchar[a],0)>-1){
+															var inum:Number=(obj.cmobile.toString()).indexOf(arrchar[a],0);
+															obj.cmobile=(obj.cmobile.toString()).substring(0,inum);
+															break;
+														}
+													}
+													if(outerDocument.telperson.length>=9){
+														CRMtool.tipAlert("暂时只支持10方通话，系统正在继续完善。。。");
+														return;
+													}
+													if(outerDocument.result!="0"){
+														outerDocument.telperson.addItem(obj);
+														
+														outerDocument.hrperson.removeItem(obj);
+													}else{
+														//通话中添加人员
+														outerDocument.telperson.addItem(obj);
+														
+														outerDocument.hrperson.removeItem(obj);
+														var ssql:String="select isessionid from as_commSessionId where iid=(select MAX(iid) from as_commSessionId  where iperson="+CRMmodel.userId+")";
+														AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+														   var ac:ArrayCollection=event.result as ArrayCollection;
+														   if(ac[0].isessionid!=null){
+														      var objId:Object=new Object();
+															  objId.isessionid=ac[0].isessionid;
+															  objId.cmobile=obj.cmobile;
+															  AccessUtil.remoteCallJava("LotCommunicate", "addPerson", function (event:ResultEvent):void {
+															    var resVal:Object=event.result as Object;
+																if(resVal=="0"){//"0"添加成功
+																CRMtool.tipAlert(obj.cmobile+" 号码邀请成功！");
+																}else{
+																	CRMtool.tipAlert(obj.cmobile+" 号码邀请失败，请联系管理员！");
+																}
+															  },objId);
+														   }
+														},ssql);
+													}
+													
+												}
+											]]>
+										</fx:Script>
+										
+									</mx:LinkButton>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:HBox>
+		
+		<mx:HBox id="pageBarBox" height="30" verticalAlign="middle" width = "100%">
+			<s:Spacer width="90%"/>
+			<comps:PageBar paddingRight="10" id="pageBar" showLoad="true" selectedNum="{telperson.length}"
+						  getPageComplete="pageBar_getPageCompleteHandler(event)" height="100%" />
+			
+		</mx:HBox>
+		
+	</mx:VBox>
+	
+	<mx:VBox width="100%" height="100%">
+		
+		<mx:ApplicationControlBar styleName="centertop" width="100%" height="34" dock="true">
+			<s:Label text="参与人(支持10方通话)" fontSize="14"/>
+			<s:Spacer width="10"/>
+			<s:Label text="参固话格式：051685861331" fontSize="14"/>	
+			<s:Spacer width="80%"/>
+			<s:TextInput id="txt1" width="200" text="{this.basciSearchText}" focusIn="isFocusIn=true" focusOut="isFocusIn=false"/>
+			<mx:Button label="添加" width="50" click="this.btnAdd()"/>
+		</mx:ApplicationControlBar>
+		
+		<mx:HBox width="100%" height="100%">
+			<mx:DataGrid  width="100%" height="100%" dataProvider="{telperson}"  >
+				<mx:columns>
+					<mx:DataGridColumn dataField="iid" headerText="序号" sortable="false" editable="true" width="50"  labelFunction="lineNumColFunction1"/>
+					<mx:DataGridColumn dataField="corpname" headerText="公司" sortable="false" editable="true"/>
+					<mx:DataGridColumn dataField="cname" headerText="姓名" sortable="false" editable="true" width="100"/>
+					<mx:DataGridColumn dataField="cmobile" headerText="电话" sortable="false" editable="true" width="100"/>
+					<mx:DataGridColumn dataField="cpost" headerText="职务" sortable="false" editable="true" width="200"/>
+					<mx:DataGridColumn width="100" headerText="操作"> 
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:HBox  width="100%"  horizontalAlign="center" verticalAlign="middle">
+									
+									<fx:Script>
+										<![CDATA[
+											import mx.collections.ArrayCollection;
+											import mx.rpc.events.ResultEvent;
+											import yssoft.models.CRMmodel;
+											import yssoft.tools.AccessUtil;
+											import yssoft.tools.CRMtool;
+											protected function linkbutton1_clickHandler(event:MouseEvent):void
+											{
+												var obj:Object = data as Object;
+												if(outerDocument.result!="0"){
+												outerDocument.telperson.removeItem(obj);//从参与人表中删除
+												outerDocument.hrperson.addItem(obj);//添加到待选列表中
+												}else{
+													outerDocument.telperson.removeItem(obj);//从参与人表中删除
+													outerDocument.hrperson.addItem(obj);//添加到待选列表中
+													var ssql:String="select isessionid from as_commSessionId where iid=(select MAX(iid) from as_commSessionId  where iperson="+CRMmodel.userId+")";
+													AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+														var ac:ArrayCollection=event.result as ArrayCollection;
+														if(ac[0].isessionid!=null){
+															var objId:Object=new Object();
+															objId.isessionid=ac[0].isessionid;//获取当前主呼叫的sessionId
+															objId.cmobile=data.cmobile;
+															AccessUtil.remoteCallJava("LotCommunicate", "deletePerson", function (event:ResultEvent):void {
+																var resVal:Object=event.result as Object;
+																if(resVal=="0"){//"0"添加成功
+																	CRMtool.tipAlert(data.cmobile+" 号码踢出成功！");
+																}else{
+																	CRMtool.tipAlert(data.cmobile+" 号码添踢出失败，请联系管理员！");
+																}
+															},objId);
+														}
+													},ssql);
+												}
+											}
+										]]>
+									</fx:Script>
+									
+									<mx:LinkButton textAlign="center" label="删除" click="linkbutton1_clickHandler(event)" color="#f58e0e" textDecoration="none" textRollOverColor="#f58e0e"/>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+				</mx:columns>	
+			</mx:DataGrid>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" height="45" verticalAlign="middle">
+			<s:Spacer width="10"/>
+			<s:Label text="账户余额：{this.fbalance}" fontSize="14"  color="red" fontWeight="bold"/>
+			<s:Spacer width="10"/>
+			<s:Label text="剩余通话时长：{this.fusetime}" fontSize="14"  color="red" fontWeight="bold"/>
+			<s:Spacer width="10"/>
+			<s:Label text="上次通话时长：{flasttime}" fontSize="14"  color="#0273c3" fontWeight="bold"/>
+			<s:Spacer width="10"/>
+			<mx:Button label="刷新" id="refresh" click="this.toRefresh()"/>
+			<s:Spacer width="90%"/>
+			<mx:Button label="发起会议" id="start" click="this.toStart()"/>
+			<s:Spacer width="5"/>
+			<mx:Button label="结束会议" id="end" click="this.toEnd()"/>
+		</mx:HBox>
+		
+	</mx:VBox>
+</mx:HBox>

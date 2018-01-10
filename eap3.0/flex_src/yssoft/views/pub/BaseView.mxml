@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%"
+				height="100%" 
+				horizontalGap="0" 
+				implements="yssoft.impls.ICRMWindow">
+	<fx:Script>
+		<![CDATA[
+			//窗体初始化
+			public function onWindowInit():void{
+			
+			}
+			//窗体打开
+			public function onWindowOpen():void{
+			
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void{
+			
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="80%" height="100%" styleName="freeCoVbox" verticalGap="0">
+		<mx:ApplicationControlBar dock="true" height="32" width="100%">
+			<s:ButtonBar styleName="contentButtonBar" height="25" >
+				<s:ArrayCollection>
+					<fx:Object label="增加" opt="onNew" />
+					<fx:Object label="修改" opt="onEdit" />
+					<fx:Object label="删除" opt="onDelete" />
+					<fx:Object label="保存" opt="onSave" />
+					<fx:Object label="放弃" opt="onGiveUp" />
+				</s:ArrayCollection>
+			</s:ButtonBar>
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" paddingLeft="20" height="80" verticalAlign="middle" styleName="contentVBox">
+			<s:Button  width="60" height="60"/>
+		</mx:HBox>
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+		</mx:VBox>
+		<s:Group width="100%" height="32" styleName="contentVBox">
+			<mx:Text x="5" y="6" htmlText="状态:  &lt;font color='#ff0000'&gt;进程中&lt;font&gt;">
+			</mx:Text>
+		</s:Group>
+	</mx:VBox>
+	<!--<mx:VRule width="1" height="100%"/>-->
+	<mx:VBox width="20%" height="100%" borderVisible="false">
+		<!--<mx:ApplicationControlBar dock="true" height="34" width="100%"/>-->
+		<mx:Accordion width="100%" height="100%" headerHeight="32">
+			<mx:Canvas label="协同回复(3)" width="100%" height="100%">
+				
+			</mx:Canvas>
+			<mx:Canvas label="协同关联(0)" width="100%" height="100%">
+				
+			</mx:Canvas>
+			<mx:Canvas label="协同附件(1)" width="100%" height="100%">
+				
+			</mx:Canvas>
+		</mx:Accordion>
+	</mx:VBox>
+</mx:HDividedBox>

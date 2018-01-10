@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 xmlns:comps="yssoft.comps.*" implements="yssoft.impls.ICRMWindow,yssoft.interfaces.IMainViewStackSearch"
+		 xmlns:twitter="yssoft.views.twitter.*" initialize="ini()"
+		 currentStateChanging="currentStateChangingHandler(event)"
+		 currentStateChange="currentStateChangeHandler(event)" 
+		 >	
+	
+	<fx:Script source="../../scripts/TwitterParentViewScript.as"/>
+	
+	
+	<fx:Script>
+		<![CDATA[
+
+
+			
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="mainState"/>
+		<s:State name="listState"/>
+		<s:State name="detailState"/>
+	</mx:states>
+	<mx:HBox id="parentView" width="100%" height="100%" horizontalAlign="center">
+		<twitter:TwitterMainView id="mainState" includeIn="mainState" />
+		<twitter:TwitterListView id="listState" includeIn="listState" />
+		<twitter:TwitterDetailView id="detailState" includeIn="detailState"  />
+	</mx:HBox>
+	
+</mx:VBox>

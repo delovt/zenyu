@@ -1,0 +1,92 @@
+<ReportSettings version="1.1">
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>人员工作综合明细表</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>13</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>起始日期：</Value>
+          <Width>2.3</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>开始日期</BindingValue>
+          <Width>2.5</Width>
+          <Format>yyyy-MM-dd</Format>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>截止日期：</Value>
+          <Width>2.3</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>截止日期</BindingValue>
+          <Width>6.6</Width>
+          <Format>yyyy-MM-dd</Format>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>业务员：</Value>
+          <Width>1.9</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>业务员</BindingValue>
+          <Width>2.5</Width>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.9</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.1</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表1参数.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Fields!dbegin.Value</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

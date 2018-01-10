@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   borderVisible="false" width="100%" height="100%"
+                   creationComplete="ic_initializeHandler(event)">
+    <fx:Metadata>
+		[Event(name="ImageLoad",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.containers.Canvas;
+        import mx.controls.Alert;
+        import mx.controls.Image;
+        import mx.controls.RadioButton;
+        import mx.events.FlexEvent;
+
+        private var imgXml:XML;
+
+        private var imageNum:int;	 // 图片总数
+
+        [Bindable]
+        private var loadIndex:int = 1;// 正在加载哪一张
+
+        [Bindable]
+        private var currentIndex:uint = 0;//正在播放哪一张（第一张为0）
+        private var effectNum:int = 4;
+        private var _timerDelay:int = 5000; //过渡延迟时间 ，毫秒
+        private var _xmlUrl:String = "yssoft/assets/login/imagelist.xml"; //图片xml 加载 路径
+
+        private var colorList:ArrayCollection = new ArrayCollection();
+
+        private var timer:Timer;
+
+        //加载 images xml
+
+        public function set xmlUrl(value:String):void {
+            _xmlUrl = value;
+        }
+
+        public function set timerDelay(value:int):void {
+            _timerDelay = value;
+        }
+
+        protected function ic_initializeHandler(event:FlexEvent):void {
+            startTimer();
+            if (_xmlUrl && _xmlUrl != "") {
+                var urlLoader:URLLoader = new URLLoader();
+                urlLoader.addEventListener(Event.COMPLETE, onLoaderComplete);
+                urlLoader.addEventListener(ProgressEvent.PROGRESS, onLoaderProgress);
+                urlLoader.addEventListener(IOErrorEvent.IO_ERROR, onLoaderIOError);
+                urlLoader.load(new URLRequest(_xmlUrl));
+            } else {
+                loadBar.label = "没有加载图片数据";
+            }
+
+        }
+
+        private function onLoaderProgress(event:ProgressEvent):void {
+            var numPerc:Number = Math.round((Number(event.bytesLoaded) / Number(event.bytesTotal)) * 100);
+            loadBar.setProgress(numPerc, 100);
+            loadBar.label = "正在载入图片数据 " + numPerc + "%";
+            //loadBar.validateNow();
+        }
+
+        private function onLoaderIOError(e:IOErrorEvent):void {
+            Alert.show("" + e.toString());
+        }
+
+        private function onLoaderComplete(e:Event):void {
+            imgXml = new XML(e.target.data);
+            imageNum = imgXml.children().length();
+            //Alert.show("图片数量"+imageNum);
+            if (imageNum > 0) {
+                loadImage();
+            } else {
+                loadBar.label = "没有加载图片数据";
+            }
+        }
+
+        private function loadImage():void {
+            if (this.loadIndex > this.imageNum) { // 图片已经加载完成了
+                vs.selectedIndex = 0;
+                (vblb.getChildAt(0) as RadioButton).selected = true;
+                this.timer.start();
+                //调用轮播的函数
+                this.loading.visible = false;
+                vblb.visible = true;
+
+                this.dispatchEvent(new Event("ImageLoad"));
+            } else {
+                // 进度条 归0
+                loadBar.setProgress(0, 100);
+                loadBar.label = "正在载入第" + loadIndex + "张图片 0%";
+                loadBar.validateNow();
+
+                var image:Image = new Image();
+                image.buttonMode = true;
+                image.useHandCursor = true;
+
+                //image.addEventListener(MouseEvent.CLICK,onClick);
+                image.addEventListener(ProgressEvent.PROGRESS, onLoadingImage);
+                image.addEventListener(Event.COMPLETE, onLoadImage);
+                image.load(imgXml.children()[loadIndex - 1].@url);
+
+                colorList.addItem(imgXml.children()[loadIndex - 1].@backgroundColor + "");
+            }
+        }
+
+        // 加载 图片 进度条
+        private function onLoadingImage(e:ProgressEvent):void {
+            var numPerc:Number = Math.round((Number(e.bytesLoaded) / Number(e.bytesTotal)) * 100);
+            if (numPerc > 99)numPerc = 99;
+            loadBar.setProgress(numPerc, 100);
+            loadBar.label = "正在载入第" + loadIndex + "张图片 " + numPerc + "%";
+            loadBar.validateNow();
+        }
+
+        // 加载 图片数据
+        private function onLoadImage(e:Event):void {
+            //Alert.show("loadIndex="+loadIndex);
+            this.loadBar.setProgress(99, 100);
+            this.loadBar.label = "正在处理第" + loadIndex + "张图片……";
+            loadBar.validateNow();
+            var tempImg:Image = e.currentTarget as Image;
+
+            /* 	if((tempImg.contentWidth/tempImg.contentHeight)>=(this.width)/(this.height)){
+             //如果宽高比大于或等于场景的宽高比，按高的比例缩放
+             tempImg.height=this.height;
+             tempImg.width=Math.round(tempImg.contentWidth*(this.height)/tempImg.contentHeight);
+             tempImg.x=-(tempImg.width-this.width)/2;//将图片水平居中
+             }else{//如果宽高比小于场景的宽高比，按宽的比例缩放
+             tempImg.width=this.width;
+             tempImg.height=Math.round(tempImg.contentHeight*(this.width)/tempImg.contentWidth);
+             tempImg.y=-(tempImg.height-this.height)/2;//将图片垂直居中
+             } */
+            var imageBox:VBox = new VBox();
+            imageBox.percentHeight = 100;
+            imageBox.percentWidth = 100;
+            imageBox.setStyle("horizontalAlign", "center");
+            imageBox.setStyle("backgroundColor", new uint('0x' + imgXml.children()[loadIndex - 1].@backgroundColor));
+            imageBox.addChild(tempImg);
+
+            var box:Canvas = new Canvas();//新建一个容器
+            //box.label=""+loadIndex;
+            box.percentHeight = 100;
+            box.percentWidth = 100;
+            box.horizontalScrollPolicy = "off";
+            box.verticalScrollPolicy = "off";
+            box.addChild(imageBox);//将图片加到容器内
+
+            vs.addChild(box);
+
+            var radioButton:RadioButton = new RadioButton();
+            radioButton.name = "" + (loadIndex - 1);
+            radioButton.addEventListener(MouseEvent.ROLL_OVER, radio_clickHandler);
+            //radioButton.groupName="rbg";
+            //useHandCursor="true" buttonMode="true" mouseChildren="false"
+            radioButton.useHandCursor = true;
+            radioButton.buttonMode = true;
+            radioButton.mouseChildren = false;
+            //radioButton.setStyle("backgroundColor",new uint('0x'+imgXml.children()[loadIndex-1].@backgroundColor));
+            this.vblb.addElement(radioButton);
+            radioButton.styleName = "radioButton2";
+
+            loadIndex++;
+            loadImage();//加载下一张
+
+        }
+
+        private function showEffect(fromIndex:uint, toIndex:uint):void {
+            var box_prve:Canvas = vs.getChildAt(fromIndex) as Canvas;
+            var box_next:Canvas = vs.getChildAt(toIndex) as Canvas;
+            var randN:uint = randNum();
+            switch (randN) {
+                case 1:
+                    box_prve.setStyle("hideEffect", effect1);
+                    box_next.setStyle("showEffect", effect2);
+                    break;
+                case 2:
+                    box_prve.setStyle("hideEffect", effect2);
+                    box_next.setStyle("showEffect", effect1);
+                    break;
+                case 0:
+                    box_prve.setStyle("hideEffect", effect3);
+                    box_next.setStyle("showEffect", effect2);
+                    break;
+                case 3:
+                    box_prve.setStyle("hideEffect", effect2);
+                    box_next.setStyle("showEffect", effect3);
+                    break;
+            }
+            vs.selectedIndex = toIndex;
+            (vblb.getChildAt(toIndex) as RadioButton).selected = true;
+        }
+
+        private function randNum():uint {
+            return Math.floor(Math.random() * effectNum);
+        }
+
+        private function onTimerComplete(event:TimerEvent):void {
+            var prveIndex:uint = currentIndex;
+            currentIndex++;
+            if (currentIndex >= imageNum)currentIndex = 0;
+            showEffect(prveIndex, currentIndex);
+        }
+
+        //重启 timer
+        private function resetTimer(index:int = 0):void {
+            currentIndex = index;
+            if (this.timer.running) {
+                timer.stop();
+            }
+            this.timer.start();
+        }
+
+        // 停止 timer
+        public function stopTimer():void {
+            if (timer && timer.running) {
+                timer.stop();
+            }
+        }
+
+        //启动timer ireset 是否二次其他
+        public function startTimer(ireset:Boolean = false):void {
+            if (timer == null) {
+                timer = new Timer(_timerDelay);
+                timer.addEventListener(TimerEvent.TIMER, onTimerComplete);
+            }
+            if (ireset) {
+                resetTimer();
+            }
+        }
+
+        public function radio_clickHandler(event:MouseEvent):void {
+            (event.currentTarget as RadioButton).selected = true;
+            vs.selectedIndex = parseInt(event.currentTarget.name);
+            resetTimer(parseInt(event.currentTarget.name));
+        }
+        ]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:Wipe id="effect1" direction="left"/>
+		<s:Wipe id="effect2" direction="right"/>
+		<s:Wipe id="effect3" direction="down"/>
+		<s:Fade id="effect4" />
+	</fx:Declarations>
+	<mx:ViewStack id="vs" width="100%" height="100%"/>
+<!--	<mx:VBox id="vsBox" width="100%" height="100%" horizontalAlign="center" backgroundColor="{new uint('0x'+colorList.getItemAt(vs.selectedIndex))}">
+		
+	</mx:VBox>	-->
+	<mx:VBox id="loading" width="100%" height="100%" backgroundColor="green" backgroundAlpha="0.2" verticalAlign="middle" horizontalAlign="center"> 
+		<mx:ProgressBar id="loadBar" includeInLayout="false" visible="false" width="70%" mode="manual" label="正在载入图片数据 0%" labelWidth="{loadBar.width}" fontSize="12" color="0x9A9A9A" textAlign="center"/>
+	</mx:VBox> 
+	<mx:VBox width="100%" horizontalAlign="center"  bottom="5">
+		<mx:HBox id="vblb" width="1000" horizontalAlign="left" paddingLeft="20">
+		</mx:HBox>
+	</mx:VBox>
+</s:BorderContainer>

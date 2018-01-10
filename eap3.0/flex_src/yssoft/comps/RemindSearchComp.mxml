@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   styleName="remindsearchcomp" height="25" xmlns:comps="yssoft.comps.*" 
+				   verticalAlign="middle" horizontalAlign="center" width="150" verticalScrollPolicy="off">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<!--主页面中，提醒与搜索-->
+	<mx:LinkButton id="speakerlb" label="0个提醒"/>
+	<comps:CrmTextInput  radius="5" width="100%"/>
+</mx:HBox>

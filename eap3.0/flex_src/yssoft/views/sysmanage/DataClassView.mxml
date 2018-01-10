@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:comps="yssoft.comps.*"
+		 width="100%" height="100%"  implements="yssoft.impls.ICRMWindow"
+		 creationComplete="ini();CRMtool.containerChildsEnabled(container,false);">	
+	
+	
+	<fx:Script source="../../scripts/DataClassScript.as"/>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="bsystem" selectedValue="{this.treeMenu.selectedItem.@bsystem==true?1:0}"/>
+		<s:RadioButtonGroup id="buse" selectedValue="{this.treeMenu.selectedItem.@bbuse==true?1:0}"/>
+	</fx:Declarations>
+	
+	<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+		<mx:VBox width="20%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<mx:Label text="档案类型" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox id="treeMenu" width="100%" height="100%"
+								 change="CRMtool.toolButtonsEnabled(menuBar,null);
+								 CRMtool.containerChildsEnabled(container,false)" 
+								 borderVisible="false" itemClick="treeMenu_itemClickHandler(event)"/>
+			</mx:HBox>
+		</mx:VBox>		
+		<mx:Canvas width="80%" height="100%" styleName="centerbg4">
+			<mx:ApplicationControlBar width="100%" height="32" styleName="centertop"  dock="true">
+				<mx:ButtonBar id="menuBar" styleName="contentButtonBar" height="80%"
+							  creationComplete="CRMtool.toolButtonsEnabled(menuBar,null)"
+							  dataProvider="{arr_menuBar}"
+							  itemClick="menuBar_itemClickHandler(event)"/>
+			</mx:ApplicationControlBar>
+			
+			<mx:VBox left="10" top="42" width="100%">
+				<s:Label id="lblmessage" color="red" fontWeight="bold" visible="false"/>
+			</mx:VBox>
+			
+			<mx:VBox id="container"  width="100%" top="42" left="10" right="10" cornerRadius="8" verticalGap="20">
+				
+				<mx:VBox width="100%" cornerRadius="8" styleName="content">
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label height="100%" styleName="contentLabel" text="档案类型编码:"/>
+						<mx:TextInput id="ccode" width="100%" styleName="contentTextInput"
+									  text="{this.treeMenu.selectedItem.@ccode}" restrict="0-9\."/>
+					</mx:HBox>
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%"  styleName="contentSubHbox">
+						<mx:Label height="100%" styleName="contentLabel" text="档案类型名称:"/>
+						<mx:TextInput id="cname" width="100%" styleName="contentTextInput"
+									  text="{this.treeMenu.selectedItem.@cname}"/>
+					</mx:HBox>
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%"  styleName="contentSubHbox">
+						<mx:Label height="100%" styleName="contentLabel" text="档案类型用途:"/>
+						<mx:TextInput id="cmemo" width="100%" styleName="contentTextInput"
+									  text="{this.treeMenu.selectedItem.@cmemo}"/>
+					</mx:HBox>
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%"  styleName="contentSubHbox">
+						<mx:Label height="100%" styleName="contentLabel" text="操作权限控制:"/>
+						<mx:TextInput id="coperauth" width="100%" styleName="contentTextInput"
+									  text="{this.treeMenu.selectedItem.@coperauth}"/>
+					</mx:HBox>
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%"  styleName="contentSubHbox">
+						<mx:Label height="100%" styleName="contentLabel" text="是否系统分类:"/>
+						<s:HGroup width="100%">
+							<s:RadioButton id="rb_y" label="是" value="1"  width="75" styleName="contentRadioButton" groupName="bsystem"/>
+							<s:RadioButton id="rb_n" label="否" value="0" width="75" styleName="contentRadioButton" groupName="bsystem" selected="true"/>
+						</s:HGroup>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					<mx:HBox width="100%"  styleName="contentSubHbox">
+						<mx:Label height="100%" styleName="contentLabel" text="是否启用分类:"/>
+						<s:HGroup width="100%">
+							<s:RadioButton id="rbuse_y" label="是" value="1"  width="75" styleName="contentRadioButton" groupName="buse"/>
+							<s:RadioButton id="rbuse_n" label="否" value="0" width="75" styleName="contentRadioButton" groupName="buse" selected="true"/>
+						</s:HGroup>
+					</mx:HBox>
+					
+				</mx:VBox>
+				
+			</mx:VBox>
+			
+		</mx:Canvas>
+		
+	</mx:HDividedBox>
+</mx:HBox>

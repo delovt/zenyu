@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Tile xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+				   verticalGap="{gap}" horizontalGap="{gap}"
+				   horizontalScrollPolicy="off" verticalScrollPolicy="off"
+                   resize="resizeHandler(event)"
+				   >
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.ResizeEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.tools.AccessUtil;
+
+        private var desktopItemList:ArrayCollection;
+        private var gap:int = 15;
+
+        public var desktopProContainer:DesktopProContainer;
+
+        [Bindable]
+        private var _idesktop:int;
+        [Bindable]
+        private var row:int = 0;
+        [Bindable]
+        private var col:int = 0;
+
+        public function get idesktop():int {
+            return _idesktop;
+        }
+
+        public function set idesktop(value:int):void {
+            _idesktop = value;
+        }
+
+        private function getDetailDesktopListBack(event:ResultEvent):void {
+
+            initDataFlag = false;
+
+            this.removeAllChildren();
+
+            desktopItemList = event.result as ArrayCollection;
+
+            for each(var item:Object in desktopItemList) {
+                var ino:String = item.ino + "";
+
+                item.sortid = new int(ino.substr(4));
+                item.row = new int(ino.substr(0, 1));
+                item.col = new int(ino.substr(1, 1));
+                item.x = new int(ino.substr(2, 1));
+                item.y = new int(ino.substr(3, 1));
+
+                if (item.row > row)
+                    row = item.row;
+                if (item.col > col)
+                    col = item.col
+            }
+
+            var max:int = row * col;
+
+            if (row > 0 && col > 0) {
+                this.tileHeight = (this.height - gap * (row - 1)) / row;
+                this.tileWidth = (this.width - gap * (col - 1)) / col;
+            }
+
+            for (var i:int = 1; i <= max; i++) {
+                var widget:Widget = new Widget();
+                this.addChild(widget);
+            }
+
+            for each(var item:Object in desktopItemList) {
+                //2维坐标转换成1维，从而定位。
+                (this.getChildAt((item.row - 1) * col + item.col - 1) as Widget).mydata = item;
+            }
+        }
+
+        private var initDataFlag:Boolean = true;
+
+        public function getData():void {
+            if (initDataFlag && idesktop > 0) {
+                AccessUtil.remoteCallJava("ExplorerDest", "getDetailDesktopList", getDetailDesktopListBack, {idesktop: idesktop});
+            }
+        }
+
+        public function refSubHome():void {
+            for each(var ow:Widget in this.getChildren()) {
+                if (ow)
+                    ow.refSubHome();
+            }
+        }
+
+        private function resizeHandler(event:ResizeEvent):void {
+            if (row > 0 && col > 0) {
+                this.tileHeight = (this.height - gap * (row - 1)) / row;
+                this.tileWidth = (this.width - gap * (col - 1)) / col;
+            }
+            //this.setStyle("backgroundColor","#ffffff");
+            if (desktopProContainer)
+                desktopProContainer.loadingText.text = "";
+        }
+        ]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+</mx:Tile>

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="650" height="400"
+                        title="数据批改" close="onCloseHandler()" creationComplete="onIni()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Label;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.business.DataCorrectHandleClass;
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.ListclmVo;
+			
+			private var _dgColumnsArr:ArrayCollection;//字段信息
+			
+			public function set dgColumnsArr(value:ArrayCollection):void{
+				
+				this._dgColumnsArr = value;
+				
+			}
+			
+			private var _dgDataSet:ArrayCollection;//数据集
+			
+			public function set dgDataSet(value:ArrayCollection):void{
+				
+				this._dgDataSet = value;
+				
+			}
+			
+			private var _controlsArr:ArrayCollection;//控件集合
+			
+			public function set controlsArr(value:ArrayCollection):void{
+				
+				this._controlsArr = value;
+				
+			}
+			
+			private var _listclmVo:ListclmVo;
+			
+			public function set listclmVo(value:ListclmVo):void{
+				
+				this._listclmVo = value;
+				
+			}
+			
+			private var _ifuncregedit:int;//单据注册码
+			
+			public function set ifuncregedit(value:int):void{
+				
+				this._ifuncregedit = value;
+				
+			}
+			
+			private var _ctable:String;//表名
+			
+			public function set ctable(value:String):void{
+			
+				this._ctable = value;
+				
+			}
+			
+			private var consult1:CrmEapTextInput = new CrmEapTextInput();
+			
+			private var dchc:DataCorrectHandleClass  = new DataCorrectHandleClass();//数据批改操作类
+			
+			protected function onIni():void{
+				
+				onIniDataGrid();
+				
+				onIniControls();
+			}
+			
+			//初始化DataGrid的相关信息
+			private function onIniDataGrid():void{
+				
+				var count:int = 0;
+				for each(var acli:ListclmVo in _dgColumnsArr)
+				{
+					if(acli.bshow == false) continue;
+					if(count == 5) break;
+					
+					var dgcolumn:DataGridColumn = new DataGridColumn();
+					dgcolumn.dataField = acli.cfield;
+					dgcolumn.headerText = acli.cnewcaption;
+					if (acli.ifieldtype==3)
+					{
+						dgcolumn.labelFunction=getDateText;
+					}
+					dgcolumn.width =acli.icolwidth;
+					dglist.columns =dglist.columns.concat(dgcolumn);
+					
+					count++;
+					
+				}
+				
+				
+				dglist.dataProvider = this._dgDataSet;
+				
+			}
+			
+			//初始化控件
+			private function onIniControls():void{
+				
+				dchc.container = this.hbcorrectitem;
+				dchc.bcheckshow = true;
+				dchc.blabelshow = true;
+				dchc.controlpropertys = this._controlsArr;
+				dchc.cols = 2;
+				dchc.ini();
+			}
+
+			//删除事件
+			protected function onDel():void{
+				
+				if(this.dglist.selectedIndex == -1){CRMtool.tipAlert("请选择删除的数据!");return;}
+				
+				this._dgDataSet.removeItemAt(this.dglist.selectedIndex);
+				
+			}
+			
+			private function onConfirm():void
+			{
+				CRMtool.tipAlert("确定要数据批改？",null,"AFFIRM",this,"onOK");
+				
+			}
+			
+			//确定之前的业务分析
+			private function onConfirmBefore():Boolean{
+				return false;
+			}
+			
+			//确定批量授权
+			public function onOK():void
+			{
+				
+				var dataArr:ArrayCollection = dchc.onGetSelectDataMuster();
+				
+				if(null == dataArr || dataArr.length ==0) {
+				
+					CRMtool.tipAlert("请选择需要批改的数据！");
+					return;
+					
+				}
+				
+				var param:Object = {};
+				
+				param.dataArr = dataArr;
+				param.iidsList 	  = onGetCinvoices();
+				param.ctable  = this._ctable;
+				AccessUtil.remoteCallJava("DataCorrectDest","onUpdate",onBatchAccreditBack,param);
+				
+			}
+			
+			
+			private function onGetCinvoices():ArrayCollection
+			{
+                var list:ArrayCollection = new ArrayCollection();
+
+                var iids:String = "";
+
+                for (var i:int = 0; i < this._dgDataSet.length; i++) {
+
+                    var item:Object = _dgDataSet.getItemAt(i);
+                    var iid:int = item.iid;
+                    iids += iid + ",";
+
+                    if (i - (list.length + 1) * 900 > 0) {
+                        iids = iids.substring(0, iids.lastIndexOf(","));
+                        list.addItem({iids: iids});
+                        iids = "";
+                    }
+                }
+
+                if (_dgDataSet.length > list.length * 900) {
+                    iids = iids.substring(0, iids.lastIndexOf(","));
+                    list.addItem({iids: iids});
+                }
+
+                return list;
+				
+			}
+			
+			private function onBatchAccreditBack(evt:ResultEvent):void{
+				
+				var rstr:String = evt.result as String;
+				if(rstr == "suc")
+					CRMtool.tipAlert("数据批改成功！");
+				else
+					CRMtool.tipAlert("数据批改失败！");
+				
+			}
+			
+			private function getDateText(item:Object,column:DataGridColumn):String
+			{
+				var strdate:String;
+				if(item[column.dataField] == null)return null;
+				else{
+					strdate=item[column.dataField].toString();
+					if (strdate.length>10)
+					{
+						return CRMtool.convertDateToString(item[column.dataField],"YYYY-MM-DD");
+					}
+					else
+					{
+						return strdate;
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="rbgPerson"/>
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<mx:DataGrid id="dglist" width="100%" height="50%" horizontalScrollPolicy="auto" allowMultipleSelection="true"/>
+		
+		<mx:HRule width="100%"/>
+		
+		<mx:VBox id="hbcorrectitem" width="100%" height="50%"/>
+		
+		<mx:HBox width="100%" height="38" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+			
+			<mx:HBox width="10%" >
+				<mx:Button id="btnDel" label="删除" click="onDel()"/>
+			</mx:HBox>
+			
+			<s:HGroup width="90%" horizontalAlign="right">
+				<mx:Button id="btnConfirm" label="确定" click="onConfirm()"/>
+				<mx:Button id="btnGiveUp" label="退出" click="onCloseHandler()"/>
+			</s:HGroup>
+			
+		</mx:HBox>
+		
+	</mx:VBox>
+</basic:BasicTitleWindow>

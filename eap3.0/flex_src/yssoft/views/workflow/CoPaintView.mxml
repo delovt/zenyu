@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                width="100%"
+                height="100%"
+                borderVisible="false"
+                verticalGap="0"
+                horizontalGap="0"
+                xmlns:comps="yssoft.comps.*" creationComplete="initData()" xmlns:workflow="yssoft.views.workflow.*">
+    <fx:Script source="../../../yssoft/scripts/CoPaintView.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:VBox backgroundColor="#ffffff" id="leftPart1" width="200" height="100%" verticalGap="0" borderColor="#e1e1e1">
+        <mx:Canvas width="100%" height="60" borderVisible="false">
+            <mx:RadioButtonGroup id="iNodeType" itemClick="iNodeType_itemClickHandler()"/>
+            <mx:RadioButton x="38" y="10" groupName="iNodeType" name="1" label="部门" styleName="radioButton"
+                            selected="true"/>
+            <mx:RadioButton x="108" y="10" groupName="iNodeType" name="3" label="岗位" styleName="radioButton"/>
+            <mx:RadioButton x="38" y="30" groupName="iNodeType" name="4" label="职务" styleName="radioButton"/>
+            <mx:RadioButton x="108" y="30" groupName="iNodeType" name="2" label="角色" styleName="radioButton"/>
+        </mx:Canvas>
+        <mx:HRule height="1" width="100%"/>
+        <comps:TreeCompsVbox id="nodeTypeTree" borderVisible="false" width="100%" height="100%"
+                             dataProvider="{treeXml}"
+                             labelField="@cname"
+                             dragMoveEnabled="false"
+                             showRoot="false"
+                             itemClick="nodeTypeTreeItemClick(event)" dragEnabled="true">
+
+        </comps:TreeCompsVbox>
+        <mx:HRule height="1" width="100%"/>
+        <mx:HBox width="100%" height="25" verticalAlign="middle" borderVisible="false">
+            <s:Label id="ttinfo" text="" width="100%" fontSize="12" fontWeight="bold" textAlign="center"/>
+        </mx:HBox>
+        <mx:HRule height="1" width="100%"/>
+        <mx:List id="personnList" width="100%" height="100%"
+                 borderVisible="false"
+                 dataProvider="{personXml.children()}"
+                 dragMoveEnabled="false"
+                 labelField="@cname" dragEnabled="true" labelFunction="personnListLF">
+
+        </mx:List>
+    </mx:VBox>
+    <mx:VRule width="1"  height="100%"/>
+    <workflow:PaintView id="mainDraw" owner="{this}" width="100%" height="100%" styleName="CoPaintViewMainDraw"
+                        iNodeType="{this.iNodeType.selection.name}"/>
+</mx:HDividedBox>

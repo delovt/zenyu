@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark" label="热线记录"
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" verticalGap="0"
+         xmlns:comps="yssoft.comps.*" creationComplete="vbox1_creationCompleteHandler(event)"
+         updateComplete="vbox1_updateCompleteHandler(event)" xmlns:Basic="yssoft.comps.frame.module.Basic.*">
+
+    <fx:Script>
+		<![CDATA[
+        import flexlib.containers.SuperTabNavigator;
+
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.events.ItemClickEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import spark.events.IndexChangeEvent;
+
+        import yssoft.models.ConstsModel;
+        import yssoft.models.DateHadle;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.views.consultsets.ConsultsetSet;
+        import yssoft.views.sysmanage.AssemblyQueryclmView;
+
+        private var datehadle:DateHadle;
+
+        [Bindable]
+        private var dataList:ArrayCollection = new ArrayCollection();
+        // 分页
+        private var param:Object = new Object();
+
+        [Bindable]
+        private var iteltotal1:int = 0;//电话总数
+        [Bindable]
+        private var iteltotal2:int = 0;//电话处理数
+        [Bindable]
+        private var iteltotal3:int = 0;//远程处理数
+        [Bindable]
+        private var iteltotal4:int = 0;//现场处理数
+        [Bindable]
+        private var iteltotal5:int = 0;//有效电话数
+        [Bindable]
+        private var iteltotal6:int = 0;//未处理电话数
+        [Bindable]
+        private var iteltotal7:int = 0;//报岗电话数
+        [Bindable]
+        private var iteltotal9:int = 0;//其他处理数
+        [Bindable]
+        private var iteltotal8:int = 0;//线索处理数
+
+        private var iLineNum:int = 4;//呼叫中心可以线路数
+
+        //打印模板
+        [Bindable]
+        public var printTemplate:ArrayCollection;
+        [Bindable]
+        private var bt_prints:ArrayCollection = new ArrayCollection([
+            {label: "打印", name: "onPrint"}
+        ]);
+
+
+        private function onPage(solution:String = null):void {
+            AccessUtil.remoteCallJava("CallCenterDest", "getCpsipAndPort", function (evt:ResultEvent):void {
+
+                var map:Object = evt.result;
+                if (map.hasOwnProperty("line")) {
+                    var ret:Object = evt.result as Object;
+                    var line_num:String = String(ret["line"].toString())
+                    var num:Number = Number(line_num);
+                    iLineNum = num;
+                }
+
+                if (dend.text.length > 0) {
+                    param.dend = dend.text + dendtime.text;
+                }
+                else {
+                    param.dend = null;
+                }
+                if (dbegin.text.length > 0) {
+                    param.dbegin = dbegin.text + dbegintime.text;
+                    ;
+                }
+                else {
+                    param.dbegin = null;
+                }
+                param.scvalue = StringUtil.trim(cti.text);
+
+                param.pagesize = 500;
+                param.curpage = pageBar.curPageNum;
+                var joinsql:String = " left join sr_bill sr on sr.ifuncregedit=153 and cc.iid=sr.iinvoice";
+                var wherestr:String = "";
+                if (solution == null) {
+                    wherestr = " where convert(varchar(30),dbegin,120)>='" + param.dbegin + "' and convert(varchar(30),dbegin,120)<='" + param.dend + "' and (ccallouttel like '%" + +param.scvalue + "%' or ccallintel like '%" + param.scvalue + "%' or sr.ccode like '%" + param.scvalue + "%' or ccsname like '%" + param.scvalue + "%' or ccustperson like '%" + param.scvalue
+                            + "%' or dbo.getsolutiontype(cc.isolution) like '%" + param.scvalue + "%')";
+                }
+                else {
+                    var andstr:String = "";
+                    switch (solution) {
+                        case "所有":
+                        {
+                            break;
+                        }
+                        case "电话":
+                        {
+                            andstr = " and dbo.getsolutiontype(cc.isolution)='电话'";
+                            break;
+                        }
+                        case "远程":
+                        {
+                            andstr = " and dbo.getsolutiontype(cc.isolution)='远程'";
+                            break;
+                        }
+                        case "现场":
+                        {
+                            andstr = " and dbo.getsolutiontype(cc.isolution)='现场'";
+                            break;
+                        }
+                        case "报岗":
+                        {
+                            andstr = " and dbo.getsolutiontype(cc.isolution)='报岗'";
+                            break;
+                        }
+                        case "有效":
+                        {
+                            andstr = " and dbo.getsolutiontype(cc.isolution) in ('电话','远程','现场')";
+                            break;
+                        }
+                        case "其他":
+                        {
+                            andstr = " and dbo.getsolutiontype(cc.isolution)='其他'";
+                            break;
+                        }
+                        case "未处理":
+                        {
+                            andstr = " and dbo.getsolutiontype(cc.isolution)='未处理'";
+                            break;
+                        }
+                        case "线索":
+                        {
+                            andstr = " and dbo.getsolutiontype(cc.isolution)='线索'";
+                            break;
+                        }
+                    }
+                    wherestr = " where convert(varchar(30),dbegin,120)>='" + param.dbegin + "' and convert(varchar(30),dbegin,120)<='" + param.dend + "'" + andstr;
+
+                }
+
+                wherestr = wherestr + " and cast(right(cc.crouteline,1) as int )<=" + iLineNum.toString();
+
+                joinsql = joinsql + wherestr;
+                param.sql = "select cc.iid,case when ccallintel is null then ccallouttel+' 呼出 '+ccallstate " +
+                        " when ccallintel='' then ccallouttel+' 呼出 '+ccallstate  else ccallintel+' 呼入 '+ccallstate end callphone," +
+                        " ccsname,ccustperson,cc.icustperson,convert(varchar(19),dbegin,120) dbegin," +
+                        " hr.cname makername,cc.isolution,dbo.getsolutiontype(cc.isolution) solname,cc.cdetail,cc.imaker," +
+                        " crouteline,cc.icustomer,cpersondepart,cpersonpost,isnull(cpersondepart,'')+' '+isnull(cpersonpost,'') as cdepartpost,sr.iid as sriid,sr.ccode fwdh,hr1.cname isalesperson,hr2.cname iservicesperson,'播放录音' play " +
+                        " from cc_callcenter cc left join hr_person hr on cc.imaker=hr.iid left join cs_customer cs on cc.icustomer = cs.iid left join hr_person hr1 on cs.isalesperson = hr1.iid left join hr_person hr2 on cs.iservicesperson = hr2.iid " + joinsql;
+                param.sqlid = "get_persons_sql";
+                param.orderSql = "order by tmp.iid desc";
+                param.countSql = "select cc.iid,cc.isolution from cc_callcenter cc left join hr_person hr on cc.imaker=hr.iid " + joinsql
+                pageBar.initPageHandler(param, callBack);
+
+            }, null, null, false);
+
+
+        }
+
+        private function onCallBackHandler(evt:ResultEvent):void {
+            if (bteltotal1.selected) {
+                computetelcount(evt.result.success);
+            }
+
+            //computetelcount(evt.result.success);
+        }
+
+        //回调
+        private function callBack(list:ArrayCollection):void {
+            dataList = list;
+            if (bteltotal1.selected) {
+                this.iteltotal1 = this.pageBar._allItemNum;
+            }
+            AccessUtil.remoteCallJava("ConsultDest", "getTestSql", onCallBackHandler, param.countSql, null, false);
+        }
+
+        //LL 计算电话数
+        private function computetelcount(list:ArrayCollection):void {
+            this.iteltotal2 = 0;
+            this.iteltotal3 = 0;
+            this.iteltotal4 = 0;
+            this.iteltotal6 = 0;
+            this.iteltotal9 = 0;
+            this.iteltotal8 = 0;
+            this.iteltotal7 = 0;
+            if (list) {
+                for each (var item:Object in list) {
+
+                    switch (int(item["isolution"])) {
+                        case 1:
+                        {
+                            this.iteltotal2++;
+                            break;
+                        }
+                        case 2:
+                        {
+                            this.iteltotal3++;
+                            break;
+                        }
+                        case 3:
+                        {
+                            this.iteltotal4++;
+                            break;
+                        }
+                        case 6:
+                        {
+                            this.iteltotal8++;
+                            break;
+                        }
+                        case 7:
+                        {
+                            this.iteltotal7++;
+                            break;
+                        }
+                        case 9:
+                        {
+                            this.iteltotal9++;
+                            break;
+                        }
+                    }
+                }
+            }
+            this.iteltotal5 = this.iteltotal2 + this.iteltotal3 + this.iteltotal4 + this.iteltotal8;
+            this.iteltotal6 = this.iteltotal1 - this.iteltotal5 - this.iteltotal9 - this.iteltotal7;
+        }
+
+
+        protected function onQuery():void {
+            onPage();
+        }
+
+        private function onReset():void {
+            this.dend.text = DateHadle.getToday();
+            this.dbegin.text = DateHadle.getToday();
+            this.dendtime.text = "23:59";
+            this.dbegintime.text = "0:0";
+            var obj:Object = new Object();
+            obj.ifunid = 150;
+            AccessUtil.remoteCallJava("WorkFlowDest", "print_selete_items", print_selete_items, obj, null, false);
+        }
+
+        protected function onDoubleClickHandler():void {
+            var item:Object = callinfodg.selectedItem;
+
+            if (item == null) {
+                Alert.show("请选择后，再操作！！", "提示");
+                return;
+            }
+            // 首页先排除 内部号码
+            /* if(item.icustomer==null || item.icustomer==0){
+             Alert.show("内部电话，不予操作","提示");
+             return;
+             } */
+            if (item.iid == null || item.iid == "") {
+                Alert.show("数据不合法，不予操作", "提示");
+                return;
+            }
+
+            // 检查 是否有重复的窗口
+            if (!this.owner) {
+                Alert.show("主窗体引用出错，不予操作", "提示");
+                return;
+            }
+
+            var stn:SuperTabNavigator = this.owner as SuperTabNavigator;
+            for each(var child:DisplayObject in stn.getChildren()) {
+                if (child.name == "hl" + item.iid) {
+                    //stn.selectedChild=child as DisplayObject;
+                    stn.selectedIndex = stn.getChildIndex(child);
+                    return;
+                }
+            }
+
+            var hlc:HotLineCard = new HotLineCard();
+            stn.addChild(hlc);
+            stn.selectedIndex = stn.numChildren - 1;
+            hlc.winParam = {ccid: item.iid, icustomer: item.icustomer};
+            hlc.callBackFun = onPage;
+
+        }
+
+        /* 			private function showTipData(item:Object,column:DataGridColumn):String{
+         return (item[column.dataField] == null ? "" : item[column.dataField]);
+         } */
+
+
+        public function onSearchHandler():void {
+            //Alert.show("要搜索的内容");
+            bteltotal1.selected = true;
+            onPage();
+        }
+
+        public function onSearchHandler2():void {
+            //Alert.show("要搜索的内容");
+            //bteltotal1.selected=true;
+            telsel_changeHandler();
+
+        }
+
+        protected function vbox1_creationCompleteHandler(event:FlexEvent):void {
+            this.datehadle = new DateHadle(new Date());
+            this.onReset();
+            //SZC  Add 热线沟通的列表设置
+            var selSql:String = "select cfield,bshow,icolwidth from ac_listclm where ilist=(select iid from ac_listset where ifuncregedit=153)";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+                if (ac.length == 0)return;
+                for each(var item:Object in ac) {
+                    for each(var it:Object in callinfodg.columns) {
+                        if (item.cfield == it.dataField) {
+                            it.visible = item.bshow == 0 ? false : true;
+                            it.width = item.icolwidth;
+                        }
+                    }
+                }
+            }, selSql);
+        }
+
+        protected function btprint_itemClickHandler(event:ItemClickEvent):void {
+            if (null == this.callinfodg.selectedItem) {
+                CRMtool.showAlert("请选择一条记录！！");
+                return;
+            }
+            if (this.callinfodg.selectedItem.solname != "现场") {
+                CRMtool.showAlert("非现场处理，禁止打印！");
+                return;
+            }
+            var request:URLRequest;
+            request = new URLRequest(ConstsModel.publishUrlRoot + "/printmodel/" + this.printTpls.selectedItem.ctemplate);
+            var _param:Object = new Object();
+            _param.formIfunIid = 150;
+            _param.printurl = request.url;
+            _param.reportiid = this.printTpls.selectedItem.iid;
+            _param.paramvalues = this.callinfodg.selectedItem.sriid;
+            CRMtool.openMenuItemFormOther("yssoft.views.printreport.PrintView", _param, this.printTpls.selectedItem.cname, "打印" + "_" + this.printTpls.selectedItem.cname + "_" + this.printTpls.selectedItem.ifuncregedit + "_" + this.printTpls.selectedItem.iid);
+
+        }
+
+        private function print_selete_items(evt:ResultEvent):void {
+            if (evt.result) {
+                this.printTemplate = evt.result as ArrayCollection;
+                //设置默认打印模板
+                for each (var item:Object in printTemplate) {
+                    if (item.bdefault == true) {
+                        this.printTpls.selectedItem = item;
+                    }
+                }
+            }
+        }
+
+
+        protected function cbxSelDayGap_changeHandler(event:IndexChangeEvent):void {
+            var label:String = this.cbxSelDayGap.selectedItem.label;
+            if (this.cbxSelDayGap.selectedIndex >= 0) {
+                this.dendtime.text = "23:59";
+                this.dbegintime.text = "0:0";
+            }
+            switch (label) {
+                case "今天":
+                {
+                    this.dend.text = DateHadle.getToday();
+                    this.dbegin.text = DateHadle.getToday();
+                    break;
+                }
+                case "昨天":
+                {
+                    this.dend.text = DateHadle.getYestoday();
+                    this.dbegin.text = DateHadle.getYestoday();
+                    break;
+                }
+                case "本周":
+                {
+                    this.dend.text = DateHadle.getEndOfWeek();
+                    this.dbegin.text = DateHadle.getFirstOfWeek();
+                    break;
+                }
+                case "本月":
+                {
+                    this.dend.text = DateHadle.getEndOfMonth();
+                    this.dbegin.text = DateHadle.getFirstOfMonth();
+                    break;
+                }
+                case "本年":
+                {
+                    this.dend.text = DateHadle.getEndOfYear();
+                    this.dbegin.text = DateHadle.getFirstOfYear();
+                    break;
+                }
+            }
+            onPage();
+        }
+
+        protected function cti_clickHandler():void {
+            if (this.cbxSelDayGap.selectedIndex >= 0) {
+                this.cbxSelDayGap.selectedIndex = -1;
+            }
+        }
+
+        private function openQueryWin():void {
+            //居中显示
+            var ass:AssemblyQueryclmView = new AssemblyQueryclmView();
+            var ifuncregedit:int = 153;
+            ass.ifuncregedit = ifuncregedit;
+            ass.width = 700;
+            ass.height = 500;
+            ass.owner = this;
+            CRMtool.openView(ass);
+        }
+
+        public function pageInitBack(sql:String):void {
+            param.pagesize = 500;
+            param.curpage = this.pageBar.curPageNum;
+            var str_where:String = " and cast(right(cc.crouteline,1) as int )<=" + iLineNum.toString();
+            var joinsql:String = " left join sr_bill sr on sr.ifuncregedit=153 and cc.iid=sr.iinvoice" +
+                    " where 1=1 " + str_where;
+            var sql2:String = "select cc.iid,case when ccallintel is null then ccallouttel+' 呼出 '+ccallstate " +
+                    " when ccallintel='' then ccallouttel+' 呼出 '+ccallstate  else ccallintel+' 呼入 '+ccallstate end callphone," +
+                    " ccsname,ccustperson,cc.icustperson,convert(varchar(19),dbegin,120) dbegin," +
+                    " hr.cname makername,cc.isolution,dbo.getsolutiontype(cc.isolution) solname,cc.cdetail,cc.imaker," +
+                    " crouteline,cc.icustomer,cpersondepart,cpersonpost,isnull(cpersondepart,'')+' '+isnull(cpersonpost,'') as cdepartpost,sr.iid as sriid,sr.ccode fwdh,hr1.cname isalesperson,hr2.cname iservicesperson,'播放录音' play " +
+                    " from cc_callcenter cc left join hr_person hr on cc.imaker=hr.iid left join cs_customer cs on cc.icustomer = cs.iid left join hr_person hr1 on cs.isalesperson = hr1.iid left join hr_person hr2 on cs.iservicesperson = hr2.iid " + joinsql;
+            param.sqlid = "get_persons_sql";
+            if (sql.lastIndexOf("order") != -1) {
+                var end:int = sql.lastIndexOf("order");
+                var len:int = sql.length;
+                param.sql = "select * from (" + sql2 + ") tmp where 1=1 " + sql.substring(0, end);
+                param.orderSql = sql.substring(end, len);
+            }
+            else {
+                param.sql = sql2;
+            }
+
+            var countsql:String = "select * from (select cc.iid,cc.isolution from cc_callcenter cc left join hr_person hr on cc.imaker=hr.iid " + joinsql + ") tmp where 1=1 " + sql;
+            AccessUtil.remoteCallJava("ConsultDest", "getTestSql", onCallBackHandler, countsql, null, false);
+            this.pageBar.initPageHandler(param, callBack);
+        }
+
+
+        //lr add 自动初始化查询
+        private var flag:Boolean = true;
+
+        protected function vbox1_updateCompleteHandler(event:FlexEvent):void {
+            if (flag) {
+                onSearchHandler();
+                flag = false;
+            }
+
+        }
+
+        protected function createCon(obj:Object, column:DataGridColumn):String {
+            var item:String = "";
+            if (obj.hasOwnProperty("ccustperson") && obj.ccustperson != null) {
+                item += obj.ccustperson;
+            }
+            if (obj.hasOwnProperty("cdepartpost") && obj.cdepartpost != null) {
+                item += (" " + obj.cdepartpost);
+            }
+            return item;
+        }
+
+        protected function createPerson(obj:Object, column:DataGridColumn):String {
+            var item:String = "";
+            if (obj.hasOwnProperty("isalesperson") && obj.isalesperson != null) {
+                item += obj.isalesperson;
+            }
+            if (obj.hasOwnProperty("iservicesperson") && obj.iservicesperson != null && obj.iservicesperson != obj.isalesperson) {
+                item += (" " + obj.iservicesperson);
+            }
+            return item;
+        }
+
+        protected function telsel_changeHandler():void {
+            var selbutton:RadioButton = telsel.selection as RadioButton;
+
+            switch (selbutton.id) {
+                case "bteltotal1":
+                {
+                    onPage("所有");
+                    break;
+                }
+                case "bteltotal2":
+                {
+                    onPage("电话");
+                    break;
+                }
+                case "bteltotal3":
+                {
+                    onPage("远程");
+                    break;
+                }
+                case "bteltotal4":
+                {
+                    onPage("现场");
+                    break;
+                }
+                case "bteltotal5":
+                {
+                    onPage("有效");
+                    break;
+                }
+                case "bteltotal7":
+                {
+                    onPage("报岗");
+                    break;
+                }
+                case "bteltotal9":
+                {
+                    onPage("其他");
+                    break;
+                }
+                case "bteltotal6":
+                {
+                    onPage("未处理");
+                    break;
+                }
+                case "bteltotal8":
+                {
+                    onPage("线索");
+                    break;
+                }
+            }
+        }
+
+
+        /*        private function rowColorFunction(item:Object, color:uint):uint {
+         if (item.solname == "未处理")
+         return 0xF5F584;
+         else if (item.solname == "现场")
+         return 0x8BCCF0;
+         else
+         return color;
+         }*/
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <s:HGroup width="100%" verticalAlign="middle" height="32" paddingLeft="10" paddingRight="10">
+        <mx:HBox>
+            <mx:DateField id="dbegin" formatString="YYYY-MM-DD" yearNavigationEnabled="true"
+                          dayNames="['日','一','二','三','四','五','六']"
+                          monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]"/>
+            <comps:CRMTimerSetting id="dbegintime"/>
+        </mx:HBox>
+        <s:Label text="—"/>
+        <mx:HBox>
+            <mx:DateField id="dend" formatString="YYYY-MM-DD" yearNavigationEnabled="true"
+                          dayNames="['日','一','二','三','四','五','六']"
+                          monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]"/>
+            <comps:CRMTimerSetting id="dendtime"/>
+        </mx:HBox>
+        <!--<s:Button label="查询" id="query_bt" click="onQuery()"/>-->
+
+        <s:ComboBox id="cbxSelDayGap" width="55" change="cbxSelDayGap_changeHandler(event)" selectedIndex="0"
+                    skinClass="yssoft.skins.ComboBoxForDayGap">
+            <s:ArrayList>
+                <fx:Object label="今天"/>
+                <fx:Object label="昨天"/>
+                <fx:Object label="本周"/>
+                <fx:Object label="本月"/>
+                <fx:Object label="本年"/>
+            </s:ArrayList>
+        </s:ComboBox>
+        <comps:CrmTextInput id="cti" visible="false" includeInLayout="false" search="onSearchHandler()"
+                            click="cti_clickHandler()"/>
+
+
+        <mx:HBox horizontalAlign="right" width="100%">
+            <s:Button label="高级查询" id="query_bt" click="openQueryWin()" height="25"/>
+            <mx:ButtonBar id="btprint" dataProvider="{this.bt_prints}" buttonWidth="48" height="25"
+                          itemClick="btprint_itemClickHandler(event)"/>
+            <s:ComboBox id="printTpls" width="115" dataProvider="{printTemplate}" labelField="cname"/>
+        </mx:HBox>
+    </s:HGroup>
+    <mx:Canvas height="100%" width="100%">
+
+        <Basic:BasicMxDataGrid id="callinfodg" width="100%" height="100%"
+                               dataProvider="{dataList}" doubleClick="onDoubleClickHandler()"
+                               isAllowMulti="false"
+                               doubleClickEnabled="true" horizontalScrollPolicy="auto"
+                               variableRowHeight="true" verticalScrollPolicy="auto">
+            <Basic:columns>
+                <mx:DataGridColumn headerText="开始时间" dataField="dbegin" width="120"/>
+                <mx:DataGridColumn headerText="电话" dataField="callphone" width="110">
+                    <mx:itemRenderer>
+                        <fx:Component>
+                            <mx:HBox width="100%" paddingLeft="10" horizontalScrollPolicy="off"
+                                     verticalScrollPolicy="off">
+                                <fx:Script>
+									<![CDATA[
+                                    import yssoft.models.ConstsModel;
+
+                                    override public function set data(value:Object):void {
+                                        super.data = value;
+                                        if (String(data.callphone).indexOf("呼入 摘机") != -1) {
+                                            myImage.source = ConstsModel.callin;
+                                        }
+                                        else if (String(data.callphone).indexOf("呼出") != -1) {
+                                            myImage.source = ConstsModel.callout;
+                                        }
+                                        else if (String(data.callphone).indexOf("呼入 未接来电") != -1) {
+                                            myImage.source = ConstsModel.uncall;
+                                        }
+                                        myText.text = String(data.callphone).substring(0, String(data.callphone).indexOf(' '));
+                                    }
+                                    ]]>
+								</fx:Script>
+                                <s:Image id="myImage"/>
+                                <mx:Label id="myText"/>
+                            </mx:HBox>
+                        </fx:Component>
+                    </mx:itemRenderer>
+                </mx:DataGridColumn>
+                <mx:DataGridColumn headerText="单位名称" dataField="ccsname" width="150"/>
+                <mx:DataGridColumn headerText="联系人员" dataField="ccustperson" width="170" labelFunction="createCon"/>
+                <!--	<mx:DataGridColumn headerText="部门职务"   	dataField="cdepartpost" width="100"/>-->
+                <!--	<mx:DataGridColumn headerText="服务单号" 	dataField="fwdh" width="100"/>-->
+                <mx:DataGridColumn headerText="服务单号" dataField="fwdh" width="110">
+                    <mx:itemRenderer>
+                        <fx:Component>
+                            <mx:VBox>
+
+                                <fx:Script>
+									<![CDATA[
+                                    import yssoft.tools.CRMtool;
+
+                                    protected function linkbutton1_clickHandler(event:MouseEvent):void {
+                                        if (data.sriid > 0)
+                                            CRMtool.openbillonbrowse(150, data.sriid, "服务记录");
+                                    }
+                                    ]]>
+								</fx:Script>
+
+
+                                <mx:Label text="{data.fwdh}" click="linkbutton1_clickHandler(event)"
+                                          useHandCursor="true"/>
+                            </mx:VBox>
+                        </fx:Component>
+                    </mx:itemRenderer>
+                </mx:DataGridColumn>
+                <!--<mx:DataGridColumn headerText="处理方式" 	dataField="solname" width="100"  />-->
+                <mx:DataGridColumn headerText="处理方式" dataField="solname" width="60">
+                    <mx:itemRenderer>
+                        <fx:Component>
+                            <s:MXDataGridItemRenderer>
+                                <fx:Script>
+                                         <![CDATA[
+                                    //var solnamehtml:String="<font color='#ff0000'>"+"test"+"</font>";
+
+                                    override public function set data(value:Object):void {
+                                        super.data = value;
+                                        if (String(value.solname) == "未处理") {
+                                            //通过Label组件的htmlText属性，结合html标签自定义字体颜色
+                                            this.solnameLabel.htmlText = "<font color='#ff0000'>" + value.solname + "</font>";
+                                        } else if (String(value.solname) == "现场") {
+                                            this.solnameLabel.htmlText = "<font color='#3399EC'>" + value.solname + "</font>";
+                                        }
+                                        /* else if(value.solname){
+                                         this.solnameLabel.htmlText = value.solname;
+                                         } */
+                                    }
+                                    ]]>
+                                     </fx:Script>
+                                <mx:Label id="solnameLabel" htmlText="{data.solname}"/>
+                            </s:MXDataGridItemRenderer>
+                        </fx:Component>
+                    </mx:itemRenderer>
+                </mx:DataGridColumn>
+                <mx:DataGridColumn headerText="业务人员" width="90" labelFunction="createPerson"/>
+                <mx:DataGridColumn headerText="记录内容" dataField="cdetail" width="200"/>
+                <mx:DataGridColumn headerText="记录人员" dataField="makername" width="100"/>
+                <mx:DataGridColumn headerText="线路" dataField="crouteline" width="60"/>
+                <mx:DataGridColumn headerText="通话记录" dataField="play" width="120">
+                    <mx:itemRenderer>
+                        <fx:Component>
+                            <mx:VBox>
+                                <fx:Script>
+								<![CDATA[
+                                    import mx.utils.StringUtil;
+
+                                    import yssoft.tools.CRMtool;
+
+                                    public var cc:Mp3PlayerPro;
+                                    //************************开始： XZQWJ 修改日期：2012-12-20 功能：播放通话记录********************************
+
+                                    protected function id_play_clickHandler(event:MouseEvent):void {
+                                        cc = new Mp3PlayerPro();
+                                        var item:Object = outerDocument.callinfodg.selectedItem;
+                                        var dbegin:String = StringUtil.trim(item.dbegin);
+                                        var callphone:String = StringUtil.trim(item.callphone);
+                                        var index:int = callphone.search("呼");
+                                        callphone = StringUtil.trim(callphone.substr(0, index));
+                                        var curr_date:String = StringUtil.trim(dbegin.substr(0, 10));
+                                        var sfm:String = StringUtil.trim(dbegin.substr(11).replace(":", "").replace(":", ""));
+                                        var crouteline:String = item.crouteline;
+
+                                        var filePath:String = "PhoneRecord/" + curr_date + "/" + crouteline + "/" + callphone + "_" + sfm + ".mp3";
+                                        //var filePath:String = "2.mp3";
+
+                                        var url:URLRequest = new URLRequest(filePath);
+                                        var loader:URLLoader = new URLLoader();
+
+                                        loader.addEventListener(Event.COMPLETE, function (e:Event):void {
+                                            cc.snd = new Sound(url);
+                                            cc.panTitle = (item.ccsname != null ? item.ccsname : '') + " " + dbegin + " 通话记录";
+                                            CRMtool.openView(cc);
+                                        });
+                                        loader.addEventListener(IOErrorEvent.IO_ERROR, function (e:IOErrorEvent):void {
+                                            CRMtool.showAlert("文件不存在或者已经转移,请重试。");
+                                        });
+                                        loader.load(url);
+                                    }
+
+                                    //***********************************结束：播放通话记录**********************************************************
+                                    ]]>
+							</fx:Script>
+                                <mx:LinkButton label="播放录音" click="id_play_clickHandler(event)"
+                                               icon="@Embed(source='/yssoft/assets/call/luyin.png')"
+                                               toolTip="播放" color="#333333" textDecoration="underline"
+                                               textRollOverColor="#FF8100"/>
+                            </mx:VBox>
+                        </fx:Component>
+                    </mx:itemRenderer>
+                </mx:DataGridColumn>
+            </Basic:columns>
+        </Basic:BasicMxDataGrid>
+    </mx:Canvas>
+    <mx:HBox width="100%" backgroundColor="#f7f7f7" verticalAlign="middle" height="30" paddingLeft="5" paddingRight="10"
+             horizontalAlign="right">
+        <mx:HBox id="hotLineViewRadioButtonBox" horizontalAlign="left" width="100%">
+            <mx:RadioButtonGroup id="telsel" change="telsel_changeHandler()"/>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal1" selected="true" groupName="telsel" label="所有：{iteltotal1}"
+                                color="{bteltotal1.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal2" groupName="telsel" label="电话：{iteltotal2}"
+                                color="{bteltotal2.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal3" groupName="telsel" label="远程：{iteltotal3}"
+                                color="{bteltotal3.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal4" groupName="telsel" label="现场：{iteltotal4}"
+                                color="{bteltotal4.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal8" groupName="telsel" label="线索：{iteltotal8}"
+                                color="{bteltotal8.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal5" groupName="telsel" label="有效：{iteltotal5}"
+                                color="{bteltotal5.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal7" groupName="telsel" label="报岗：{iteltotal7}"
+                                color="{bteltotal7.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal9" groupName="telsel" label="其他：{iteltotal9}"
+                                color="{bteltotal9.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+            <mx:HBox horizontalGap="2">
+                <mx:RadioButton id="bteltotal6" groupName="telsel" label="未处理：{iteltotal6}"
+                                color="{bteltotal6.selected?new uint(0x3399EC):new uint(0x000000)}" buttonMode="true"/>
+            </mx:HBox>
+        </mx:HBox>
+        <!--<mx:Label htmlText="共&lt;font color='#ff0000'&gt;200&lt;/font&gt;条记录,已选&lt;font color='#ff0000'&gt;1/200&lt;/font&gt;条"/>-->
+        <!--<s:Spacer width="100%"/>-->
+        <comps:PageBar id="pageBar" showLoad="false"/>
+    </mx:HBox>
+</mx:VBox>

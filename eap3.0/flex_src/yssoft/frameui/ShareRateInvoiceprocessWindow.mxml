@@ -1,0 +1,511 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        width="100%" close="onCloseHandler()" title="合同业绩分摊明细"
+                        creationComplete="initWindow()">
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.ListEvent;
+        import mx.formatters.NumberBase;
+        import mx.formatters.NumberBaseRoundType;
+        import mx.formatters.NumberFormatter;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+
+        //菜单(列表)传参
+        [Bindable]
+        public var winParam:Object = new Object();
+
+        // 单据功能注册码
+        [Bindable]
+        public var formIfunIid:int = 0;
+
+        public var currid:int = 0;
+
+        public var outCrmEap:CrmEapRadianVbox;
+
+        [Bindable]
+        public var curButtonStatus:String = "onEdit";
+
+        public var crmeap:CrmEapRadianVbox;
+
+        public var paramObj:Object = null;
+
+        public var arrList:Object = new Object();
+
+        public var p_obj:Object = new Object();
+
+        public var bool:Boolean = false;
+
+        private var reFlag:Boolean = false;//如果点了重算，则为true
+
+        [Bindable]
+        private var closeList:ArrayCollection;
+
+        [Bindable]
+        private var apportionsList:ArrayCollection;
+
+        [Bindable]
+        private var setList:ArrayCollection = new ArrayCollection([
+            {cname: "初始设置"}
+        ]);
+
+        private var basicOrderapportionList:ArrayCollection = null;
+
+        private var iperson:int// = cmdparam.param.value.iperson//销售人员
+        private var idepartment:int// = cmdparam.param.value.idepartment//销售人员
+        private var imaker:int//=CRMmodel.userId;//当前登录人iid
+        private var curr:String//= CRMtool.getNowDateHNS() ;
+        private var imakerdepartment:int;//合同制单人的部门
+
+        /**
+         *  单据状态, 新增 new ，编辑 edit ，浏览 browser, 默认为新增 new
+         *     从菜单触发 状态为new，从其他触发与单据列表触发 可以设为new,edit,browser其中之一
+         */
+        [Bindable]
+        public var formStatus:String = "edit";
+
+        //打开（初始化界面）进行按钮互斥
+        private function initWindow():void {
+            this.height = 588;
+
+            bool = false;
+            winParam = CRMtool.getObject(this.winParam);
+            arrList = winParam.sc_orderapportion;
+            p_obj.fsum = winParam.arrList.fsum;
+            p_obj.frpsum = winParam.arrList.frpsum;
+            p_obj.iid = paramObj.iinvoice;
+            this.formIfunIid = int(winParam.ifuncregedit);
+            crmeap = new CrmEapRadianVbox();
+            crmeap.name = "myCanva";
+            crmeap.curButtonStatus = this.curButtonStatus;
+            crmeap.formIfunIid = this.formIfunIid;
+            crmeap.owner = this;
+            crmeap.currid = int(paramObj.iinvoice);
+            crmeap.addEventListener("complete", complete);
+            crmeap.queryVouchForm(paramObj);
+            this.formShowArea.addChild(crmeap);
+
+            getCloseList(paramObj.iinvoice);
+            getApportionsList(paramObj.iinvoice);
+            getSetList();
+
+            if (this.outCrmEap) {
+                var value:Object = outCrmEap.getValue();
+                iperson = value.iperson;
+                idepartment = value.idepartment;
+                imaker = value.imaker;
+                var sql:String = "select idepartment from hr_person where iid = " + value.imaker;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac && ac.length > 0) {
+                        imakerdepartment = ac[0].idepartment;
+                    }
+                }, sql, null, false);
+            }
+
+        }
+
+
+        private function getCloseList(iorder:String):void {
+            var sql:String = "select sc.iid as sc_iid,sr.iid as sr_iid,sr.ddate,sr.ccode,sc.fclosemoney,sr.idepartment," +
+                    "hd.cname as idepartment_cname,sr.iperson," +
+                    "hp.cname as iperson_cname from sc_rpinvoice sr " +
+                    "left join sc_ctrpclose sc on  sc.irpinvoice = sr.iid " +
+                    "left join hr_department hd on sr.idepartment = hd.iid " +
+                    "left join hr_person hp on sr.iperson = hp.iid " +
+                    "where sc.iorder = " + iorder;
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                closeList = event.result as ArrayCollection;
+            }, sql, null, false);
+
+        }
+
+        private function getApportionsList(iorder:String):void {
+            var sql:String = "select sa.*,hd.cname as idepartment_cname,hp.cname as iperson_cname,hp2.cname as imaker_cname " +
+                    "from sc_orderapportions sa " +
+                    "left join hr_department hd on sa.idepartment = hd.iid " +
+                    "left join hr_person hp on sa.iperson = hp.iid " +
+                    "left join hr_person hp2 on sa.imaker = hp2.iid " +
+                    "where sa.iorder = " + iorder;
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                apportionsList = event.result as ArrayCollection;
+            }, sql, null, false);
+
+        }
+
+        private function getSetList():void {
+            var sql:String = "select iid,cname from sc_apportionset";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                setList.addAll(event.result as ArrayCollection);
+            }, sql, null, false);
+        }
+
+        private function complete(event:Event):void {
+            if (paramObj != null) {
+                crmeap.setValue(crmeap.fzsj(paramObj));
+
+                var obj:Object = new Object();
+
+//					p_obj.fsum=1000;
+//					p_obj.frpsum=400;
+//					p_obj.iid=paramObj.iinvoice;
+//					obj.ifuncregedit = paramObj.ifuncregedit;
+//					obj.iinvoice = paramObj.iinvoice;
+                obj.mainValue = p_obj;
+                obj.sc_orderapportion = arrList;
+
+//					var value:Object = crmeap.getValue();
+//					value.mainValue = value;
+//					value.sc_orderapportion=arrList;
+
+                crmeap.setValue(obj, 1, 1);
+            }
+        }
+
+        private function checkIsShareRate():void {
+            if (CRMtool.getOptionValue(93) == "1") {
+                bool = true;
+            } else {
+                bool = false;
+            }
+        }
+
+        private function onSave():void {
+
+            if (!checkSet()) {
+                return;
+            }
+
+            crmeap.onSave();
+            crmeap.addEventListener("success", success);
+
+
+            if (reFlag) {
+                AccessUtil.remoteCallJava("customerDest", "addsc_orderapportionsList", function (event:ResultEvent):void {
+
+                }, apportionsDataGrid.allDataProvider);
+            }
+        }
+
+        private function checkSet():Boolean {
+            if (CRMtool.getOptionValue(93) == "1") {
+                bool = true;
+            } else {
+                bool = false;
+            }
+
+            var ac:Object = crmeap.getValue().sc_orderapportion as ArrayCollection;
+            if (ac.length == 0) {
+                CRMtool.tipAlert("分摊比例设置表不能为空！");
+                return false;
+            } else {
+                for (var i:int = 0; i < ac.length; i++) {
+                    if (ac[i].fpercent == null || ac[i].fpercent == "") {
+                        CRMtool.tipAlert("分摊比例设置表 第" + (i + 1) + "行的分摊率不能为空！");
+                        return false;
+                    }
+                }
+            }
+
+
+            if (bool) {
+                var l:int = ac.length;
+                var rate:Number = 0;
+                for (var i:int = 0; i < l; i++) {
+                    rate = rate + Number(ac[i].fpercent)*100;
+                }
+                if (rate != 100) {
+                    CRMtool.tipAlert("业绩分摊率之和必须等于1，请确认。");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private function success(event:Event):void {
+            var writeLit:ArrayCollection = crmeap.writeLit;
+            var obj:Object = outCrmEap.getValue();
+            var obj1:Object = crmeap.getValue();
+            obj.sc_orderapportion = obj1.sc_orderapportion;
+            obj.mainValue = obj;
+            /* 	if(writeLit!=null)
+             {
+             for(var i:int=0;i<writeLit.length;i++)
+             {
+             var writeMap:Object = writeLit.getItemAt(i);
+             var cfield2:String =writeMap.cfield2;
+             obj[StringUtil.Trim(cfield2)+""]=obj1[StringUtil.Trim(String(writeMap.cfield))+""];
+             }
+             }		 */
+            //outCrmEap.setValue(crmeap.fzsj(obj),1);
+            outCrmEap.setValue(obj, 1, 1);
+            onCloseHandler();
+        }
+
+        private function reButton_clickHandler(event:MouseEvent):void {
+            if (!checkSet()) {
+                return;
+            }
+
+            if (closeDataGrid.selectedItem == null) {
+                CRMtool.showAlert("请先在合同回款明细表中，选择要重算的回款记录。");
+                return;
+            }
+
+            if ((closeDataGrid.selectedItem.ddate as Date).fullYear != new Date().fullYear) {
+                CRMtool.showAlert("只能针对本年度的回款重算，请重新选择。");
+                return;
+            }
+
+            var selectItem:Object = closeDataGrid.selectedItem;
+            var needRemoveList:ArrayCollection = new ArrayCollection();
+            var allList:ArrayCollection = apportionsDataGrid.allDataProvider;
+            for each(var item:Object in allList) {
+                if (item.ictrpclose == selectItem.sc_iid) {
+                    needRemoveList.addItem(item);
+                }
+            }
+
+            for each(var removeItem:Object in needRemoveList) {
+                allList.removeItemAt(allList.getItemIndex(removeItem));
+            }
+
+
+            var now_orderapportion:ArrayCollection = crmeap.getValue().sc_orderapportion as ArrayCollection;
+
+            for each(var appItem:Object in now_orderapportion) {
+                var idepartment_Name:String;
+                for each(var ditem:Object in CRMmodel.departmentlist) {
+                    if (appItem.idepartment == ditem.iid)
+                        idepartment_Name = ditem.cname;
+                }
+
+                var iperson_Name:String;
+                for each(var pitem:Object in CRMmodel.personlist) {
+                    if (appItem.iperson == pitem.iid)
+                        iperson_Name = pitem.cname;
+                }
+
+                var fpercent:Number = parseFloat(appItem.fpercent);
+                var fclosemoney:Number = parseFloat(selectItem.fclosemoney);
+                var fmoney = fpercent * fclosemoney;
+
+
+                allList.addItem({iorder: paramObj.iinvoice, ictrpclose: selectItem.sc_iid, ddate: selectItem.ddate, idepartment: appItem.idepartment, idepartment_cname: idepartment_Name,
+                    iperson: appItem.iperson, iperson_cname: iperson_Name, crole: appItem.crole, cdetail: appItem.cdetail, fpercent: appItem.fpercent, fmoney: fmoney,
+                    imaker: CRMmodel.userId, imaker_cname: CRMmodel.hrperson.cname, dmaker: CRMtool.getNowDate()});
+            }
+
+            if (showAllCheckBox.selected) {
+                apportionsDataGrid.dataProvider = allList;
+            } else {
+                apportionsDataGrid.filterData();
+            }
+
+            reFlag = true;
+        }
+
+        private function closeDataGrid_itemClickHandler(event:ListEvent):void {
+            var selectItem:Object = closeDataGrid.selectedItem;
+            apportionsDataGrid.filterDataFunction = function (item:Object):Boolean {
+                if (item.ictrpclose == selectItem.sc_iid)
+                    return true;
+                else
+                    return false;
+            }
+            apportionsDataGrid.filterData();
+            showAllCheckBox.selected = false;
+        }
+
+        private function showAllCheckBox_clickHandler(event:MouseEvent):void {
+            if (showAllCheckBox.selected) {
+                apportionsDataGrid.filterDataFunction = null;
+                closeDataGrid.selectedItem = null;
+            }
+
+        }
+
+        private function setListComboBox_changeHandler(event:ListEvent):void {
+            if (setListComboBox.selectedIndex > 0) {
+                if (basicOrderapportionList == null) {
+                    basicOrderapportionList = CRMtool.copyArrayCollection(crmeap.getValue().sc_orderapportion as ArrayCollection);
+                }
+
+                var sql:String = "select * from sc_apportionsets where iapportionset=" + setListComboBox.selectedItem.iid;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac && ac.length > 0) {
+                        var newac:ArrayCollection = new ArrayCollection();
+                        for each(var item:Object in ac) {
+                            var iidepartment:int;
+                            var cdepartment:String = item.cdepartment;
+                            var iiperson:int;
+                            var cperson:String = item.cperson;
+                            if (CRMtool.isStringNotNull(cdepartment)) {
+                                switch (cdepartment) {
+                                    case "idepartment":
+                                        iidepartment = idepartment;
+                                        break;
+                                    case "myidepartment":
+                                        iidepartment = CRMmodel.hrperson.idepartment;
+                                        break;
+                                    case "imakerdepartment":
+                                        iidepartment = imakerdepartment;
+                                        break;
+                                }
+                            }
+
+                            if (item.idepartment > 0) {
+                                iidepartment = item.idepartment;
+                            }
+
+                            if (CRMtool.isStringNotNull(cperson)) {
+                                switch (cperson) {
+                                    case "iperson":
+                                        iiperson = iperson;
+                                        break;
+                                    case "myiid":
+                                        iiperson = CRMmodel.userId;
+                                        break;
+                                    case "imaker":
+                                        iiperson = imaker;
+                                        break;
+                                }
+                            }
+
+                            if (item.iperson > 0) {
+                                iiperson = item.iperson;
+                            }
+
+                            var crole:String;
+                            if (CRMtool.isStringNull(item.crole))
+                                crole = "";
+                            else
+                                crole = item.crole;
+
+                            var cdetail:String;
+                            if (CRMtool.isStringNull(item.cdetail))
+                                cdetail = "";
+                            else
+                                cdetail = item.cdetail;
+
+                            //insql += "insert into sc_orderapportion(iorder,idepartment,iperson,crole,cdetail,fpercent,imaker,dmaker)
+                            // values(" + iid + "," + iidepartment + "," + iiperson + ",'" + crole + "','" + cdetail + "'," + item.fpercent + "," + imaker + ",'" + curr + "')   ";
+
+                            var idepartment_Name:String;
+                            var iperson_Name:String;
+
+                            for each(var pitem:Object in CRMmodel.personlist) {
+                                if (pitem.iid == iiperson)
+                                    iperson_Name = pitem.cname;
+                            }
+
+                            for each(var ditem:Object in CRMmodel.departmentlist) {
+                                if (ditem.iid == iidepartment)
+                                    idepartment_Name = ditem.cname;
+                            }
+
+                            newac.addItem({iorder: paramObj.iinvoice, idepartment: iidepartment, idepartment_Name: idepartment_Name,
+                                iperson: iiperson, iperson_Name: iperson_Name, itype: "", iyear: 0, cmemo: "",
+                                crole: crole, cdetail: cdetail, fpercent: item.fpercent,
+                                imaker: CRMmodel.userId, imaker_Name: CRMmodel.hrperson.cname, dmaker: CRMtool.getNowDateHNS()});
+
+                        }
+
+                        var obj:Object = crmeap.getValue();
+                        obj.mainValue = obj;
+                        obj.sc_orderapportion = newac;
+                        crmeap.setValue(obj, 1, 1);
+                    } else {
+                        CRMtool.showAlert("此业绩分摊配置无效，请重试。");
+                        return;
+                    }
+
+                }, sql);
+            } else {
+                var obj:Object = crmeap.getValue();
+                obj.mainValue = obj;
+                obj.sc_orderapportion = basicOrderapportionList;
+                crmeap.setValue(obj, 1, 1);
+            }
+
+        }
+        ]]>
+	</fx:Script>
+
+    <mx:VBox width="100%" height="100%">
+        <mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="10" paddingRight="10">
+            <mx:Canvas id="formShowArea" width="100%"
+                       horizontalScrollPolicy="off"/>
+            <mx:VBox width="100%" styleName="content">
+                <mx:HBox width="100%" height="30" paddingLeft="15" horizontalAlign="right" verticalAlign="middle">
+                    <mx:Label styleName="contentLabel" text="合同回款明细"/>
+                </mx:HBox>
+                <mx:HRule width="100%" strokeColor="#c4cccc"/>
+                <basic:BasicMxDataGrid id="closeDataGrid" width="100%" rowCount="3" isAllowMulti="false"
+                                       isShowLineNum="true" dataProvider="{closeList}"
+                                       itemClick="closeDataGrid_itemClickHandler(event)">
+                    <basic:columns>
+                        <mx:DataGridColumn headerText="回款日期" dataField="ddate" labelFunction="CRMtool.formatDate"/>
+                        <mx:DataGridColumn headerText="回款单号" dataField="ccode"/>
+                        <mx:DataGridColumn headerText="核销金额" dataField="fclosemoney" labelFunction="CRMtool.formatFloat"
+                                           textAlign="right"/>
+                        <mx:DataGridColumn headerText="回款部门" dataField="idepartment_cname"/>
+                        <mx:DataGridColumn headerText="回款人" dataField="iperson_cname"/>
+                    </basic:columns>
+                </basic:BasicMxDataGrid>
+            </mx:VBox>
+            <mx:Spacer height="10"/>
+            <mx:VBox width="100%" styleName="content">
+                <mx:HBox width="100%" height="30" paddingLeft="15" horizontalAlign="right" verticalAlign="middle">
+                    <mx:CheckBox id="showAllCheckBox" label="全部"
+                                 click="showAllCheckBox_clickHandler(event)" enabled="{!showAllCheckBox.selected}"/>
+                    <mx:Spacer width="100%"/>
+                    <mx:Label styleName="contentLabel" text="业绩分摊明细"/>
+                </mx:HBox>
+                <mx:HRule width="100%" strokeColor="#c4cccc"/>
+                <basic:BasicMxDataGrid id="apportionsDataGrid" width="100%" rowCount="3" isAllowMulti="false"
+                                       isShowLineNum="true" horizontalScrollPolicy="off"
+                                       dataProvider="{apportionsList}">
+                    <basic:columns>
+                        <mx:DataGridColumn headerText="回款日期" dataField="ddate" width="75"
+                                           labelFunction="CRMtool.formatDate"/>
+                        <mx:DataGridColumn headerText="部门" dataField="idepartment_cname" width="75"/>
+                        <mx:DataGridColumn headerText="人员" dataField="iperson_cname" width="65"/>
+                        <mx:DataGridColumn headerText="分摊比例" dataField="fpercent" width="65"/>
+                        <mx:DataGridColumn headerText="分摊金额" dataField="fmoney" labelFunction="CRMtool.formatFloat"
+                                           width="80" textAlign="right"/>
+                        <mx:DataGridColumn headerText="角色" dataField="crole" width="70"/>
+                        <mx:DataGridColumn headerText="参与工作内容" dataField="cdetail" width="100"/>
+                        <mx:DataGridColumn headerText="分配人" dataField="imaker_cname" width="65"/>
+                        <mx:DataGridColumn headerText="分配时间" dataField="dmaker" labelFunction="CRMtool.formatDate"
+                                           width="75"/>
+                    </basic:columns>
+                </basic:BasicMxDataGrid>
+            </mx:VBox>
+        </mx:VBox>
+        <mx:HBox width="100%" height="38" verticalAlign="middle" paddingLeft="10" paddingRight="10" paddingBottom="6">
+            <mx:Button id="reButton" label="按选定记录重算" click="reButton_clickHandler(event)"/>
+            <mx:Label text="分摊方案"/>
+            <mx:ComboBox id="setListComboBox" dataProvider="{setList}"
+                         itemRenderer="yssoft.comps.frame.module.Basic.BasicMxLabel"
+                         rowCount="10" width="200" labelField="cname" change="setListComboBox_changeHandler(event)"/>
+            <mx:Spacer width="100%"/>
+            <mx:Button id="btnConfirm" label="确定" click="onSave()"/>
+            <mx:Button id="btnGiveUp" label="放弃" click="onCloseHandler()"/>
+        </mx:HBox>
+    </mx:VBox>
+</basic:BasicTitleWindow>

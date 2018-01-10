@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" minWidth="250"
+		  horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.DateHadle;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]private var _month:int;
+			[Bindable]private var _year:int;
+			[Bindable]private var _isHasMonthPlan:Boolean = false;
+			[Bindable]private var _weekList:ArrayCollection;
+			private var iplan:int;
+
+			public function get year():int
+			{
+				return _year;
+			}
+
+			public function set year(value:int):void
+			{
+				_year = value;
+				getData();
+			}
+
+			public function get month():int
+			{
+				return _month;
+			}
+
+			public function set month(value:int):void
+			{
+				_month = value;
+				getData();
+			
+			}
+			
+			public function getData():void{
+				if(year>0&&month>0){
+					getMonthData();
+					getMonthWeekList();
+				}
+			}
+			
+			private function getMonthData():void{
+				var sql:String="select * from oa_plan where iperson="+CRMmodel.userId+" and itype=3 and iyear="+year+" and imonth="+month;
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					if(ac&&ac.length>0){
+						_isHasMonthPlan = true;
+						iplan = ac[0].iid;
+					}else{
+						_isHasMonthPlan = false;
+						iplan=0;
+					}
+				},sql);
+			}
+			
+			private function getMonthWeekList():void{
+				var startWeek:Number = CRMtool.weekOfYear(new Date(year,month-1,1));
+				
+				var startDate:Date=new Date(year,month);
+				var endDate:Date=new Date(startDate.getTime());  	          
+				endDate['date']+=-1;
+				var endWeek:Number = CRMtool.weekOfYear(endDate);
+				
+				_weekList = new ArrayCollection();
+				
+				for(var week:Number=startWeek;week<=endWeek;week++){
+					_weekList.addItem({week:week,year:year});
+				}
+				
+				_weekList.refresh();
+			}
+			
+			protected function monthView_clickHandler(event:MouseEvent):void
+			{
+				var obj:Object = new Object();
+				obj.year = year;
+				obj.month = month;
+				obj.itype = 3;
+				obj.iplan = iplan;
+				obj.iperson = CRMmodel.userId;
+				
+				CRMtool.openMenuItemFormOther("yssoft.views.plan.PlanMainView",obj,year+"年 "+month+"月计划");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="{((_month+'')==DateHadle.getMonth() &amp;&amp; (_year+'')==DateHadle.getYear())?'frameSideAppBar':'myPlanTitle'}">
+		<s:Label styleName="contentTitle" text="{_month} 月"/>
+		<s:Label id="benyue" text="（本月）" visible="{(_month+'')==DateHadle.getMonth() &amp;&amp; (_year+'')==DateHadle.getYear()}"/>
+		<s:Spacer width="100%"/>
+		<s:Label text="[查看月计划]" useHandCursor="true" buttonMode="true" visible="{this._isHasMonthPlan}" includeInLayout="{this._isHasMonthPlan}" color="#0DAAD8" click="monthView_clickHandler(event)" />
+		<s:Label text="[新建月计划]" useHandCursor="true" buttonMode="true" visible="{!this._isHasMonthPlan}" includeInLayout="{!this._isHasMonthPlan}" click="monthView_clickHandler(event)" />
+	</mx:ApplicationControlBar>
+	<mx:VBox width="100%" height="100%" paddingTop="-1">
+		<s:List width="100%" height="100%" dataProvider="{_weekList}" itemRenderer="yssoft.views.plan.MyPlanWeekListRenderer" selectionColor="white"/>
+	</mx:VBox>	
+</mx:VBox>

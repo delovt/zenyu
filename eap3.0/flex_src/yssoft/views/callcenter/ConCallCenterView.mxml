@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   width="100%" borderVisible="false" creationComplete="conSocketServer()">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.tools.AccessUtil;
+			[Bindable]
+			private var _itemXml:XML=<node>
+										<node dataField1="线路1" dataField2="挂机 PR+" dataField3="13775889510" dataField4="13775889510" dataField5="02-24 10:10:10"
+											   dataField6="02-14 10:10:50" dataField7="徐州增宇软甲有限公司" dataField8="朱毛毛" dataField9="产品研发部" dataField10="工程师"/>
+<node dataField1="线路2" dataField2="挂机 PR+" dataField3="13775889510" dataField4="13775889510" dataField5="02-24 10:10:10"
+											   dataField6="02-14 10:10:50" dataField7="徐州增宇软甲有限公司" dataField8="朱毛毛" dataField9="产品研发部" dataField10="工程师"/>
+				
+<node dataField1="线路3" dataField2="挂机 PR+" dataField3="13775889510" dataField4="13775889510" dataField5="02-24 10:10:10"
+											   dataField6="02-14 10:10:50" dataField7="徐州增宇软甲有限公司" dataField8="朱毛毛" dataField9="产品研发部" dataField10="工程师"/>
+				
+<node dataField1="线路4" dataField2="挂机 PR+" dataField3="13775889510" dataField4="13775889510" dataField5="02-24 10:10:10"
+											   dataField6="02-14 10:10:50" dataField7="徐州增宇软甲有限公司" dataField8="朱毛毛" dataField9="产品研发部" dataField10="工程师"/>
+				
+									  </node>;
+			
+			
+		
+			//连接 呼叫中心 服务端
+			private var cpSocket:Socket=null;
+		
+			//IP地址
+			private var _cpsip:String;//="127.0.0.1";
+			private var _cpsport:int;//=1978;
+			
+			
+			private function conSocketServer():void
+			{
+				AccessUtil.remoteCallJava("CallCenterDest","getCpsipAndPort",ongetCpsipAndPort,null,null,false);
+			}
+			
+			private function ongetCpsipAndPort(evt:ResultEvent):void
+			{
+				_cpsip=evt.result.cpsip;
+				_cpsport=evt.result.cpsport;
+				
+				if(cpSocket==null){
+					cpSocket=new Socket();
+				}else{
+					removeListener(cpSocket);
+					closcSocket();
+				}
+				cpSocket.connect(_cpsip,_cpsport);
+				addListener(cpSocket);
+				cpSocket.flush();
+			}
+			
+			//添加 相关事件
+			private function addListener(cpSocket:Socket):void
+			{
+				if(!cpSocket){
+					return;
+				}
+				cpSocket.addEventListener(Event.CONNECT,connectHandler,false,0,true);
+				cpSocket.addEventListener(Event.CLOSE,closeHandler,false,0,true);
+				cpSocket.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler,false,0,true);
+				cpSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,secuityErrorHandler,false,0,true);
+				cpSocket.addEventListener(ProgressEvent.SOCKET_DATA,socketData,false,0,true);
+			}
+			
+			//删除 相关事件
+			private function removeListener(cpSocket:Socket):void
+			{
+				if(!cpSocket){
+					return;
+				}
+				cpSocket.removeEventListener(Event.CONNECT,connectHandler);
+				cpSocket.removeEventListener(Event.CLOSE,closeHandler);
+				cpSocket.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
+				cpSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,secuityErrorHandler);
+				cpSocket.removeEventListener(ProgressEvent.SOCKET_DATA,socketData);
+			}
+			
+			//关闭 socket
+			public function closcSocket():void{
+				if(cpSocket!=null){
+					cpSocket.close();
+					cpSocket=null;
+				}
+			}
+			//建立socket连接后，调用
+			public function connectHandler(event:Event):void{
+				//Alert.show("呼叫中心服务端连接成功！","提示");
+			}
+			//服务器关闭 socket时，调用
+			public function closeHandler(event:Event):void{
+				Alert.show("呼叫中心服务端关闭，请联系管理员！","提示");
+			}
+			//出现输入 输出错误时，调用
+			public function ioErrorHandler(event:IOErrorEvent):void{
+				Alert.show("无法连接呼叫中心，请检查IP地址和端口是否设置有误,以及服务端是否启动！","提示");
+			}
+			//出现安全沙箱错误时，调用
+			public function secuityErrorHandler(event:SecurityErrorEvent):void{
+				Alert.show("出现连接安全错误"+event,"提示");
+			}
+			//获取 socket返回数据时，调用
+			public function socketData(event:ProgressEvent):void{
+				Alert.show("---获取数据---");
+				try{
+					var msg1:String="";
+					while(cpSocket.bytesAvailable){
+						msg1 +=cpSocket.readUTFBytes(cpSocket.bytesAvailable);
+					}
+					if(msg1.length==0){
+						return;
+					}
+					Alert.show(""+msg1);
+					//var iline:int=parseInt(XML(msg1).node.@iline);
+					//var xmllist:XMLList=XML(msg1).device;
+				}catch(e:Error){
+					Alert.show("解析数据错误!","提示");
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:DataGrid width="100%" dataProvider="{_itemXml.node}" rowCount="4" sortableColumns="false">
+		<mx:columns>
+			<mx:DataGridColumn dataField="@dataField1" headerText="线路"/>
+			<mx:DataGridColumn dataField="@dataField2" headerText="状态"/>
+			<mx:DataGridColumn dataField="@dataField3" headerText="来电号码"/>
+			<mx:DataGridColumn dataField="@dataField4" headerText="拨出号码"/>
+			<mx:DataGridColumn dataField="@dataField5" headerText="来去电时间"/>
+			<mx:DataGridColumn dataField="@dataField6" headerText="挂机时间"/>
+			<mx:DataGridColumn dataField="@dataField7" headerText="客户名称"/>
+			<mx:DataGridColumn dataField="@dataField8" headerText="联系人"/>
+			<mx:DataGridColumn dataField="@dataField9" headerText="部门"/>
+			<mx:DataGridColumn dataField="@dataField10" headerText="职务"/>
+		</mx:columns>
+		</mx:DataGrid>
+</mx:Canvas>

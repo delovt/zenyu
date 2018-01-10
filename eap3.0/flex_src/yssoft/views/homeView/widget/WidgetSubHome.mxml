@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:comps="yssoft.comps.*"
+        >
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <fx:Component id="itemRender">
+            <mx:HBox width="100%" verticalAlign="middle" paddingLeft="-2"
+                     horizontalScrollPolicy="off" verticalScrollPolicy="off">
+                <fx:Script>
+					<![CDATA[
+                    import yssoft.models.ConstsModel;
+
+                    public override function set data(value:Object):void {
+                        super.data = value;
+                        var len:int;
+                        var x:int = Capabilities.screenResolutionX;
+                        if (x > 1024) {
+                            len = 40;
+                        }
+                        else {
+                            len = 22;
+                        }
+                        if (data == null) {
+                            return;
+                        }
+                        var txt:String = data.csubject;//(data.xtlx=='xtgg'?data.csubject:(data.funname != '自由协同'?data.csubject:data.pcname+' '+String(data.dmaker).substring(5,16)));
+                        /* if(null!=txt&&txt.length > len){
+                         ts.text=txt.substr(0,len)+"...";
+                         }else{
+                         ts.text=txt;
+                         } */
+
+                        //lr add 不显示流程标题
+                        var i:int = txt.indexOf("_");
+                        if (i > -1) {
+                            txt = txt.substr(i + 1);
+                        }
+
+                        ts.text = txt;
+                        ts.toolTip = txt;
+                        //如果是中文长度大于3截取两个中文+...
+                        if (String(data.pcname).search("[\u4e00-\u9fa5]+") > -1) {
+                            if (String(data.pcname).length > 3) {
+                                pcname.text = String(data.pcname).substr(0, 2) + "...";
+                            } else {
+                                pcname.text = data.pcname;
+                            }
+                            //如果是英文长度大于8截取5个字母+...
+                        } else if (String(data.pcname).length > 8) {
+                            pcname.text = String(data.pcname).substr(0, 5) + "...";
+                        } else {
+                            pcname.text = data.pcname;
+                        }
+                        //{data.funname != '自由协同' ?data.xtname+'事项':data.funname}
+                    }
+                    ]]>
+				</fx:Script>
+                <!--<mx:HBox verticalAlign="middle" height="100%"><s:Image source="@Embed(source='yssoft/assets/images/icon2.png')"/></mx:HBox>-->
+                <s:Image source="@Embed(source='/yssoft/assets/images/icon2.png')"/>
+                <s:Label text="{data.funname}" color="#333333"/>
+                <!--<s:Label text="{data.funname=='自由协同'?(data.funname+'事项'):data.funname}" color="{data.funname != '自由协同'?0x333333:0x333333}"/>-->
+                <s:Image source="yssoft/assets/images/fenge.png"/>
+                <s:Label id="ts" width="100%" textAlign="left" maxDisplayedLines="1"/>
+                <s:Image source="{ConstsModel.gif_new}"
+                         visible="{data.xtlx=='xtgg'?data.hasOwnProperty('isread')?data.isread=='0'?true:false:false:false}"/>
+                <!--<s:Spacer width="100%" />-->
+                <s:Label text="{String(data.dmaker).substr(0,16)}"/>
+                <s:Label id="pcname" width="50" toolTip="{data.pcname}"/>
+            </mx:HBox>
+        </fx:Component>
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import yssoft.views.homeView.Widget;
+
+        import mx.events.FlexEvent;
+
+        import yssoft.views.twitter.TwitterDetailView;
+        import yssoft.evts.TwitterEvent;
+        import yssoft.evts.EventDispatcherFactory;
+
+        import mx.controls.Button;
+
+        import yssoft.tools.LoginTool;
+
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.events.ItemClickEvent;
+        import mx.events.ListEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.views.msg.OA_noticeView;
+
+        //SDY add 转到公告时将集合传递
+        private var resultList:ArrayCollection = new ArrayCollection();
+        private var _ownerBox:Widget;
+
+        private var sqlid:String = "";
+        private var opt:String = "";
+        private var sum:Boolean = false;
+        private var size:int;
+
+        private var oaTypeList:ArrayCollection = new ArrayCollection([
+            {label: "待办事项", opt: "dbsx", sql: "xtgl.selectDbsx", sum: true},
+            {label: "已办事项", opt: "ybsx", sql: "xtgl.selectYbsx", sum: false},
+            {label: "跟踪事项", opt: "gzsx", sql: "xtgl.selectGzsx", sum: true},
+            {label: "已发事项", opt: "yfsx", sql: "xtgl.selectYfsx", sum: false},
+            {label: "公告通知", opt: "gg", sql: "xtgl.selectGG", sum: true},
+            {label: "交流论坛", opt: "forum", sql: "xtgl.forum.list", sum: true}
+        ]);
+
+        [Bindable]
+        private var selectOAItem:Object;
+
+        [Bindable]
+        private var items:ArrayCollection = new ArrayCollection();
+
+        //[Bindable] private var _type:String;
+
+        [Bindable]
+        private var _mydata:Object;
+
+        private var selectItem:Object; // 当前选中的记录
+
+        public function get ownerBox():Widget {
+            return _ownerBox;
+        }
+
+        public function set ownerBox(value:Widget):void {
+            _ownerBox = value;
+        }
+
+        public function get mydata():Object {
+            return _mydata;
+        }
+
+        public function set mydata(value:Object):void {
+            _mydata = value;
+            if (value.ccaption) {
+                for each(var obj:Object in oaTypeList) {
+                    if (obj.label == value.ccaption) {
+                        selectOAItem = obj;
+                        size = value.ipage;
+                        getDatas();
+                    }
+                }
+            }
+        }
+
+        /* 			public function get type():String
+         {
+         return _type;
+         }
+
+         public function set type(value:String):void
+         {
+         _type = value;
+
+         } */
+
+        private function crmlist_itemClickHandler(event:ListEvent):void {
+            selectItem = datalist.selectedItem;
+            var optName:String = this.selectOAItem.label;
+            this.datalist.selectedIndex = -1;
+            var param:Object = {};
+            if (selectItem.xtlx == "10")// 自由协同
+            {
+                param.oaiid = selectItem.iid;
+                param.wfDrawType = "open";
+                param.optType = opt;
+                //yssoft.views.workflow.FreeCoView"
+                CRMtool.openMenuItemFormOther("yssoft.views.workflow.FreeCoView", param, "[" + optName.substr(0, 2) + "]" + selectItem.csubject, selectItem.iid + ":" + this.opt);
+
+                if (this.selectOAItem.opt == "dbsx") {
+                    update_msg_item_subhome("10", selectItem.iid);
+                }
+
+            } else if (selectItem.xtlx == "xtgg") {
+                try {
+
+                    if (selectOAItem.opt == "gg") {
+                        var notice:OA_noticeView = new OA_noticeView();
+                        notice.leftContent = selectItem;
+                        notice.rightList = resultList;
+                        CRMtool.openView(notice);
+                    } else {
+
+
+                        param.operId = "onListDouble";
+                        param.formTriggerType = "fromOther";
+                        param.outifuncregedit = 151;
+                        param.ifuncregedit = 151;
+                        var iid:ArrayCollection = new ArrayCollection();
+                        iid.addItem({iid: 0});
+                        param.personArr = iid;
+                        param.itemType = "onBrowse";
+                        CRMtool.openMenuItemFormOther("yssoft.views.twitter.TwitterParentView", param, '交流讨论中心', param.ifuncregedit + "" + param.iinvoice);
+
+                        var obj:Object = {};
+                        obj.twitterIid = selectItem.iid;
+                        obj.itype = selectItem.itype;
+                        EventDispatcherFactory.getEventDispatcher().dispatchEvent(new TwitterEvent(TwitterEvent.onMainViewHotItemClick, obj));
+                        EventDispatcherFactory.getEventDispatcher().dispatchEvent(new TwitterEvent(TwitterEvent.onDetailViewRefresh, obj));
+                    }
+                } catch (e:Error) {
+
+                }
+
+            }
+            else //非自由协同打开
+            {
+                //param.itemType="operId";
+                param.operId = "onListDouble";
+
+                param.outifuncregedit = selectItem.ifuncregedit;
+                param.ifuncregedit = selectItem.ifuncregedit;
+
+                var iid:ArrayCollection = new ArrayCollection();
+                iid.addItem({iid: selectItem.iinvoice});
+
+                param.personArr = iid;
+
+                param.itemType = "onBrowse";
+
+                param.formTriggerType = "fromList";
+
+                CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, selectItem.csubject, selectItem.ifuncregedit + "" + param.iinvoice + new Date());
+
+                if (this.selectOAItem.opt == "dbsx") {
+                    update_msg_item_subhome(selectItem.ifuncregedit, selectItem.iinvoice);
+                }
+            }
+
+
+        }
+
+        private var selectIndex:int = 0;
+
+        public function getDatas():void {
+
+            if (!selectOAItem)
+                return;
+
+            opt = this.selectOAItem.opt;
+            sqlid = this.selectOAItem.sql;
+            sum = this.selectOAItem.sum;
+
+            if (CRMtool.isStringNull(sqlid)) {
+                return;
+            }
+
+            var params:Object = {};
+            if (opt != "dbsx") {
+                params.flag = "1";
+            }
+            if (opt == "forum") { //标示不用求总记录
+                params.flag = "2";
+            }
+            params.pagesize = size;
+            params.curpage = 1;
+            params.topsize = size;
+            params.sqlid = sqlid;
+            params.sum = sum;
+            params.iperson = CRMmodel.userId;
+            AccessUtil.remoteCallJava("WorkFlowDest", "crmPage", callBack, params, null, false);
+        }
+
+        //填充列表
+        private function callBack(event:ResultEvent):void {
+            items = event.result.list as ArrayCollection;
+            resultList = event.result.list as ArrayCollection;
+
+            if (sum) {
+                var str:String = event.result.count + "";
+                if (str.indexOf("_") != -1) {
+                    var a:int = int(str.split("_")[0]); //总记录
+                    var b:int = int(str.split("_")[1]);//已读
+                    ownerBox.subTitle = ( (a - b) <= 0 ? 0 : (a - b) ) + "/" + a;
+
+                } else {
+
+                    var ret:int = event.result.count as int;
+                    if (ret > 0) {
+                        ownerBox.subTitle = ret.toString();
+                    } else {
+                        ownerBox.subTitle = "";
+                    }
+
+                }
+            }
+        }
+
+        public function noMore_clickHandler():void {
+            if (opt == "" || sqlid == "") {
+                return;
+            }
+
+            if (resultList == null || resultList.length == 0) {
+                return;
+            }
+            //系统公告
+            if (resultList.getItemAt(0).xtlx == "xtgg") {
+                if (resultList.getItemAt(0).type == "gg") {
+                    AccessUtil.remoteCallJava("FuncregeditDest", "getSingleFuncregeditByID", getDatadictionary, 117);
+                }
+                else {
+                    var param:Object = {};
+                    param.operId = "onListDouble";
+                    param.formTriggerType = "fromOther";
+                    param.outifuncregedit = 151;
+                    param.ifuncregedit = 151;
+                    var iid:ArrayCollection = new ArrayCollection();
+                    iid.addItem({iid: 0});
+                    param.personArr = iid;
+                    param.itemType = "onBrowse";
+                    CRMtool.openMenuItemFormOther("yssoft.views.twitter.TwitterParentView", param, '交流讨论中心', param.ifuncregedit + "" + param.iinvoice);
+                }
+
+            }
+            else {
+                CRMtool.openMenuItemFormOther("yssoft.views.workflow.CoManager", opt, "协同管理", "");
+            }
+        }
+
+        //跳转公告管理页面
+        private function getDatadictionary(e:ResultEvent):void {
+            var obj:Object = e.result.funcregeditMap;
+            var params:String = obj.cparameter + ",outifuncregedit:" + obj.ifuncregedit + ",ctable:" + obj.ctable + ",ifuncregedit:" + obj.iid + ",formTriggerType:fromHome";
+            var parmobj:Object = new Object();
+            parmobj = CRMtool.getObject(params);
+            parmobj.relatedSql = "";
+            CRMtool.openMenuItemFormOther("yssoft.comps.frame.FrameworkVBoxView", parmobj, "公告管理", "");
+        }
+
+        public function update_msg_item_subhome(ifuncregedit:String, iinvoice:String):void {
+            var param:Object = {};
+            param.irperson = CRMmodel.userId;
+            param.ifuncregedit = ifuncregedit;
+            param.iinvoice = iinvoice;
+            AccessUtil.remoteCallJava("MsgDest", "update_msg_item_subhome", updataCallBack, param, null, false);
+        }
+
+        private function updataCallBack(event:ResultEvent):void {
+            if (event.result && (event.result as String) == "suc") {
+            }
+        }
+        ]]>
+	</fx:Script>
+
+    <s:Group width="100%" height="100%">
+        <comps:CrmList id="datalist" width="100%" height="100%" borderStyle="none"
+                       dataProvider="{items}"
+                       itemClick="crmlist_itemClickHandler(event)" itemRenderer="{itemRender}"
+                       selectionColor="white">
+        </comps:CrmList>
+        <mx:VBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" visible="{items.length==0}">
+            <mx:Label text="暂时没有{selectOAItem.label}" color="#dedede" fontSize="18"/>
+        </mx:VBox>
+    </s:Group>
+</mx:VBox>

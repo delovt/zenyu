@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" verticalScrollPolicy="off" width="100%"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" verticalGap="0" borderVisible="false">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="onDelete", type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			
+			[Bindable]
+			public var item:Object
+			
+			public var callbackfun:Function;
+			
+			protected function linkbutton1_clickHandler(event:MouseEvent):void
+			{
+				this.dispatchEvent(new Event("onDelete",false,true));
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<mx:HBox horizontalGap="0" width="100%">
+		<mx:Label text="{item.cname}" color="#4F9CD4" fontWeight="bold" width="45" toolTip="名称:{item.cname}"/>
+		<mx:Label text="{item.dmaker}" color="#549C00" />
+		<mx:LinkButton label="删除" color="#4F9CD4" fontWeight="bold" click="linkbutton1_clickHandler(event)"/>
+	</mx:HBox>
+	<mx:Text text="{item.cmemo}" width="100%"/>
+</mx:VBox>

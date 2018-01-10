@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 xmlns:comps="yssoft.comps.*"
+         implements="yssoft.impls.ICRMWindow"
+         creationComplete="ini()" horizontalAlign="center"
+		 styleName="centerbg03" 
+		 verticalGap="0">	
+
+	
+	
+	<fx:Script source="../../scripts/TwitterListViewScript.as"/>
+	
+	
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalGap="0">
+		
+	
+		<mx:ApplicationControlBar styleName="centertop" id="menuBar1" width="100%" height="32" dock="true">
+			<mx:HBox width="100%" height="100%" horizontalAlign="left" verticalAlign="middle">
+				
+				<mx:Label text="讨论类型" />
+				<mx:ComboBox height="25" id="twitterType"
+							 dataProvider="{typeList}"
+							 labelField="cname"
+							 selectedIndex="0"
+							 change="twitterType_changeHandler(event)"
+							 />
+				
+				<s:RadioButtonGroup id="twitterRadio" selectedValue="1"  />
+				<s:RadioButton id="allRadio" label="所有" 
+							   groupName="twitterRadio" value="1" 
+							   styleName="contentRadioButton"  click="tnp_bjobstatus_clickHandler(event)" />
+				<s:RadioButton id="creamRadio" label="精华" 
+							   groupName="twitterRadio" value="2" 
+							   styleName="contentRadioButton" click="tnp_bjobstatus_clickHandler(event)" />
+				<s:RadioButton id="hotRadio" label="热帖" 
+							   groupName="twitterRadio" value="3" 
+							   styleName="contentRadioButton" click="tnp_bjobstatus_clickHandler(event)"  />
+				<s:RadioButton id="issuedRadio" label="已发"
+							   groupName="twitterRadio" value="4"
+							   styleName="contentRadioButton" click="tnp_bjobstatus_clickHandler(event)" />
+				<s:RadioButton id="notIssuedRadio" label="待发"
+							   groupName="twitterRadio" value="5"
+							   styleName="contentRadioButton" click="tnp_bjobstatus_clickHandler(event)"/>
+				
+				<comps:CrmTextInput id="tnp_bjobstatus" click="tnp_bjobstatus_clickHandler(event)" visible="false" />
+					
+			</mx:HBox>
+			
+			<mx:Button height="25" id="btn_issue" label="发帖" click="btn_issue_click()"/>
+			<mx:Button  height="25" id="btn_return" label="返回" click="btn_return_click()"/>
+			
+		</mx:ApplicationControlBar>
+		
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+			<mx:HBox width="100%" height="100%" paddingLeft="6" paddingRight="1"  paddingTop="5">
+				<mx:List rollOverColor="#ffffff" id="titleList" borderVisible="false" width="100%" height="100%" dataProvider="{listData}" selectionColor="white"
+					 itemRenderer="yssoft.renders.twitterRenders.TwitterListViewItemRender" >
+				
+				</mx:List>
+			</mx:HBox>
+			<mx:HBox width="100%" height="32">
+				<comps:PageBar paddingRight="10" id="pageBar" width="100%" height="32" horizontalAlign="right"/>
+			</mx:HBox>
+		
+		</mx:VBox>
+			
+		
+	</mx:VBox>
+
+		
+</mx:VBox>

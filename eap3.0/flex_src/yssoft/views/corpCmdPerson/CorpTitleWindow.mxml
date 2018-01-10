@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="分配公司"
+                        width="400" height="400"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+        import flash.events.Event;
+
+        import mx.collections.ArrayCollection;
+        import mx.collections.ArrayList;
+        import mx.controls.Alert;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.ObjectUtil;
+        import mx.utils.XMLUtil;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var iperson:String;
+        public var callBack:Function;
+
+        public function getCorporationTreeXml(iid:String):void {
+            iperson = iid;
+            AccessUtil.remoteCallJava("CorpCmdPersonDest", "getAllCorpWithCmdPerson", getCorporationcallBackHandler, iid, ConstsModel.EPARTMENT_GET_INFO);
+        }
+
+        private function getCorporationcallBackHandler(event:ResultEvent):void {
+            if (event.result != null) {
+                var result:String = event.result as String;
+                this.tre_corp.treeCompsXml = new XML(result);
+                tre_corp.expandAll();
+            }
+
+        }
+
+
+        protected function onTreeClick(event:MouseEvent):void {
+            tre_corp.expandAll();
+        }
+
+        protected function saveButton_clickHandler(event:MouseEvent):void {
+            //if(iperson!=null){
+            //	AccessUtil.remoteCallJava("CorpCmdPersonDest","delPsersons",null,iperson,ConstsModel.EPARTMENT_GET_INFO);
+            //}
+            var ac:ArrayList = new ArrayList();
+            ac.addItem(iperson);
+            var xml:XML = new XML(tre_corp.treeCompsXml);
+            var xlist:XMLList = xml.descendants("*").(@state == "1");
+            for each(var x:XML in xlist) {
+                var s:String = x.@iid;
+                ac.addItem(s);
+
+                //Alert.show(x.@iid);
+            }
+            AccessUtil.remoteCallJava("CorpCmdPersonDest", "refPersons", refPersonsBackHandler, ac, ConstsModel.EPARTMENT_GET_INFO);
+            //Alert.show(xml.node.node.(@state==1));
+        }
+
+        private function refPersonsBackHandler(event:ResultEvent):void {
+            onCloseHandler();
+            callBack();
+        }
+        ]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%">
+		<comps:TreeCompsVbox id="tre_corp" width="100%" height="100%" 
+left="10" right="10" top="10"  bottom="10" 
+allowMulti="true" click="onTreeClick(event)"
+							 isShowCheckBox="true" checkBoxEnableState="true" checkBoxCascadeOnCheck="false" 
+							 checkBoxCloseItemsOnUnCheck="false" checkBoxOpenItemsOnCheck="false"/>
+		<mx:HBox height="38" width="100%" verticalAlign="middle" paddingRight="10">
+			<s:Spacer width="100%"/>
+			<s:Button width="50" label="确定" click="saveButton_clickHandler(event)"/>
+			<s:Button width="50" label="取消" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+
+</basic:BasicTitleWindow>

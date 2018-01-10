@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:comps="yssoft.comps.*"
+                        creationComplete="initWindow();"
+                        width="500" height="550" title="{tite}">
+    <!-- To change this template use File | Settings | File Templates. -->
+    <fx:Script>
+    <![CDATA[
+        import com.google.zxing.common.flexdatatypes.StringBuilder;
+
+        import mx.collections.ArrayCollection;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        public var ifuncregedit:int;// 功能内码
+        public var statuscList:ArrayCollection; //存放状态的集合
+        public var ilist:ArrayCollection;
+        public var currStatusMessage:ArrayCollection; //当前带锯所经过的所有状态
+        public var iinvoice:int; //当前单据内码
+        public var formIstatus:int; //单据当前状态
+        [Bindable]
+        public var tite:String;
+
+        /**
+         * 窗口初始化
+         */
+        private function initWindow():void {
+            getCurrFormStatus();
+
+        }
+
+        /**
+         * 获取当前单据所有状态
+         */
+        private function getCurrFormStatus():void {
+            //wxh update
+            var sql:StringBuilder = new StringBuilder();
+            sql.Append("select B.* from ( ");
+            sql.Append(" select ai.iid,ai.ifuncregedit,ai.istatus as ipid,istatus, ap.cname,ai.dmaker,ap.ctitle,ai.csubject from ab_invoicestatus  ai ");
+            sql.Append(" left join ( ");
+            sql.Append(" select hr_person.iid,hr_person.cname,hr_person.cname as ctitle from hr_person  ");
+
+            sql.Append(" ) ap on ap.iid = ai.imaker  where ifuncregedit =  ");
+            sql.Append(ifuncregedit);
+            sql.Append(" and iinvoice = ");
+            sql.Append(iinvoice);
+            sql.Append(" group by  ai.iid,ai.ifuncregedit,ai.istatus ,istatus, ap.cname,ai.dmaker,ap.ctitle,ai.csubject ");
+            sql.Append(") B order by B.dmaker ");
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (e:ResultEvent):void {
+                currStatusMessage = e.result as ArrayCollection
+                initList();
+            }, sql.toString(), null, false);
+        }
+
+        /**
+         * 获取xml
+         */
+        private function getXML():void {
+            AccessUtil.remoteCallJava("UtilViewDest", "buildTreeXML", function (e:ResultEvent):void {
+                var result:String = e.result as String;
+                if (result.length > 0) {
+                    main_menu.treeCompsXml = new XML(result);
+                } else {
+                    main_menu.treeCompsXml = <node></node>;
+                }
+                main_menu.expandAll();
+            }, {list: ilist});
+
+        }
+
+        /**
+         * 封装生成xml的集合
+         */
+        private function initList():void {
+            ilist = new ArrayCollection();
+            var flag:Boolean = true;
+            for each(var status:Object in statuscList) {
+                var co:String = "0xC3C3C3";
+                if (flag)
+                    co = "0x0DAAD8";
+                if (status.istatus == formIstatus)
+                    flag = false;
+
+                ilist.addItem({iid: status.istatus, ipid: -1, cname: status.cname, treeItemColor: co});
+            }
+            for each(var sta:Object in currStatusMessage) {
+                var color:String;
+                var name:String;
+                var personName:String;
+                if (sta.cname == "终端用户") {
+                    personName = sta.ctitle
+                } else {
+                    personName = sta.cname
+                }
+                for each(var s:Object in statuscList) {
+                    if (CRMtool.isStringNull(sta.csubject)) {
+                        if (Math.abs(sta.istatus) == s.istatus && CRMtool.getNumber(sta.istatus) > 0) {
+                            name = CRMtool.isStringNotNull(s.csubject) ? s.csubject : "";
+                            //color = "";
+                        }
+                    } else {
+                        name = sta.csubject;
+                    }
+                    if (Math.abs(sta.istatus) == s.istatus && CRMtool.getNumber(sta.istatus) < 0) {
+                        color = "0xff0000";
+                    }
+                }
+                ilist.addItem({iid: (CRMtool.getNumber(sta.iid) * 1000), ipid: Math.abs(sta.istatus), cname: CRMtool.getFormatDateString("YYYY-MM-DD HH:NN", sta.dmaker) + " " + name + " (" + personName + ")", treeItemColor: color});
+            }
+            getXML();
+        }
+        ]]>
+    </fx:Script>
+    <mx:VBox width="100%" height="100%">
+        <mx:HBox id="statusList" width="100%" height="100%">
+            <comps:TreeCompsVbox id="main_menu" width="100%" height="100%" borderVisible="false" isShowTips="true"/>
+        </mx:HBox>
+    </mx:VBox>
+
+</basic:BasicTitleWindow>

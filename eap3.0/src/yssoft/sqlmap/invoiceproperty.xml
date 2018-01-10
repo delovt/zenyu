@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 按照角色的父节点查询 -->
+	<insert id="invoice.insertImaker" parameterClass="java.util.HashMap">
+		insert into ab_invoiceproperty (ifuncregedit,iinvoice,ccode,iworkflow,iform,isourceregedit,isource,imaker,dmaker)
+		values
+		(#ifuncregedit#,#iinvoice#,#ccode#,#iworkflow#,#iform#,#isourceregedit#,#isource#,#imaker#,convert(varchar,getdate(),120))
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+	</insert>
+</sqlMap>

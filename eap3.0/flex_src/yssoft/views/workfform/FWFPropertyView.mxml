@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark" label="节点属性"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" creationComplete="onCreationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		mx|GridItem{
+			verticalAlign:middle;
+		}
+		mx|GridRow{
+			verticalAlign:middle;
+			borderVisible:true;
+			borderStyle:solid;
+			borderAlpha:0.5;
+		}
+		mx|TextInput{
+			borderVisible:false;
+			borderSkin:ClassReference(null);
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.collections.ArrayList;
+		import mx.events.FlexEvent;
+		import yssoft.comps.NodeElement;
+		import yssoft.evts.FWFChangeEvent;
+
+
+        [Bindable]
+        public var statusList:ArrayCollection;
+		private var nodeType:Array = ["0人员", "1部门", "2角色", "3岗位", "4职务"]; //0人员、1部门、2相对角色、3岗位、4职务
+
+		private var nodeattributes:ArrayList = new ArrayList(["0并发"]); // 0并发、1竞争、2选择
+
+		private var nodemodes:ArrayList = new ArrayList(["0协同", "1审批"]);  //0知会 协同、1审批 ,2发起人
+
+		private var bools:ArrayList = new ArrayList(["0否", "1是"]);
+
+		private var notices:ArrayList = new ArrayList(["0系统消息"]);  //0系统消息、1邮件消息、2短信消息
+
+		private var _enabled:Boolean;
+
+		[Bindable]
+		private var nodeElement:NodeElement;
+
+		private function onCreationCompleteHandler(event:FlexEvent):void {
+			this.stage.addEventListener(FWFChangeEvent.SOURCEOBJECTCHANGE, onSourceChange);
+		}
+
+
+        private function onSourceChange(event:FWFChangeEvent):void {
+            nodeElement = event.source as NodeElement;
+
+
+            this.inodeattribute.selectedIndex = nodeElement.inodeattribute;
+            this.inodemode.selectedIndex = nodeElement.inodemode;
+            this.bfinalverify.selected = int(nodeElement.bfinalverify) == 1
+            this.baddnew.selected = int(nodeElement.baddnew) == 1
+            this.bsendnew.selected = int(nodeElement.bsendnew) == 1
+            //this.cnotice.selectedIndex = int(nodeElement.cnotice);
+
+            this.cnotice.selected = int(nodeElement.cnotice) == 1
+            this.iistatus.selectedIndex = -1;
+            for each(var item:Object in statusList){
+                if(item.istatus == nodeElement.iistatus){
+                    iistatus.selectedItem = item;
+                    break;
+                }
+            }
+            if (nodeElement.ipnodeid == "startnode") {
+                this.enabled = false;
+                return;
+            }
+            this.enabled = true;
+
+            if (nodeElement.inodevalue == -9 || nodeElement.inodevalue == -10) {
+                this.ccomefield.enabled = true;
+                this.ccomefield.textInput.enabled = false;
+                this.ccomefield.selectedIndex = findItemIndex(this.ccomefields, nodeElement.ccomefield);
+
+            } else {
+                this.ccomefield.enabled = false;
+            }
+
+
+
+            //mx.controls.Alert.show("节点值["+nodeElement.inodevalue+"]");
+        }
+
+        private function findItemIndex(ac:ArrayCollection, value:String):int {
+			for each(var item:Object in ac) {
+				if (item.cfield == value) {
+					return ac.getItemIndex(item);
+				}
+			}
+			return -1;
+		}
+
+
+        private function onPropertyChange(event:Event):void {
+            if (nodeElement == null) {
+                return;
+            }
+            var combobox:ComboBox = event.currentTarget as ComboBox;
+            var newValue:Object;
+
+            if (combobox.id == "inodemode" && nodeElement.ipnodeid == "startnode") { // 发起人的 节点处理方式不可改变
+                return;
+            }
+
+            if (combobox.id == "inodemode" && nodeElement.ipnodeid != "startnode" && combobox.selectedIndex == 2) { // 只有发起人的 处理方式为 发起人状态
+                return;
+            }
+            newValue = combobox.selectedIndex;
+            if (combobox.id == "ccomefield") {
+                newValue = combobox.selectedItem.cfield;
+            }
+            if (combobox == iistatus) {
+                newValue = combobox.selectedItem.istatus;
+            }
+            var fwf:FWFChangeEvent = new FWFChangeEvent(FWFChangeEvent.PROPERTYCHANGE, nodeElement, combobox.id, nodeElement[combobox.id], newValue);
+            this.stage.dispatchEvent(fwf);
+        }
+		protected function cbOnCreationCompleteHandler(event:FlexEvent):void {
+			(event.currentTarget as ComboBox).textInput.enabled = false;
+		}
+
+		// 字段对应的 集合
+		[Bindable]
+		public var ccomefields:ArrayCollection = new ArrayCollection();
+
+		private function checkBox_changeHandler(event:Event):void {
+			if (nodeElement == null) {
+				return;
+			}
+			var cb:CheckBox = event.currentTarget as CheckBox;
+			var newValue:Object;
+
+			if (cb.selected)
+				newValue = 1;
+
+			var fwf:FWFChangeEvent = new FWFChangeEvent(FWFChangeEvent.PROPERTYCHANGE, nodeElement, cb.id, nodeElement[cb.id], newValue);
+			this.stage.dispatchEvent(fwf);
+		}
+
+		[Bindable]
+		override public function get enabled():Boolean {
+			return _enabled;
+		}
+
+		override public function set enabled(value:Boolean):void {
+			_enabled = value;
+		}
+
+		]]>
+	</fx:Script>
+	<mx:Grid id="fwfGrid" styleName="fwfGrid" width="100%" height="100%" verticalGap="2" horizontalGap="1" top="2" left="2" right="2">
+		<mx:GridRow width="100%" id="gridRow">
+			<mx:GridItem>
+				<mx:Label text="节点名称" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<mx:TextInput id="cname" text="{nodeElement.cname}" width="100%" editable="false"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%">
+			<mx:GridItem>
+				<mx:Label text="节点层级" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<mx:TextInput id="inodelevel" text="{nodeElement.inodelevel}" width="100%" editable="false"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%">
+			<mx:GridItem>
+				<mx:Label text="节点ID" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<mx:TextInput id="inodeid" text="{nodeElement.inodeid}" width="100%" editable="false"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%">
+			<mx:GridItem>
+				<mx:Label text="父节点ID" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<mx:TextInput id="ipnodeid" text="{nodeElement.ipnodeid}" width="100%" editable="false"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%">
+			<mx:GridItem>
+				<mx:Label text="节点类型" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<mx:TextInput id="inodetype" text="{nodeType[nodeElement.inodetype]}" width="100%" editable="false"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%">
+			<mx:GridItem>
+				<mx:Label text="节点值" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<mx:TextInput id="inodevalue" text="{nodeElement.inodevalue}" width="100%" editable="false"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%">
+			<mx:GridItem>
+				<mx:Label text="节点属性" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<!--<mx:TextInput id="inodeattribute" text="{nodeElement.inodeattribute}" width="100%"/>-->
+				<s:ComboBox id="inodeattribute" dataProvider="{nodeattributes}" width="100%" change="onPropertyChange(event)" creationComplete="cbOnCreationCompleteHandler(event)"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%">
+			<mx:GridItem>
+				<mx:Label text="节点处理方式" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<s:ComboBox id="inodemode" dataProvider="{nodemodes}" width="100%" change="onPropertyChange(event)" creationComplete="cbOnCreationCompleteHandler(event)"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%">
+			<mx:GridItem>
+				<mx:Label text="对应字段" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<s:ComboBox id="ccomefield" enabled="false" dataProvider="{ccomefields}" labelField="ccaption" width="100%" change="onPropertyChange(event)" creationComplete="cbOnCreationCompleteHandler(event)"/>
+			</mx:GridItem>
+		</mx:GridRow>
+        <mx:GridRow width="100%">
+            <mx:GridItem>
+                <mx:Label text="对应状态" width="100%"/>
+            </mx:GridItem>
+            <mx:GridItem width="100%" enabled="{this.enabled}">
+                <s:ComboBox id="iistatus" dataProvider="{statusList}"
+                            labelField="cname" width="100%"
+                            change="onPropertyChange(event)" creationComplete="cbOnCreationCompleteHandler(event)"/>
+            </mx:GridItem>
+        </mx:GridRow>
+		<mx:GridRow width="100%" height="{gridRow.height}">
+			<mx:GridItem>
+				<mx:Label text="是否终审" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<s:CheckBox id="bfinalverify"   width="100%" change="checkBox_changeHandler(event)"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%" height="{gridRow.height}">
+			<mx:GridItem>
+				<mx:Label text="是否加签" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<s:CheckBox id="baddnew"   width="100%" change="checkBox_changeHandler(event)"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%" height="{gridRow.height}">
+			<mx:GridItem>
+				<mx:Label text="是否转发" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<s:CheckBox id="bsendnew"  width="100%" change="checkBox_changeHandler(event)"/>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow width="100%" height="{gridRow.height}">
+			<mx:GridItem>
+				<mx:Label text="是否发送手机短信" width="100%"/>
+			</mx:GridItem>
+			<mx:GridItem width="100%" enabled="{this.enabled}">
+				<s:CheckBox id="cnotice"  width="100%" change="checkBox_changeHandler(event)" />
+			</mx:GridItem>
+		</mx:GridRow>
+	</mx:Grid>
+</mx:Canvas>

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				width="100%" height="100%" xmlns:comps="yssoft.comps.*"
+				 xmlns:frameui="yssoft.frameui.*" 
+				 implements="yssoft.impls.ICRMWindow"
+				 creationComplete="onWindowInit();" >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.ArrayList;
+        import mx.events.ItemClickEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        private var bb_opt_items:ArrayCollection = new ArrayCollection([
+            {label: "增加", name: "onNew"        },
+            {label: "修改", name: "onEdit"    },
+            {label: "删除", name: "onDelete"    },
+            {label: "保存", name: "onSave"    },
+            {label: "放弃", name: "onGiveUp"    }
+        ]);
+
+        [Bindable]
+        private var iid:String = "";
+
+        //菜单(列表)传参
+        [Bindable]
+        public var winParam:Object = new Object();
+
+        private var tableMessage:ArrayCollection;
+
+        private var _vouchFormArr:ArrayList;
+
+        // 单据功能注册码
+        [Bindable]
+        public var formIfunIid:int = 0;
+
+        /**
+         *  单据状态, 新增 new ，编辑 edit ，浏览 browser, 默认为新增 new
+         *    从菜单触发 状态为new，从其他触发与单据列表触发 可以设为new,edit,browser其中之一
+         */
+        [Bindable]
+        public var formStatus:String = "new";
+
+        //权限类对象
+        public var auth:OperDataAuth;
+
+        [Bindable]
+        public var curButtonStatus:String = "onGiveUp";
+
+        [Bindable]
+        private var tplXml:XML = new XML();
+
+        public var currid:int = 0;
+
+        private var seleteItem:Object;
+
+        private var list:XMLList = new XMLList();
+
+        private var iidForSearch:String = "";
+
+        private var ipidForSearch:String = "";
+
+        public function onWindowInit():void {
+            getWorkFlowTpl();
+        }
+
+        //获取模板信息
+        private function getWorkFlowTpl():void {
+            //lr add
+            //AccessUtil.remoteCallJava("DatadictionaryDest","getTreeMenuList",callBack,{sqlcondition:" bbind = 1",single:1});
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFunTree", callBack, null, "正在获取单据列表...");
+        }
+
+        private function callBack(event:ResultEvent):void {
+            this.tplXml = new XML(event.result);
+            tre_vouch.treeCompsXml = this.tplXml;
+            initWindow();
+        }
+
+        //打开（初始化界面）进行按钮互斥
+        private function initWindow():void {
+            //初始化权限
+            auth = new OperDataAuth();
+            //---------------加载操作权限 begin---------------//
+            var params1:Object = new Object();
+            var itemObj:Object = CRMtool.getObject(winParam);
+            params1.ifuncregedit = itemObj.ifuncregedit;
+            params1.iperson = CRMmodel.userId;
+            auth.get_funoperauth(params1);
+            //---------------加载操作权限 end---------------//
+            winParam = CRMtool.getObject(this.winParam);
+            this.formIfunIid = int(winParam.ifuncregedit);
+            var crmeap:CrmEapRadianVbox = new CrmEapRadianVbox();
+            crmeap.percentWidth = 98;
+            crmeap.name = "myCanva";
+            crmeap.curButtonStatus = this.curButtonStatus;
+            crmeap.formIfunIid = this.formIfunIid;
+            crmeap.owner = this;
+            crmeap.addEventListener("complete", complete);
+            crmeap.queryVouchForm();
+            this.formShowArea.addChild(crmeap);
+            setAllButtonsEnabled(this.curButtonStatus, 0);
+        }
+
+        private function complete(event:Event):void {
+
+        }
+
+        //设置按钮互斥
+        public function setAllButtonsEnabled(selectedName:String, length:int = 1):void {
+            CRMtool.toolButtonsEnabled(this.bb_opt, selectedName, length);
+        }
+
+        //窗体打开
+        public function onWindowOpen():void {
+            this.formShowArea.removeAllChildren();
+            this.formStatus = "new";
+            this.curButtonStatus = "onGiveUp";
+            onWindowInit();
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+        }
+
+        private function bb_itemclick(event:ItemClickEvent):void {
+            // 区分导航按钮组,不记录 该组按钮的状态
+
+            // 判断当前按钮状态
+            var type:String = event.item.name as String;
+            if (type != "onSave") {
+                curButtonStatus = event.item.name; // 记录当前按钮状态
+            }
+
+            //执行按钮对应的 相关功能函数
+            this[event.item.name]();
+
+        }
+
+        private function onNew():void {
+            if (!this.tre_vouch.selectedItem) {
+                CRMtool.tipAlert("请选择一条记录!");
+                setAllButtonsEnabled("onGiveUp", 0);
+                this.curButtonStatus = "onGiveUp";
+                return;
+            }
+            var ifuncregedit2:int = int(tre_vouch.selectedItem.@ifuncregedit2);
+            this.tre_vouch.enabled = false;
+            if (ifuncregedit2 == 0) {
+                setAllButtonsEnabled(this.curButtonStatus);
+                var crmeap:CrmEapRadianVbox = this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+                crmeap.curButtonStatus = this.curButtonStatus;
+                crmeap.setCurButtonStatus();
+
+                var ifuncregedit:String = this.tre_vouch.selectedItem.@iid;
+                var ojb:Object = new Object();
+                var obj:Object = crmeap.getValue();
+                obj.ifuncregedit = ifuncregedit;
+                ojb.mainValue = obj;
+                crmeap.setValue(ojb, 1);
+                CRMtool.containerChildsEnabled(crmeap, true);
+            }
+            else {
+                CRMtool.tipAlert("请选择一条记录!");
+            }
+        }
+
+
+        // 修改
+        private function onEdit():void {
+            if (!this.tre_vouch.selectedItem) {
+                CRMtool.tipAlert("请选择一条记录!");
+                return;
+            }
+            /* var ifuncregedit2:int = int(tre_vouch.selectedItem.@ifuncregedit);
+             if(ifuncregedit2!=0)
+             { */
+            this.tre_vouch.enabled = false;
+            var crmeap:CrmEapRadianVbox = this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+            CRMtool.containerChildsEnabled(crmeap, true);
+            crmeap.setCurButtonStatus();
+            crmeap.curButtonStatus = this.curButtonStatus;
+            setAllButtonsEnabled(this.curButtonStatus);
+            /* } */
+        }
+
+        // 删除
+        private function onDelete():void {
+            if (!this.tre_vouch.selectedItem) {
+                CRMtool.tipAlert("请选择一条记录!");
+                return;
+            }
+            var iidStr:String = tre_vouch.selectedItem.@iid;
+            ipidForSearch = tre_vouch.selectedItem.@ipid;
+            var iid:int = int(iidStr.substr(iidStr.indexOf("_") + 1));
+            var crmeap:CrmEapRadianVbox = this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+            crmeap.curButtonStatus = this.curButtonStatus;
+            crmeap.onDelete();
+            crmeap.addEventListener("success", success);
+        }
+
+        // 保存
+        private function onSave():void {
+            seleteItem = this.tre_vouch.selectedItem;
+            iidForSearch = seleteItem.@iid;
+
+            var crmeap:CrmEapRadianVbox = this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+            crmeap.onSave();
+            crmeap.addEventListener("success", success);
+        }
+
+        private function success(event:Event):void {
+            this.tre_vouch.enabled = true;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFunTree", reshFla);
+        }
+
+        //			private function success(event:Event):void
+        //			{
+        //				this.curButtonStatus="onGiveUp";
+        //				this.tre_vouch.enabled=true;
+        //				setAllButtonsEnabled("onGiveUp");
+        //			}
+
+        private function reshFla(event:ResultEvent):void {
+            this.tplXml = new XML(event.result);
+            tre_vouch.treeCompsXml = this.tplXml;
+            this.tre_vouch.expandAll();
+            list[0] = tre_vouch.dataProvider[0];
+            if (this.curButtonStatus == "onDelete") {
+                this.recursionFindTree(list, this.ipidForSearch);
+                tre_vouch.scrollToIndex(tre_vouch.selectedIndex);
+            } else {
+                this.recursionFindTree(list, this.iidForSearch);
+                tre_vouch.scrollToIndex(tre_vouch.selectedIndex);
+            }
+            this.curButtonStatus = "onGiveUp";
+            setAllButtonsEnabled("onGiveUp", 0);
+        }
+
+        //递归定位树形节点,要查找的字符就是传入的find  和对应tree的@iid属性  add by lzx
+        private function recursionFindTree(xmlList:XMLList, find:String):void {
+            for (var i:int = 0; i < xmlList.length(); i++) {
+                var childXml:XML = xmlList[i];
+                var iid:String = childXml.@iid;
+                if (iid != null && iid == find) {
+                    tre_vouch.selectedItem = childXml;    //将tree的选中像设定为当前项
+                    return;
+                } else if (tre_vouch.dataDescriptor.isBranch(childXml))//如果有子节点,则递归调用本方法
+                {
+                    recursionFindTree(childXml.children(), find);
+                }
+
+            }
+        }
+
+        // 放弃
+        private function onGiveUp():void {
+            var crmeap:CrmEapRadianVbox = this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+            var ifuncregedit2:int = int(tre_vouch.selectedItem.@ifuncregedit2);
+            this.tre_vouch.enabled = true;
+            if (ifuncregedit2 == 0) {
+                setAllButtonsEnabled(curButtonStatus, 0);
+                crmeap.setValue();
+            }
+            else {
+
+                setAllButtonsEnabled(this.curButtonStatus);
+                crmeap.setCurButtonStatus();
+                var iidStr:String = tre_vouch.selectedItem.@iid;
+                var iid:int = int(iidStr.substr(iidStr.indexOf("_") + 1));
+                //var iid:int = int(tre_vouch.selectedItem.@iid);
+                crmeap.queryPm(iid.toString());
+                crmeap.addEventListener("queryComplete", queryComplete);
+            }
+            CRMtool.containerChildsEnabled(crmeap, false);
+        }
+
+        private function treeChange():void {
+            var crmeap:CrmEapRadianVbox = this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+            if (!this.tre_vouch.selectedItem) {
+                CRMtool.tipAlert("请选择一条记录!");
+                return;
+            }
+
+            var ifuncregedit2:int = int(tre_vouch.selectedItem.@ifuncregedit2);
+
+            var iidStr:String = tre_vouch.selectedItem.@iid;
+            if (iidStr.indexOf("_") != -1) {
+                iid = int(iidStr.substr(iidStr.indexOf("_") + 1)).toString();
+                crmeap.queryPm(iid);
+                crmeap.addEventListener("queryComplete", queryComplete);
+            }
+            else {
+                crmeap.setValue();
+                setAllButtonsEnabled(curButtonStatus, 0);
+            }
+        }
+
+        private function queryComplete(event:Event):void {
+            var crmeap:CrmEapRadianVbox = formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+            if (crmeap.vouchFormValue.mainValue == null) {
+                setAllButtonsEnabled(curButtonStatus, 0);
+            }
+            else {
+                setAllButtonsEnabled(curButtonStatus);
+                (this.bb_opt.getChildAt(0) as mx.controls.Button).enabled = false;
+            }
+        }
+        ]]>
+	</fx:Script>
+	<mx:VBox width="20%" height="100%" styleName="lefttree">
+		<!-- 菜单树 -->
+		<mx:ApplicationControlBar width="100%" height="32" dock="true">
+			<s:Label id="lbTitle" text="单据类型" styleName="contentTitle"/>
+		</mx:ApplicationControlBar>
+		<mx:VBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox id="tre_vouch" width="100%" height="100%" click="treeChange();"/>
+		</mx:VBox>	
+	</mx:VBox>
+	<mx:HBox width="80%" height="100%" styleName="centerbg4">
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+			<mx:ApplicationControlBar width="100%" height="32" styleName="centertop" dock="true">
+				<mx:ButtonBar id="bb_opt" dataProvider="{this.bb_opt_items}" buttonWidth="48" height="25" itemClick="bb_itemclick(event)"/>
+                <mx:Spacer width="100%"/>
+                <s:Label text="{iid}"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="10"  paddingBottom="1">
+				<mx:Canvas id="formShowArea" width="100%" height="100%" 
+						   horizontalScrollPolicy="off" >
+				</mx:Canvas>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:HBox>
+</mx:HDividedBox>

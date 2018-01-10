@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                   width="10" height="100%" borderStyle="solid" click="clickHandler(event)"
+                   backgroundColor="#F4F4F4"
+                   borderVisible="false">
+    <s:layout>
+        <s:VerticalLayout horizontalAlign="center" verticalAlign="top" paddingTop="10"/>
+    </s:layout>
+    <s:Image id="img" buttonMode="true" source="{isLeft?arrowsLeft:arrowsRight}"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="stretch" target="{targetBox}" duration="700"/>
+        <s:Resize id="contract" target="{targetBox}" duration="700" widthTo="0"/>
+    </fx:Declarations>
+    <fx:Script><![CDATA[
+        import mx.core.UIComponent;
+
+        import yssoft.models.CRMmodel;
+
+        [Bindable]
+        public var isLeft:Boolean = true;
+
+        [Bindable]
+        public var targetBox:UIComponent;
+        //窗口折叠显示的图片 左箭头
+        [Bindable]
+        [Embed(source="/yssoft/assets/core/left.png")]
+        private var arrowsLeft:Class;
+        //窗口折叠显示的图片 右箭头
+        [Bindable]
+        [Embed(source="/yssoft/assets/core/right.png")]
+        private var arrowsRight:Class;
+
+        private var identifying:Boolean = false; //标识组件是伸展还是缩小
+
+        private var targetBoxWidth:int = 0;
+
+        private function clickHandler(event:MouseEvent):void {
+            if (identifying) {
+                identifying = false;
+                stretch.widthTo = targetBoxWidth;
+                this.stretch.stop();
+                this.stretch.play();
+                this.img.source = isLeft ? arrowsLeft : arrowsRight;
+            } else {
+                targetBoxWidth = targetBox.width;
+                identifying = true;
+                this.contract.stop();
+                this.contract.play();
+                this.img.source = isLeft ? arrowsRight : arrowsLeft;
+            }
+
+            //CRMmodel.mainView.left.width = identifying ? 0 : 1;
+        }
+        ]]></fx:Script>
+</s:BorderContainer>

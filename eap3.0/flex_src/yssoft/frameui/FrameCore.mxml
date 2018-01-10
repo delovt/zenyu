@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                width="100%" height="100%" horizontalGap="0"
+                backgroundColor="#ffffff"
+                implements="yssoft.impls.ICRMWindow"
+                xmlns:frameui="yssoft.frameui.*"
+                creationComplete="onInit()" xmlns:workfform="yssoft.views.workfform.*"
+                xmlns:side="yssoft.frameui.side.*"
+
+        >
+    <fx:Metadata>
+        [Event(name="yesStatus", type="flash.events.Event")]
+        [Event(name="setValueComplete", type="flash.events.Event")]
+    </fx:Metadata>
+
+    <fx:Script>
+		<![CDATA[
+        import yssoft.frameui.map.MapTitleWindow;
+        import yssoft.frameui.side.MoreClickEvent;
+        public var me:FrameCore;
+        [Embed(source="/yssoft/assets/images/address.png")]
+        public var address:Class;
+        [Bindable]
+        public var formIstatus:int;//单据  状态 实际业务中的
+        public var istatusp:int;//状态修改人
+        public var dstatus:String;//状态修改时间
+
+        public var lastistatus:int;//上一个节点
+        public var nextistatus:int;//下一个节点
+        //单据状态是否可越级执行    wxh add
+        public var bstatusSkip:Boolean;
+        [Bindable]
+        public var statusList:ArrayCollection;
+        [Bindable]
+        public var isStatusBack:Boolean = false;//单据状态 是否是 拒绝来的
+        private var statusBmodify:Boolean = true;
+        //浮动提示
+        [Bindable]
+        private var _tip:String = "";
+
+
+        public function get tip():String {
+            return _tip;
+        }
+
+        public function set tip(value:String):void {
+            _tip = value;
+
+            if (CRMtool.isStringNotNull(value)) {
+                var _timer:Timer = new Timer(12000);
+                _timer.addEventListener(TimerEvent.TIMER, function (event:TimerEvent):void {
+                    _tip = "";
+                    _timer.stop();
+                });
+
+                _timer.start();
+            }
+        }
+
+        [Bindable]
+        private var _myState:String;
+        public function get myState():String {
+            return _myState;
+        }
+
+        public function set myState(value:String):void {
+            _myState = value;
+            switch (value) {
+                case "formShow":
+                    frameCoreViewStack.selectedIndex = 0;
+                    initTitle();
+                    break;
+                case "draw":
+                    frameCoreViewStack.selectedIndex = 1;
+                    initTitle();
+                    break;
+                case "openRelated":
+                    frameCoreViewStack.selectedIndex = 2;
+                    formShow.selected = false;
+                    draw.selected = false;
+                    break;
+                case "map":
+                    frameCoreViewStack.selectedIndex = 3;
+                    //initMapFrame();
+                    break;
+            }
+        }
+
+        //从相关功能返回 ，更新标题。
+        public function lbl_title_clickHandler():void {
+            if (this.myState != "formShow") {
+                initTitle();
+                this.myState = "formShow";
+            }
+        }
+
+        //返回到列表界面 lr
+        protected function backList_clickHandler(event:MouseEvent):void {
+            if (winParam.parent && CRMmodel.mainViewStack.contains(winParam.parent)) {
+                CRMmodel.mainViewStack.selectedChild = winParam.parent;
+                CRMmodel.crmLinkBar.selectedIndex = CRMmodel.mainViewStack.getChildIndex(winParam.parent);
+            }
+        }
+
+        //检查 父列表是否存在，不存在，则隐藏返回按钮 lr 暂时无此功能
+        public function checkBackButton():void {
+            if (winParam.parent && CRMmodel.mainViewStack.contains(winParam.parent)) {
+                //backList.visible = true;
+                //backList.includeInLayout = true;
+            } else {
+                //backList.visible = false;
+                //backList.includeInLayout = false;
+            }
+        }
+
+        private function openMapView(event:MouseEvent):void {
+            var map:MapTitleWindow = new MapTitleWindow();
+            map.crmeap = this.crmeap;
+            map.open();
+        }
+
+        var btn_submit:Button;//提交按钮
+        var btn_revocation:Button;//撤销按钮
+        var btn_print:Button;//打印按钮
+
+        private function bb_wf_creationCompleteHandler(event:FlexEvent):void {
+            btn_submit = bb_wf.getChildAt(0) as Button;
+            btn_revocation = bb_wf.getChildAt(1) as Button;
+            btn_print = bb_wf.getChildAt(2) as Button;
+        }
+
+        //提交撤销在编辑状态下的灰化
+        //工作流按钮组 是否可用
+        private var _bb_wfEnabled:Boolean = true;
+
+        public function get bb_wfEnabled():Boolean {
+            return _bb_wfEnabled;
+        }
+
+        public function set bb_wfEnabled(value:Boolean):void {
+            _bb_wfEnabled = value;
+            if (value) {
+                setWfStatusDes(workFlowStatusDes);
+            } else {
+                btn_submit.enabled = false;
+                btn_revocation.enabled = false;
+            }
+        }
+
+        private function formShowArea_updateCompleteHandler(event:FlexEvent):void {
+            if (crmeap == null)
+                return;
+
+            if (crmeap.height > formShowArea.height)
+                crmeap.setStyle("paddingRight", 20);
+            else
+                crmeap.setStyle("paddingRight", 10);
+        }
+
+        //更多操作当前选中按钮的名称
+        private var moreLabel:String;
+        //单据更多操作
+        private function coreSide_billMoreClickHandler(event:MoreClickEvent):void {
+            //单据增加或修改状态下不允许操作
+            if (this.formIfunIid != 394 && this.formIfunIid != 384) {
+                if (this.curButtonStatus == "onNew" || this.curButtonStatus == "onEdit") {
+                    CRMtool.tipAlert("单据只有在浏览状态下才可以使用该功能！");
+                    return;
+                }
+                if (this.currid == 0) {
+                    CRMtool.tipAlert("当前单据不能为空值，操作无效！");
+                    return;
+                }
+            }
+
+            var selectObj:Object = event.clickItem;
+
+            this.ccode = selectObj.ccode;
+            this.windowName = selectObj.cform;//窗体路径赋值
+
+            //加入权限
+            var warning:String = this.auth.reuturnwarning(ccode);
+            if (warning != null) {
+                CRMtool.showAlert(warning);
+                return;
+            }
+
+            try {
+                var cfunction:String = selectObj.cfunction;
+                if (CRMtool.isStringNull(cfunction))
+                    return;
+
+                moreLabel = selectObj.label;
+                //lr 修改，功能按钮支持传参，目前只支持一个参数，可以是字符串，目前针对功能是公共功能，推式生单 eapPushForm 以及 状态更改 updateStatus
+                if (cfunction.indexOf(",") > -1) {
+                    var param:String = cfunction.substr(cfunction.indexOf(",") + 1);
+                    this[cfunction.substr(0, cfunction.indexOf(","))].call(this, param);//调用方法
+                } else {
+                    this[cfunction].call();//调用方法
+                }
+
+            }
+            catch (e:Error) {
+                CRMtool.tipAlert("请配置相关参数");
+            }
+        }
+
+        //更新单据状态，更多操作，公共调用
+        public function updateStatus(istatusStr:String):void {
+            addEventListener("getStatusSuccess", getStatusSuccessHandler);
+            getStatus(0, 0, null, istatusStr);
+
+            function getStatusSuccessHandler(event:Event):void {
+                removeEventListener("getStatusSuccess", getStatusSuccessHandler);
+
+                var istatus:Number = CRMtool.getNumber(istatusStr);
+                if (istatus == -1) {
+                    if (istatusp == CRMmodel.userId) {
+                        if (lastistatus > 0) {
+
+                            if (lastistatus == 5 && formIfunIid == 392) {
+                                var sql:String = "select * from ts_deliverypls where ifuncregedit=392 and iinvoice= " + currid;
+                                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (e:ResultEvent):void {
+                                    if ((e.result as ArrayCollection).length > 0) {
+                                        CRMtool.showAlert("请删除对应的发运单再执行此操作。 ");
+                                        return;
+                                    } else {
+                                        backStatus();
+                                    }
+                                }, sql, null, false);
+                            } else {
+                                backStatus();
+                            }
+
+                            function backStatus():void {
+                                AccessUtil.remoteCallJava("CommonalityDest", "updateStatus", function (event:ResultEvent):void {
+                                    me.dispatchEvent(new Event("yesStatus"));
+                                    CRMtool.showAlert("状态更新成功。");
+                                    if (formIfunIid == 392 && lastistatus == 4) {
+                                        AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (e:ResultEvent):void {
+                                            crmeap.queryPm(currid + "");
+                                        }, "update sc_order set dpremo=null where iid = " + currid, null, false);
+                                    }
+
+                                    getStatus();
+                                }, {iinvoice: currid, ifuncregedit: formIfunIid, ctable: winParam.ctable, istatus: lastistatus,
+                                    iperson: CRMmodel.userId, itype: 3, csubject: "通过撤销操作，进入到当前状态。"}, null, false);
+                            }
+                        } else {
+                            CRMtool.showAlert("前置节点不存在，无法撤销。");
+                        }
+                    } else {
+                        CRMtool.showAlert("你不是当前单据状态的发起者，无法撤销。");
+                        return;
+                    }
+                } else if (istatus > 0) {
+                    if (istatus != nextistatus && !bstatusSkip) {
+                        CRMtool.showAlert("当前单据状态尚未流转到此节点，无法执行。");
+                        return;
+                    }
+
+                    var change:ChangeStatusTW = new ChangeStatusTW();
+                    change.currid = currid;
+                    change.ifuncregedit = formIfunIid;
+                    change.ctable = winParam.ctable;
+                    change.istatus = istatus;
+                    change.statusList = statusList;
+                    change.nowistatus = formIstatus;
+                    change.nextitst = nextistatus;
+                    change.addEventListener("changeSuccess", function (e:Event):void {
+                        getStatus();
+                    });
+                    change.open();
+                }
+            }
+        }
+        public function getStatus(iinvoice:int = 0, ifuncregedit:int = 0, ctable:String = null, clickIstatus:String = ""):void {
+            initStatus();
+
+            if (iinvoice == 0)
+                iinvoice = currid;
+            if (ifuncregedit == 0)
+                ifuncregedit = formIfunIid;
+            if (ctable == null)
+                ctable = winParam.ctable;
+            AccessUtil.remoteCallJava("CommonalityDest", "getStatus", function (event:ResultEvent):void {
+                var obj:Object = event.result;
+                var list:ArrayCollection = obj.list;
+
+                var istatus:int = obj.istatus;
+                istatusp = obj.istatusp;
+                dstatus = obj.dstatus;
+                if (istatus > 0) {
+                    isStatusBack = false;
+                    formIstatus = istatus;
+                } else if (istatus < 0) {
+                    isStatusBack = true;
+                    formIstatus = 0 - istatus;
+                }
+
+                statusList = list;
+
+                if (formIstatus > 0) {
+                    var i:int = 1;
+                    for each(var ob:Object in statusList) {
+                        if (ob.istatus == clickIstatus) {
+                            bstatusSkip = ob.bskip;
+                            break;
+                        }
+                    }
+                    for each(var item:Object in statusList) {
+
+                        if (item.istatus == formIstatus) {
+                            statusBmodify = item.bmodify;
+
+                            break;
+                        }
+                        i++;
+                    }
+                    if (i > 0 && i < statusList.length)
+                        nextistatus = statusList.getItemAt(i).istatus;
+                    if (i > 1)
+                        lastistatus = statusList.getItemAt(i - 2).istatus;
+                }
+
+                dispatchEvent(new Event("getStatusSuccess"));
+            }, {iinvoice: iinvoice, ifuncregedit: ifuncregedit, ctable: ctable}, null, false);
+        }
+
+        [Bindable]
+        private function getStatusName(istatus:int):String {
+            for each(var item:Object in statusList) {
+                if (istatus == item.istatus)
+                    return item.cname;
+            }
+            return "";
+        }
+        public function initStatus():void {
+            formIstatus = 0;
+            istatusp = 0;
+            dstatus = "";
+            statusList = null;
+            lastistatus = 0;
+            nextistatus = 0;
+        }
+
+        private function linkButton1_clickHandler(event:MouseEvent):void {
+            var statusView:StatusViewTW = new StatusViewTW();
+            statusView.ifuncregedit = this.formIfunIid;
+            statusView.iinvoice = this.currid;
+            statusView.statuscList = this.statusList;
+            statusView.tite = this.link.label;
+            statusView.formIstatus = this.formIstatus;
+            CRMtool.openView(statusView);
+        }
+
+        ]]>
+	</fx:Script>
+
+
+    <fx:Script source="FrameCoreScript.as"/>
+
+    <!--YJ Add 更多操作-->
+    <fx:Script source="../scripts/BillMoreHandle.as"/>
+
+    <mx:HBox width="100%" height="100%" styleName="centerbg4">
+
+        <mx:VBox width="100%" height="100%" verticalGap="0">
+            <mx:HBox width="100%" height="25" verticalAlign="middle" paddingBottom="-1">
+                <mx:HBox paddingLeft="10" width="100%" horizontalGap="0" verticalAlign="bottom" height="100%"
+                         styleName="coreBorder" backgroundColor="#F4F4F4">
+                    <!--<mx:Text id="lbl_title" fontSize="15" fontWeight="bold" paddingLeft="20" text="现金单据" toolTip="单据内码:1"/>-->
+                    <!--图片显示 功能内码 单据内码-->
+                    <mx:VBox height="100%" verticalAlign="bottom" paddingBottom="3">
+                        <mx:Image id="smallImg" source="yssoft/assets/images/dq.png"
+                                  toolTip="单据号：{currid}，功能号：{formIfunIid}"/>
+                    </mx:VBox>
+
+                    <mx:LinkButton styleName="LinkButtonnew" id="lbl_title" fontSize="12"
+                                   click="lbl_title_clickHandler()"/>
+
+                    <mx:LinkButton id="link"
+                                   label="【{getStatusName(formIstatus)}_{CRMtool.getPersonProperty(istatusp,'cname')}_{dstatus}】"
+                                   toolTip="查看单据状态进度详情"
+                                   visible="{formIstatus>0}"
+                                   color="{isStatusBack?new uint(0xFF0000):new uint(0x000000)}"
+                                   click="linkButton1_clickHandler(event)"/>
+                    <!--<mx:Text id="lbl_title" fontSize="12" fontWeight="bold" buttonMode="true" click="lbl_title_clickHandler(event)"/>-->
+                    <!--<mx:Text id="lbl_titleadd" fontSize="12"/>-->
+                    <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+                        <!--	<mx:Text htmlText="单据状态： &lt;font color='#018CCF'&gt;进程中&lt;font&gt;" paddingLeft="20"/>-->
+                        <s:Label width="100%" text="{_tip}" textAlign="right" maxDisplayedLines="1" color="red"
+                                 paddingRight="10"/>
+                        <!--<mx:Image source="{workFlowStatusImg}"/>-->
+                        <mx:RadioButtonGroup id="rbg" itemClick="showAreaSwitch(event)"/>
+                        <mx:HBox horizontalGap="5" verticalGap="0" paddingBottom="0" paddingTop="0"
+                                 verticalAlign="middle" paddingRight="5">
+                            <mx:RadioButton id="formShow" name="formShow" groupName="rbg" selected="true"
+                                            styleName="radioButton"
+                                            buttonMode="true"
+                                            toolTip="表单" label="表单"/>
+
+                            <mx:RadioButton id="draw" buttonMode="true" name="draw"
+                                            groupName="rbg" styleName="radioButton"
+                                            toolTip="工作流" label="流程"/>
+                            <!--<mx:RadioButton  id="openRelated" buttonMode="true"  name="openRelated" visible="false" includeInLayout="false"
+                                             groupName="rbg"  styleName="radioButton"  enabled="false"
+                                             toolTip="相关功能" label="相关"/>-->
+                            <!--<mx:Label text="流程" color="{draw.selected==true?101583:333333}"/>	-->
+                        </mx:HBox>
+                        <!--<mx:LinkButton id="backList" label="返回" click="backList_clickHandler(event)" visible="{winParam.parent &amp;&amp; CRMmodel.mainViewStack.contains(winParam.parent)}"
+                                   includeInLayout="{winParam.parent &amp;&amp; CRMmodel.mainViewStack.contains(winParam.parent)}"/>-->
+
+                        <!--<mx:Text htmlText="协同状态： &lt;font color='#018CCF'&gt;{workFlowStatusDes}&lt;font&gt;" paddingRight="20"/>-->
+                    </mx:HBox>
+                </mx:HBox>
+
+            </mx:HBox>
+            <!--	<mx:HRule width="100%" height="1" />-->
+            <mx:ViewStack id="frameCoreViewStack" width="100%" height="100%" creationPolicy="all">
+                <mx:VBox width="100%" height="100%" id="bar">
+                    <mx:ApplicationControlBar width="100%" height="32" styleName="coretop" dock="true">
+                        <mx:ButtonBar id="bb_opt" dataProvider="{this.bb_opt_items}" buttonWidth="47" height="25"
+                                      itemClick="bb_itemclick(event)"/>
+                        <mx:ButtonBar id="bb_wf" dataProvider="{this.bb_wf_items}" buttonWidth="47" height="25"
+                                      creationComplete="bb_wf_creationCompleteHandler(event)"
+                                      itemClick="bb_itemclick(event)"/>
+                        <!--<s:Button id="btn_print" click="onPrint()" label="打印" width="47" height="25"
+                                  skinClass="yssoft.comps.window.skins.skinForFrameCoreButton"/>-->
+
+                        <!--<comps:CRMComboBox editable="false" dataProvider="{printTemplate}" labelField="cname"
+                        width.formShow="118"/>-->
+
+                        <s:ComboBox id="printTpls" width="115" dataProvider="{printTemplate}" labelField="cname"/>
+                        <mx:Button icon="{address}" label="地图" height="25" toolTip="查看地图信息" click="openMapView(event)"
+                                   visible="{formIfunIid==44}" includeInLayout="{formIfunIid==44}"
+                                   enabled="{currid>0}"/>
+
+                        <mx:Text width="100%" textAlign="right" id="tx_pageNumber"
+                                 text="{curFormIndex + '/' + (formIidListCount &gt; 0? formIidListCount+'' :'1' )}"/>
+                        <mx:ButtonBar id="bb_nav" dataProvider="{this.bb_nav_items}" buttonWidth="25" height="25"
+                                      itemClick="bb_itemclick(event)"/>
+
+                        <!--YJ Add 更多操作-->
+                        <mx:HBox id="hb_morehandle" visible="false" horizontalAlign="right"/>
+
+                    </mx:ApplicationControlBar>
+
+                    <mx:Canvas id="formShowArea" width="100%" height="100%" horizontalScrollPolicy="off"
+                               updateComplete="formShowArea_updateCompleteHandler(event)"/>
+                </mx:VBox>
+
+                <workfform:FWFDrawView id="workflow" width="100%" height="100%"
+                                       borderVisible="true" borderStyle="inset" borderColor="#e1e1e1"
+                                       owner="{this}" styleName="CoPaintViewMainDraw"/>
+                <mx:VBox id="coreListBox" width="100%" height="100%"/>
+            </mx:ViewStack>
+        </mx:VBox>
+    </mx:HBox>
+
+    <mx:HBox id="leftHbox" visible="false" includeInLayout="false" borderColor="#e1e1e1" borderStyle="solid"
+             borderAlpha="1" paddingLeft="-1" paddingTop="-1" paddingBottom="-1" paddingRight="-1" width="20%"
+             height="100%">
+        <frameui:LeftPart id="leftPart" width="100%" height="100%" headerHeight="32" owner="{this}"/>
+    </mx:HBox>
+    <frameui:FoldGapBox id="jiange" targetBox="{sideBox}" isLeft="false"/>
+    <mx:VBox id="sideBox" enabled="false" paddingRight="0" width="257" height="100%" horizontalScrollPolicy="off">
+        <side:FrameCoreSide id="coreSide" width="100%" height="100%" verticalScrollPolicy="auto" owner="{this}"
+                            buttonState="{this}" billMoreClick="coreSide_billMoreClickHandler(event)"
+                            close="false" parentForm="{this}"/>
+    </mx:VBox>
+
+</mx:HDividedBox>

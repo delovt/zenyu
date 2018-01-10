@@ -1,0 +1,7 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+
+<sqlMap>
+     <update id="SrFeedBackDest.UpdateData" parameterClass="java.util.HashMap">
+     	$sqlValue$
+     </update>
+</sqlMap>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" title="公告通知" close="close()" initialize="init_0()"
+                        creationComplete="init()" xmlns:comps="yssoft.comps.*" width="100%" height="100%"
+                        xmlns:myRichTextEditor="yssoft.comps.myRichTextEditor.*"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Button;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        public var rightList:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        public var leftContent:Object = new Object();
+
+        [Bindable]
+        public var rightArr:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        public var rightFileArr:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        private var curItem:ArrayCollection = new ArrayCollection();
+
+
+        private function init_0():void {
+            //lr 修改
+            this.width = this.stage.width * 0.618;
+            this.height = this.stage.height * 0.8;
+			
+			this.content.richEditableText.editable = false;
+        }
+
+        private function init():void {
+            //if( leftContent.piid != CRMmodel.userId )
+            //{
+            isExistLookAndInsert();
+            //}
+
+            loadLookPerson();
+
+            loadaccessory(); //加载附件
+        }
+
+        /**
+         * 判断是否读过公告，未读取 则新增
+         */
+        private function isExistLookAndInsert():void {
+            var params:Object = {};
+            params.inotice = leftContent.iid;
+            params.iperson = CRMmodel.userId;
+            AccessUtil.remoteCallJava("Oa_noticesDest", "isExistLook", call_insert_oa_notices, params);
+        }
+
+        private function call_insert_oa_notices(e:ResultEvent):void {
+            var result:int = e.result as int;
+            if (result == 0) {
+                var params:Object = {};
+                params.inotice = leftContent.iid;
+                params.iperson = CRMmodel.userId;
+                params.ddate = CRMtool.getFormatDateString();
+                AccessUtil.remoteCallJava("Oa_noticesDest", "inserNotices", null, params);
+            }
+        }
+
+        /**
+         * 加载已阅读用户
+         */
+        private function loadLookPerson():void {
+            var params:Object = {};
+            params.inotice = leftContent.iid;
+            AccessUtil.remoteCallJava("Oa_noticesDest", "getOa_noticesList", callFunList, params);
+        }
+
+        private function callFunList(e:ResultEvent):void {
+            if (null != e.result && (e.result as ArrayCollection).length != 0)
+                rightArr = e.result as ArrayCollection;
+        }
+
+
+        //dataGrid点击事件
+        private function onclickGrid():void {
+            if (null == dglist.selectedItem) {
+                return;
+            }
+            leftContent = this.dglist.selectedItem;
+            loadLookPerson();
+            loadaccessory();
+        }
+
+        public function dateformat(item:Object, column:DataGridColumn):String {
+            var str:String = item.ddate + "";
+            return str.substr(0, str.length - 3);
+        }
+
+        //加载附件列表
+        private function loadaccessory():void {
+            AccessUtil.remoteCallJava("Oa_noticesDest", "noticeFilesList", callFunFilesList, leftContent.iid + "");
+        }
+
+        //navigateToURL(new URLRequest(""),"_self");//弹出下载页面
+        //CRMtool.calljs("openDownFile");
+
+        private function callFunFilesList(e:ResultEvent):void {
+            this.rightFileArr = e.result as ArrayCollection;
+            curItem = new ArrayCollection([
+                {label:" 最新公告"},
+                {label:"协同附件(" + rightFileArr.length + ")"}
+            ]);
+
+        }
+
+        //切换附件
+        private var selectIndex:int = 0;
+
+        private function lb_itemClickHandler():void {
+            selectIndex = linkbar.selectedIndex;
+            for each(var bt:Button in this.linkbar.getChildren()) {
+                if (this.linkbar.getChildIndex(bt) == selectIndex) {
+                    bt.enabled = false;
+                } else {
+                    bt.enabled = true;
+                }
+            }
+
+            if (linkbar.selectedIndex == 0) {
+                this.currentState = "recentlog";
+            } else {
+                this.currentState = "accessory";
+            }
+        }
+
+        private function onclickGridDownFiles():void {
+//				var sysCname:String = this.dglist_fj.selectedItem.csysname;
+//				var cxextCName:String = this.dglist_fj.selectedItem.cextname;
+//				navigateToURL(new URLRequest("./downfile/"+(sysCname+"."+cxextCName)),"_blank");//弹出下载页面
+//				//CRMtool.calljs("openDownFile","upload/file/"+(sysCname+"."+cxextCName));
+            var downFile:FileReference = new FileReference();
+            var param:Object = {};
+            param.csysname = this.dglist_fj.selectedItem.csysname;
+            param.cextname = this.dglist_fj.selectedItem.cextname;
+            param.cname = this.dglist_fj.selectedItem.cname;
+            var item:Object = param;
+
+
+            //var url:URLRequest=new URLRequest("/downfile/")
+            var url:URLRequest = new URLRequest("./downfile/")
+            var urlparam:URLVariables = new URLVariables();
+            urlparam.fileName = item.csysname + "." + item.cextname;
+            urlparam.isDelete = "1";
+            urlparam.type = "1";
+            urlparam.iid = item.iid;
+            url.data = urlparam;
+            downFile.addEventListener(IOErrorEvent.IO_ERROR, onFileIoError);
+            downFile.addEventListener(Event.COMPLETE, onFileComplete);
+            //downFile.addEventListener(ProgressEvent.PROGRESS,onProgress);
+            downFile.addEventListener(Event.SELECT, onSelect);
+            downFile.download(url, String(item.cname).replace("|", ""));
+        }
+
+        private function onFileIoError(event:IOErrorEvent):void {
+            CRMtool.tipAlert("文件不存在!");
+            CRMtool.hideLoadingView();
+        }
+
+        private function onFileComplete(event:Event):void {
+            CRMtool.hideLoadingView();
+            CRMtool.tipAlert("文件下载成功!");
+            //this.items.removeItemAt(this.fileList.selectedIndex);
+        }
+
+        private function onSelect(e:Event):void {
+            CRMtool.showLoadingView("开始下载文件...");
+        }
+        ]]>
+	</fx:Script>
+    <basic:states>
+        <s:State name="recentlog"/>
+        <s:State name="accessory"/>
+    </basic:states>
+    <mx:VBox width="100%" height="100%" left="10" bottom="10" right="10" verticalAlign="middle"
+             horizontalAlign="center">
+        <mx:VBox width="100%" height="100%">
+            <mx:HBox width="100%" height="100%">
+                <mx:VBox width="100%" height="100%">
+
+                    <mx:Grid width="100%" height="100%">
+                        <mx:GridRow width="100%">
+                            <mx:GridItem horizontalAlign="center" width="100%">
+                                <mx:VBox height="40" verticalAlign="bottom">
+                                    <s:Spacer height="8"/>
+                                    <s:Label id="titlename" text="{leftContent.csubject}" color="red" fontSize="18"
+                                             fontWeight="bold" height="20"/>
+                                </mx:VBox>
+                            </mx:GridItem>
+                        </mx:GridRow>
+
+                        <mx:GridRow width="100%" height="26">
+                            <mx:GridItem>
+                                <mx:HBox width="100%" height="24" horizontalAlign="center" verticalAlign="bottom">
+                                    <s:Label id="typename" text="{leftContent.funname}" color="#7594D6"/>
+                                    <s:Label text="公布人:"/>
+                                    <s:Label id="pcname" text="{leftContent.pcname}"/>
+                                    <s:Label text="发布时间:"/>
+                                    <s:Label id="dmaker" text="{leftContent.dmaker}"/>
+                                    <s:Label text="点击:"/>
+                                    <s:Label id="clicknum" text="{rightArr.length +'/'+CRMmodel.personCount}"/>
+                                </mx:HBox>
+                            </mx:GridItem>
+
+                        </mx:GridRow>
+
+                        <mx:GridRow width="100%">
+                            <mx:GridItem width="100%">
+                                <comps:CrmDotLine width="100%"/>
+                            </mx:GridItem>
+                        </mx:GridRow>
+
+                        <mx:GridRow width="100%" height="100%">
+                            <mx:GridItem width="100%">
+                                <!--<mx:TextArea id="content" width="100%" height="100%" htmlText="{leftContent.cdetail}"
+                                             borderVisible="false" editable="false" verticalScrollPolicy="auto"/>-->
+								<myRichTextEditor:MyRichTextEditor id="content" width="100%" height="100%" htmlText="{leftContent.cdetail}"
+																   toolbarHBvisible="false"/>
+                                <!--		<mx:RichTextEditor id="content" width="100%" height="100%" headerHeight="0"
+                                                               borderVisible="false" showControlBar="false"
+                                                               dropShadowVisible="false"
+                                                               htmlText="{leftContent.cdetail}"/>-->
+                            </mx:GridItem>
+                        </mx:GridRow>
+                    </mx:Grid>
+                </mx:VBox>
+
+                <mx:VBox width="28%" minWidth="200" height="100%" horizontalAlign="center" verticalGap="0">
+                    <s:Spacer height="10"/>
+                    <mx:VBox id="myBorder" width="100%" height="50%" styleName="content" horizontalAlign="center"
+                             cornerRadius="8">
+                        <mx:HBox width="100%" height="25" verticalAlign="middle">
+                            <!--s:Label text=" 最新公告" fontWeight="bold" fontSize="14" color="#76746F"/ -->
+                            <mx:LinkBar id="linkbar" separatorWidth="2" disabledColor="#4F9CD4" fontWeight="bold"
+                                        dataProvider="{curItem}" itemClick="lb_itemClickHandler()"/>
+                        </mx:HBox>
+
+
+                        <!--  近期公告  -->
+                        <mx:VBox includeIn="recentlog" width="98%" height="100%" verticalAlign="bottom">
+                            <mx:DataGrid id="dglist" width="100%" height="97.5%"
+                                         alternatingItemColors="[]" borderVisible="false"
+                                         dataProvider="{rightList}" itemClick="onclickGrid()"
+                                         showHeaders="false">
+                                <mx:columns>
+                                    <mx:DataGridColumn dataField="csubject" fontSize="13">
+                                        <mx:itemRenderer>
+                                            <fx:Component>
+                                                <mx:HBox verticalAlign="middle">
+                                                    <fx:Script>
+															<![CDATA[
+                                                        [Embed(source="/yssoft/assets/images/menu1.png")]
+                                                        public static var listpic:Class;
+                                                        ]]>
+														</fx:Script>
+                                                    <s:Spacer width="1"/>
+                                                    <s:Image source="{listpic}"/>
+                                                    <s:Label text="{data.csubject}"/>
+                                                </mx:HBox>
+
+                                            </fx:Component>
+                                        </mx:itemRenderer>
+                                    </mx:DataGridColumn>
+                                </mx:columns>
+                            </mx:DataGrid>
+                        </mx:VBox>
+
+                        <!-- 附件下载 -->
+                        <mx:VBox includeIn="accessory" width="98%" height="100%" verticalAlign="bottom">
+
+                            <mx:DataGrid id="dglist_fj" showHeaders="false" dataProvider="{rightFileArr}" width="100%"
+                                         height="97.5%" borderVisible="false" itemClick="onclickGridDownFiles()"
+                                         alternatingItemColors="[]">
+                                <mx:columns>
+                                    <mx:DataGridColumn dataField="csubject" fontSize="13">
+                                        <mx:itemRenderer>
+                                            <fx:Component>
+                                                <mx:HBox verticalAlign="middle">
+                                                    <fx:Script>
+														<![CDATA[
+                                                        [Embed(source="/yssoft/assets/images/menu1.png")]
+                                                        public static var listpic:Class;
+                                                        ]]>
+													</fx:Script>
+                                                    <s:Spacer width="1"/>
+                                                    <s:Image source="{listpic}"/>
+                                                    <s:Label toolTip="{data.cname}" text="{data.cname }"/>
+                                                </mx:HBox>
+
+                                            </fx:Component>
+                                        </mx:itemRenderer>
+                                    </mx:DataGridColumn>
+                                </mx:columns>
+                            </mx:DataGrid>
+                        </mx:VBox>
+
+                    </mx:VBox>
+
+
+                    <s:Spacer height="10"/>
+                    <mx:VBox id="myBorder1" width="100%" height="50%" styleName="content" horizontalAlign="center"
+                             cornerRadius="8">
+                        <mx:HBox width="100%" height="25" verticalAlign="middle">
+                            <s:Label text=" 已阅人员" fontWeight="bold" fontSize="12"/>
+                        </mx:HBox>
+                        <mx:DataGrid id="dglist1" showHeaders="false" dataProvider="{rightArr}" width="98%"
+                                     height="100%" borderVisible="false" alternatingItemColors="[]"
+                                     verticalGridLines="false">
+                            <mx:columns>
+                                <mx:DataGridColumn dataField="csubject" fontSize="13">
+                                    <mx:itemRenderer>
+                                        <fx:Component>
+                                            <mx:HBox verticalAlign="middle" horizontalScrollPolicy="off"
+                                                     toolTip="{data.pcname}">
+                                                <s:Spacer width="1"/>
+                                                <s:Label text="{data.pcname}"/>
+                                            </mx:HBox>
+                                        </fx:Component>
+                                    </mx:itemRenderer>
+                                </mx:DataGridColumn>
+                                <mx:DataGridColumn dataField="ddate" width="120" labelFunction="dateformat"/>
+
+                            </mx:columns>
+                        </mx:DataGrid>
+                    </mx:VBox>
+
+                </mx:VBox>
+
+            </mx:HBox>
+        </mx:VBox>
+    </mx:VBox>
+
+
+</basic:BasicTitleWindow>

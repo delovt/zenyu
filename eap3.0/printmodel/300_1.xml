@@ -1,0 +1,857 @@
+<ReportSettings version="1.1">
+  <PageWidth>30</PageWidth>
+  <LeftMargin>0.8</LeftMargin>
+  <RightMargin>0.5</RightMargin>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>服务解决分析</Value>
+          <Width>28.7</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>2.5</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>2.5</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>1</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>2.5</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>统计期间：</Value>
+          <Width>2.5</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>=Parameters!日期1.Value</Value>
+          <Width>2.9</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>与</Value>
+          <Width>0.7</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>=Parameters!日期2.Value</Value>
+          <Width>7.2</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务类型</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务类型</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务类型</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>总服务单数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>全部解决数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>部分解决数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>未解决数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>解决率</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>满意度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.7</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>远程</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>远程</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!总服务单数.value,Fields!服务类型.value=="远程")==0,"",SumIf(Fields!总服务单数.value,Fields!服务类型.value=="远程"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!全部解决数.value,Fields!服务类型.value=="远程")==0,"",SumIf(Fields!全部解决数.value,Fields!服务类型.value=="远程"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!部分解决数.value,Fields!服务类型.value=="远程")==0,"",SumIf(Fields!部分解决数.value,Fields!服务类型.value=="远程"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!未解决数.value,Fields!服务类型.value=="远程")==0,"",SumIf(Fields!未解决数.value,Fields!服务类型.value=="远程"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!总服务单数.value,Fields!服务类型.value=="远程")==0,"",SumIf(Fields!全部解决数.value,Fields!服务类型.value=="远程")/SumIf(Fields!总服务单数.value,Fields!服务类型.value=="远程"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!NUM.value,Fields!服务类型.value=="远程")==0,"",SumIf(Fields!FSCORE.value,Fields!服务类型.value=="远程")/SumIf(Fields!NUM.value,Fields!服务类型.value=="远程"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>电话</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>现场</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!总服务单数.value,Fields!服务类型.value=="电话")==0,"",SumIf(Fields!总服务单数.value,Fields!服务类型.value=="电话"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!全部解决数.value,Fields!服务类型.value=="电话")==0,"",SumIf(Fields!全部解决数.value,Fields!服务类型.value=="电话"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!部分解决数.value,Fields!服务类型.value=="电话")==0,"",SumIf(Fields!部分解决数.value,Fields!服务类型.value=="电话"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!未解决数.value,Fields!服务类型.value=="电话")==0,"",SumIf(Fields!未解决数.value,Fields!服务类型.value=="电话"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!总服务单数.value,Fields!服务类型.value=="电话")==0,"",SumIf(Fields!全部解决数.value,Fields!服务类型.value=="电话")/SumIf(Fields!总服务单数.value,Fields!服务类型.value=="电话"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!NUM.value,Fields!服务类型.value=="电话")==0,"",SumIf(Fields!FSCORE.value,Fields!服务类型.value=="电话")/SumIf(Fields!NUM.value,Fields!服务类型.value=="电话"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>现场</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>现场</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!总服务单数.value,Fields!服务类型.value=="现场")==0,"",SumIf(Fields!总服务单数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!全部解决数.value,Fields!服务类型.value=="现场")==0,"",SumIf(Fields!全部解决数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!部分解决数.value,Fields!服务类型.value=="现场")==0,"",SumIf(Fields!部分解决数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!未解决数.value,Fields!服务类型.value=="现场")==0,"",SumIf(Fields!未解决数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!总服务单数.value,Fields!服务类型.value=="现场")==0,"",SumIf(Fields!全部解决数.value,Fields!服务类型.value=="现场")/SumIf(Fields!总服务单数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!NUM.value,Fields!服务类型.value=="现场")==0,"",SumIf(Fields!FSCORE.value,Fields!服务类型.value=="现场")/SumIf(Fields!NUM.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!总服务单数.value,Fields!服务类型.value=="远程")+SumIf(Fields!总服务单数.value,Fields!服务类型.value=="电话")+SumIf(Fields!总服务单数.value,Fields!服务类型.value=="现场"))==0,"",SumIf(Fields!总服务单数.value,Fields!服务类型.value=="远程")+SumIf(Fields!总服务单数.value,Fields!服务类型.value=="电话")+SumIf(Fields!总服务单数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!全部解决数.value,Fields!服务类型.value=="远程")+SumIf(Fields!全部解决数.value,Fields!服务类型.value=="电话")+SumIf(Fields!全部解决数.value,Fields!服务类型.value=="现场"))==0,"",SumIf(Fields!全部解决数.value,Fields!服务类型.value=="远程")+SumIf(Fields!全部解决数.value,Fields!服务类型.value=="电话")+SumIf(Fields!全部解决数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!部分解决数.value,Fields!服务类型.value=="远程")+SumIf(Fields!部分解决数.value,Fields!服务类型.value=="电话")+SumIf(Fields!部分解决数.value,Fields!服务类型.value=="现场"))==0,"",SumIf(Fields!部分解决数.value,Fields!服务类型.value=="远程")+SumIf(Fields!部分解决数.value,Fields!服务类型.value=="电话")+SumIf(Fields!部分解决数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!未解决数.value,Fields!服务类型.value=="远程")+SumIf(Fields!未解决数.value,Fields!服务类型.value=="电话")+SumIf(Fields!未解决数.value,Fields!服务类型.value=="现场"))==0,"",SumIf(Fields!未解决数.value,Fields!服务类型.value=="远程")+SumIf(Fields!未解决数.value,Fields!服务类型.value=="电话")+SumIf(Fields!未解决数.value,Fields!服务类型.value=="现场"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!总服务单数.value,Fields!服务类型.value=="远程")+SumIf(Fields!总服务单数.value,Fields!服务类型.value=="电话")+SumIf(Fields!总服务单数.value,Fields!服务类型.value=="现场"))==0,"",(SumIf(Fields!全部解决数.value,Fields!服务类型.value=="远程")+SumIf(Fields!全部解决数.value,Fields!服务类型.value=="电话")+SumIf(Fields!全部解决数.value,Fields!服务类型.value=="现场"))/(SumIf(Fields!总服务单数.value,Fields!服务类型.value=="远程")+SumIf(Fields!总服务单数.value,Fields!服务类型.value=="电话")+SumIf(Fields!总服务单数.value,Fields!服务类型.value=="现场")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!NUM.value,Fields!服务类型.value=="远程")+SumIf(Fields!NUM.value,Fields!服务类型.value=="电话")+SumIf(Fields!NUM.value,Fields!服务类型.value=="现场")==0,"",(SumIf(Fields!FSCORE.value,Fields!服务类型.value=="远程")+SumIf(Fields!FSCORE.value,Fields!服务类型.value=="电话")+SumIf(Fields!FSCORE.value,Fields!服务类型.value=="现场"))/(SumIf(Fields!NUM.value,Fields!服务类型.value=="远程")+SumIf(Fields!NUM.value,Fields!服务类型.value=="电话")+SumIf(Fields!NUM.value,Fields!服务类型.value=="现场")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表1参数.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>人员详细</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <FontSize>11.5</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <FontSize>11.5</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>9</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>部门</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>人员</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务类型</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>总服务单数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>全部解决数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>部分解决数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>未解决数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>解决率</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>满意度</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.7</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>部门</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+          <MergeSameContent>true</MergeSameContent>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>人员</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+          <MergeSameContent>true</MergeSameContent>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>服务类型</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!总服务单数.Value==0,"",Fields!总服务单数.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!全部解决数.Value==0,"",Fields!全部解决数.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!部分解决数.Value==0,"",Fields!部分解决数.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!未解决数.Value==0,"",Fields!未解决数.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>解决率</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>满意度</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableFooterSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!总服务单数.Value)==0,"",Sum(Fields!总服务单数.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!全部解决数.Value)==0,"",Sum(Fields!全部解决数.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!部分解决数.Value)==0,"",Sum(Fields!部分解决数.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!未解决数.Value)==0,"",Sum(Fields!未解决数.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <GroupColumn>部门</GroupColumn>
+      <OrderColumn>人员</OrderColumn>
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+      <Enabled>true</Enabled>
+      <TableGroupFooterSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>小计</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!总服务单数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!总服务单数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!全部解决数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!全部解决数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!部分解决数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!部分解决数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!未解决数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!未解决数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableGroupFooterSettings>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

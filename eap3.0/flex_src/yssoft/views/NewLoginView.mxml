@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:comps="yssoft.comps.*"
+                   backgroundColor="#F7F7F7" borderVisible="false"
+                   creationComplete="loginView_creationCompleteHandler(event)"
+                   keyDown="onKeyDownHandler(event)">
+    <fx:Metadata>
+        [Event(name="LoginSuccess", type="flash.events.Event")]
+        [Event(name="getMenusSuccess", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.formatters.DateFormatter;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.rpc.http.HTTPService;
+
+        import spark.events.TextOperationEvent;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.tools.LoginTool;
+        import yssoft.vos.HrPersonVo;
+
+        private var param:Object = {};
+        //定时器 wxh add
+        private var timing:Timer = new Timer(60000);
+        //是否强制弹出修改密码框
+        [Bindable]
+        private var checkFlag:Boolean = false;
+        //用户初始密码
+        [Bindable]
+        public var userInitpwd:String = "";
+        [Bindable]
+        private var netAddress:String = "";
+        //多点登陆
+        [Bindable]
+        private var checkMoreLogin:Boolean = false;
+        //密码验证次数次数
+        [Bindable]
+        private var checkPwdCount:int = 5;
+        [Bindable]
+        private var iterationCount:int = 0;
+        //密码有效期(天)
+        [Bindable]
+        private var pwdValidCount:int = 365;
+
+        [Bindable]
+        private var custerName:String = "";//授权客户名称
+
+        [Bindable]
+        private var bool:Boolean = false;//是否显示授权信息
+
+        private var expire:Boolean = true;//是否过期
+
+        private var usernameBefore:String = "";//之前的用户名
+        /*
+         *wxh add
+         */
+        [Bindable]
+        private var copyrightMessage:String = "版权所有：江苏增宇信息科技开发有限公司";
+        [Bindable]
+        private var copyrightUrl:String = "";
+
+        //获取查询参数
+        public function getQueryParam():Object {
+            var param:Object = {};
+            param.cusecode = this.cusecode.text;
+            param.cusepassword = this.cusepassword.text;
+            return param;
+        }
+
+        //重置查询参数
+        public function resetQueryParam(initPwd:Boolean, tipStr:String):void {
+            if (this.cusecode.text != "") {
+                openPwdRetrieve(initPwd, tipStr);
+            }
+            else {
+                this.tiptxt.text = "登录名不允许为空！";
+            }
+        }
+
+        //忘记密码
+        public function openPwdRetrieve(initPwd:Boolean, tipStr:String):void {
+            var pwd:UserPwdRetrieveView = new UserPwdRetrieveView();
+
+            pwd.isInitUserLogin = initPwd;
+            pwd.isInitUserIid = CRMmodel.userId;
+            pwd.owner = this;
+
+            if (initPwd) {
+                pwd.title = "用户密码修改";
+                pwd.initLabelVisible = true;
+                pwd.initLabelText = tipStr;
+            }
+
+            pwd.loginName = this.cusecode.text;
+            LoginTool.openView(pwd);
+            //wxh add
+            AccessUtil.remoteCallJava("UserDest", "getUserObj", function (event:ResultEvent):void {
+                pwd._currentUser = event.result as HrPersonVo
+            }, this.cusecode.text);
+        }
+
+        //检查查询参数
+        public function checkQueryParam():Boolean {
+            if (!LoginTool.stringIsNull(this.cusecode.text)) {
+                tiptxt.text = "用户名不能为空";
+                this.cusecode.setFocus();
+                return false;
+            }
+            if (!LoginTool.stringIsNull(this.cusepassword.text)) {
+                tiptxt.text = "密码不能为空";
+                this.cusepassword.setFocus();
+                return false;
+            }
+            return true;
+        }
+
+        //执行查询
+        public function execQuery():void {
+
+            if (!this.expire) {
+                this.tiptxt.text = "试用版本已到期，请联系供应商！";
+                return;
+            }
+
+
+            if (!flag)
+                return;
+
+            flag = false;
+
+            if (!checkQueryParam()) {
+                return;
+            }
+
+            var sql:String = "select * from hr_person where cusecode='" + this.cusecode.text + "'";
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var per:ArrayCollection = event.result as ArrayCollection;
+                if (per.length == 0) {
+
+                    tiptxt.text = "用户:<" + cusecode.text + ">,不存在，请确认!";
+                    return;
+                }
+
+
+                if ((per.getItemAt(0).block as Boolean)) {
+
+                    tiptxt.text = "该用户密码输入错误达到" + checkPwdCount + "次，已被锁定";
+                    return;
+                }
+
+
+                var msg:String = "";
+                if ((per.getItemAt(0).busbkey as Boolean)) {//是否启用USB加密狗
+                    msg = ExternalInterface.call("checkUSBDog", CRMmodel.rpwd);
+                    if (msg == "false") {
+                        tiptxt.text = "未发现加密锁，请插入加密锁!";
+                        return;
+                    } else if (msg.indexOf("错误") > -1) {
+                        tiptxt.text = msg;
+                        return;
+                    } else {
+                        var dog_id:String = msg.split("|")[0] as String;
+                        var softname:String = msg.split("|")[1] as String;
+                        if (softname.indexOf("eap") == -1) {
+                            tiptxt.text = "试用非法U盾，请联系管理员!" + softname;
+                            return;
+                        }
+                        var cusbkey:String = per.getItemAt(0).cusbkey as String;
+                        if (dog_id.toLocaleUpperCase() != (cusbkey + "").toLocaleUpperCase()) {
+                            tiptxt.text = "该用户所对应的加密锁错误，请确认！";
+                            return;
+                        }
+                    }
+                }
+
+
+                var ip:String = "";
+                var cplace:String = "";
+                if (ExternalInterface.available) {
+                    ip = CRMtool.calljs("getRemoteIp");
+                }
+
+                if (ExternalInterface.available) {
+                    cplace = CRMtool.calljs("getRemoteIpAndAddress");
+                }
+
+
+                param = getQueryParam();
+                param.ip = ip;
+                param.cplace = cplace;
+                loginbt.enabled = false;
+
+                if (saveUserNameCheckBox.selected) {
+                    sharedObj.data.userName = cusecode.text;
+                    sharedObj.data.password = cusepassword.text;
+                }
+                sharedObj.data.bsave = saveUserNameCheckBox.selected;
+
+
+                try {
+                    AccessUtil.remoteCallJava("UserDest", "CheckUser", queryCallBack, param, null, false, null, errorLoginHandler);
+
+                } catch (e:Error) {
+                    loginbt.enabled = true;
+                    Alert.show(e.toString());
+                }
+                tiptxt.text = "正在登录验证，请等待...";
+            }, sql, null, false);
+        }
+
+        //wxh add
+        private function onTime(event:Event):void {
+            iterationCount = 0;
+            timing.stop();
+        }
+
+        //登录抛异常,就把原来的按键置成可用
+        public function errorLoginHandler(e:FaultEvent):void {
+            loginbt.enabled = true;
+        }
+
+        //处理查询的返回结果
+        public function queryCallBack(e:ResultEvent):void {
+            var map:Object = e.result;
+            loginbt.enabled = true;
+            if (map) {
+
+                if (map.hasOwnProperty("limitInfo")) {
+                    var ret:Object = e.result as Object;
+                    tiptxt.text = String(ret["limitInfo"].toString());
+                    this.cusepassword.text = "";
+                    this.cusepassword.setFocus();
+                    return;
+                }
+                CRMmodel.hrperson = map.hrperson as HrPersonVo;
+
+                if (CRMmodel.hrperson.block) {
+                    resetQueryParam(true, "该用户已被锁定，请联系管理员解锁！");
+                    return;
+                }
+
+                if (!judgeValidDate()) {
+                    resetQueryParam(true, "您的密码有效期已过，请先更换密码！");
+                    return;
+                }
+
+                if (checkFlag) {
+                    if (this.cusepassword.text != "" && userInitpwd == this.cusepassword.text) {
+                        resetQueryParam(true, "您的密码为初始密码，请先更换密码！");
+                        return;
+                    }
+                }
+                if (checkMoreLogin  && map.hasOwnProperty("logined")) {
+                    //&& CRMmodel.hrperson.bmorelogin
+                    //tiptxt.text = "您已在[" + map.cip + "][" + map.doperate + "]上进行登录，不能重复登录。";
+                    tiptxt.text = "您账号已在别处登录，不能重复登录。";
+                    return;
+                }
+                if (map.hasOwnProperty("keyerr")) {
+                    tiptxt.text = map.keyerr;
+                    return;
+                }
+
+                this.tiptxt.text = "";
+
+                //保存当前已启用总人数
+                CRMmodel.personCount = int(map.personCount);
+
+                //授权用户数
+                CRMmodel.authorizedUsersNum = int(map.authorizedUsersNum);
+
+                //当前登录用户id
+                CRMmodel.userId = int(map.userId);
+
+                //保存最后登录状态到变量
+                CRMmodel.lasttime = CRMmodel.hrperson.dlast;
+                CRMmodel.lastaddress = CRMmodel.hrperson.clast;
+
+
+                //保存选定热线线路
+                CRMmodel.icallline = CRMmodel.hrperson.icallline;
+
+                //保存是否外呼弹屏
+                CRMmodel.bcallout = CRMmodel.hrperson.bcallout;
+                //FlexGlobals.topLevelApplication.currentState="mainview";
+                //FlexGlobals.topLevelApplication.loadModule();
+
+                //保存是否关闭弹出卡片
+                CRMmodel.bisCloseOut = CRMmodel.hrperson.bisCloseOut;
+
+                //坐席布局
+                CRMmodel.ilayout = CRMmodel.hrperson.ilayout;
+
+                //YJ Add 20120911 项目名称赋值
+                ConstsModel.publishAppName = map.pname;
+
+                this.dispatchEvent(new Event("LoginSuccess"));
+
+                //修改最后一次登录地理位置时间
+                var updateParams:Object = new Object();
+                if (ExternalInterface.available) {
+                    var clast:String = CRMtool.calljs("getRemoteIpAndAddress");
+                    var dlast:String = LoginTool.getFormatDateString();
+                    updateParams.clast = clast;
+                    updateParams.dlast = dlast;
+                    updateParams.iid = CRMmodel.userId;
+                }
+                AccessUtil.remoteCallJava("UserDest", "updateLoginLast", callupdateCLast, updateParams, null, false);
+                AccessUtil.remoteCallJava("CallCenterDest", "getCpsipAndPort", function (event:ResultEvent):void {
+                    var allowcount:int = 0;
+                    var deccode:String = "";
+                    var map:Object = event.result;
+                    if (map.hasOwnProperty("line")) {
+                        var deccode:String = String(map["line"] == null ? "0" : map["line"].toString());
+                        if (CRMtool.isStringNotNull(deccode)) {
+                            allowcount = Number(deccode);
+//                           allowcount = 5;    //测试数据
+                            CRMmodel.cc_allowcount = allowcount;
+                        }
+                    }
+                    if (map.hasOwnProperty("mobile")) {
+                        var mobilecount:String = String(map["mobile"] == null ? "0" : map["mobile"].toString());
+                        if (CRMtool.isStringNotNull(mobilecount)) {
+                            CRMmodel.imobilecount = Number(mobilecount);
+//                            CRMtool.showAlert(mobilecount);
+                        }
+                    }
+                    var obj:Object = new Object();
+                    obj.iperson =  CRMmodel.userId + "";
+                    obj.allowcount = CRMmodel.cc_allowcount + "";
+                    AccessUtil.remoteCallJava("UserDest", "getAuthMenusAll", function (event:ResultEvent):void {
+                        var map:Object = event.result;
+                        CRMmodel.authMenu = XML(map.menuXml);
+                        CRMmodel.authMenuList = map.menuXmlList as ArrayCollection;
+                        dispatchEvent(new Event("getMenusSuccess"));
+                    }, obj, null, false);
+
+                }, null, null, false);
+
+
+                //登记是否回写合同成本
+                var sql:String = "select cvalue from as_options where iid=232 ";
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac && ac.length > 0) {
+
+                        var cvalue:int = ac[0].cvalue;
+                        CRMmodel.IsRebackToContCost = cvalue;
+                    }
+
+                }, sql);
+
+            } else {
+                iterationCount++;
+                if ((checkPwdCount - iterationCount) != 0) {
+                    tiptxt.text = "用户与密码不匹配（您还剩" + (checkPwdCount - iterationCount) + "次机会）";
+                }
+                else {
+                    var update_sql:String = "update hr_person set block=1 where cusecode='" + this.cusecode.text + "'";
+
+                    AccessUtil.remoteCallJava("CommonalityDest", "updateSql", null, update_sql, null, false);
+                    tiptxt.text = "该用户已被锁定，请联系管理员解锁！";
+//						this.tiptxt.text = "您登陆失败超过"+checkPwdCount+"次，请稍后再试！";
+//						timing.start(); //wxh add
+                }
+
+                this.cusepassword.text = "";
+                this.cusepassword.setFocus();
+            }
+
+        }
+
+        private var fileReference:FileReference;
+        //更新全局静态人员对象
+        public function callupdateCLast(e:ResultEvent):void {
+            if (e.result.flag != "fail") {
+                CRMmodel.hrperson.clast = e.result.clast;
+                CRMmodel.hrperson.dlast = e.result.dlast;
+            }
+            else {
+                tiptxt.text = "当前登录地理位置以及时间更新异常";
+            }
+            loginbt.enabled = true;
+            //获得tomcat路径
+            var service:HTTPService = new HTTPService();
+            service.url = "/eap1.0/GetTomcatUrlServlet";
+            service.method = "GET";
+            service.send();
+            service.addEventListener(ResultEvent.RESULT, getTomcatURLBack);
+
+        }
+
+        private function getTomcatURLBack(event:ResultEvent):void {
+            CRMmodel.tomcatURLStr = event.result.toString();
+        }
+
+        private var flag:Boolean = true;
+
+        protected function onKeyDownHandler(event:KeyboardEvent):void {
+            if (event.keyCode == Keyboard.ENTER) {
+                if (!LoginTool.stringIsNull(this.cusecode.text)) {
+                    this.cusecode.setFocus();
+                    return;
+                }
+                if (!LoginTool.stringIsNull(this.cusepassword.text)) {
+                    this.cusepassword.setFocus();
+                    return;
+                }
+                execQuery();
+            } else {
+                flag = true;
+            }
+        }
+
+        private var sharedObj:SharedObject = SharedObject.getLocal("login");
+
+        protected function loginView_creationCompleteHandler(event:FlexEvent):void {
+            //this.cusecode.setFocus();
+            loadInitSysOption();
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                CRMmodel.personlist = event.result as ArrayCollection;
+            }, "select * from hr_person", null, false);
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                CRMmodel.personslist = event.result as ArrayCollection;
+            }, "select * from hr_persons", null, false);
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                CRMmodel.departmentlist = event.result as ArrayCollection;
+            }, "select * from hr_department", null, false);
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                CRMmodel.funcregeditList = event.result as ArrayCollection;
+            }, "select * from as_funcregedit", null, false);
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                CRMmodel.tableRelation = event.result as ArrayCollection;
+            }, "select * from ac_tableRelationship", null, false);
+            //				isCheckedInitPwd();
+            //				loadCheckPwdCount();
+            //				loadPwdValidDay();
+        }
+
+        //获取加密锁中的信息
+        private function getUsbKeyData():Object {
+            var ret:String = CRMtool.calljs("getUsbKeyData", CRMmodel.rpwd);
+            if (ret == null || ret == "-1" || ret == "-2" || ret == "-3" || ret == "-4") {
+                return {"keyid": null, "keydata": null};
+            } else {
+                return {"keyid": ret.split(":")[0], "keydata": ret.split(":")[1]};
+            }
+        }
+
+
+        //			/**
+        //			 *  是否验证初始密码并提示修改密码
+        //			 */
+        //			private function  isCheckedInitPwd():void
+        //			{
+        //				 AccessUtil.remoteCallJava("As_optionsDest","getIsCheckedPwd",checkedpwdCallBack,null,"加载提示修改初始化密码...");
+        //			}
+        //
+        //			private function checkedpwdCallBack(e:ResultEvent):void{
+        //				this.checkFlag = e.result as Boolean;
+        //				if( this.checkFlag )
+        //				{
+        //					//获取初始化密码
+        //					AccessUtil.remoteCallJava("As_optionsDest","getInitPwd",initpwdCallBack,null,"加载用户初始密码...");
+        //				}
+        //			}
+        //
+        //			private function initpwdCallBack(e:ResultEvent):void{
+        //				if( null != e.result )
+        //					this.userInitpwd = e.result.toString() ;
+        //			}
+        //
+        //
+        //
+        //
+        //			/**
+        //			 *  加载验证密码次数
+        //			 */
+        //			private function loadCheckPwdCount():void{
+        //				AccessUtil.remoteCallJava("As_optionsDest","getCheckPwdCount",checkPwdCountCallBack,null,"加载密码验证次数...");
+        //			}
+        //			private function checkPwdCountCallBack(e:ResultEvent):void{
+        //				checkPwdCount  = e.result as int;
+        //			}
+        //
+        //			/**
+        //			 *  加载验证密码有效期
+        //			 */
+        //			private function loadPwdValidDay():void{
+        //				AccessUtil.remoteCallJava("As_optionsDest","getCheckPwdCount",pwdValidDayCallBack,null,"加载密码验证有效期...");
+        //			}
+        //			private function pwdValidDayCallBack(e:ResultEvent):void{
+        //				pwdValidCount  = e.result as int;
+        //			}
+        //
+        //
+        //			/**
+        //			 * 加载系统用户是否允许多点登陆
+        //			 */
+        //			private function loadmorelogin():void{
+        //				AccessUtil.remoteCallJava("As_optionsDest","getMorelogined",moreloginCallBack,null,"加载系统用户是否允许多点登陆...");
+        //			}
+        //
+        //			private function moreloginCallBack(e:ResultEvent):void{
+        //				 this.checkMoreLogin = e.result as Boolean;
+        //			}
+        //
+
+
+        /**
+         * 加载系统参数
+         */
+        private function loadInitSysOption():void {
+            //AccessUtil.remoteCallJava("As_optionsDest","getSysOptionObject",initOptionsCallBack,null,"加载系统选项参数ing...");
+            AccessUtil.remoteCallJava("As_optionsDest", "getSysOptionObject", initOptionsCallBack, null, null, false);
+        }
+
+        private function initOptionsCallBack(e:ResultEvent):void {
+            var obj:Object = e.result;
+
+            var arr:ArrayCollection = obj.optionAc as ArrayCollection;
+            for (var i:int = 0; i < arr.length; i++) {
+                switch (arr[i].iid) {
+                    case 96:
+                    {
+                        this.copyrightMessage = arr[i].cvalue;
+                        break;
+                    }
+                    case 97:
+                    {
+                        this.copyrightUrl = arr[i].cvalue;
+                        break;
+                    }
+                }
+            }
+            this.checkFlag = obj.checkFlag as Boolean;
+            this.userInitpwd = obj.userInitpwd.toString();
+            this.pwdValidCount = obj.pwdValidCount as int;
+            this.checkPwdCount = obj.checkPwdCount as int;
+            if(obj.checkMoreLogin==1){
+                this.checkMoreLogin=true;
+            }else{
+                this.checkMoreLogin=false;
+            }
+            //this.checkMoreLogin = obj.checkMoreLogin as Boolean;
+            this.expire = obj.RegisterExpire as Boolean;
+            if (obj.RegisterCusterName == null) {
+                if (obj.hasOwnProperty("RegisterVersion")) {
+                    if (obj.RegisterVersion != "0") {
+                        this.bool = true;
+                        this.custerName = "试用版";
+                        if (!this.expire) {
+                            this.custerName = "试用版已过期";
+                        }
+
+                    }
+                } else {
+                    this.bool = false;
+                }
+            } else {
+                var cus:Object = obj.RegisterCusterName;
+                if (cus == "徐州市增宇软件有限公司") {
+                    this.bool = false;
+                } else {
+                    this.bool = true;
+                }
+
+                //  this.custerName = "徐州市增宇软件有限公司授权" + cus + "使用";
+            }
+
+            CRMmodel.optionAc = obj.optionAc as ArrayCollection;
+        }
+
+        /**
+         * 判断密码时间是否过期
+         */
+        private function judgeValidDate():Boolean {
+
+            if (pwdValidCount == 0) {
+                return true;
+            }
+
+            if (CRMmodel.hrperson == null || CRMmodel.hrperson.dpasswordchange == null) {
+                return true;
+            }
+
+            var date1:Date = DateFormatter.parseDateString(CRMmodel.hrperson.dpasswordchange);
+            var validDate:Date = new Date(date1.getFullYear(), date1.getMonth(), Number(date1.getDate() + pwdValidCount));
+            if (validDate <= new Date()) {
+                return false;
+            }
+            return true;
+        }
+
+
+        protected function linkbutton1_clickHandler(event:MouseEvent):void {
+            navigateToURL(new URLRequest("plugin/index.html"), "_blank");
+        }
+
+
+        protected function imageCarousel_ImageLoadHandler(event:Event):void {
+            this.cusecode.setFocus();
+            if (sharedObj.data.bsave as Boolean) {
+                cusecode.text = sharedObj.data.userName;
+                this.cusepassword.text = sharedObj.data.password;
+                if (CRMtool.isStringNotNull(cusecode.text))
+                    cusepassword.setFocus();
+            }
+        }
+
+        protected function footer_clickHandler(event:MouseEvent):void {
+            navigateToURL(new URLRequest(this.copyrightUrl), "_blank");
+        }
+
+        private function cusecode_changeHandler(event:TextOperationEvent):void {
+            if (this.usernameBefore != this.cusecode.text) {
+                this.cusepassword.text = "";
+            }
+//            if(this.cusecode.text == this.sharedObj.data.userName) {
+//                this.cusepassword.text = sharedObj.data.password;
+//            }
+            this.usernameBefore = this.cusecode.text;
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:HBox width="100%" height="100%" depth="2" horizontalAlign="center" verticalAlign="middle">
+        <mx:HBox width="1000" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+            <s:Spacer width="100%"/>
+            <!--<mx:VBox width="277" height="290" >-->
+            <mx:VBox width="277" height="290" styleName="loginStyle"
+                     paddingTop="45">
+                <mx:VBox paddingLeft="35" verticalGap="20">
+                    <s:BorderContainer width="{usernameBox.width}" height="22" cornerRadius="5"
+                                       backgroundColor="#FFFFFF"
+                                       backgroundAlpha="0.5"
+                                       borderVisible="false"
+                                       visible="{CRMtool.isStringNotNull(tiptxt.text)}">
+                        <s:layout>
+                            <s:VerticalLayout verticalAlign="middle" paddingLeft="5"/>
+                        </s:layout>
+                        <mx:Text id="tiptxt" width="100%" height="20" color="#333333" text=""
+                                 textAlign="center"/>
+                    </s:BorderContainer>
+
+                    <mx:HBox id="usernameBox" horizontalGap="10" verticalAlign="bottom">
+                        <mx:VBox paddingBottom="2">
+                            <s:Image source="@Embed(source='/yssoft/assets/login/name.png')"/>
+                        </mx:VBox>
+                        <comps:CrmTextInput id="cusecode" width="146" height="25"
+                                            change="cusecode_changeHandler(event)" iShowIcon="false"/>
+                    </mx:HBox>
+                    <mx:HBox horizontalGap="10" verticalAlign="bottom">
+                        <mx:VBox paddingBottom="2">
+                            <s:Image source="@Embed(source='/yssoft/assets/login/password.png')"/>
+                        </mx:VBox>
+                        <comps:CrmTextInput id="cusepassword" width="146" height="25"
+                                            displayAsPassword="true" iShowIcon="false"
+                                            restrict="0-9a-zA-Z'."/>
+                    </mx:HBox>
+                    <mx:HBox verticalAlign="bottom">
+                        <mx:VBox paddingBottom="3">
+                            <s:CheckBox id="saveUserNameCheckBox"
+                                        skinClass="yssoft.skins.LoginCheckBoxSkin"
+                                        selected="{sharedObj.data.bsave}"/>
+                        </mx:VBox>
+                        <mx:Button id="loginbt"
+                                   click="execQuery()" color="#FFFFFF"
+                                   styleName="loginbt2"/>
+                    </mx:HBox>
+                </mx:VBox>
+            </mx:VBox>
+            <s:Spacer width="14"/>
+        </mx:HBox>
+    </mx:HBox>
+    <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+        <mx:HBox id="logoBox" width="1000" paddingBottom="15" paddingLeft="30" paddingRight="30"
+                 verticalAlign="bottom">
+            <s:Image source="yssoft/assets/login/logo.png"/>
+            <s:Spacer width="100%"/>
+            <mx:LinkButton label="辅助工具下载" click="linkbutton1_clickHandler(event)" color="#999999"
+                           fontSize="12" paddingBottom="0" paddingLeft="0" paddingRight="0"
+                           paddingTop="1" styleName="LinkButtonnew"/>
+            <mx:Text color="#999999" paddingBottom="0" paddingLeft="0" paddingRight="0"
+                     paddingTop="1" styleName="loginViewBQText" text="|"/>
+            <mx:LinkButton label="忘记密码" click="resetQueryParam(false,'')" color="#999999"
+                           fontSize="12" paddingBottom="0" paddingLeft="0" paddingRight="0"
+                           paddingTop="1" styleName="LinkButtonnew"/>
+        </mx:HBox>
+        <mx:VBox width="100%" horizontalAlign="center">
+
+            <comps:ImageCarousel id="imageCarousel" width="100%" height="376" borderAlpha="0"
+                                 ImageLoad="imageCarousel_ImageLoadHandler(event)"/>
+        </mx:VBox>
+        <s:Image id="yinyingImg" source="yssoft/assets/login/yinying.png"/>
+        <mx:LinkButton id="footer1" label="{this.copyrightMessage}"
+                       click="footer_clickHandler(event)" color="#999999" paddingBottom="0"
+                       paddingLeft="0" paddingRight="0" paddingTop="1" styleName="LinkButtonnew"/>
+        <mx:LinkButton id="footer" visible="{bool}" label="{custerName}" color="#999999"
+                       paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="1"
+                       styleName="LinkButtonnew"/>
+        <s:Spacer height="{logoBox.height-yinyingImg.height-footer.height+2}"/>
+    </mx:VBox>
+</s:BorderContainer>
+

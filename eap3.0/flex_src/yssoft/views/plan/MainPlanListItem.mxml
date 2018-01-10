@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="25"
+				   click="close_clickHandler(event)"
+				   borderVisible="false"
+				   mouseOver="mouseOverHandler(event)"
+				   mouseOut="mouseOutHandler(event)"
+				   >
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.formatters.DateFormatter;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.twitter.TwitterOaplanCdetailView;
+			
+			[Bindable]private var _itype:int = 0; // 类型 1标题 2细则 21细则-本人 22细则-非本人 3处理 4批注 5协同信息
+			//[Bindable]private var _istatus:int = 0;//针对处理  处理状态 0未执行 1已完成 2已取消 3执行未完成
+			
+			//private var _iplan:int;//
+			
+			//private var _cdetail:String;//内容
+			[Bindable]private var _ctype:String;//类型
+			//private var _dmodify:String;//最后编辑时间			
+			//private var _csummary:String;//执行说明
+			//private var _iinstruction:int;//批注人
+			//private var _cinstruction:String;//批注内容
+			//private var _dinstruction:String;//批注时间
+			
+			[Bindable]public var allSum:int = 0;//总数
+			[Bindable]public var all1Sum:int = 0;//已完成总数
+			[Bindable]public var all0Sum:int = 0;//未完成总数
+			[Bindable]public var all2Sum:int = 0;//已取消总数
+			
+			
+
+			[Bindable]private var _mydata:Object;
+
+            [Bindable]private var _cdetail:String;
+			[Bindable]public var weekDay:String;
+			[Bindable]public var dsummaryweekDay:String;
+			
+			private var _closed:Boolean = false;
+			
+			public var ownerBox:MainPlanListItem;
+			public var ownerPlanMainView:PlanMainView;
+
+			public function get itype():int
+			{
+				return _itype;
+			}
+
+			public function set itype(value:int):void
+			{
+				_itype = value;
+			}
+
+			public function get mydata():Object
+			{
+				return _mydata;
+			}
+
+			public function set mydata(value:Object):void
+			{
+				_mydata = value;
+
+				
+				if(value==null)
+					return;
+
+                _cdetail = value.cdetail;
+				
+				_ctype = value.ctype;
+				var df1:DateFormatter = new DateFormatter();
+				df1.formatString = "E";	
+				var weekStr:int=parseInt(df1.format(value.dmodify+""));				
+				weekDay=getWeekDay(weekStr);
+								
+				var dsummaryweek:int=parseInt(df1.format(value.dsummary+""));
+				dsummaryweekDay=getWeekDay(dsummaryweek);
+				
+				if(_itype==2){
+
+                    //协同来的计划，显示上游人员名称。
+                    if(_mydata.iplans>0){
+                       var sql:String = "select hr_person.cname as person_cname from oa_plan " +
+                               "left join hr_person on oa_plan.iperson = hr_person.iid " +
+                               "where oa_plan.iid = (select iplan from oa_plans where iid="+_mydata.iplans+")"
+                        AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+                            var ac:ArrayCollection = event.result as ArrayCollection;
+                            if(ac&&ac.length>0)
+                                _cdetail+="("+ac[0].person_cname+")";
+                        },sql,null,false);
+                    }
+
+					if(value.iperson==CRMmodel.userId){
+						_itype=21;
+					}else{
+						var sql:String = "select hr_department.* from hr_department left join hr_person on hr_person.idepartment = hr_department.iid where hr_person.iid="+value.iperson;
+						AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+							var ac:ArrayCollection = event.result as ArrayCollection;
+							if(ac&&ac.length>0){
+								var isuper:int=0;
+								var ihead:int = ac[0].ihead;//部门主管
+								var icharge:int = ac[0].icharge;//分管主管
+								var ilead:int = ac[0].ilead;//分管领导
+								
+								if(ihead!=value.iperson)
+									isuper = ihead;
+								else if(icharge!=value.iperson)
+									isuper = icharge;
+								else if(ilead!=value.iperson)
+									isuper = ilead;
+								else
+									isuper = ilead;
+								
+								if(isuper==CRMmodel.userId)
+									_itype=22;
+							}
+						},sql);
+						
+					}
+				}
+
+                //显示协同出的人员信息
+ 				if(_itype==5){
+					var sql:String="select hr_person.iid,hr_person.cname,isnull(oa_plans.istatus,0) as istatus,oa_plans.csummary,oa_plans.dmodify,oa_plans.cinstruction from hr_person left join oa_plan on oa_plan.iperson = hr_person.iid " +
+						"left join oa_plans on oa_plans.iplan = oa_plan.iid where oa_plans.iplans = "+value.iid;
+					/* if(value.iplans>0)
+						sql+=" or oa_plans.iplans = "+value.iplans+" or oa_plans.iid = "+value.iplans; */
+					
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+						var ac:ArrayCollection = event.result as ArrayCollection;
+						
+						for each(var item:Object in ac){
+							var label:Label = new Label();
+							label.text = item.cname;
+							var istatus_cname:String;
+							//0未执行 1已完成 2已取消 3执行未完成
+							switch(item.istatus){
+								case 0:istatus_cname="未执行";
+									break;
+								case 1:istatus_cname="已完成";
+									break;
+								case 2:istatus_cname="已取消";
+									break;
+								case 3:istatus_cname="执行未完成";
+									break;
+							}
+							
+							var df:DateFormatter = new DateFormatter();
+							df.formatString = "YYYY-MM-DD HH:NN";			
+							var dmodify:String = df.format(ac[0].dmodify)+"";	
+						
+							var tip:String=istatus_cname;
+							if(CRMtool.isStringNotNull(item.csummary)){
+								tip+="\n"+item.csummary+"\n"+dmodify;
+							}						
+							label.toolTip=tip;
+							
+							coopBox.addChild(label);
+						}
+					},sql,null,false);
+				} 
+			}
+
+			protected function getWeekDay(week:int):String
+			{
+				var weekDayStr:String="";
+				switch(week)
+				{
+					case 1:
+					{
+						weekDayStr="星期一";
+						break;
+					}
+					case 2:
+					{
+						weekDayStr="星期二";
+						break;
+					}
+					case 3:
+					{
+						weekDayStr="星期三";
+						break;
+					}
+					case 4:
+					{
+						weekDayStr="星期四";
+						break;
+					}
+					case 5:
+					{
+						weekDayStr="星期五";
+						break;
+					}
+					case 6:
+					{
+						weekDayStr="星期六";
+						break;
+					}
+						
+					default:
+					{
+						weekDayStr="星期日";
+						break;
+					}
+				}
+				return weekDayStr;
+			}
+				
+			protected function edit_clickHandler(event:MouseEvent):void
+			{
+				event.stopPropagation();
+				
+				if(_mydata.iplans>0){
+					CRMtool.showAlert("此计划由其他人协同生成，不允许修改。");
+					return;
+				}
+				
+				var sql:String="select * from oa_plans where iplans="+_mydata.iid;
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					if(ac&&ac.length>0){
+						for each(var personAlreadyCoop:Object in ac){
+							if(personAlreadyCoop.istatus&&personAlreadyCoop.istatus!=0
+								||CRMtool.isStringNotNull(personAlreadyCoop.csummary)
+								||CRMtool.isStringNotNull(personAlreadyCoop.cinstruction)){
+								CRMtool.showAlert("计划已经协同给其他人，并且被处理，不允许修改。");
+								return;
+							}			
+						}
+						coopList = ac;
+					}
+					
+					var addWin:AddPlanTitleWindow = new AddPlanTitleWindow();
+					addWin.cdetail = _mydata.cdetail;
+					addWin.ctype =  _mydata.ctype;
+					addWin.iplans = _mydata.iid;
+					addWin.iquadrant = _mydata.iquadrant;
+					addWin.icustomer = _mydata.icustomer;
+					addWin.dmessage = _mydata.dmessage;
+					addWin.coopList = coopList;
+					addWin.ownerBox = (owner as MainPlanListBox).owner as PlanMainView;
+					
+					CRMtool.openView(addWin);
+				},sql,null,false);		
+			}
+			
+			private var coopList:ArrayCollection;
+			
+			protected function delete_clickHandler(event:MouseEvent):void
+			{
+				event.stopPropagation();
+				
+				if(_mydata.iplans>0){
+					CRMtool.showAlert("此计划由其他人协同生成，不允许修改。");
+					return;
+				}
+				
+				if(CRMtool.isStringNotNull(_mydata.cinstruction)){
+					CRMtool.showAlert("已批注，不允许删除。");
+					return;
+				}
+				
+				if(_mydata.iid>0){
+					var sql:String="select * from oa_plans where iplans="+_mydata.iid;
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+						var ac:ArrayCollection = event.result as ArrayCollection;						
+						if(ac&&ac.length>0){							
+							for each(var personAlreadyCoop:Object in ac){
+								if(personAlreadyCoop.istatus&&personAlreadyCoop.istatus!=0
+									||CRMtool.isStringNotNull(personAlreadyCoop.csummary)
+									||CRMtool.isStringNotNull(personAlreadyCoop.cinstruction)){
+									CRMtool.showAlert("计划已经协同给其他人，并且被处理，不允许删除。");
+									return;
+								}			
+							}
+							coopList = ac;
+						}
+						CRMtool.tipAlert1("确定删除？",null,"AFFIRM",onDelete);
+					},sql,null,false);				
+				}else
+					CRMtool.showAlert("数据有误，请检查。");
+							
+			}
+			
+			private function onDelete():void{
+				_mydata.coopList=coopList;				
+				AccessUtil.remoteCallJava("OADest","delPlans",function(event:ResultEvent):void{
+					((owner as MainPlanListBox).owner as PlanMainView).refData();
+				},_mydata);
+			}
+			
+			protected function submit_clickHandler(event:MouseEvent):void
+			{
+				var subWin:SubmitPlanTitleWindow = new SubmitPlanTitleWindow();
+				subWin.iplans = _mydata.iid;
+				subWin.csummary = _mydata.csummary;
+				subWin.cdetail = _mydata.cdetail;
+				subWin.istatus = _mydata.istatus;
+				subWin.ownerBox = (this.owner as MainPlanListBox).owner as PlanMainView;
+				
+				CRMtool.openView(subWin);
+				event.stopPropagation();
+			}
+			
+			protected function mark_clickHandler(event:MouseEvent):void
+			{
+				var markWin:MarkPlanTitleWindow = new MarkPlanTitleWindow();
+				markWin.iplans = _mydata.iid;
+				markWin.cinstruction = _mydata.cinstruction;
+				markWin.ownerBox = (this.owner as MainPlanListBox).owner as PlanMainView;
+				
+				CRMtool.openView(markWin);
+				event.stopPropagation();
+			}
+			
+			public function get closed():Boolean
+			{
+				return _closed;
+			}
+			
+			public function set closed(value:Boolean):void
+			{
+				_closed = value;
+				if(value)
+					close();
+				else
+					open();
+					
+			}
+			
+			protected function close_clickHandler(event:MouseEvent):void
+			{
+				if(event.currentTarget._itype!=1){
+					var twitterOaplanCdetailView:TwitterOaplanCdetailView=new TwitterOaplanCdetailView();
+					twitterOaplanCdetailView.cdetail=event.currentTarget._cdetail;
+					twitterOaplanCdetailView.open();
+				}
+				closed = !closed;
+			}
+			
+			public function close():void{
+				for each(var item:MainPlanListItem in (this.owner as MainPlanListBox).box.getChildren()){
+					if(item.ownerBox==this){						
+						item.close();
+						item.height = 0;
+						item.visible = false;
+						item.includeInLayout = false;
+					}
+				}
+			}
+			
+			public function open():void{
+				for each(var item:MainPlanListItem in (this.owner as MainPlanListBox).box.getChildren()){
+					if(item.ownerBox==this){						
+						item.open();
+						item.height = 25;
+						item.visible = true;
+						item.includeInLayout = true;
+					}
+				}
+			}
+			
+			protected function mouseOverHandler(event:MouseEvent):void
+			{
+				editBoxFade.alphaTo = 1;
+				editBoxFade.stop();
+				editBoxFade.play();
+				
+				if(_mydata.iperson==CRMmodel.userId){
+					editBoxFade2.alphaTo = 1;
+					editBoxFade2.stop();
+					editBoxFade2.play();
+				}
+			
+				this.setStyle("backgroundColor","#fefaf3");
+			}
+			
+			protected function mouseOutHandler(event:MouseEvent):void
+			{
+				editBoxFade.alphaTo = 0;
+				editBoxFade.stop();
+				editBoxFade.play();
+				
+				editBoxFade2.alphaTo = 0;
+				editBoxFade2.stop();
+				editBoxFade2.play();
+				
+				this.setStyle("backgroundColor","#ffffff");
+			}
+			
+			protected function ctypeEdit_clickHandler(event:MouseEvent):void
+			{
+				event.stopPropagation();
+				
+				if(_mydata.iplans>0){
+					CRMtool.showAlert("协同计划分类，不允许修改。");
+					return;
+				}
+				
+				var editCtypeWin:EditCtypeTitleWindow = new EditCtypeTitleWindow();
+				editCtypeWin.ctype = _mydata.ctype;
+				editCtypeWin.ownerBox = this;
+				
+				CRMtool.openView(editCtypeWin);
+				
+			}
+			
+			protected function cooperation_clickHandler(event:MouseEvent):void
+			{
+				event.stopPropagation();
+				var coopWin:CooperationPlanTitleWindow = new CooperationPlanTitleWindow();
+				coopWin.itemObj = _mydata;
+				coopWin.ownerBox = (this.owner as MainPlanListBox).owner as PlanMainView;
+				coopWin.addEventListener("coopChange",function(event:Event):void{
+					ownerPlanMainView.refData();
+				});
+				CRMtool.openView(coopWin);
+			}
+			
+			protected function label2_doubleClickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var sql:String = "select * from OA_workdiary where iplans=" + _mydata.iid;
+				AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					if(ac.length>0) {
+						CRMtool.openbillonbrowse(ac[0].iifuncregedit,ac[0].iid,"客商活动");
+					}					
+				}, sql,null,false);
+			}
+			
+		
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:Fade id="editBoxFade"  target="{editBox}" duration="200"/>
+		<s:Fade id="editBoxFade2"  target="{editBox2}" duration="200"/>
+	</fx:Declarations>
+	<mx:HBox width="100%" height="100%" visible="{_itype==1}">
+		<s:Image source="yssoft/assets/images/plan/type1.png"/>
+		<s:Label text="{_ctype}" maxDisplayedLines="1" id="ctype"/>
+
+		<mx:HBox horizontalGap="0">
+			<s:Label text="（"/>
+			<s:Label text="{allSum}" toolTip="共"/>
+			<s:Label text=":{all1Sum}" toolTip="已完成"/>
+			<s:Label text="/{all0Sum}" toolTip="未完成"/>
+			<s:Label text="/{all2Sum}" toolTip="已取消"/>
+			<s:Label text="）"/>
+		</mx:HBox>	
+		
+<!--		<mx:HBox horizontalGap="0">
+			<s:Label text="（"/>
+			<s:Label text="共：{allSum}"/>
+			<s:Label text="，已完成：{all1Sum}" visible="{all1Sum>0}" includeInLayout="{all1Sum>0}"/>
+			<s:Label text="，未完成：{all0Sum}" visible="{all0Sum>0}" includeInLayout="{all0Sum>0}"/>
+			<s:Label text="，取消：{all2Sum}" visible="{all2Sum>0}" includeInLayout="{all2Sum>0}"/>
+			<s:Label text="）"/>
+		</mx:HBox>	-->
+		<s:Spacer width="100%"/>
+		<mx:HBox id="editBox2" height="100%" color="#018ccf" alpha="0" visible="false">
+			<s:Label text="["/>
+			<s:Label text="编辑" buttonMode="true" click="ctypeEdit_clickHandler(event)"/>
+			<s:Label text="]"/>		
+		</mx:HBox>
+		<s:Label text="{_mydata.dmodify+'     '+weekDay}" visible="false"/>
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%" visible="{_itype==2}" paddingLeft="15" >
+		<s:Image source="yssoft/assets/images/plan/type2{CRMtool.isStringNotNull(_mydata.istatus)?_mydata.istatus:0}.png" />
+		<s:Label text="{_cdetail}" width="100%" maxDisplayedLines="1" toolTip="{_mydata.cdetail}" />
+		<s:Label text="{_mydata.dmodify+'     '+weekDay}"/>
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%" visible="{_itype==21}" paddingLeft="15">
+		<s:Image source="yssoft/assets/images/plan/type2{CRMtool.isStringNotNull(_mydata.istatus)?_mydata.istatus:0}.png"/>
+		<s:Label text="{_cdetail}" width="100%" maxDisplayedLines="1" toolTip="{_mydata.cdetail}"/>
+		<mx:HBox id="editBox" height="100%" color="#018ccf" alpha="0">
+			<s:Label text="["/>
+			<s:Label text="编辑" click="edit_clickHandler(event)" buttonMode="true"/>
+			<s:Label text="|"/>
+			<s:Label text="处理" buttonMode="true" click="submit_clickHandler(event)"/>
+			<s:Label text="|"/>
+			<s:Label text="协同" buttonMode="true" click="cooperation_clickHandler(event)"/>
+			<s:Label text="|"/>
+			<s:Label text="删除" buttonMode="true" click="delete_clickHandler(event)"/>
+			<s:Label text="]"/>
+		</mx:HBox>
+		<s:Label text="{_mydata.dmodify+'     '+weekDay}"/>
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%" visible="{_itype==22}" paddingLeft="15">
+		<s:Image source="yssoft/assets/images/plan/type2{CRMtool.isStringNotNull(_mydata.istatus)?_mydata.istatus:0}.png"/>
+		<s:Label text="{_mydata.cdetail}" width="100%" maxDisplayedLines="1" toolTip="{_mydata.cdetail}"/>
+		<mx:HBox height="100%" color="#018ccf">
+			<s:Label text="["/>
+			<s:Label text="批注" buttonMode="true" click="mark_clickHandler(event)"/>
+			<s:Label text="]"/>
+		</mx:HBox>
+		<s:Label text="{_mydata.dmodify+'     '+weekDay}"/>
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%" visible="{_itype==3}" paddingLeft="30" color="#ff8100">
+		<s:Image source="yssoft/assets/images/plan/type3.png"/>
+		<s:Label text="{_mydata.csummary}" width="100%" maxDisplayedLines="1" toolTip="{_mydata.csummary}"/>
+		<s:Label text="{_mydata.dsummary+'     '+dsummaryweekDay}"/>
+	</mx:HBox>
+	<mx:HBox width="100%" height="100%" visible="{_itype==4}" paddingLeft="30" color="#018ccf">
+		<s:Image source="yssoft/assets/images/plan/type4.png"/>
+		<s:Label text="{_mydata.iinstruction_cname}批注："/>
+		<s:Label text="{_mydata.cinstruction}" width="100%" maxDisplayedLines="1" toolTip="{_mydata.cinstruction}"/>
+		<s:Label text="{_mydata.dinstruction}"/>
+	</mx:HBox>
+	<mx:HBox id="coopBox" width="100%" height="100%" visible="{_itype==5}" paddingLeft="35" color="#018ccf">
+		<s:Label text="协同人员"/>
+	</mx:HBox>
+	<mx:VBox width="100%" height="100%" verticalAlign="bottom">
+		<s:Image source="yssoft/assets/images/plan/line.png" fillMode="repeat" width="100%"/>
+	</mx:VBox>
+</s:BorderContainer>

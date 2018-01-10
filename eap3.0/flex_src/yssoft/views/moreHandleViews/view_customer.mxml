@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="400" height="150" title="修改编码"
+                        close="PopUpManager.removePopUp(this)" creationComplete="ini()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.RadianVbox;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			private var parentForm:Object;
+			
+			private var iid:int;
+			
+			private function ini():void{
+				parentForm = this.owner;
+			}
+			
+			private function onEdit():void
+			{
+				iid = int(parentForm.curiid);
+				if(CRMtool.isStringNull(this.txt_ccode.text))
+				{
+					CRMtool.tipAlert1("编码不能为空！！",this.txt_ccode);
+				}
+				else
+				{
+					var paramObject:Object = new Object();
+					paramObject.tableName =parentForm.funcregeditObj.ctable;
+					if(parentForm.funcregeditObj.ctable=="cs_customer")
+					{
+						paramObject.iid= iid;
+						AccessUtil.remoteCallJava("csCustomerDest","queryCustomByIid",onSeachBack,paramObject);
+					}
+					else
+					{
+						
+						paramObject.ccode= this.txt_ccode.text;
+						AccessUtil.remoteCallJava("csCustomerDest","queryCustomByIid",checkBack,paramObject);
+					}
+				}
+			}
+			
+			private function onSeachBack(event:ResultEvent):void
+			{
+				var resultArr:ArrayCollection = event.result as ArrayCollection;
+				var resultObj:Object=resultArr.getItemAt(0);
+				if(resultObj.icustclass!=128)
+				{
+					CRMtool.tipAlert1("客户类别必须是正式客户，否则不能修改！！",this.txt_ccode);
+				}
+				else if(resultObj.cmnemonic!=null&&resultObj.cmnemonic!=""&&resultObj.cmnemonic!="0")
+				{
+					CRMtool.tipAlert1("当前客商档案已上传金蝶不允许修改！！",this.txt_ccode);
+				}
+				else
+				{
+					var paramObject:Object = new Object();
+					paramObject.ccode= this.txt_ccode.text;
+					AccessUtil.remoteCallJava("csCustomerDest","queryCustomByIid",checkBack,paramObject);
+				}
+			}
+			
+			private function checkBack(event:ResultEvent):void
+			{
+				var resultArr:ArrayCollection = event.result as ArrayCollection;
+				if(resultArr.length>0)
+				{
+					CRMtool.tipAlert1("该客户编码已存在，请重新输入",this.txt_ccode);
+				}
+				else
+				{
+					var paramObject:Object = new Object();
+					paramObject.ccode= this.txt_ccode.text;
+					paramObject.iid=iid;
+					paramObject.tableName =parentForm.funcregeditObj.ctable
+					AccessUtil.remoteCallJava("csCustomerDest","updateCustomCcode",onSaveBack,paramObject);
+				}
+			}
+			
+			private function onSaveBack(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				if(result=="success")
+				{
+					var objup:Object = new Object();
+					objup.ccode=this.txt_ccode.text;
+					for(var i:int=0;i<parentForm._frameArr.length;i++)
+					{
+						var obj:Object = parentForm._frameArr.getItemAt(i);
+						var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+						customerVbox.parametersObj = objup;
+						customerVbox.reset();
+					}
+					CRMtool.tipAlert1("修改成功！！");
+				}
+				else
+				{
+					CRMtool.tipAlert1("修改失败！！");
+				}
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:HBox width="100%" paddingLeft="30" paddingBottom="30" paddingRight="30" paddingTop="30" verticalAlign="middle" horizontalAlign="center">
+		<mx:Label text="单据编号"/>
+		<mx:TextInput id="txt_ccode"/>
+		<mx:Button label="确定" click="onEdit()"/>
+	</mx:HBox>
+</basic:BasicTitleWindow>

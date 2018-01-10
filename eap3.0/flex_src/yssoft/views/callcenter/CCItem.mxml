@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+          verticalGap="0" styleName="panelnew"
+          xmlns:mx="library://ns.adobe.com/flex/mx" width="220" height="100%" headerHeight="0"
+          title="{_infoXml.node.@custname}"
+          layout="vertical" borderStyle="solid" borderColor="#e1e1e1" borderAlpha="1" statusStyleName="cc_normal"
+          dropShadowVisible="false" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+    <fx:Script>
+		<![CDATA[
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        private var _infoXml:XML = <node/>;
+
+        private var _lineShow:Boolean;
+
+        public function get lineShow():Boolean {
+            return _lineShow;
+        }
+
+        public function set lineShow(value:Boolean):void {
+            _lineShow = value;
+        }
+
+
+        public function set infoXml(value:XML):void {
+            this._infoXml = value;
+            if (value) {
+                //clinestate=
+                if (String(_infoXml.node.@clinestate) != "挂机" && String(_infoXml.node.@clinestate) != "待机") {
+                    this.setStyle("statusStyleName", "cc_enable");
+                } else {
+                    this.setStyle("statusStyleName", "cc_normal");
+                }
+            }
+        }
+
+        public function get infoXml():XML {
+            return this._infoXml;
+        }
+        ]]>
+	</fx:Script>
+    <fx:Style>
+        @namespace s "library://ns.adobe.com/flex/spark";
+        @namespace mx "library://ns.adobe.com/flex/mx";
+        .cc_normal {
+            color: #333333;
+            fontWeight: bold;
+        }
+
+        .cc_enable {
+            color: #ff0000;
+        }
+    </fx:Style>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:VBox width="100%" verticalAlign="middle" verticalGap="2" height="100%" paddingBottom="4" paddingLeft="10"
+             paddingRight="10" paddingTop="5">
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+            <!--<mx:Label text="{(String(_infoXml.node.@ctellin)==null || String(_infoXml.node.@ctellin)=='')?'去电：':'来电：'}"/>-->
+            <mx:Image source="@Embed(source='/yssoft/assets/images/telephone.png')"/>
+            <mx:Label
+                    text="{(String(_infoXml.node.@ctellin)==null || String(_infoXml.node.@ctellin)=='')?_infoXml.node.@ctellout:_infoXml.node.@ctellin}"
+                    color="{(String(_infoXml.node.@ctellin)==null || String(_infoXml.node.@ctellin)=='')?new uint(0x23a26b):new uint(0x0476c1)}"
+                    fontWeight="bold" fontSize="16" truncateToFit="true" maxWidth="140"/>
+        </mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+            <!--<mx:Label text="时间："/>-->
+            <mx:Image source="@Embed(source='/yssoft/assets/images/clock.png')"/>
+            <mx:Label text="{_infoXml.node.@cbegintime}" color="#333333" truncateToFit="true" maxWidth="140"/>
+        </mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+            <!--<mx:Label text="客户："/>-->
+            <mx:Image source="@Embed(source='/yssoft/assets/images/star.png')"/>
+            <mx:Label id="txt_ccustname" width="173" maxWidth="165" color="#333333"
+                      text="{_infoXml.node.@ccustname}" toolTip="{_infoXml.node.@ccustname}"
+                      truncateToFit="true"/>
+        </mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+            <!-- <mx:Label text="人员："/>-->
+            <mx:Image source="@Embed(source='/yssoft/assets/images/status_online.png')"/>
+            <mx:Label text="{_infoXml.node.@ccustperson
+					  +(CRMtool.isStringNotNull(_infoXml.node.@ccustperson)?' • ':'')
+					  +_infoXml.node.@ccustpersondepart
+					  +(CRMtool.isStringNotNull(_infoXml.node.@ccustpersondepart)?' • ':'')
+					  +_infoXml.node.@ccustpersonpost}" color="#333333" truncateToFit="true" maxWidth="140"
+                      toolTip="{_infoXml.node.@ccustperson+' • '+_infoXml.node.@ccustpersondepart+' • '+_infoXml.node.@ccustpersonpost}"/>
+        </mx:HBox>
+    </mx:VBox>
+    <mx:Image source="yssoft/assets/images/fenge_1.png" visible="{lineShow}" includeInLayout="{lineShow}"/>
+</mx:Panel>

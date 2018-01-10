@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="750" height="500"
+                        title="桌面设置"
+                        creationComplete="initData(event)"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Metadata>
+        [Event(name="desktopChange", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.core.DragSource;
+		import mx.events.FlexEvent;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+
+		import yssoft.comps.frame.module.CrmEapRadianVbox;
+		import yssoft.models.CRMmodel;
+		import yssoft.tools.AccessUtil;
+		import yssoft.tools.CRMtool;
+
+		private var iid:int;
+		private var crmeap:CrmEapRadianVbox;
+
+		private var icustomer:int;
+
+		private var iimage:int;
+		private var ccolor:String;
+
+		protected function initData(event:FlexEvent):void {
+			AccessUtil.remoteCallJava("ExplorerDest", "getDesktopList", function (event:ResultEvent):void {
+				var desktopList:ArrayCollection = event.result as ArrayCollection;
+				for each(var item:Object in desktopList) {
+					addDesktopButton_clickHandler(item.ccaption, item.iid);
+					(desktopButtonBox.getChildAt(0) as SmartButton).dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+				}
+			}, {iperson: CRMmodel.userId});
+		}
+
+		protected function addDesktopButton_clickHandler(desktopName:String = "", idesktop:int = 0):void {
+			var desktopButton:SmartButton = new SmartButton();
+			desktopButton.typeid = 3;
+			desktopButton.clickAble = true;
+			if (desktopName == "")
+				desktopButton.text = "双击编辑名称" + (desktopButtonBox.getChildren().length + 1);
+			else
+				desktopButton.text = desktopName;
+			desktopButton.toolTip = "双击编辑名称";
+			desktopButton.addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
+				for each(var s:SmartButton in desktopButtonBox.getChildren()) {
+					s.selected = false;
+				}
+				(event.currentTarget as SmartButton).selected = true;
+
+				tileViewStack.selectedChild = (event.currentTarget as SmartButton).binadbleObj;
+			});
+			desktopButton.doubleClickEnabled = true;
+			desktopButton.addEventListener(MouseEvent.DOUBLE_CLICK, desktopButtonDoubleClick);
+			desktopButton.addEventListener("smartButtonClosed", desktopButtonClosed);
+
+
+			var virtualDesktop:VirtualDesktop = new VirtualDesktop();
+			virtualDesktop.idesktop = idesktop;
+			virtualDesktop.ownerBox = this;
+			this.tileViewStack.addChild(virtualDesktop);
+			this.tileViewStack.selectedChild = virtualDesktop;
+
+
+			//绑定 左侧按钮  对应 的虚拟桌面
+			desktopButton.binadbleObj = virtualDesktop;
+			desktopButtonBox.addChild(desktopButton);
+			desktopButton.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+		}
+
+		protected function desktopButtonClosed(event:Event):void {
+			(event.currentTarget as SmartButton).binadbleObj.clearData();
+			tileViewStack.removeChild((event.currentTarget as SmartButton).binadbleObj);
+			desktopButtonBox.removeChild(event.currentTarget as SmartButton);
+		}
+
+		protected function desktopButtonDoubleClick(event:MouseEvent):void {
+			var editDestopNameTitleWindow:EditDestopNameTitleWindow = new EditDestopNameTitleWindow();
+			editDestopNameTitleWindow.myinit(event.currentTarget as SmartButton);
+			var strTemp:String = "";
+			for each(var s:SmartButton in desktopButtonBox.getChildren()) {
+				strTemp += s.text+",";
+			}
+			strTemp = strTemp.replace(event.currentTarget.text,"");
+			editDestopNameTitleWindow.smartButtonsText = strTemp;
+			editDestopNameTitleWindow.addEventListener("closed", titleWindowClose);
+			this.alpha = 0.8;
+		}
+
+
+		protected function titleWindowClose(event:Event):void {
+			this.alpha = 1;
+		}
+
+		protected function sixButtonMouseMoveHandler(event:MouseEvent):void {
+			var dragInitiator:Button = Button(event.currentTarget);
+			var ds:DragSource = new DragSource();
+			ds.addData(dragInitiator, 'SetWidget');
+			DragManager.doDrag(dragInitiator, ds, event);
+		}
+
+		protected function submit(event:MouseEvent):void {
+			var param:ArrayCollection = new ArrayCollection();
+			for each(var sb:SmartButton in this.desktopButtonBox.getChildren()) {
+				var obj:Object = new Object();
+				obj.ccaption = sb.text;
+				obj.iperson = CRMmodel.userId;
+				obj.itype = 0;
+				obj.ino = this.desktopButtonBox.getChildIndex(sb) + 1;
+
+
+				//取到桌面按钮  对应的 虚拟桌面的数据
+				var ac:ArrayCollection = (sb.binadbleObj as VirtualDesktop).getData();
+				for each(var item:Object in ac) {
+					item.ino = item.row + item.col + item.x + item.y + item.ino + "";
+
+					//六大事项的功能内码定义为0
+					if (item.itype <= 0)
+						item.ifuncregedit = 0;
+					else
+						item.ipage = 0;
+					//	item.iimage = null;
+					//	item.ifunconsult = null;
+					item.ccaption = item.text;
+				}
+				obj.desktopsList = ac;
+				param.addItem(obj);
+			}
+
+			AccessUtil.remoteCallJava("ExplorerDest", "saveDesktopPro", function (event:ResultEvent):void {
+				if (event.result as Boolean) {
+					onCloseHandler();
+					dispatchEvent(new Event("desktopChange"));
+				} else {
+					CRMtool.showAlert("设置失败。");
+				}
+
+			}, param, "正在保存数据...");
+		}
+
+		protected function listViewList_creationCompleteHandler(event:FlexEvent):void {
+			var sql:String = "select DISTINCT ifuncregedit from ac_listcd";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", getlistcdBack, sql);
+		}
+
+		private function getlistcdBack(event:ResultEvent):void {
+			var ac:ArrayCollection = getAuthList("yssoft.comps.frame.FrameworkVBoxView");
+			var listcd:ArrayCollection = event.result as ArrayCollection;
+			var removeList:ArrayCollection = new ArrayCollection();
+			for each(var a:Object in ac) {
+				var flag:Boolean = true;
+				for each(var b:Object in listcd) {
+					if (a.ifuncregedit == b.ifuncregedit)
+						flag = false;
+				}
+				if (flag) {//说明列表没有 快捷查询
+					removeList.addItem(a);
+				}
+			}
+
+			for each (var c:Object in removeList) {
+				ac.removeItemAt(ac.getItemIndex(c));
+			}
+			listViewList.dataProvider = ac;
+		}
+
+		protected function chartViewList_creationCompleteHandler(event:FlexEvent):void {
+
+			var ac:ArrayCollection = getAuthList("yssoft.comps.frame.StatementsVBox");
+			var sql:String = "select * from ac_listset where idiagram>0";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var listcd:ArrayCollection = event.result as ArrayCollection;
+				var removeList:ArrayCollection = new ArrayCollection();
+				for each(var a:Object in ac) {
+					var flag:Boolean = false;
+					for each(var b:Object in listcd) {
+						if (a.ifuncregedit == b.ifuncregedit)
+							flag = true;
+					}
+					if (!flag) {//说明列表没有 快捷查询
+						removeList.addItem(a);
+					}
+				}
+
+				for each (var c:Object in removeList) {
+					ac.removeItemAt(ac.getItemIndex(c));
+				}
+				chartViewList.dataProvider = ac;
+
+			}, sql);
+
+		}
+
+		private function getAuthList(cprogram:String):ArrayCollection {
+			var ac:ArrayCollection = new ArrayCollection();
+			for each(var item:Object in CRMmodel.authMenuList) {
+				if (item.itype == 1 && item.iszc == "yes" && item.cprogram == cprogram) {
+					item.label = item.cname;
+					ac.addItem(item);
+				}
+			}
+			return ac;
+		}
+
+		private function getAuthListWithArray(cprogramAc:Array):ArrayCollection {
+			var ac:ArrayCollection = new ArrayCollection();
+			for each(var item:Object in CRMmodel.authMenuList) {
+				for each (var cprogram:String in cprogramAc) {
+					if (item.cprogram == cprogram) {
+						item.label = item.cname;
+						ac.addItem(item);
+					}
+				}
+			}
+			return ac;
+		}
+
+		protected function otherViewList_creationCompleteHandler(event:FlexEvent):void {
+			otherViewList.dataProvider = getAuthListWithArray(["yssoft.views.plan.MyPlanView"]);
+		}
+		]]>
+	</fx:Script>
+
+    <fx:Declarations>
+    </fx:Declarations>
+    <mx:VBox width="100%" height="100%" paddingTop="6" paddingRight="10" paddingLeft="3">
+        <mx:HBox width="100%" height="100%" horizontalGap="15">
+            <mx:VBox width="200" height="100%" paddingLeft="10">
+                <mx:VBox id="desktopButtonBox" width="100%" verticalGap="5"/>
+                <s:Spacer height="10"/>
+                <mx:LinkButton id="addDesktopButton" visible="{!(desktopButtonBox.getChildren().length>3)}"
+                               icon="@Embed(source='/yssoft/assets/images/arroww.png')" label="添加"
+                               toolTip="点此增加桌面" click="addDesktopButton_clickHandler()"/>
+                <s:Spacer height="10"/>
+                <mx:ViewStack id="leftVs" width="100%" height="100%" creationPolicy="all">
+                    <mx:VBox width="100%" height="100%">
+                        <s:Spacer height="100%"/>
+                        <mx:VBox id="sixBox" width="100%" verticalGap="5">
+                            <s:Button id="six1" label="待办事项" mouseMove="sixButtonMouseMoveHandler(event)" height="25"
+                                      width="100%"/>
+                            <s:Button id="six2" label="已办事项" mouseMove="sixButtonMouseMoveHandler(event)" height="25"
+                                      width="100%"/>
+                            <s:Button id="six3" label="跟踪事项" mouseMove="sixButtonMouseMoveHandler(event)" height="25"
+                                      width="100%"/>
+                            <s:Button id="six4" label="已发事项" mouseMove="sixButtonMouseMoveHandler(event)" height="25"
+                                      width="100%"/>
+                            <s:Button id="six5" label="公告通知" mouseMove="sixButtonMouseMoveHandler(event)" height="25"
+                                      width="100%"/>
+                            <s:Button id="six6" label="交流论坛" mouseMove="sixButtonMouseMoveHandler(event)" height="25"
+                                      width="100%"/>
+                        </mx:VBox>
+                    </mx:VBox>
+                    <mx:VBox width="100%" height="100%">
+                        <mx:List id="listViewList" width="100%" height="100%" labelField="cname"
+                                 dragEnabled="true"
+                                 creationComplete="listViewList_creationCompleteHandler(event)"/>
+                    </mx:VBox>
+                    <mx:VBox width="100%" height="100%">
+                        <mx:List id="chartViewList" width="100%" height="100%" labelField="cname"
+                                 dragEnabled="true"
+                                 creationComplete="chartViewList_creationCompleteHandler(event)"/>
+                    </mx:VBox>
+                    <mx:VBox width="100%" height="100%">
+                        <mx:List id="otherViewList" width="100%" height="100%" labelField="cname"
+                                 dragEnabled="true"
+                                 creationComplete="otherViewList_creationCompleteHandler(event)"/>
+                    </mx:VBox>
+                </mx:ViewStack>
+            </mx:VBox>
+            <mx:ViewStack id="tileViewStack" width="100%" height="100%"
+                          borderStyle="inset" borderVisible="{tileViewStack.getChildren().length==0}"/>
+
+        </mx:HBox>
+        <mx:HBox width="100%" paddingRight="10" paddingLeft="10" height="35" verticalAlign="middle">
+            <mx:HBox width="200" horizontalGap="2" horizontalAlign="center">
+                <s:RadioButton label="常规" click="{leftVs.selectedIndex=0}" selected="true"/>
+                <s:RadioButton label="列表" click="{leftVs.selectedIndex=1}"/>
+                <s:RadioButton label="图表" click="{leftVs.selectedIndex=2}"/>
+                <s:RadioButton label="其他" click="{leftVs.selectedIndex=3}" visible="false" includeInLayout="false"/>
+            </mx:HBox>
+
+            <s:Spacer width="100%"/>
+            <s:Button label="确定" click="submit(event)"/>
+            <s:Button label="放弃" click="onCloseHandler()"/>
+        </mx:HBox>
+    </mx:VBox>
+</basic:BasicTitleWindow>

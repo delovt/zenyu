@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*"
+                width="100%" height="100%"
+                creationComplete="getDepartmentTreeXml();myinit();"
+                updateComplete="hdividedbox1_updateCompleteHandler(event)"
+                styleName="contentHDividedBox"
+                implements="yssoft.impls.ICRMWindow">
+    <fx:Script>
+		<![CDATA[
+		import mx.controls.ToolTip;
+		import mx.controls.dataGridClasses.DataGridItemRenderer;
+		import mx.events.CollectionEvent;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.managers.ToolTipManager;
+		
+		import yssoft.comps.frame.module.CrmEapTextInput;
+		import yssoft.models.ConstsModel;
+
+		[Bindable]
+		private var ipersonAll:int = 0;
+
+		[Bindable]
+		private var irealpersonAll:int = 0;
+
+		public var pauseArr:ArrayCollection = new ArrayCollection([
+			{label: "撤销", name: "onPause"        },
+			{label: "反撤销", name: "onPauseBack"  }
+		]);
+
+		public function cal():void {
+			ipersonAll = 0;
+			//irealpersonAll = 0;
+			for each(var obj:Object in jobArr) {
+				var count:int = obj.iperson as int;
+				var count1:int = obj.irealperson as int;
+				ipersonAll = count + ipersonAll;
+				//irealpersonAll = count1 + irealpersonAll;
+			}
+		}
+
+		public function myinit():void {
+			var iheadTextInput:CrmEapTextInput;
+			var ichargeTextInput:CrmEapTextInput;
+			var ileadTextInput:CrmEapTextInput;
+
+			if (IheadBox.getChildByName("UI_C1") != null) {
+				IheadBox.removeChild(IheadBox.getChildByName("UI_C1"));
+			}
+
+			if (IchargeBox.getChildByName("UI_C2") != null) {
+				IchargeBox.removeChild(IchargeBox.getChildByName("UI_C2"));
+			}
+
+			if (IleadBox.getChildByName("UI_C3") != null) {
+				IleadBox.removeChild(IleadBox.getChildByName("UI_C3"));
+			}
+
+
+			var obj1:Object = new Object();
+			obj1.cobjectname = "iheadTextInput";
+			obj1.ifuncregedit = "9";
+			obj1.cfield = "ihead";
+			jobArr.addEventListener(CollectionEvent.COLLECTION_CHANGE, cal);
+			AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+
+				if (evt.result != null) {
+					var consultObj:Object = evt.result;
+
+					iheadTextInput = new CrmEapTextInput();
+					iheadTextInput.percentWidth = 100;
+					iheadTextInput.name = "UI_C1";
+					consultObj.cobjectname = "UI_C1";
+					iheadTextInput.singleType = consultObj;
+					IheadBox.addChild(iheadTextInput);
+					iheadTextInput.editable = false;
+				}
+			}, obj1);
+
+			var obj2:Object = new Object();
+			obj2.cobjectname = "ichargeTextInput";
+			obj2.ifuncregedit = "9";
+			obj2.cfield = "icharge";
+
+			AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+
+				if (evt.result != null) {
+					var consultObj:Object = evt.result;
+
+					ichargeTextInput = new CrmEapTextInput();
+					ichargeTextInput.percentWidth = 100;
+					ichargeTextInput.name = "UI_C2";
+					consultObj.cobjectname = "UI_C2";
+					ichargeTextInput.singleType = consultObj;
+					IchargeBox.addChild(ichargeTextInput);
+					ichargeTextInput.editable = false;
+
+				}
+			}, obj2);
+
+			var obj3:Object = new Object();
+			obj3.cobjectname = "ileadTextInput";
+			obj3.ifuncregedit = "9";
+			obj3.cfield = "ilead";
+
+			AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+
+				if (evt.result != null) {
+					var consultObj:Object = evt.result;
+
+					ileadTextInput = new CrmEapTextInput();
+					ileadTextInput.percentWidth = 100;
+					ileadTextInput.name = "UI_C3";
+					consultObj.cobjectname = "UI_C3";
+					ileadTextInput.singleType = consultObj;
+					IleadBox.addChild(ileadTextInput);
+					ileadTextInput.editable = false;
+				}
+			}, obj3);
+		}
+
+		protected function hdividedbox1_updateCompleteHandler(event:FlexEvent):void {
+
+			CRMtool.setTabIndex(this.myBorder);
+		}
+
+		//lr add
+		private function buttonBar1_itemClickHandler(event:ItemClickEvent):void {
+			var type:String = event.item.name as String;
+
+			if ((lbr_Department.getChildAt(4) as Button).enabled) {
+				CRMtool.showAlert("请先保存，再执行此操作。");
+				return;
+			}
+
+			var sql:String = "";
+			if (type == "onPause") {//撤销，检查下级节点
+				sql = "select iid from hr_department where isnull(istatus,0)!=2 and ipid=" + this.tre_department.selectedItem.@iid;
+			} else {//反撤销检查上级节点
+				sql =  "select iid from hr_department where isnull(istatus,0)=2 and iid=(select ipid from hr_department where iid= "+this.tre_department.selectedItem.@iid+")";
+			}
+
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var ac:ArrayCollection = event.result as ArrayCollection;
+				if(ac&&ac.length>0){
+					if (type == "onPause") {
+						CRMtool.showAlert("请先撤销下级节点，再执行此操作。");
+					} else {
+						CRMtool.showAlert("请先反撤销上级节点，再执行此操作。");
+					}
+					return;
+				}else{
+					var sql:String = "";
+					if (type == "onPause") {
+						sql = "update hr_department set istatus=2 where iid=" + tre_department.selectedItem.@iid;
+					} else {
+						sql = "update hr_department set istatus=1 where iid=" + tre_department.selectedItem.@iid;
+					}
+
+					AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+						(pauseBar.getChildAt(0) as Button).enabled = !(pauseBar.getChildAt(0) as Button).enabled;
+						(pauseBar.getChildAt(1) as Button).enabled = !(pauseBar.getChildAt(1) as Button).enabled;
+
+						if (showAllBox.selected) {//显示所有的，不刷新树
+							if (tre_department.selectedItem.@istatus == 2) {
+								tre_department.selectedItem.@istatus = 1;
+                                var cname:String = tre_department.selectedItem.@cname;
+                                tre_department.selectedItem.@cname = cname.substring(0,cname.indexOf(" [已撤销]"));
+							} else {
+								tre_department.selectedItem.@istatus = 2;
+                                tre_department.selectedItem.@cname += " [已撤销]";
+							}
+						} else {//仅显示需要的，刷新树
+							getDepartmentTreeXml("false");
+						}
+
+					}, sql, null, false);
+				}
+
+			}, sql, null, false);
+		}
+
+		private function checkBox1_changeHandler(event:Event):void {
+			if(showAllBox.selected){
+				getDepartmentTreeXml("true");
+			}else{
+				getDepartmentTreeXml("false");
+			}
+		}
+		]]>
+	</fx:Script>
+    <fx:Script source="../../../yssoft/scripts/DepartmentViewScript.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <!-- 角色树 -->
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <s:Label text="{ConstsModel.DEPARTMENT_LABLE}" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_department"
+								 width="100%" height="100%" click="selectedJob();"/>
+        </mx:HBox>
+    </mx:VBox>
+
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="centerbg4">
+        <mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+            <comps:LinkBarVboxComps id="lbr_Department" height="25" width="15%" dataProvider="{ConstsModel.LBRITEM}"
+                                    styleName="contentButtonBar" onSaveEvent="onSave(event)"
+                                    onDeleteEvent="onDelete(event);" onGiveUpEvent="onGiveUp(event);"
+                                    onNewEvent="onNew(event)"
+                                    onEditEvent="onEdit(event)"/>
+			<mx:ButtonBar id="pauseBar" height="25" styleName="contentButtonBar2" dataProvider="{pauseArr}" itemClick="buttonBar1_itemClickHandler(event)"
+						  enabled="{CRMtool.isStringNotNull(hideLabel.text)}" />
+			<s:Label id="hideLabel" visible="false" includeInLayout="false" text="{tre_department.selectedItem.@iid}"/>
+			<s:CheckBox id="showAllBox" label="显示撤销节点" change="checkBox1_changeHandler(event)"/>
+            <s:Spacer width="95%"/>
+        </mx:ApplicationControlBar>
+        <mx:VBox width="100%" height="100%" styleName="roleHbox">
+            <mx:VBox width="100%" height="30%" styleName="content" id="myBorder">
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox width="50%">
+                        <mx:Label text="{ConstsModel.DEPARTMENT_CCODE_LABLE}:" styleName="contentLabel"/>
+                        <mx:TextInput id="tnp_ccode" height="100%" text="{this.tre_department.selectedItem.@ccode}"
+                                      styleName="contentTextInput" width="100%"/>
+                        <!--<comps:CRMReferTextInput id="tnp_ccode" styleName="contentTextInput" iid="19" width="100%" text="{this.tre_department.selectedItem.@ccode}"
+                              visibleIcon="{tnp_ccode.editable}" />-->
+                    </mx:HBox>
+                    <mx:HBox width="50%">
+                        <mx:Label text="{ConstsModel.DEPARTMENT_CNAME_LABLE}:" styleName="contentLabel"/>
+                        <mx:TextInput id="tnp_cname"
+                                      text="{this.tre_department.selectedItem.@cname}" styleName="contentTextInput"
+                                      width="100%"/>
+                        <!--	<comps:CRMReferTextInput id="tnp_cname" styleName="contentTextInput" iid="20" width="100%"
+                              text="{this.tre_department.selectedItem.@cname}"  visibleIcon="{tnp_ccode.editable}" />-->
+                    </mx:HBox>
+                </mx:HBox>
+
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox id="IheadBox" width="50%">
+                        <mx:Label text="{ConstsModel.DEPARTMENT_IHEAD_LABLE}:" styleName="contentLabel"/>
+                    </mx:HBox>
+                    <mx:HBox id="IchargeBox" width="50%">
+                        <mx:Label text="{ConstsModel.DEPARTMENT_ICHARGE_LABLE}:" styleName="contentLabel"/>
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox id="IleadBox" width="50%">
+                        <mx:Label text="分管领导" styleName="contentLabel"/>
+                    </mx:HBox>
+                    <mx:HBox width="50%">
+                        <mx:Label text="编码前缀:" styleName="contentLabel"/>
+                        <mx:TextInput id="tnp_cabbreviation" styleName="contentTextInput" width="100%"
+                                      text="{this.tre_department.selectedItem.@cabbreviation}"/>
+                    </mx:HBox>
+                </mx:HBox>
+
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox width="50%">
+                        <mx:Label text="{ConstsModel.DEPARTMENT_IPERSON_LABLE}:" styleName="contentLabel"/>
+                        <mx:TextInput id="tnp_iperson" height="100%" styleName="contentTextInput" width="100%"
+                                      editable="false" text="{ipersonAll==0?'':String(ipersonAll)}"/>
+                        <!--<comps:CRMReferTextInput id="tnp_iperson" styleName="contentTextInput" iid="25" width="100%"
+                              text="{this.tre_department.selectedItem.@iperson}" visibleIcon="{tnp_iperson.editable}"  />-->
+                    </mx:HBox>
+
+                    <mx:HBox width="50%">
+                        <mx:Label text="{ConstsModel.DEPARTMENT_IREALPERSON_LABLE}:" styleName="contentLabel"/>
+                        <mx:TextInput id="tnp_irealperson" height="100%" styleName="contentTextInput" width="100%"
+                                      editable="false" text="{irealpersonAll==0?'':String(irealpersonAll)}"/>
+                    </mx:HBox>
+                </mx:HBox>
+            </mx:VBox>
+
+            <mx:VBox width="100%" height="100%">
+                <mx:HBox horizontalAlign="right" width="100%" height="2%" paddingBottom="5" paddingTop="5">
+                    <mx:LinkButton icon="{ConstsModel._ADDITIONICON}" click="addNewItem();" toolTip="增行"/>
+                    <mx:LinkButton icon="{ConstsModel._SUBTRACTIONICON}" click="deleteItem();" toolTip="删行"/>
+                    <mx:LinkButton icon="{ConstsModel._SAVEICON}" click="onSaveJob();" toolTip="保存"/>
+                </mx:HBox>
+                <mx:HBox width="100%" height="100%">
+                    <mx:DataGrid id="dgrd_department" width="100%" height="100%" borderVisible="true" borderAlpha="1"
+                                 borderColor="#c4cccc" dataProvider="{jobArr}" editable="true" sortableColumns="false">
+                        <mx:columns>
+                            <mx:DataGridColumn headerText="{ConstsModel.JOB_CCODE_LABLE}" dataField="ccode"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.JOB_CNAME_LABLE}" dataField="cname"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.JOB_IDEPARTMENT_LABLE}" dataField="idepartment"
+                                               labelFunction="departmentFomart" editable="false"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.JOB_CWORK_LABLE}" dataField="cwork"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.JOB_IPERSON_LABLE}" dataField="iperson"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.JOB_IREALPERSON_LABLE}" dataField="irealperson"
+                                               editable="false"/>
+                        </mx:columns>
+                    </mx:DataGrid>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:VBox>
+</mx:HDividedBox>

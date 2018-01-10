@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                          xmlns:s="library://ns.adobe.com/flex/spark"
+                          focusEnabled="true" xmlns:module="yssoft.comps.frame.module.*"
+        >
+    <fx:Script>
+		<![CDATA[
+        import mx.events.FlexEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.comps.frame.module.CrmEapDataGrid;
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+
+        //所有信息
+        [Bindable]
+        private var _singleType:Object;
+
+        public var paramForm:CrmEapRadianVbox;
+        public var grid:CrmEapDataGrid;
+
+        public function set singleType(value:Object):void {
+            this.consultti.singleType = value;
+            _singleType = value;
+        }
+
+        public function get singleType():Object {
+            return this._singleType;
+        }
+
+        public var subTableAssignment:Function;
+
+        public var constraintFormula:Function;
+
+        override public function set data(value:Object):void {
+
+            super.data = value;
+            consultti.paramForm = this.paramForm;
+            consultti.conditionSqlFunction = this.conditionSqlFunction;
+            var cfield:String = dataGridListData.dataField + "_enabled";
+            consultti.dataObj = value;
+            grid = dataGridListData.owner as CrmEapDataGrid;
+        }
+
+        private var _data_iconsult:String;
+        public function get data_iconsult():String {
+            return consultti.text;
+        }
+
+        public function set data_iconsult(val:String):void {
+            this._data_iconsult = val;
+        }
+
+
+        //
+        public function conditionSqlFunction(cconsultconfld:String):String {
+            var cconsultconfldArr:Array = cconsultconfld.split("|");
+
+            var value:Object = paramForm.getValue();
+            var sql:String = "";
+            for (var i:int = 0; i < cconsultconfldArr.length; i++) {
+                var cconsultconfldObj:String = cconsultconfldArr[i] as String;
+                var cconsultconfldObjArr:Array = cconsultconfldObj.split("=");
+                sql += " and " + cconsultconfldObjArr[0];
+                var cfield:String = cconsultconfldObjArr[1];
+
+                //从表头取出值作为条件
+                if (cfield && cfield.indexOf(".") != -1) {
+                    var cfield2:String = cfield.substr(cfield.indexOf(".") + 1);
+                    if (null == value[cfield2]) {
+                        sql += " is null";
+                    }
+                    else {
+                        sql += "='" + value[cfield2] + "'";
+                    }
+                }
+                //从表体本身(当前行)取值作为条件
+                else if (data.hasOwnProperty(cfield)) {
+                    if (null == data[cfield]) {
+                        sql += " is null";
+                    }
+                    else {
+                        sql += "='" + data[cfield] + "'";
+                    }
+                }
+                //常量
+                else {
+                    sql += cfield;
+                }
+            }
+            return sql;
+        }
+
+
+        protected function csl_textinput_valueChangeHandler(event:Event):void {
+
+            var cfield:String = dataGridListData.dataField as String;
+
+            data[cfield] = consultti.text;
+            if (cfield.indexOf("_Name") != -1) {
+                var cfields:String = cfield.substring(0, cfield.indexOf("_Name"));
+                if (consultti.consultList != null && consultti.consultList.length > 0) {
+                    var cconsultbkfld:String = _singleType.cconsultbkfld;
+                    data[cfields] = consultti.consultList.getItemAt(0)[StringUtil.trim(cconsultbkfld)];
+                    dataGridListData.owner.initialize();
+                    subTableAssignment(cfields, singleType.ctable, data[cfields], data, true, dataGridListData.owner);
+
+                    //refreshGridData();
+                }
+                else {
+                    var i:int = data[cfields];
+                    data[cfields] = null;
+                    data[cfield] = null;
+                    if (i > 0)
+                        subTableAssignment(cfields, singleType.ctable, 0, data, true, dataGridListData.owner);
+                }
+
+            }
+            refreshGridData();
+        }
+
+
+
+        protected function consultti_creationCompleteHandler(event:FlexEvent):void {
+            consultti.crmName = singleType.cobjectname;
+            consultti.ctable = singleType.ctable;
+            consultti.cfield = singleType.cfield;
+            consultti.singleType = singleType;
+            consultti.dataObj = data;
+
+            consultti.paramForm = this.paramForm;
+            //if (_singleType.iconsult == null || _singleType.iconsult <= 0) {
+                consultti.setFocus();
+            //}
+        }
+
+
+        //计算公式使用，是否用户更改数据开关
+        var changeFlag:Boolean = false;
+
+        protected function onChange():void {
+            //data[dataGridListData.dataField] = consultti.text;
+            changeFlag = true;
+        }
+
+        protected function consultti_focusOutHandler():void {
+            if (changeFlag) {
+                data[dataGridListData.dataField] = consultti.text;
+                var cfield:String = dataGridListData.dataField as String;
+                var ctable:String = singleType.ctable;
+
+                if (cfield.indexOf("_Name") > -1)
+                    return;
+
+                if (this._singleType.cresfunction != null && this._singleType.cresfunction != "") {
+                    constraintFormula(cfield, ctable, data[cfield], consultti, data, dataGridListData.owner);
+                }
+
+                if (this._singleType.cfunction != null && this._singleType.cfunction != "") {
+                    subTableAssignment(cfield, ctable, data[cfield], data, true, dataGridListData.owner, execFunctionBack);
+                }
+
+            }
+
+            changeFlag = false;
+            if (_singleType.ctype != 'datetime')
+                consultti.editable = false;
+        }
+
+        protected function consultti_clickHandler(event:MouseEvent):void {
+            data[dataGridListData.dataField] = consultti.text;
+            var cfield:String = dataGridListData.dataField as String;
+            var ctable:String = singleType.ctable;
+
+            if (cfield.indexOf("_Name") > -1)//参照类型 不需要单击触发计算公式
+                return;
+            subTableAssignment(cfield, ctable, data[cfield], data, true, dataGridListData.owner, execFunctionBack);
+
+        }
+
+        private function refreshGridData():void {
+            var dg:CrmEapDataGrid = this.owner as CrmEapDataGrid;
+            dg.invalidateList();
+        }
+
+        //计算公式完成后，刷新数据
+        public function execFunctionBack():void {
+            callLater(function ():void {
+                grid.invalidateList();
+            })
+        }
+        ]]>
+	</fx:Script>
+    <module:CrmEapTextInput id="consultti" width="100%" valueChange="csl_textinput_valueChangeHandler(event)"
+                            text="{data[dataGridListData.dataField]}" isItemEditor="true"
+                            creationComplete="consultti_creationCompleteHandler(event)" change="onChange()"
+                            focusOut="consultti_focusOutHandler()" click="consultti_clickHandler(event)"/>
+</s:MXDataGridItemRenderer>

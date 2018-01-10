@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 获取菜单列表 -->
+	<select id="DatadictionaryDest.getTreeMenu" resultClass="java.util.HashMap" >
+		Select  iid,ipid, ccode, cname, cprogram, ctable, iworkflow, iform, coperauth, cdataauth,bdictionary,bnumber,bquery, 
+		blist,brepeat,isnull(bworkflow,0) bworkflow,cparameter,ifuncregedit,boperauth,bdataauth,bdataauth1,bdataauth2,
+		brelation,bprint,iimage,bvouchform,buse,bbind,ccaptionfield,bworkflowmodify from as_funcregedit where 1=1
+		order by ccode 
+	</select>
+	
+	<!-- 获取菜单列表 -->
+	<select id="DatadictionaryDest.getTreeMenu2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		Select  iid,ipid, ccode, cname, cprogram, ctable, iworkflow, iform, coperauth, cdataauth,bdictionary,bnumber,
+		bquery, blist,brepeat,isnull(bworkflow,0) bworkflow,cparameter,ifuncregedit,boperauth,
+		bdataauth,bdataauth1,bdataauth2,brelation,bprint,
+			'' foreignKey,'' primaryKey,'' bMain,'' ctable2,iimage,bvouchform,buse from as_funcregedit 
+		where 1=1
+		<isNotEmpty prepend="and" property="sqlcondition"> 
+			$sqlcondition$
+		</isNotEmpty>
+		order by ccode 
+	</select>
+	
+	<!-- 获得表 -->
+	<select id="DatadictionaryDest.getTable" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		select iid,ccode,ctable cname,ctable2,foreignKey,primaryKey,
+		bMain,ifuncregedit ipid from ac_tableRelationship where 1=1
+		<isNotEmpty prepend="and" property="ifuncregedit"> 
+				ifuncregedit=#ifuncregedit#
+		</isNotEmpty>
+	 	<isNotEmpty prepend="and" property="tablename"> 
+			ctable=#tablename#
+		</isNotEmpty>
+	</select>
+	
+<!--	获取表结构   -->
+	<select id="DatadictionaryDest.getDataList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	select c.*,ac.cname iconsultname,ac.itype itype from (
+			select 
+			d.iid,isnull(d.ifuncregedit,0) ifuncregedit,d.ctable,d.cfield,
+				d.ccaption, case when idatatype=0 then 'nvarchar'
+							       when idatatype=1 then 'int'
+							       when idatatype=2 then 'float'
+							       when idatatype=3 then 'datetime'
+							       when idatatype=4 then 'bit'
+							       when idatatype=5 then 'image' end idatatype,
+			isnull(d.ilength,0)ilength,isnull(d.bsystem,0) bsystem,
+			isnull(d.bprefix,0) bprefix,isnull(d.bwfentry,0) bwfentry,
+			isnull(d.bwfcd,0) bwfcd,d.cregularfunction,d.cregularmessage,
+			cunique,d.cfunction,d.cresfunction,
+			d.cresmessage,isnull(d.binvoiceuser,0) binvoiceuser,
+			co.cconsultfunction,
+			isnull(co.iid,0) iconsultConfiguration,
+			isnull(co.iconsult,0)iconsult, 
+			co.cconsulttable,co.cconsultbkfld,co.cconsultswfld,co.cconsultipvf,
+			isnull(co.bconsultmtbk,0) bconsultmtbk,isnull(co.bconsultendbk,0)bconsultendbk,
+			isnull(co.bconsultcheck,0)bconsultcheck,co.cconsultconfld,co.cconsultedit,
+			isnull(benabled,0)benabled,co.cconsultcondition,co.cclassviewcondition,isnull(co.bclassview,0) bclassview ,
+			case when co.cclasstitle is null then d.ccaption else  co.cclasstitle  end cclasstitle,
+			isnull(d.bintitle,0) bintitle,bbatchupdate,isnull(bunique,0)  bunique   
+			from AC_datadictionary d 
+			left join Ac_consultConfiguration co on d.iid=co.idatadictionary  where 1=1
+		   	<isNotEmpty prepend="and" property="tablename"> 
+				ctable=#tablename#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="ifuncregedit"> 
+				ifuncregedit=#ifuncregedit#
+			</isNotEmpty>
+			<isNotEqual prepend="and" property="iid" compareValue="0"> 
+				d.iid=#iid#
+			</isNotEqual>
+			) c left join ac_consultset ac on c.iconsult=ac.iid
+	</select>
+	
+	
+	<!--	更新表结构-->
+	<update id="DatadictionaryDest.updateDataList" parameterClass="java.util.HashMap">                                                   
+		$sqlValue$
+	</update>
+	
+	
+	<select id="DatadictionaryDest.getDataAndconsultset" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+	select d.idatatype,ccf.iconsult,ccf.cconsulttable,ccf.cconsultbkfld,ccf.cconsultedit,ccf.cconsultswfld,ccf.bconsultmtbk,ccf.bconsultendbk,
+			ccf.cconsultipvf,c.itype,c.ctreesql,c.cgridsql,c.cconnsql,d.bprefix,vf.bread,vf.bunnull,
+		vf.cnewdefault,vf.ceditdefault,d.cfield,d.ccaption,isNull(vf.idatetype,0) idatetype,cunique,
+		cconsultconfld,cfunction,cnewdefaultfix,f.cprogram,f.cname funcname,f.cparameter,c.ifuncregedit,
+		d.cresfunction,d.cresmessage,ccf.iconsult,
+		d.binvoiceuser,d.binvoiceuser,cconsultcondition from AC_datadictionary d 
+		left join Ac_consultConfiguration ccf on ccf.idatadictionary=d.iid
+		left join ac_consultset c on c.iid= ccf.iconsult 
+		left join AC_vouchform vf on vf.idatadictionary=d.iid
+		left join AS_funcregedit f on c.ifuncregedit=f.iid
+		 where 1=1
+		<isNotEmpty prepend="and" property="tablename"> 
+					d.ctable=#tablename#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="iid"> 
+			d.iid=#iid# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="ifuncregedit"> 
+			d.ifuncregedit=#ifuncregedit#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="binvoiceuser"> 
+			d.binvoiceuser=#binvoiceuser#
+		</isNotEmpty>
+	</select>
+	
+	<!-- 查询参照信息 -->
+	<select id="querey_vouchForm" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select v.iid,isnull(v.ivouch,0) ivouch,isnull(v.bmain,0) bmain,
+		v.ctable,d.cfield,v.idatadictionary,
+		v.ccaption,isnull(v.idecimal,0)idecimal,isnull(v.bunnull,0) bunnull,
+		isnull(v.bread,0) bread,v.cnewdefault,v.cnewdefaultfix,v.ceditdefault,
+		v.cobjectname,isnull(v.iobjecttype,0) iobjecttype,isnull(v.igroupno,0) igroupno,
+		isnull(v.igrouprow,0) igrouprow,isnull(vf.cobjectname,0) ipgroup,
+		isnull(v.ichildno,0) ichildno,
+		isnull(v.iwidth,0) iwidth,isnull(v.iheight,0) iheight,isnull(v.bshow,0) bshow,
+		isnull(v.idatetype,0) idatetype,0 enabled from AC_vouchform v
+		left join AC_datadictionary d  on v.idatadictionary=d.iid 
+		left join AC_vouch vo on vo.iid=v.ivouch
+		left join AC_vouchform vf on vf.iid=v.ipgroup
+		where vo.ifuncregedit=#ifuncregedit# 
+		<isNotEmpty prepend="and" property="ctable"> 
+				v.ctable=#ctable#
+		</isNotEmpty>
+		order by v.iid
+	</select>
+	
+	<insert id="add_vouch" parameterClass="java.util.HashMap">
+		insert into AC_vouch(ifuncregedit,ccode,cname) values(#ifuncregedit#,#ccode#,#cname#)
+		 <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	    </selectKey> 
+	</insert>
+	
+	<select id="querry_vouch" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from AC_vouch where ifuncregedit=#ifuncregedit#
+	</select>
+	
+	<update id="update_vouch" parameterClass="java.util.HashMap" >
+		update AC_vouch set ccode=#ccode#,cname=#cname# where ifuncregedit=#ifuncregedit#
+	</update>
+	
+	<delete id="remove_vouch" parameterClass="int">
+		begin
+			delete from AC_vouchform where ivouch=#ivouch#;
+			delete from AC_vouch where iid=#ivouch#;
+		end;
+	</delete>
+	
+	<select id="query_notinData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select d.iid idatadictionary,d.cfield,d.ccaption,ctable from AC_datadictionary d 
+		where ifuncregedit=#ifuncregedit#
+		and ctable=#ctable# and iid not in(
+			select isnull(idatadictionary,0) from AC_vouchform vf 
+			left join AC_vouch v on vf.ivouch=v.iid
+			where v.ifuncregedit=#ifuncregedit# and vf.ctable=#ctable#)
+		<isNotEmpty prepend="and" property="cfield"> 
+				d.cfield=#cfield#
+		</isNotEmpty>
+	</select>
+	
+	<insert id="add_tableRelationship" parameterClass="java.util.HashMap">
+		insert into ac_tableRelationship(ccode,ctable,ctable2,foreignKey,primaryKey,bMain,ifuncregedit,cfunction)
+		values(#ccode#,#ctable#,#ctable2#,#foreignKey#,#primaryKey#,#bMain#,#ifuncregedit#,#cfunction#)
+		 <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	    </selectKey> 
+	</insert>
+	
+	<!-- 查询dtatGrid -->
+	<select id="query_dataGrid" resultClass="java.util.HashMap" parameterClass="int">
+		select d.iid,t.ctable,cfield cname,t.iid ipid from AC_datadictionary d
+		left join ac_tableRelationship t on d.ctable=t.ctable 
+		and d.ifuncregedit=t.ifuncregedit where t.ifuncregedit=#ifuncregedit#
+	</select>
+	
+	<!-- 查询关系 -->
+	<select id="query_tableRelationship" resultClass="java.util.HashMap" parameterClass="int">
+		select iid,ctable cname,'' cfield,-1 ipid from ac_tableRelationship where ifuncregedit=#ifuncregedit#
+	</select>
+	
+	<!--根据功能内码获取相关功能参照sql串 刘磊 -->
+	<select id="get_funcregeditsqlstr" resultClass="String" parameterClass="int">
+	    select 'select * from '+ctable from as_funcregedit where iid=#iid#
+	</select>
+	
+	<select id="get_bodyConsult" resultClass="java.util.HashMap" parameterClass="int">
+		select c.*,ac.cname iconsultname from(select * from Ac_triggerbodyconsult 
+		where iconsultConfiguration=#iconsultConfiguration#) c  
+			left join ac_consultset ac on c.iconsult=ac.iid
+	</select>
+	
+	<!-- 根据业务字典中选中的参照的内码，判断该参照是否为树型或树表参照 -->
+	<select id="query_checkistreedatadict" resultClass="int" parameterClass="Object">
+		select itype from ac_consultset where iid=#iid# 
+	</select>
+</sqlMap>

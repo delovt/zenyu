@@ -1,0 +1,1183 @@
+<ReportSettings version="1.1">
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>徐矿集团业务摘要</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>18</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting"/>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>开始时间：</Value>
+          <BindingValue>开始时间</BindingValue>
+          <Width>5</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>结束时间：</Value>
+          <BindingValue>结束时间</BindingValue>
+          <Width>5</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.9</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.94</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表1数据.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>售前业务</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最早一次日期</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最早一次经办人</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最近一次日期</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最近一次经办人</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>累计次数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>累计次数</Value>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>业务活动</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="业务活动"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="业务活动"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="业务活动")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="业务活动"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="业务活动"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="业务活动"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="业务活动")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="业务活动"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="业务活动")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="业务活动"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <Height>0.8</Height>
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>销售线索</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="销售线索"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="销售线索"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="销售线索")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="销售线索"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="销售线索"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="销售线索"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="销售线索")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="销售线索"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="销售线索")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="销售线索"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>销售商机</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="销售商机"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="销售商机"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="销售商机")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="销售商机"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="销售商机"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="销售商机"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="销售商机")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="销售商机"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="销售商机")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="销售商机"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表2数据.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表2数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>售中业务</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最早一次日期</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最早一次经办人</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最近一次日期</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最近一次经办人</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>累计次数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>累计金额</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>新购合同</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="新购合同"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="新购合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="新购合同")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="新购合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="新购合同"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="新购合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="新购合同")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="新购合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="新购合同")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="新购合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="新购合同")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="新购合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>升级合同</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="升级合同"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="升级合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="升级合同")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="升级合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="升级合同"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="升级合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="升级合同")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="升级合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="升级合同")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="升级合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="升级合同")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="升级合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务合同</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="服务合同"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="服务合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="服务合同")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="服务合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="服务合同"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="服务合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="服务合同")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="服务合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="服务合同")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="服务合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="服务合同")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="服务合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>耗材合同</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="耗材合同"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="耗材合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="耗材合同")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="耗材合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="耗材合同"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="耗材合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="耗材合同")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="耗材合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="耗材合同")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="耗材合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="耗材合同")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="耗材合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>开发合同</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="开发合同"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="开发合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="开发合同")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="开发合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="开发合同"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="开发合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="开发合同")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="开发合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="开发合同")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="开发合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="开发合同")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="开发合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>培训合同</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="培训合同"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="培训合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="培训合同")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="培训合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="培训合同"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="培训合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="培训合同")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="培训合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="培训合同")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="培训合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="培训合同")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="培训合同"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>销售回款</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="销售回款"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="销售回款"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="销售回款")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="销售回款"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="销售回款"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="销售回款"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="销售回款")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="销售回款"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="销售回款")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="销售回款"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="销售回款")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="销售回款"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>销售开票</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="销售开票"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="销售开票"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="销售开票")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="销售开票"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="销售开票"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="销售开票"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="销售开票")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="销售开票"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="销售开票")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="销售开票"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="销售开票")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="销售开票"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>销售出库</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="销售出库"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="销售出库"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="销售出库")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="销售出库"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="销售出库"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="销售出库"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="销售出库")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="销售出库"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="销售出库")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="销售出库"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计金额.value,Fields!类型.value=="销售出库")==0,"",Get(Fields!累计金额.value,Fields!类型.value=="销售出库"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表3数据.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表3数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>售后业务</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最早一次日期</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最早一次经办人</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最近一次日期</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>最近一次经办人</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>累计次数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>累计次数</Value>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>热线服务</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="热线服务"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="热线服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="热线服务")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="热线服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="热线服务"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="热线服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="热线服务")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="热线服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="热线服务")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="热线服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>远程服务</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="远程服务"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="远程服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="远程服务")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="远程服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="远程服务"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="远程服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="远程服务")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="远程服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="远程服务")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="远程服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>电话服务</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="电话服务"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="项目实施"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="电话服务")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="电话服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="电话服务"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="电话服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="电话服务")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="电话服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="电话服务")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="电话服务"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>项目实施</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="项目实施"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="项目实施"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="项目实施")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="项目实施"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="项目实施"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="项目实施"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="项目实施")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="项目实施"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="项目实施")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="项目实施"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>产品培训</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>11.5</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最早一次日期.value,Fields!类型.value=="产品培训"))==0,"",Get(Fields!最早一次日期.value,Fields!类型.value=="产品培训"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最早一次经办人.value,Fields!类型.value=="产品培训")==0,"",Get(Fields!最早一次经办人.value,Fields!类型.value=="产品培训"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Get(Fields!最近一次日期.value,Fields!类型.value=="产品培训"))==0,"",Get(Fields!最近一次日期.value,Fields!类型.value=="产品培训"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!最近一次经办人.value,Fields!类型.value=="产品培训")==0,"",Get(Fields!最近一次经办人.value,Fields!类型.value=="产品培训"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(0+Get(Fields!累计次数.value,Fields!类型.value=="项目实施")==0,"",Get(Fields!累计次数.value,Fields!类型.value=="项目实施"))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+              </Style>
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>2</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

@@ -1,0 +1,41 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：AC_table
+ * 创建人：刘磊
+ * 创建时间：2012-2-9 16:39:16
+ * 修改人：刘磊
+ * 修改时间：2012-2-9 16:39:16
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_AC_table" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,ctable,ccaption,cmemo from AC_table 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_AC_table" parameterClass="java.util.HashMap">
+            insert into AC_table(ctable,ccaption,cmemo) 
+            values (#ctable#,#ccaption#,#cmemo#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_AC_table" parameterClass="java.util.HashMap">
+            update AC_table set ccaption=#ccaption#,cmemo=#cmemo# 
+            where ctable=#ctable#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_AC_table" parameterClass="String">
+            delete from AC_table
+            where $condition$
+     </delete>
+     <procedure id="pr_updatedatadic">
+      		{call pr_updatedatadic()}
+	</procedure>
+</sqlMap>

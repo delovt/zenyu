@@ -1,0 +1,398 @@
+<ReportSettings version="1.1">
+  <PageWidth>30</PageWidth>
+  <PageHeight>50</PageHeight>
+  <LeftMargin>0.5</LeftMargin>
+  <RightMargin>0.5</RightMargin>
+  <TopMargin>0.5</TopMargin>
+  <BottomMargin>0.5</BottomMargin>
+  <CanGrow>true</CanGrow>
+  <FitToPrintSize>true</FitToPrintSize>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>税控用户状态统计</Value>
+          <Width>29</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>=Concat("统计年份","：" ,Parameters!date1.Value)</Value>
+          <Width>29</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>年度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>正常</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>过期</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>拒付</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>失踪</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>待注销</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>已注销</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>已外迁</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!date1.Value</Value>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==0),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==0),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==1),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==1),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==2),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==2),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==3),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==3),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==4),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==4),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==5),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==5),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==6),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value &amp;&amp; Fields!iecstatus.Value==6),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value ),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date1.Value),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!date2.Value</Value>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==0),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==0),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==1),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==1),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==2),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==2),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==3),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==3),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==4),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==4),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==5),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==5),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==6),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value &amp;&amp; Fields!iecstatus.Value==6),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value ),SumIf(Fields!ciecstatus.Value,Fields!years.Value==Parameters!date2.Value),0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>9.7</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+          <Control type="Line3DMS">
+            <Chart type="Line3DMS">
+              <LabelFontSize>12</LabelFontSize>
+              <LabelWidth>150</LabelWidth>
+              <LabelField>=Series(Fields!years.Value)</LabelField>
+              <LineValueField>=Series(If(Fields!ciecstatus.Value == 0, "", Fields!ciecstatus.Value))</LineValueField>
+              <CanvasWidth>500</CanvasWidth>
+              <CanvasHeight>150</CanvasHeight>
+              <AxisNameFontSize>12</AxisNameFontSize>
+              <AxisLabelFontSize>12</AxisLabelFontSize>
+              <YAxisLabelField>=Split(Fields!Y.Value, Str(,))</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!cname.Value)</XAxisLabelField>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>9</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

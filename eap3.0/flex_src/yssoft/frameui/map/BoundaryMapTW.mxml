@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        xmlns:code="http://code.google.com/p/flex-iframe/" xmlns:mx="library://ns.adobe.com/flex/mx"
+                        initialize="initializeHandler(event)"
+                        isMove="false"
+        >
+
+    <fx:Script><![CDATA[
+        import mx.events.FlexEvent;
+
+        public var list:Array = [
+            {area: "徐州市", color: '#0DAAD8', text: '销售数量20'},
+            {area: "安徽", color: '#0DAAD8', text: '销售数量20'},
+            {area: "广东", color: '#0DAAD8', text: '销售数量20'}
+        ];
+
+        private function initializeHandler(event:FlexEvent):void {
+            this.width = this.stage.width * 0.75;
+            this.height = this.stage.height * 0.8;
+        }
+
+        private function vBox1_creationCompleteHandler(event:FlexEvent):void {
+            mainStack.selectedIndex = 1;
+        }
+
+        private function mapFrame_creationCompleteHandler(event:FlexEvent):void {
+            mapFrame.callIFrameFunction('getBoundary', list);
+        }
+        ]]></fx:Script>
+
+    <mx:HBox width="100%" height="100%" horizontalGap="0">
+        <mx:ViewStack id="mainStack" width="100%" height="100%">
+            <mx:VBox creationComplete="vBox1_creationCompleteHandler(event)"/>
+            <mx:VBox id="mainBox" width="100%" height="100%">
+                <code:IFrame id="mapFrame" width="100%" height="100%" source="map/BoundaryMap.html"
+                             overlayDetection="true"
+                             creationComplete="mapFrame_creationCompleteHandler(event)"/>
+            </mx:VBox>
+        </mx:ViewStack>
+    </mx:HBox>
+
+</basic:BasicTitleWindow>

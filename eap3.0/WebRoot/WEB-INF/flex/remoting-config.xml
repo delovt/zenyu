@@ -1,0 +1,805 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service id="remoting-service" 
+    class="flex.messaging.services.RemotingService">
+
+    <adapters>
+        <adapter-definition id="java-object" class="flex.messaging.services.remoting.adapters.JavaAdapter" default="true"/>
+    </adapters>
+
+    <default-channels>
+        <channel ref="my-amf"/>
+    </default-channels>
+    <!--***************************************************朱毛毛 begin***************************************************-->
+    
+    <!-- 同步金蝶数据 -->
+    
+    <destination id="SynchHandler">
+		<properties>
+			<factory>spring</factory>
+			<source>SynchHandler</source>
+		</properties>
+	</destination>
+	
+	<!-- 预览上传附件文件 PreviewFile -->
+	<destination id="PreFile">
+		<properties>
+			<factory>spring</factory>
+			<source>PreviewFile</source>
+		</properties>
+	</destination>
+	    
+    <!-- 系统缓存控制 -->
+    <destination id="CacheUtilDest">
+		<properties>
+			<factory>spring</factory>
+			<source>cacheUtil</source>
+		</properties>
+	</destination>
+	<!-- 用户登录验证 -->
+	 <destination id="UserDest">
+		<properties>
+			<factory>spring</factory>
+			<source>userView</source>
+		</properties>
+	</destination>
+	
+	<!-- 文件上传下载 -->
+	 <destination id="FileDest">
+		<properties>
+			<factory>spring</factory>
+			<source>fileUtil</source>
+		</properties>
+	</destination>
+	
+	<!-- 站点升级 -->
+	<destination id="UpdateDog">
+	<properties>
+		<factory>spring</factory>
+		<source>updateDog</source>
+
+	</properties>
+	</destination>
+	<!-- 工作流-->
+	 <destination id="WorkFlowDest">
+		<properties>
+			<factory>spring</factory>
+			<source>workFlowView</source>
+		</properties>
+	</destination>
+	
+	<!-- 表单工作流-->
+	 <destination id="FormWorkFlowDest">
+		<properties>
+			<factory>spring</factory>
+			<source>formWorkFlowView</source>
+		</properties>
+	</destination>
+	<!-- 消息，在线人数处理-->
+	 <destination id="MsgDest">
+		<properties>
+			<factory>spring</factory>
+			<source>msgView</source>
+		</properties>
+	</destination>
+	
+<!-- 	<destination id="ibatisTest"> -->
+<!-- 		<properties> -->
+<!-- 			<factory>spring</factory> -->
+<!-- 			<source>ibatisTest</source> -->
+<!-- 		</properties> -->
+<!-- 	</destination> -->
+	
+	<destination id="ExplorerDest">
+		<properties>
+			<factory>spring</factory>
+			<source>ExplorerView</source>
+		</properties>
+	</destination>
+	
+	<!--***************************************************朱毛毛 end*****************************************************-->
+	
+	<!--***************************************************zhong_jing begin*****************************************************-->
+	<!-- 角色类的视图层 -->
+	<destination id="RoleDest">
+		<properties>
+			<factory>spring</factory>
+			<source>roleView</source>
+		</properties>
+	</destination>
+	
+	<!-- 部门视图层 -->
+	<destination id="HrDepartmentDest">
+		<properties>
+			<factory>spring</factory>
+			<source>hrDepartmentView</source>
+		</properties>
+	</destination>
+	
+		<!--组织视图层 -->
+	<destination id="HrCorporationDest">
+		<properties>
+			<factory>spring</factory>
+			<source>hrCorporationView</source>
+		</properties>
+	</destination>
+	
+			<!--公司管理人员视图层 -->
+	<destination id="CorpCmdPersonDest">
+		<properties>
+			<factory>spring</factory>
+			<source>corpCmdPersonView</source>
+		</properties>
+	</destination>
+	
+		<!-- 刘睿添加   用于处理基础档案中的特殊情况 -->
+	<destination id="BasisFileDest">
+		<properties>
+			<factory>spring</factory>
+			<source>basisFileView</source>
+		</properties>
+	</destination>
+	
+	<!-- 刘睿添加   用于OA中的特殊情况 -->
+	<destination id="OADest">
+		<properties>
+			<factory>spring</factory>
+			<source>OAView</source>
+		</properties>
+	</destination>
+	
+	
+	
+	<!-- 预警配置 -->
+		<destination id="WarnsetDest">
+		<properties>
+			<factory>spring</factory>
+			<source>as_warnsetView</source>
+		</properties>
+	</destination>
+	
+		<!-- 回款核销 -->
+		<destination id="checkSalesDest">
+		<properties>
+			<factory>spring</factory>
+			<source>checkSalesView</source>
+		</properties>
+	</destination>
+	
+		<!-- 客商相关 -->
+		<destination id="customerDest">
+		<properties>
+			<factory>spring</factory>
+			<source>customerView</source>
+		</properties>
+	</destination>
+	
+		<!-- 职务管理视图层 -->
+	<destination id="HRPostclassDest">
+		<properties>
+			<factory>spring</factory>
+			<source>hRPostclassView</source>
+		</properties>
+	</destination>
+	
+		<!-- lzx职务管理级联删除层 -->
+	<destination id="HRPostDest">
+		<properties>
+			<factory>spring</factory>
+			<source>iHrPostclassService</source>
+		</properties>
+	</destination>
+	
+	<!--列表管理视图层 -->
+	<destination id="ACListsetDest">
+		<properties>
+			<factory>spring</factory>
+			<source>acListsetView</source>
+		</properties>
+	</destination>
+	
+	<!-- 分类管理视图层 -->
+	<destination id="ACClassViewDest">
+	<properties>
+	<factory>spring</factory>
+	<source>acClasssetView</source>
+	</properties>
+	</destination>
+	
+	<!-- 操作权限管视图层 -->
+	<destination id="AsAuthcontentDest">
+		<properties>
+			<factory>spring</factory>
+			<source>asAuthcontentView</source>
+		</properties>
+	</destination>
+	
+	<!-- 人员档案视图层 -->
+	<destination id="hrPersonDest">
+		<properties>
+			<factory>spring</factory>
+			<source>hrPersonView</source>
+		</properties>
+	</destination>
+	
+	<!-- 人员档案视图层 -->
+	<destination id="asOperauthDest">
+		<properties>
+			<factory>spring</factory>
+			<source>asOperauthView</source>
+		</properties>
+	</destination>
+	
+	<!-- 人员档案视图层 -->
+	<destination id="csCustomerDest">
+		<properties>
+			<factory>spring</factory>
+			<source>csCustomerView</source>
+		</properties>
+	</destination>
+	
+		<!-- 出差管理视图层 -->
+	<destination id="favoritesDest">
+		<properties>
+			<factory>spring</factory>
+			<source>favoritesView</source>
+		</properties>
+	</destination>
+	<!--***************************************************zhong_jing end*****************************************************-->
+
+
+   <!--***************************************************刘磊 begin***************************************************-->
+    <!--		 菜单类的视图层 -->
+	<destination id="MenuDest">
+		<properties>
+			<factory>spring</factory>
+			<source>menuView</source>
+		</properties>
+	</destination>
+
+<!--		 功能注册类的视图层 -->
+	<destination id="FuncregeditDest">
+		<properties>
+			<factory>spring</factory>
+			<source>funcregeditView</source>
+		</properties>
+	</destination>
+	
+
+	<!--		 参照配置类的视图层 -->
+	<destination id="ConsultDest">
+		<properties>
+			<factory>spring</factory>
+			<source>consultView</source>
+		</properties>
+	</destination>
+	
+	<!--	计划类的视图层 -->
+	<destination id="OA_workplanViewDest">
+		<properties>
+			<factory>spring</factory>
+			<source>OA_workplanView</source>
+		</properties>
+	</destination>
+	
+	<!--	日志类的视图层 -->
+	<destination id="OA_workdiaryViewDest">
+		<properties>
+			<factory>spring</factory>
+			<source>OA_workdiaryView</source>
+		</properties>
+	</destination>
+	
+	<!--	销售线索类的视图层 -->
+	<destination id="sa_clueViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>sa_clueView</source>
+		</properties>
+	</destination>
+	
+	
+	<!--	合同订单类的视图层 -->
+	<destination id="sc_contractViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>sc_contractView</source>
+		</properties>
+	</destination>
+	
+	<!--	合同变更单类的视图层 -->
+	<destination id="sc_ctrchangeViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>sc_ctrchangeView</source>
+		</properties>
+	</destination>
+	<!--	权限分配类的视图层 -->
+	<destination id="as_operauthViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>as_operauthView</source>
+		</properties>
+	</destination>
+	
+	<!--	销售报价类的视图层 -->
+	<destination id="sa_quotationViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>sa_quotationView</source>
+		</properties>
+	</destination>
+	
+	<!--	数据权限分配类的视图层 -->
+	<destination id="as_dataauthViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>as_dataauthView</source>
+		</properties>
+	</destination>
+	
+	<!--	公共单据负责人员表类的视图层 -->
+	<destination id="ab_invoiceuserViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>ab_invoiceuserView</source>
+		</properties>
+	</destination>
+	
+	<!--	权限控制的视图层 -->
+	<destination id="funauthViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>funauthView</source>
+		</properties>
+	</destination>
+	<!--	数据表的视图层 -->
+	<destination id="sysobjectsViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>sysobjectsView</source>
+		</properties>
+	</destination>
+	<!--	纯数据字典(表)的视图层 -->
+	<destination id="AC_tableViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>AC_tableView</source>
+		</properties>
+	</destination>
+	<!--	纯数据字典(字段)的视图层 -->
+	<destination id="AC_fieldsViewDest">
+		<properties> 
+			<factory>spring</factory>
+			<source>AC_fieldsView</source>
+		</properties>
+	</destination>
+<!--***************************************************刘磊 end*****************************************************-->
+
+<!-- YJ Add 20110815 我的公共操作类 -->
+	<destination id="DatadictionaryDest">
+		<properties>
+			<factory>spring</factory>
+			<source>datadictionaryView</source>
+		</properties>
+	</destination>
+
+<!-- YJ Add 20110818 查询条件配置表 -->
+	<destination id="ACqueryclmDest">
+		<properties>
+			<factory>spring</factory>
+			<source>acqueryclmView</source>
+		</properties>
+	</destination>
+	
+<!-- YJ Add 20110822 档案分类 -->
+	<destination id="DataClassDest">
+		<properties>
+			<factory>spring</factory>
+			<source>dataclassView</source>
+		</properties>
+	</destination>
+	
+<!-- YJ Add 20110822 档案数据 -->
+	<destination id="DataDest">
+		<properties>
+			<factory>spring</factory>
+			<source>dataView</source>
+		</properties>
+	</destination>
+	
+<!-- YJ Add 20110822 单据编码 -->
+	<destination id="NumberSetDest">
+		<properties>
+			<factory>spring</factory>
+			<source>numbersetView</source>
+		</properties>
+	</destination>
+	
+<!-- YJ Add 20110923 竞争对手 -->
+	<destination id="CompetitorDest">
+		<properties>
+			<factory>spring</factory>
+			<source>competitorView</source>
+		</properties>
+	</destination>
+	
+<!-- YJ Add 20110923 权限设置 -->
+	<destination id="AuthcontentDest">
+		<properties>
+			<factory>spring</factory>
+			<source>authcontentView</source>
+		</properties>
+	</destination>
+	
+<!--	YJ Add 20111013 Excel数据导出	-->
+	<destination id="ExcelHadleDest">
+		<properties>
+			<factory>spring</factory>
+			<source>excelhadleView</source>
+		</properties>
+	</destination>
+	
+<!--	YJ Add 20111019 打印设置	-->
+	<destination id="AcPrintSetDest">
+		<properties>
+			<factory>spring</factory>
+			<source>acprintsetView</source>
+		</properties>
+	</destination>
+	
+<!--	YJ Add 20111024 更多操作中的操作	-->
+	<destination id="MoreHandleDest">
+		<properties>
+			<factory>spring</factory>
+			<source>moreHandleView</source>
+		</properties>
+	</destination>
+	
+<!-- YJ Add 20120528 数据写入至Word -->
+	<destination id="WordHandleDest">
+		<properties>
+			<factory>spring</factory>
+			<source>WordHandleImpl</source>
+		</properties>
+	</destination>
+
+
+<!-- SDY  20110907 数据计量 -->
+	<destination id="CalculateMaterielDest">
+		<properties>
+			<factory>spring</factory>
+			<source>calculateMaterielView</source>
+		</properties>
+	</destination>
+	
+<!-- SDY 费用预算 -->
+	<destination id="BmBudgetDest">
+		<properties>
+			<factory>spring</factory>
+			<source>bmBudgetView</source>
+		</properties>
+	</destination>
+	
+<!-- 业务请款 -->
+	<destination id="oa_paymentDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>oa_paymentView</source>
+		</properties>
+	</destination>
+<!-- 调试服务 -->
+	<destination id="Sr_RequestDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>Sr_RequestView</source>
+		</properties>
+	</destination>
+	
+<!-- 客户反馈 -->
+	<destination id="Cs_feedbackDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>Cs_feedbackView</source>
+		</properties>
+	</destination>
+		
+<!-- 客户商机 -->
+	<destination id="Sa_opportunityDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>Sa_opportunityView</source>
+		</properties>
+	</destination>
+	
+	<!-- 功能注册 相关对象 -->
+	<destination id="As_fcrelationDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>As_fcrelationView</source>
+		</properties>
+	</destination>
+	
+	<!-- 费用报销 -->
+	<destination id="oa_expenseDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>oa_expenseView</source>
+		</properties>
+	</destination>
+	
+	<!-- 操作日志 -->
+	<destination id="AS_operlogDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>AS_operlogView</source>
+		</properties>
+	</destination>
+	
+		<!-- 系统公告 -->
+	<destination id="Oa_noticesDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>Oa_noticesView</source>
+		</properties>
+	</destination>
+	
+		<!-- 系统选项 -->
+	<destination id="As_optionsDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>As_optionsView</source>
+		</properties>
+	</destination>
+	
+	<!-- *******************公共框架 add by zhong_jing ***************************** -->
+	<destination id="CommonalityDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>CommonalityView</source>
+		</properties>
+	</destination>
+	<!-- *******************公共框架 add by zhong_jing ***************************** -->
+	
+	<!-- *******************单据关系 zmm ***************************** -->
+	<destination id="FormRelationDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>FormRelationView</source>
+		</properties>
+	</destination>
+	<destination id="CallCenterDest"> 
+		<properties>
+			<factory>spring</factory>
+			<source>CallCenterView</source>
+		</properties>
+	</destination>
+	<!-- *******************单据关系 zmm end ***************************** -->
+	
+	
+	<!-- *******************论坛 hzq end ***************************** -->
+	
+	<!-- 论坛类型管理 -->
+	<destination id="TwitterTypeDest">
+		<properties>
+			<factory>spring</factory>
+			<source>TwitterTypeView</source>
+		</properties>
+	</destination>
+	
+	<!-- 论坛发布回复等 -->
+	<destination id="TwitterDest">
+		<properties>
+			<factory>spring</factory>
+			<source>TwitterView</source>
+		</properties>
+	</destination>
+	
+	<!-- *******************论坛 hzq end ***************************** -->
+	<destination id="AcDatadictionaryDest">
+		<properties>
+			<factory>spring</factory>
+			<source>AcDatadictionaryImpl</source>
+		</properties>
+	</destination>
+	
+	<!-- ******************* YJ Add  20120326***************************** -->
+	<destination id="AssignCustomerDest">
+		<properties>
+			<factory>spring</factory>
+			<source>AssignCustomerImpl</source>
+		</properties>
+	</destination>
+	
+	<!-- YJ Add 20120328 黄页客户操作 -->
+	<destination id="MrCustomerDest">
+		<properties>
+			<factory>spring</factory>
+			<source>MrCustomerImpl</source>
+		</properties>
+	</destination>
+	
+	<!-- YJ Add 20120405 服务工单操作 -->
+	<destination id="SrBillDest">
+		<properties>
+			<factory>spring</factory>
+			<source>SrBillImpl</source>
+		</properties>
+	</destination>
+	
+	<!-- YJ Add 20120405 服务回访单操作 -->
+	<destination id="SrFeedBackDest">
+		<properties>
+			<factory>spring</factory>
+			<source>SrFeedBackImpl</source>
+		</properties>
+	</destination>
+	
+	<!-- YJ Add 20120411 批量授权操作 -->
+	<destination id="BatchAccreditDest">
+		<properties>
+			<factory>spring</factory>
+			<source>BatchAccreditImpl</source>
+		</properties>
+	</destination>
+	
+	<!-- 公用，验证相关单据内码相关，目前功能验证是否生成过单据， by lr -->
+	<destination id="PublicCheckiinvoiceDest">
+		<properties>
+			<factory>spring</factory>
+			<source>PublicCheckiinvoiceImpl</source>
+		</properties>
+	</destination>
+	
+	<!-- YJ Add 20120506 产品BOMs -->
+	<destination id="ProductBomsDest">
+		<properties>
+			<factory>spring</factory>
+			<source>ProductBomsImpl</source>
+		</properties>
+	</destination>
+	
+	<destination id="FditemDest">
+		<properties>
+			<factory>spring</factory>
+			<source>fditemView</source>
+		</properties>
+	</destination>
+	<!-- WTF ADD -->
+	<destination id="projectDest">
+		<properties>
+			<factory>spring</factory>
+			<source>projectImpl</source>
+		</properties>
+	</destination>
+	
+	<destination id="TrainApplyActionDest">
+		<properties>
+			<factory>spring</factory>
+			<source>trainApplyActionImpl</source>
+		</properties>
+	</destination>
+	
+	<destination id="acPrintSetServiceImplDest">
+		<properties>
+			<factory>spring</factory>
+			<source>iAcPrintSetService</source>
+		</properties>
+	</destination>
+	
+	<destination id="ForListHandleDest">
+		<properties>
+			<factory>spring</factory>
+			<source>forListHandle</source>
+		</properties>
+	</destination>
+	
+	<!-- YJ Add 20120822 数据批改 -->
+	<destination id="DataCorrectDest">
+		<properties>
+			<factory>spring</factory>
+			<source>DataCorrectImpl</source>
+		</properties>
+	</destination>
+	
+<!-- 	lzx 删除客商资产之前，获得相对应的出库单ccode-->
+	<destination id="GetCcodeDest">
+		<properties>
+			<factory>spring</factory>
+			<source>iRoleService</source>
+		</properties>
+	</destination>
+	
+	<!-- 	lzx 删除工作流-->
+	<destination id="DeleteWorkFlow">
+		<properties>
+			<factory>spring</factory>
+			<source>iCoopHandlerService</source>
+		</properties>
+	</destination>
+	
+	<!-- 	lzx 计划指标-->
+	<destination id="BmTargetDest">
+		<properties>
+			<factory>spring</factory>
+			<source>bm_targetView</source>
+		</properties>
+	</destination>
+	
+		<!-- 	lzx 发送短信-->
+	<destination id="SendMessageDest">
+		<properties>
+			<factory>spring</factory>
+			<source>SendMessageView</source>
+		</properties>
+	</destination>
+	
+	<!-- 	lzx 服务商配置-->
+	<destination id="AsSmssetDest">
+		<properties>
+			<factory>spring</factory>
+			<source>as_smssetView</source>
+		</properties>
+	</destination>
+	
+	<!-- 	YJ 高级授权-->
+	<destination id="AdvancedAuthDest">
+		<properties>
+			<factory>spring</factory>
+			<source>AdvancedAuthImpl</source>
+		</properties>
+	</destination>
+	
+	<!-- 	LZX 修改物料借用已经归还数量-->
+	<destination id="UtilViewDest">
+		<properties>
+			<factory>spring</factory>
+			<source>utilView</source>
+		</properties>
+	</destination>
+    <!-- 发票管理 yzw-->
+    <destination id="InvoiceManager">
+        <properties>
+            <factory>spring</factory>
+            <source>invoiceManager</source>
+        </properties>
+    </destination>
+    <!-- 收费单管理 yzw-->
+    <destination id="ChargeManager">
+        <properties>
+            <factory>spring</factory>
+            <source>chargeManager</source>
+        </properties>
+    </destination>
+    <destination id="Handle">
+        <properties>
+            <factory>spring</factory>
+            <source>handle</source>
+        </properties>
+    </destination>
+
+    <!-- 呼叫中心 -->
+    <destination id="CCAllowCount">
+        <properties>
+            <factory>spring</factory>
+            <source>ccallowcount</source>
+        </properties>
+
+    </destination>
+
+    <destination id="LocalNumber">
+        <properties>
+            <factory>spring</factory>
+            <source>localnumber</source>
+        </properties>
+    </destination>
+
+    <!-- 多方会议 -->
+    <destination id="LotCommunicate">
+        <properties>
+            <factory>spring</factory>
+            <source>lotcommunicate</source>
+        </properties>
+    </destination>
+
+
+</service>

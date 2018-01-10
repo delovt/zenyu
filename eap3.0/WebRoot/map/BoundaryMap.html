@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        body, html, #allmap {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        #l-map {
+            height: 100%;
+            width: 100%;
+            float: left;
+        }
+
+        #r-all {
+            height: 100%;
+            width: 0;
+            float: left;
+        }
+
+        #r-result {
+            height: 100%;
+            width: 100%;
+            float: left;
+            overflow: scroll
+        }
+
+            /*隐藏baidu地图logo*/
+        .anchorBL {
+            display: none;
+        }
+    </style>
+    <script type="text/javascript"
+            src="http://api.map.baidu.com/api?v=1.5&ak=E4ffd034ed50b8d31670dd76c4c25569"></script>
+
+    <title></title>
+</head>
+<body onload="onloadHanlder()">
+<!--<div id="allmap"></div>-->
+<div id="l-map"></div>
+<div id="r-all">
+    <div id="r-result"/>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    var map;
+    function onloadHanlder() {
+        initMap();
+    }
+
+    var mypoint;    // 创建点坐标
+    var menu;
+
+    function initMyPoint(arr) {
+        mypoint = new BMap.Point(arr[0], arr[1]);    // 创建点坐标
+        map.centerAndZoom(mypoint, 12);
+        //initMap();
+    }
+
+    function setMapCenter() {
+        map.centerAndZoom("中国", 5);
+    }
+
+    function initMap() {
+        map = new BMap.Map("l-map");            // 创建Map实例
+
+        if (mypoint)
+            map.centerAndZoom(mypoint, 12);                     // 初始化地图,设置中心点坐标和地图级别。
+        else
+            map.centerAndZoom(new BMap.Point(106.505778, 36.806354), 5);
+
+        map.enableScrollWheelZoom();                            //启用滚轮放大缩小
+
+        map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+
+        initMenu();
+        addCopyright();
+    }
+
+    function initMenu() {
+        return;
+        if (menu)
+            map.removeContextMenu(menu);
+
+        menu = new BMap.ContextMenu();
+        var txtMenuItem = [
+            {
+                text: '在此标注客户位置',
+                callback: function (p) {
+                    setMaker(p.lng, p.lat);
+                }
+            }
+        ];
+
+        for (var i = 0; i < txtMenuItem.length; i++) {
+            menu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100));
+        }
+
+        map.addContextMenu(menu);
+    }
+
+    function resetMap() {
+        map.clearOverlays();
+        setMaker(maker.getPosition().lng, maker.getPosition().lat);
+        initMenu();
+    }
+
+    var maker;
+    var cname;
+    function setMaker(lng, lat) {
+        if (maker)
+            map.removeOverlay(maker);
+        maker = new BMap.Marker(new BMap.Point(lng, lat));  // 创建标注
+        maker.setTitle(cname);
+        map.addOverlay(maker);              // 将标注添加到地图中
+        var info = new BMap.InfoWindow(cname);
+        maker.openInfoWindow(info);
+        maker.addEventListener("click", function () {
+            cmaker.openInfoWindow(info);
+        })
+    }
+
+    var customerLocation = "";
+    //取得当前标注点信息
+    function getMakerInfo() {
+        return customerLocation;
+    }
+
+    var basicKeys;
+    //本地搜索
+    function searchCustomer(myKeys) {
+        setKeys(myKeys);
+        var local = new BMap.LocalSearch(map, {
+            renderOptions: {map: map, panel: "r-result"}
+        });
+
+        local.setPageCapacity(15);
+        local.searchInBounds(myKeys, map.getBounds());
+    }
+
+    function setKeys(myKeys) {
+        basicKeys = myKeys;
+        cname = myKeys[0];
+    }
+
+
+    //再次搜索
+    function searchCustomerOnceMore() {
+        var local = new BMap.LocalSearch("全国", {
+            renderOptions: {
+                map: map,
+                panel: "r-result",
+                autoViewport: true,
+                selectFirstResult: false
+            }
+        });
+        local.search(cname);
+    }
+
+    //根据坐标 显示客户位置
+    function showCustomer(arr) {
+        cname = arr[2];
+
+        setMaker(arr[0], arr[1]);
+        map.setZoom(15);
+        //searchBus();
+    }
+
+    //添加版权信息
+    function addCopyright() {
+        var cr = new BMap.CopyrightControl({anchor: BMAP_ANCHOR_BOTTOM_RIGHT});
+        map.addControl(cr); //添加版权控件
+        var bs = map.getBounds();
+        cr.addCopyright({id: 1, content: "<a href='http://www.yssoft.com.cn/' target='_blank' style='font-size:12px;' >增宇软件</a>", bounds: bs});
+    }
+
+    function searchBus() {
+        var transit = new BMap.TransitRoute(map, {
+            renderOptions: {map: map, panel: "r-result"}
+        });
+        transit.search(mypoint, maker.getPosition());
+    }
+
+    function setCustomerLocation() {
+        customerLocation = maker.getPosition().lng + "," + maker.getPosition().lat;
+        map.removeOverlay(maker);
+        setMaker(maker.getPosition().lng, maker.getPosition().lat);
+    }
+
+
+    function getBoundary(arr) {
+        for (var i = 0; i < arr.length; i++) {
+            var obj = arr[i];
+            drawBoundary(obj.area, obj.color, obj.text);
+        }
+    }
+
+    function drawBoundary(area, color, text) {
+        var bdary = new BMap.Boundary();
+        bdary.get(area, getBoundaryBack);
+
+        function getBoundaryBack(rs) {       //获取行政区域
+            //map.clearOverlays();        //清除地图覆盖物
+            var count = rs.boundaries.length; //行政区域的点有多少个
+            //for(var i = 0; i < count; i++){
+            var fillOpacity = 0.8;
+            if (color == "#FFFFFF" || color == "#ffffff" || color=="" || color==null)
+                fillOpacity = 0.1;
+            var ply = new BMap.Polygon(rs.boundaries[0], {fillColor: color, fillOpacity: fillOpacity, strokeWeight: 1, strokeOpacity: 1}); //建立多边形覆盖物
+
+            var opts = {
+                width: 200,     // 信息窗口宽度
+                height: 0,     // 信息窗口高度
+                enableMessage: false,
+                title: area// 信息窗口标题
+            }
+            var infoWindow = new BMap.InfoWindow(text, opts);  // 创建信息窗口对象
+            ply.addEventListener("click", function (e) {
+                //map.closeInfoWindow()
+                map.openInfoWindow(infoWindow, new BMap.Point(e.point.lng, e.point.lat)); //开启信息窗口
+            })
+
+            map.addOverlay(ply);  //添加覆盖物
+            //map.setViewport(ply.getPath());    //调整视野
+            //}
+        }
+    }
+
+
+    /*setTimeout(function () {
+     getBoundary();
+     }, 1500);*/
+</script>

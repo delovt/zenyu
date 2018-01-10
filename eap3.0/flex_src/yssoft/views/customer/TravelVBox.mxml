@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			import yssoft.vos.ElementVo;
+			import yssoft.vos.SubElementsVo;
+			
+			private var _travelObj:Object = new Object();
+			
+			public function set travelObj(value:Object):void
+			{
+				this._travelObj = value;
+			}
+			
+			
+			
+			[Bindable]
+			private var elementArr:ArrayCollection = new ArrayCollection([
+				new ElementVo("制单日期：",new ArrayCollection([
+					new SubElementsVo(3,"dmaker",_travelObj.dmaker)
+				])),
+				new ElementVo("出差部门：",new ArrayCollection([
+					new SubElementsVo(1,"idepartment",_travelObj.idepartment)
+				])),
+				new ElementVo("所属客户：",new ArrayCollection([
+					new SubElementsVo(2,"icustomer")
+				])),
+				new ElementVo("所属分类：",new ArrayCollection([
+					new SubElementsVo(2,"icustpnclass")
+				])),
+				new ElementVo("称谓:",new ArrayCollection([
+					new SubElementsVo(2,"ctitle")
+				])),
+				new ElementVo("所属部门:",new ArrayCollection([
+					new SubElementsVo(2,"cdepartment")
+				])),
+				new ElementVo("职务:",new ArrayCollection([
+					new SubElementsVo(2,"cpost")
+				])),
+				new ElementVo("上级领导:",new ArrayCollection([
+					new SubElementsVo(2,"isuperiors")
+				])),
+				new ElementVo("助理秘书:",new ArrayCollection([
+					new SubElementsVo(2,"iassistant")
+				])),
+				new ElementVo("人员属性:",new ArrayCollection([
+					new SubElementsVo(6,"bcharge"),
+					new SubElementsVo(6,"bkeycontect",null,false,false,0,"是否主联系人")
+				]))
+			]);
+		]]>
+	</fx:Script>
+</mx:VBox>

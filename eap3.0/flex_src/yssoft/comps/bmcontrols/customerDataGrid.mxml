@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		 creationComplete="ini()" >
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.core.ClassFactory;
+			
+			import yssoft.comps.ItemRendererNumber;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.CRMtool;
+			
+			//控件是否可用
+			[Bindable]
+			private var _isEdit:Boolean = false;
+			
+			//标题是否可见
+			private var _lblcaptionisVisible:Boolean = false;
+			
+			//标题内容
+			[Bindable]
+			private var _lblcaptionText:String = "";
+			
+			//增删行按钮是否可见
+			private var _btnisVisible:Boolean = false;
+			
+			//DataGrid是否可编辑
+			[Bindable]
+			private var _dgisEdit:Boolean = false;
+			
+			//DataGrid的记录集
+			private var _dgdatapriover:ArrayCollection = new ArrayCollection();
+			
+			//DataGrid的列集合
+			private var _dgcolumns:ArrayCollection = new ArrayCollection();
+			
+			//DataGrid默认行数
+			private var _dgrowcount:int = 0;
+			
+			//属性定义
+			public function get lblcaptionisVisible():Boolean{
+				return this._lblcaptionisVisible;
+			}
+			public function set lblcaptionisVisible(value:Boolean):void{
+				this._lblcaptionisVisible = value;
+			}
+			
+			public function get btnisVisible():Boolean{
+				return this._btnisVisible;
+			}
+			public function set btnisVisible(value:Boolean):void{
+				this._btnisVisible = value;
+			}
+			
+			public function get dgisEdit():Boolean{
+				return this._dgisEdit;
+			}
+			public function set dgisEdit(value:Boolean):void{
+				this._dgisEdit = value;
+			}
+			
+			public function get dgdatapriover():ArrayCollection{
+				return this._dgdatapriover;
+			}
+			public function set dgdatapriover(value:ArrayCollection):void{
+				this._dgdatapriover = value;
+			}
+			
+			public function set dgcolumns(value:ArrayCollection):void{
+				this._dgcolumns = value;
+			}
+			
+			public function get dgrowcount():int{
+				return this._dgrowcount;
+			}
+			public function set dgrowcount(value:int):void{
+				this._dgrowcount = value;
+			}
+			
+			public function get lblcaptiontext():String{
+				return this._lblcaptionText;
+			}
+			public function set lblcaptiontext(value:String):void{
+				this._lblcaptionText = value;
+			}
+			
+			public function set isEdit(value:Boolean):void{
+				this._isEdit = value;
+			}
+			
+			/******************		业务处理 	*************************/
+			
+			/*
+				函数名称：ini
+				函数功能：自定义控件初始化操作
+				函数参数：
+				创建者：  YJ
+				创建日期：2012-02-09
+			*/
+			private function ini():void{
+				
+				this.lblcaption.visible = this._lblcaptionisVisible;
+				this.btnNewRow.visible	= this._btnisVisible;
+				this.btnDelRow.visible = this._btnisVisible;
+				
+				try{
+					
+					//初始化增删行按钮图片
+					iniBtnPicture();
+					
+					//初始化DataGrid列
+					iniDataGridColumns();
+					
+					//绑定数据集
+					onDataGridBind();
+					
+				}
+				catch(e:Error){
+					e.getStackTrace();
+				}
+			}
+			
+			
+			/*
+			函数名称：iniBtnPicture
+			函数功能：初始化按钮图片
+			函数参数：
+			创建者：  YJ
+			创建日期：2012-02-09
+			*/
+			private function iniBtnPicture():void{
+				this.btnNewRow.setStyle("icon",ConstsModel._ADDITIONICON);
+				this.btnDelRow.setStyle("icon",ConstsModel._SUBTRACTIONICON);
+			}
+			
+			/*
+				函数名称：iniDgColumns
+				函数功能：初始化DataGrid中列名信息
+				函数参数：
+				创建者：  YJ
+				创建日期：2012-02-09
+			*/
+			private function iniDataGridColumns():void{
+				
+				if(this._dgcolumns.length == 0)return;
+				
+				var columns:Array=new Array();
+				columns.push(onAddSerialNumber());
+				
+				for(var i:int=0;i<_dgcolumns.length;i++){
+					var column:DataGridColumn = new DataGridColumn();
+					
+					var dataField:String 		= _dgcolumns[i]["cfield"];//字段
+					var header:String			= _dgcolumns[i]["ccaption"];//标题
+					//		var iconsult:String			= _dgcolumns[i]["iconsult"];//参照信息
+					//		var cselsetvalues:String 	= _dgcolumns[i]["cselsetvalues"];//参照赋值公式
+					
+					column.dataField = dataField;
+					column.headerText = header;
+					
+					//columnRenderer(column,dataType,objpara);//开始处理渲染控件
+					
+					columns.push(column);
+				}
+				
+				if(columns.length >0){
+					dg.columns = dg.columns.concat(columns);
+				}
+			}
+			
+			
+			/*
+				函数名称：onAddSerialNumber
+				函数功能：初始化DataGrid的序号列
+				函数参数：
+				创建者：  YJ
+				创建日期：2012-02-09
+			*/
+			private function onAddSerialNumber():DataGridColumn{
+				
+				var columnxh:DataGridColumn = new DataGridColumn();
+				columnxh.headerText = "序号";
+				columnxh.setStyle("textAlign","center");
+				columnxh.width = 50;
+				columnxh.editable = false;
+				columnxh.itemRenderer = new ClassFactory(yssoft.comps.ItemRendererNumber);
+				return columnxh;
+				
+			}
+			
+			
+			/*
+				函数名称：onDataGridBind
+				函数功能：DataGrid数据绑定
+				函数参数：
+				创建者：  YJ
+				创建日期：2012-02-09
+			*/
+			private function onDataGridBind():void{
+				
+				this.dg.dataProvider = this._dgdatapriover;
+				this.dg.addEventListener(KeyboardEvent.KEY_DOWN,CRMtool.doKeyDown);//增加回车事件
+			}
+			
+			
+			/*
+				函数名称：onRowHandle
+				函数功能：增删行操作入口
+				函数参数：flag(0:增行  1：删行)
+				创建者：  YJ
+				创建日期：2012-02-09
+			*/
+			private function onRowHandle(flag:int):void{
+				
+				if(flag == 0){onNewRow();}
+				else		 {onDelRow();}
+				
+				dg.selectedIndex = _dgdatapriover.length-1;
+			
+			}
+			
+			private function onNewRow():void{
+				var obj:Object = {};
+				
+				try{
+					this._dgdatapriover.addItem(obj);
+				}
+				catch(e:Error){
+					e.getStackTrace();
+				}
+			}
+			
+			private function onDelRow():void{
+				if(dg.selectedIndex == -1 || _dgdatapriover.length==0){CRMtool.tipAlert(ConstsModel.CHOOSE_ROLE);return;}
+				
+				try{
+					_dgdatapriover.removeItemAt(dg.selectedIndex);
+				}
+				catch(e:Error){
+					CRMtool.tipAlert(ConstsModel.CHOOSE_ROLE);
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:HBox id="hbtop" width="100%">
+		<mx:Label id="lblcaption" text="{this._lblcaptionText}" styleName="contentLabel"/>
+		<mx:LinkButton id="btnNewRow" toolTip="增行" click="onRowHandle(0)" enabled="{this._isEdit}"/>
+		<mx:LinkButton id="btnDelRow" toolTip="删行" click="onRowHandle(1)" enabled="{this._isEdit}"/>
+	</mx:HBox>
+	<mx:HBox id="hbbottom" width="100%" height="100%">
+		<mx:DataGrid id="dg" width="100%" height="100%" draggableColumns="false" editable="{this._isEdit}"/>
+	</mx:HBox>
+	
+</mx:VBox>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 工作流 模板管理 -->
+	
+	<!-- 获取能关联工作流的表单 -->
+	<select id="fwf.getWorkFlowTpl" resultClass="java.util.HashMap">
+		select iid,ipid,ccode,cname,cprogram,ctable,iworkflow,bworkflow from as_funcregedit where bworkflow = 1 order by ccode
+	</select>
+	
+	<!-- 根据表单iid 来获取对应模板 -->
+	<select id="fwf.get_wf_invoset" resultClass="java.util.HashMap" parameterClass="int">
+		select wf.*,convert(varchar(19),wf.dmaker,120) fdate,fun.cname funcname,hr.cname hrname from wf_invoset wf 
+		left join as_funcregedit fun on wf.ifuncregedit=fun.iid
+		left join hr_person hr on wf.imaker=hr.iid
+		where wf.ifuncregedit=#ifuncregedit#
+		order by wf.dmaker desc
+	</select>
+	<!-- 修改 模板的发布状态,批量修改 -->
+	<update id="fwf.update_wf_invoset_patch" parameterClass="java.util.HashMap">
+		update wf_invoset set brelease=#brelease# where ifuncregedit=#ifuncregedit#
+	</update>
+	<!-- 修改 模板的发布状态 -->
+	<update id="fwf.update_wf_invoset_single" parameterClass="java.util.HashMap">
+		update wf_invoset set brelease=#brelease# where iid=#iid#
+	</update>
+	<!-- 修改模板信息 -->
+	<update id="fwf.update_wf_invoset_info" parameterClass="yssoft.vos.wf_invosetVo">
+		update wf_invoset set ccode=#ccode#,cname=#cname# where iid = #iid#
+	</update>
+	<!-- 删除 模板 -->
+	<delete id="fwf.delete_wf_invoset" parameterClass="int">
+		delete from wf_invoset where iid=#iid#
+	</delete>
+	<!-- 删除 模板对应的节点信息 -->
+	<delete id="fwf.delete_wf_invosets" parameterClass="int">
+		delete from wf_invosets where iinvoset=#iid#
+	</delete>
+	
+	<!-- 新增模板工作流 -->
+	<insert id="fwf.add_wf_invoset" parameterClass="yssoft.vos.wf_invosetVo" >
+		insert into wf_invoset(ifuncregedit,ccode,cname,brelease,dmaker,imaker)
+		values
+		(#ifuncregedit#,#ccode#,#cname#,#brelease#,convert(varchar(19),getdate(),120),#imaker#)
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+	</insert>
+    <!-- 添加 模板节点 -->
+    <insert id="fwf.add_wf_invosets" parameterClass="yssoft.vos.WfNodeVo">
+        insert into wf_invosets(inodeid,ipnodeid,inodelevel,ipid,iinvoset,inodetype,
+        inodevalue,inodeattribute,inodemode,bfinalverify,baddnew,bsendnew,cnotice,istatus,ccomefield,cexecsql,iistatus)
+        values
+        (#inodeid#,#ipnodeid#,#inodelevel#,#ipid#,#iinvoset#,#inodetype#,
+        #inodevalue#,#inodeattribute#,#inodemode#,#bfinalverify#,#baddnew#,#bsendnew#,#cnotice#,#istatus#,#ccomefield#,#cexecsql#,#iistatus#)
+        <selectKey resultClass="int" keyProperty="iid">
+            select @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+	
+	<!-- 获取 模板节点信息 -->
+	<select id="fwf.get_wf_invosets" resultClass="java.util.HashMap" parameterClass="int">
+		select wf.*,p.cname from wf_invosets wf 
+		left join hr_person p on wf.inodevalue=p.iid
+		where wf.iinvoset=#iinvoset# and wf.inodetype=0
+		union
+		select wf.*,d.cname from wf_invosets wf
+		left join hr_department d on wf.inodevalue=d.iid 
+		where wf.iinvoset=#iinvoset# and wf.inodetype=1
+		union
+		select wf.*,dbo.getWFRelativeRoleName(abs(wf.inodevalue)) cname from wf_invosets wf
+		where wf.iinvoset=#iinvoset# and wf.inodetype=2
+		union
+		select wf.*,j.cname from wf_invosets wf
+		left join hr_job j on wf.inodevalue=j.iid 
+		where wf.iinvoset=#iinvoset# and wf.inodetype=3
+		union
+		select wf.*,p.cname from wf_invosets wf
+		left join hr_post p on wf.inodevalue=p.iid 
+		where wf.iinvoset=#iinvoset# and wf.inodetype=4
+	</select>
+	<!-- 删除 模板节点 -->
+	<delete id="fwf.delete_wf_invosets_node" parameterClass="int">
+		delete from wf_invosets where iid=#iid#
+	</delete>
+	<!-- 修噶 模板节点 -->
+	<update id="fwf.update_wf_invosets_node" parameterClass="yssoft.vos.WfNodeVo">
+		update wf_invosets set inodeid=#inodeid#,ipnodeid=#ipnodeid#,inodelevel=#inodelevel#,ipid=#ipid#,
+		       iinvoset=#iinvoset#,inodetype=#inodetype#,inodevalue=#inodevalue#,
+		       inodeattribute=#inodeattribute#,inodemode=#inodemode#,bfinalverify=#bfinalverify#,
+		       baddnew=#baddnew#,bsendnew=#bsendnew#,cnotice=#cnotice#,ccomefield=#ccomefield#
+		where iid=#iid#
+	</update>
+	
+	
+	<!-- 模板节点的 录入  -->
+	<select id="fwf.select_wf_invosetsentry_items" parameterClass="string" resultClass="java.util.HashMap">
+		select * from wf_invosetsentry where cnodeid in ( select inodeid from wf_invosets where iinvoset=#iinvoset# )
+	</select>
+	<insert id="fwf.insert_wf_invosetsentry_item" parameterClass="java.util.HashMap">
+		insert into wf_invosetsentry (cnodeid,cfield,cvalue) values (#cnodeid#,#cfield#,#cvalue#)
+	</insert>
+	<delete id="fwf.delete_wf_invosetsentry_item" parameterClass="string">
+		delete from wf_invosetsentry where cnodeid=#cnodeid#
+	</delete>
+	<!-- 批量删除 录入 -->
+	<delete id="fwf.delete_wf_invosetsentry_item_patch" parameterClass="int">
+		delete from wf_invosetsentry where cnodeid in (select inodeid from wf_invosets where iinvoset = #iinvoset#)
+	</delete>
+	
+	<!-- 模板节点的 条件 -->
+	<select id="fwf.select_wf_invosetscd_items" parameterClass="string" resultClass="java.util.HashMap">
+		select '' 'ccaption', candor 'logic',cleftbk 'leftParenthesis',cfield 'cfiled',
+		coperator 'condition',cvalue 'value',crightbk 'rightParenthesis',iid,cnodeid from wf_invosetscd
+		where
+		cnodeid in ( select inodeid from wf_invosets where iinvoset=#iinvoset# )
+	</select>
+	<insert id="fwf.insert_wf_invosetscd_item" parameterClass="java.util.HashMap">
+		insert into wf_invosetscd (cnodeid,candor,cleftbk,cfield,coperator,cvalue,crightbk)
+		values 
+		(#cnodeid#,#logic#,#leftParenthesis#,#cfiled#,#condition#,#value#,#rightParenthesis#)
+	</insert>
+	<delete id="fwf.delete_wf_invosetscd_item" parameterClass="string">
+		delete from wf_invosetscd where cnodeid=#cnodeid#
+	</delete>
+	<!-- 批量删除 条件 -->
+	<delete id="fwf.delete_wf_invosetscd_item_patch" parameterClass="int">
+		delete from dbo.wf_invosetscd  where cnodeid in (select inodeid from wf_invosets where iinvoset = #iinvoset#)
+	</delete>
+	
+	
+	<!-- 模板 编辑 -->
+	<!-- 节点，条件，录入 全删除 -->
+	<delete id="fwf.delete_wf_invoset_all" parameterClass="int">
+		begin
+			delete from  wf_invosetsentry where cnodeid in ( select inodeid from wf_invosets where iinvoset=#iinvoset# );
+			delete from  wf_invosetscd where cnodeid in ( select inodeid from wf_invosets where iinvoset=#iinvoset# );
+		end;
+	</delete>
+	<!-- 删除模板中 指定的节点 -->
+	<delete id="fwf.delete_wf_invosets_item" parameterClass="int">
+		delete from wf_invosets where iid = #iid#
+	</delete>
+	<!-- 修改模板中指定的节点 -->
+    <update id="fwf.update_wf_invosets_item" parameterClass="yssoft.vos.WfNodeVo">
+        update wf_invosets set
+        inodeid=#inodeid#,ipnodeid=#ipnodeid#,inodelevel=#inodelevel#,ipid=#ipid#,iinvoset=#iinvoset#,
+        inodetype=#inodetype#,inodevalue=#inodevalue#,inodeattribute=#inodeattribute#,cexecsql=#cexecsql#,iistatus=#iistatus#,
+        inodemode=#inodemode#,bfinalverify=#bfinalverify#,baddnew=#baddnew#,bsendnew=#bsendnew#,cnotice=#cnotice#,ccomefield=#ccomefield#
+        where iid=#iid#
+    </update>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- 单据的 节点录入 -->
+	<!-- 新增录入节点 -->
+	<insert id="fwf.insert_fw_nodeentry_item" parameterClass="java.util.HashMap">
+		insert into wf_nodeentry (ioainvoice,cnodeid,cfield,cvalue) values (#ioainvoice#,#cnodeid#,#cfield#,#cvalue#)
+	</insert>
+	<delete id="fwf.delete_fw_nodeentry_item" parameterClass="int">
+		delete from wf_nodeentry where iid = #iid#
+	</delete>
+	<update id="fwf.update_wf_nodeentry_item" parameterClass="java.util.HashMap">
+		update wf_nodeentry set cfield=#cfield#,cvalue=#cvalue# where iid=#iid#
+	</update>
+	<select id="fwf.selete_wf_nodeentry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	<!--select * from WF_nodeentry where ioainvoice=#ioainvoice# and cnodeid=#cnodeid#-->
+		select wf.*,ac.ccaption,ac.idatatype,ac.ilength,dbo.getFiledType(ac.idatatype) idatatypename from wf_nodeentry wf left join  (
+			select * from ac_datadictionary where ifuncregedit = #ifuncregedit# and bwfentry=1
+		) as ac  on wf.cfield = ac.cfield and  wf.cnodeid=#cnodeid#
+	</select>
+	<!-- 根据 ifuniid 来获取 可以参数节点录入的 字段信息 -->
+	<select id="fwf.selete_wf_dd_items" parameterClass="int" resultClass="java.util.HashMap">
+	<!--select * from ac_datadictionary where ifuncregedit=#ifuncregedit# and bwfentry=1   bwfcd=1-->
+		select ctable,cfield,ccaption,idatatype,ilength,dbo.getFiledType(idatatype) idatatypename,bwfentry,bwfcd 
+		from ac_datadictionary where ifuncregedit = #ifuncregedit# and ccaption is not null order by iid
+	</select>
+	
+</sqlMap>

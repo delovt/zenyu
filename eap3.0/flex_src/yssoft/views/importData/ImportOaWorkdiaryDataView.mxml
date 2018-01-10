@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         styleName="centerbg4"
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+         verticalGap="0" creationComplete="initBasicData()"
+         height="100%">
+	
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.ObjectUtil;
+
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var _counter:int = 1;
+        private var maxConter:int = 4;
+
+        private var cslist:ArrayCollection;//客户列表
+        private var datalist:ArrayCollection;//枚举列表
+        private var cpersonlist:ArrayCollection;//联系人列表
+        private var personlist:ArrayCollection;//人员列表
+
+        //private var department:ArrayCollection;//部门列表
+
+        [Bindable]
+        public var aclist:ArrayCollection;
+
+        [Bindable]
+        public var checkFlag:Boolean = true;
+
+        public var errString:String = "@*#@";
+        public var catchString:String = "@#*@";
+
+        private var footText:String = "导入数据说明：<br/>" +
+                "	1、所属客户、活动内容、开始时间、制单人为必填项；<br/>" +
+                "	2、制单人为执行活动的职员，制单时间如果为空会默认为开始时间；<br/>" +
+                "	3、所属客户可以输入其编码或名称，系统会自行校验内码，但编码不能含汉字；<br/>" +
+                "	4、系统导入时会根据字段长度进行截位处理；<br/>" +
+                "   <FONT COLOR='#ff8100'>	5、一次导入数据上限为2000条,数据验证将会花费一定时间，视数据量与计算机性能将会等待1至60秒。</FONT>";
+
+        private var downloadText =
+                "<FONT COLOR='#ff0000'><A HREF='"
+                        + ConstsModel.publishUrlRoot + "/importDataTemplate/" + "oa_workdiary.xls"
+                        + "' TARGET='_blank'>点此下载数据导入模板</A></FONT>";
+
+        private function initBasicData():void {
+            var sql1:String = "select iid,cname,ccode from cs_customer";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                cslist = event.result as ArrayCollection;
+                counter++;
+            }, sql1);
+
+            var sql2:String = "select iid,cname,ccode,iclass from aa_data where iclass in(23,22)";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                datalist = event.result as ArrayCollection;
+                counter++;
+            }, sql2);
+
+            var sql3:String = "select iid,cname,ccode from hr_person";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                personlist = event.result as ArrayCollection;
+                counter++;
+            }, sql3);
+
+            var sql4:String = "select iid,cname,icustomer from cs_custperson";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                cpersonlist = event.result as ArrayCollection;
+                counter++;
+            }, sql4);
+
+            /*
+             var sql1:String = "select iid,cname,ccode from hr_department";
+             AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+             department = event.result as ArrayCollection;
+             counter++;
+             }, sql1);*/
+
+        }
+
+        private function importButton_clickHandler(event:MouseEvent):void {
+
+            var fileReference:FileReference = new FileReference();
+            var fileFilter:FileFilter = new FileFilter("选择文件", "*.xls");
+            fileReference.addEventListener(Event.SELECT, function (event:Event):void {
+                var url:String = "/eap1.0/FileUploadServlet?param=importdata";
+                var request:URLRequest = new URLRequest(url);
+                fileReference.upload(request);
+            });
+            fileReference.addEventListener(Event.COMPLETE, function (event:Event):void {
+                AccessUtil.remoteCallJava("MrCustomerDest", "importData", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac.length > 2000) {
+                        CRMtool.showAlert("一次导入最多支持2000条数据，请检查您的文件。");
+                        return;
+                    }
+
+                    aclist = ac;
+                    checkAll.enabled = true;
+                    //checkAllData();
+                }, {filename: fileReference.name});
+            });
+            fileReference.browse([fileFilter]);
+        }
+
+
+        protected function checkAll_clickHandler(event:MouseEvent):void {
+            checkAllData();
+        }
+
+        private function checkAllData():void {
+            if (aclist == null) {
+                CRMtool.showAlert("Excel数据无效，请检查。");
+                return;
+            }
+
+            var sql1:String = "select 1";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                checkFlag = true;
+
+                clearData();
+
+                checkNull("所属客户");
+                checkNull("活动内容");
+                checkNull("开始时间");
+                checkNull("制单人");
+
+                checkNoEnumID("所属客户");
+                checkNoEnumID("制单人");
+                checkNoEnumID("客户人员");
+
+                checkEnumID("活动类型");
+                checkEnumID("活动方式");
+
+                aclist.refresh();
+                importDataButton.enabled = checkFlag;
+            }, sql1, "验证数据将花费一定时间，请等待。");
+        }
+
+        private function clearData():void {
+            for (var i:int = aclist.length - 1; i >= 0; i--) {
+                var item:Object = aclist.getItemAt(i);
+
+                var flag:Boolean = true;
+                var objInfo:Object = ObjectUtil.getClassInfo(item);
+                var fieldName:Array = objInfo["properties"] as Array;
+                for each (var q:QName in fieldName) {
+                    if (CRMtool.isStringNotNull(item[q.localName])) {
+                        flag = false;
+                    }
+                }
+                if (flag)
+                    aclist.removeItemAt(i);
+            }
+        }
+
+
+        private function checkNull(param:String):void {
+            for each(var item:Object in aclist) {
+                if (CRMtool.isStringNull(item[param])) {
+                    checkFlag = false;
+                    item[param] = errString + "空";
+                }
+            }
+        }
+
+        private function checkEnumID(param:String):void {
+
+            var iclass:int = 0;
+
+            switch (param) {
+                case "性别":
+                    iclass = 37;
+                    break;
+                case "行业":
+                    iclass = 10;
+                    break;
+                case "组织形式":
+                    iclass = 12;
+                    break;
+                case "价值级别":
+                    iclass = 15;
+                    break;
+                case "销售状态":
+                    iclass = 16;
+                    break;
+                case "地理区域":
+                    iclass = 3;
+                    break;
+                case "活动类型":
+                    iclass = 23;
+                    break;
+                case "活动方式":
+                    iclass = 22;
+                    break;
+            }
+
+            if (iclass == 0)
+                return;
+
+            var field:String = "";
+
+            for each(var item:Object in aclist) {
+                if (CRMtool.isStringNotNull(item[param])) {
+                    var value:String = item[param];
+                    if (value && value.indexOf(errString) > -1) {
+                        checkFlag = false;
+                        continue;
+                    }
+
+                    if (value && value.indexOf(catchString) > -1) {
+                        value = value.substr(catchString.length);
+                    }
+
+                    if (value && value.search("[\u4e00-\u9fa5]+") > -1) {//有汉字，是name
+                        field = "cname";
+                    } else if (value && value.match("[0-9]+") == null) {//没有汉字，没有数字，是name
+                        field = "cname";
+                    } else {//其他，是code
+                        field = "ccode";
+                    }
+
+                    var hasObj:Object = null;
+                    for each(var o:Object in datalist) {
+                        if (o[field] == value) {
+                            hasObj = o;
+                            break;
+                        }
+                    }
+
+                    if (hasObj) {
+                        if (field == "ccode") {
+                            item[param] = catchString + hasObj.cname;
+                        }
+                        item["iid" + param] = hasObj.iid;
+                    } else {
+                        checkFlag = false;
+                        item[param] = errString + "内码未找到,值:" + item[param];
+                        item["iid" + param] = null;
+                    }
+                } else {
+                    item["iid" + param] = "";
+                }
+            }
+        }
+
+        private function checkNoEnumID(param:String):void {
+
+            var field:String = "";
+            var table:String = "";
+
+            switch (param) {
+                case "所属客户":
+                    table = "cs_customer";
+                    break;
+                case "销售部门":
+                    table = "hr_department";
+                    break;
+                case "销售人员":
+                    table = "hr_person";
+                    break;
+                case "服务部门":
+                    table = "hr_department";
+                    break;
+                case "服务人员":
+                    table = "hr_person";
+                    break;
+                case "制单人":
+                    table = "hr_person";
+                    break;
+                case "客户人员":
+                    table = "cs_custperson";
+                    break;
+            }
+
+            for each(var item:Object in aclist) {
+                if (CRMtool.isStringNotNull(item[param])) {
+                    var value:String = item[param];
+                    if (value && value.indexOf(errString) > -1) {
+                        checkFlag = false;
+                        continue;
+                    }
+
+                    if (value && value.indexOf(catchString) > -1) {
+                        value = value.substr(catchString.length);
+                    }
+
+                    if (value && value.search("[\u4e00-\u9fa5]+") > -1) {
+                        field = "cname";
+                    } else {
+                        field = "ccode";
+                    }
+
+                    var hasObj:Object = null;
+                    var swaplist:ArrayCollection;
+
+                    if (table == "cs_custperson") {
+                        for each(var o:Object in cpersonlist) {
+                            if(item.iid所属客户>0){
+                                if (o[field] == value && o.icustomer == item.iid所属客户) {
+                                    hasObj = o;
+                                    break;
+                                }
+                            }else{
+                                CRMtool.showAlert("先为联系人："+value+"指定正确的客户");
+                                return;
+                            }
+                        }
+                    }else{
+                        if (table == "hr_person") {
+                            swaplist = personlist;
+                        } else if (table == "cs_customer") {
+                            swaplist = cslist;
+                        }
+
+                        for each(var o:Object in swaplist) {
+                            if (o[field] == value) {
+                                hasObj = o;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (hasObj) {
+                        if (field == "ccode") {
+                            item[param] = catchString + hasObj.cname;
+                        }
+                        item["iid" + param] = hasObj.iid;
+                    } else {
+                        checkFlag = false;
+                        item[param] = errString + "内码未找到,值:" + item[param];
+                        item["iid" + param] = null;
+                    }
+
+                } else {
+                    item["iid" + param] = "";
+                }
+            }
+        }
+
+        private function checkFunction(field:String, param:String, sql:String) {
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var eventAC:ArrayCollection = event.result as ArrayCollection;
+                if (eventAC && eventAC.length > 0) {
+                    var length:int = eventAC.length;
+                    var rvalue:String = eventAC[0].liu;
+
+                    for each(var item:Object in aclist) {
+                        if (item[param] == rvalue) {
+                            if (length == 1) {
+                                checkFlag = false;
+                                item[param] = errString + "内码未找到,值:" + item[param];
+
+                            } else if (length > 1) {
+                                if (field == "ccode") {
+                                    item[param] = catchString + eventAC[1].cname;
+                                }
+                                var iid:String = eventAC[1].iid;
+                                item["iid" + param] = iid;
+                            }
+
+                        }
+                    }
+                    aclist.refresh();
+                }
+            }, sql);
+        }
+
+
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = aclist.getItemIndex(item) + 1;
+            return lineNum + "";
+        }
+
+        private function button1_clickHandler(event:MouseEvent):void {
+            if (aclist == null || aclist.length == 0) {
+                return;
+            }
+
+            if (!checkFlag) {
+                CRMtool.showAlert("数据有误，请检查后单击[数据验证]按钮进行验证。");
+            } else {
+                for each(var item:Object in aclist) {
+                    if (CRMtool.isStringNull(item.制单时间))
+                        item.制单时间 = item.开始时间;
+
+                    item.imaker = item.iid制单人;
+                    item.dmaker = item.制单时间;
+                }
+
+                AccessUtil.remoteCallJava("MrCustomerDest", "importInOaWorkdiary", function (event:ResultEvent):void {
+                    if (event.result as Boolean) {
+                        CRMtool.showAlert("导入成功。");
+                        _counter = 1;
+                        initBasicData();
+                        checkAll.enabled = false;
+                        importDataButton.enabled = false;
+                    }
+                }, aclist);
+            }
+        }
+
+
+        public function get counter():int {
+            return _counter;
+        }
+
+        public function set counter(value:int):void {
+            _counter = value;
+            if (value == maxConter) {
+                importButton.enabled = true;
+            }
+        }
+        ]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<fx:Component id="listItemRender">
+			<s:MXDataGridItemRenderer>
+				<fx:Script>
+					<![CDATA[
+                    import mx.utils.StringUtil;
+
+                    [Bindable]
+                    private var textValue:String = "";
+
+                    override public function set data(value:Object):void {
+                        super.data = value;
+                        if (!value)
+                            return;
+
+                        var param:String = this.dataGridListData.dataField;
+                        if (value && value.hasOwnProperty(param) && String(value[param]).indexOf(outerDocument.errString) != -1) {
+                            textInput.setStyle("color", "red");
+                            textValue = value[param].substring(outerDocument.errString.length);
+                        } else if (value && value.hasOwnProperty(param) && String(value[param]).indexOf(outerDocument.catchString) != -1) {
+                            textInput.setStyle("color", "green");
+                            textValue = value[param].substring(outerDocument.catchString.length);
+                        } else {
+                            textInput.setStyle("color", "#000000");
+                            textValue = value[param];
+                        }
+                    }
+
+                    private var swapString:String = "";
+
+                    protected function textInput_focusOutHandler(event:FocusEvent):void {
+                        if (StringUtil.trim(textInput.text) != swapString) {
+                            var param:String = this.dataGridListData.dataField;
+                            data[param] = textInput.text;
+                            data = data;
+                        }
+                    }
+
+                    protected function textInput_changeHandler(event:Event):void {
+                        outerDocument.checkFlag = false;
+                    }
+
+                    protected function textInput_focusInHandler(event:FocusEvent):void {
+                        swapString = StringUtil.trim(textInput.text);
+                    }
+                    ]]>
+				</fx:Script>
+				<mx:HBox id="box" width="100%">
+					<mx:TextInput id="textInput" borderVisible="false" text="{textValue}" toolTip="{textValue}" width="100%" height="100%"
+								  focusIn="textInput_focusInHandler(event)"
+								   focusOut="textInput_focusOutHandler(event)" change="textInput_changeHandler(event)"/>
+					<!--<mx:Label id="textLabel" htmlText="{textValue}" click="textLabel_clickHandler(event)" />-->
+				</mx:HBox>
+			</s:MXDataGridItemRenderer>
+		</fx:Component>
+	</fx:Declarations>
+	<mx:ApplicationControlBar width="100%" height="32" styleName="centertop">
+        <mx:Button id="importButton" enabled="false" label="导入文件" click="importButton_clickHandler(event)"/>
+        <mx:Text htmlText="{downloadText}" width="300"/>
+        <s:Spacer width="100%"/>
+        <mx:Button id="checkAll" enabled="false" label="数据验证" click="checkAll_clickHandler(event)" />
+        <mx:Button id="importDataButton" enabled="false" label="数据导入" click="button1_clickHandler(event)"/>
+	</mx:ApplicationControlBar>
+	<mx:HBox width="100%" height="100%" paddingLeft="1" paddingRight="1">
+	<mx:DataGrid id="dg" borderStyle="none" width="100%" height="100%" dataProvider="{aclist}" sortableColumns="false">
+		<mx:columns>
+			<mx:DataGridColumn  labelFunction="doLineNum" width="30"/>
+		
+			<mx:DataGridColumn dataField="所属客户"  itemRenderer="{listItemRender}" width="200"/>
+			<mx:DataGridColumn dataField="活动主题" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="活动类型" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="活动方式" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="活动内容" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="开始时间" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="结束时间" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="客户人员" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="制单人" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="制单时间" itemRenderer="{listItemRender}"/>
+		</mx:columns>
+	</mx:DataGrid>
+	</mx:HBox>
+	<mx:HRule width="100%"  strokeColor="#c4cccc"/>
+	<mx:Text id="footHelp" htmlText="{footText}"/>
+</mx:VBox>

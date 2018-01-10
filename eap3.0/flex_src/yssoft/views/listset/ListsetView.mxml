@@ -1,0 +1,971 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*"
+                width="100%" height="100%" creationComplete="onGetTreeMenuList();"
+                styleName="contentHDividedBox">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.Sort;
+        import mx.collections.SortField;
+        import mx.events.ItemClickEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.vos.ListclmVo;
+        import yssoft.vos.ListsetVo;
+
+        [Bindable]
+        public var ialignArr:ArrayCollection = new ArrayCollection([
+            {label: "居左对齐", value: "0"        },
+            {label: "居中对齐", value: "1"        },
+            {label: "居右对齐", value: "2"    }
+        ]);
+
+        [Bindable]
+        private var acListclmVos:ArrayCollection = new ArrayCollection();
+
+        private var acListcomVo:ListclmVo;
+
+
+        [Bindable]
+        private var itemType:String = ConstsModel.ONDELETE_LABLE;
+
+        [Bindable]
+        private var treeXml:XML = null;
+
+        [Bindable]
+        private var acListsetVo:ListsetVo = new ListsetVo();
+
+        public var sele:Object = null;
+        [Bindable]
+        public var isEn:Boolean = false;
+
+
+        public var oldAcListclmVos:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        public var ifieldtypeArr:ArrayCollection = new ArrayCollection();
+
+
+        /**
+         *
+         * 函数名：
+         * 作者：钟晶
+         * 日期：2011-08-02
+         * 功能： 更新列
+         * 返回值：无
+         * 修改记录：
+         *
+         */
+        public function onRefresh(event:Event):void {
+            this.itemType = "onRefresh";
+            CRMtool.toolButtonsEnabled(this.lbr_Department, "onRefresh");
+            CRMtool.containerChildsEnabled(this.myBorder, true);
+            var obj:Object = new Object();
+            obj.item = this.getItem();
+            obj.oldacListclmVos = this.acListclmVos;
+            obj.dataType = ConstsModel.DATATYPEARR;
+            AccessUtil.remoteCallJava("ACListsetDest", "verificationSql", verificationSqlBack, obj);
+        }
+
+        private var isFail:Boolean = false;
+
+        private function verificationSqlBack(event:ResultEvent):void {
+
+            if (event.result.resultStr == "fail") {
+                isFail = false;
+                CRMtool.tipAlert("SQL语法错误！！");
+            }
+            else if (event.result.resultStr == "isNull") {
+                isFail = false;
+                CRMtool.tipAlert("没有结果集，请先插入一条测试数据！！");
+            }
+            else {
+                isFail = true;
+                var sort:Sort = new Sort();
+                sort.fields = [new SortField("ino")];
+                acListclmVos = event.result.resultStr as ArrayCollection;
+                acListclmVos.sort = sort;
+                acListclmVos.refresh();
+            }
+
+        }
+
+        public function ifieldtypeFormat(item:Object, icol:int):String {
+            var obj:Object = this.ifieldtypeArr.getItemAt(item.ifieldtype);
+            return obj.cname;
+        }
+
+        public function ialignFormat(item:Object, icol:int):String {
+            var str:String = "";
+            if (item.ialign == 0) {
+                str = "居左对齐";
+            }
+            else if (item.ialign == 1) {
+                str = "居中对齐";
+            }
+            else if (item.ialign == 2) {
+                str = "居右对齐";
+            }
+            else {
+                str = item.ialign;
+            }
+            return str;
+        }
+
+        public function bsearchFormat(item:Object, icol:int):String {
+            var str:String = "";
+            if (item.bsearch == false) {
+                str = "否";
+            }
+            else if (item.bsearch == true) {
+                str = "是";
+            }
+            return str;
+        }
+
+        public function cnewcaptionFormat(item:Object, icol:int):String {
+            return item.ccaption;
+        }
+
+
+        /**
+         *
+         * 函数名：
+         * 作者：钟晶
+         * 日期：2011-08-02
+         * 功能： 实现功能
+         * 参数： event（实现哪个功能）
+         * 返回值：无
+         * 修改记录：
+         *
+         */
+        public function clickbtr(event:ItemClickEvent):void {
+            var type:String = event.item.name;
+            CRMtool.toolButtonsEnabled(this.lbr_Department, type);
+            if (type != "onSave") {
+                itemType = type;
+            }
+            if (type == "onEdit") {
+                CRMtool.containerChildsEnabled(this.myBorder, true);
+            }
+            else if (type == "onGiveUp") {
+                CRMtool.containerChildsEnabled(this.myBorder, false);
+            }
+        }
+
+        private function getAcConsultclm():void {
+            if (!this.tre_datadictonary.selectedItem) {
+                CRMtool.tipAlert("请选择后，再操作！！");
+                return;
+            }
+            var acListclmVo:ListclmVo = new ListclmVo();
+            acListclmVo.ilist = int(Number(this.tre_datadictonary.selectedItem.@iid));
+            AccessUtil.remoteCallJava("ACListsetDest", "getListsetForServer", getAcConsultclmBack, acListclmVo);
+        }
+
+        private function getAcConsultclmBack(event:ResultEvent):void {
+            acListsetVo = event.result.acListsetVo as ListsetVo;
+            if (acListsetVo != null) {
+                this.tnp_csql1.text = acListsetVo.csql1;
+//		this.tnp_cdataauth.text = acListsetVo.cdataauth;
+                this.tnp_ipage.text = acListsetVo.ipage.toString();
+                this.tnp_ifixnum.text = acListsetVo.ifixnum.toString();
+                this.typeGrou.selectedValue = acListsetVo.itype;
+                this.idiagramGrou.selectedValue = acListsetVo.idiagram;
+                this.tnp_cxfield.text = acListsetVo.cxfield;
+                this.tnp_cyfield.text = acListsetVo.cyfield;
+                this.tnp_cmapfield.text = acListsetVo.cmapfield;
+            }
+            else {
+                this.tnp_csql1.text = "";
+//		this.tnp_cdataauth.text ="";
+                this.tnp_ipage.text = "50";
+                this.tnp_ifixnum.text = "3";
+            }
+            acListclmVos = event.result.acListclmVos as ArrayCollection;
+
+
+            oldAcListclmVos.addAll(acListclmVos);
+            getListcd();
+            dgrd_listet.addEventListener(KeyboardEvent.KEY_DOWN, CRMtool.doKeyDown);
+        }
+
+        /**
+         *
+         * 作者：zhong_jing
+         * 日期：2011-08-08
+         * 功能：参照树
+         * 参数：无
+         * 返回值：无
+         * 修改人：
+         * 修改时间：
+         * 修改记录：
+         *
+         */
+        public function onGetTreeMenuList():void {
+            var objvalue:Object = new Object();
+            objvalue.sqlcondition = " blist=1";
+            objvalue.single = 1;
+            AccessUtil.remoteCallJava("DatadictionaryDest", "getTreeMenuList", onGetTreeMenuListBack, objvalue);
+        }
+
+        private function onGetTreeMenuListBack(event:ResultEvent):void {
+            if (event.result != "") {
+                this.tre_datadictonary.treeCompsXml = new XML(event.result as String);
+                AccessUtil.remoteCallJava("ConsultDest", "getDataType", getDataType_callBackHandler);
+            }
+            CRMtool.toolButtonsEnabled(this.lbr_Department, null);
+            CRMtool.containerChildsEnabled(this.myBorder, false);
+            //回车替代TAB键
+            CRMtool.setTabIndex(this.myBorder);
+
+        }
+
+        private function getListcd():void {
+            if (!this.tre_datadictonary.selectedItem) {
+                CRMtool.tipAlert("请选择后，在操作！！");
+                return;
+            }
+            var obj:Object = new Object();
+            obj.ifuncregedit = int(Number(this.tre_datadictonary.selectedItem.@iid));
+            AccessUtil.remoteCallJava("ACListsetDest", "getListcd", getListcdCallBackHandler, obj);
+        }
+
+        private function getListcdCallBackHandler(event:ResultEvent):void {
+            tre_listcd.treeCompsXml = null;
+            if (event.result != null) {
+                tre_listcd.treeCompsXml = new XML(event.result as String);
+            }
+        }
+
+        public function getDataType_callBackHandler(event:ResultEvent):void {
+            if (event.result != null) {
+                this.ifieldtypeArr = event.result.success as ArrayCollection;
+            }
+            else {
+                this.ifieldtypeArr = null;
+            }
+        }
+
+        //修改人：王炫皓
+        private function onSave(event:Event):void {
+            this.dgrd_listet.editable = true;
+            if (!check()) {
+                return;
+            }
+            var paramObj:Object = new Object();
+            paramObj.acListclmVos = this.acListclmVos;
+            var lt:ListsetVo = getItem();
+            //判断是否是单据列表
+            if (lt.itype == 1 && acListclmVos.length > 0) {
+                var flag:Boolean = false; //标识是否找到iid
+
+                for each(var item:Object in acListclmVos) {
+                    if (item.cfield == "iid") {
+                        flag = true;
+                        break;
+                    }
+                }
+
+                if (!flag) {
+                    CRMtool.showAlert("SQL必须包含主表iid");
+                    return;
+                }
+            }
+
+            paramObj.acListsetVo = getItem();
+            paramObj.iperson = 0;
+            paramObj.oldacListsetVo = this.acListsetVo;
+
+
+            AccessUtil.remoteCallJava("ACListsetDest", "addObj", updatelistsetsBack, paramObj);
+        }
+
+
+        private function updatelistsetsBack(event:ResultEvent):void {
+            var result:String = event.result as String;
+            if (result == "fail") {
+                CRMtool.tipAlert("保存失败");
+            }
+            else {
+                this.dgrd_listet.editable = false;
+                isEn = false;
+                CRMtool.tipAlert("保存成功");
+                onGiveUp(event);
+            }
+        }
+
+
+        private function getItem():ListsetVo {
+            var listsetVo:ListsetVo = new ListsetVo();
+            listsetVo.csql1 = this.tnp_csql1.text;
+
+            listsetVo.ifuncregedit = int(Number(this.tre_datadictonary.selectedItem.@iid));
+//	listsetVo.cdataauth = this.tnp_cdataauth.text;
+            listsetVo.ipage = int(Number(this.tnp_ipage.text));
+            listsetVo.ifixnum = int(Number(this.tnp_ifixnum.text));
+            listsetVo.itype = int(Number(this.typeGrou.selectedValue));
+            listsetVo.idiagram = int(Number(this.idiagramGrou.selectedValue));
+            listsetVo.cxfield = this.tnp_cxfield.text;
+            listsetVo.cyfield = this.tnp_cyfield.text;
+            listsetVo.border = this.border.selected;
+            listsetVo.bpage = this.bpage.selected;
+            listsetVo.bmap = this.bmap.selected;
+            listsetVo.cmapfield = this.tnp_cmapfield.text;
+
+            if (acListsetVo != null) {
+                listsetVo.iid = acListsetVo.iid;
+            }
+            return listsetVo;
+        }
+
+        private function check():Boolean {
+
+            //不牵扯列变动时,仍然提示此句,所以暂时注释掉.
+            /*	if(this.acListclmVos.length==0||(acListsetVo!=null&&this.tnp_csql1.text!=acListsetVo.csql1))
+             {
+             if(!this.isFail)
+             {
+             CRMtool.tipAlert("请先更新列！！");
+             return false;
+             }
+             }*/
+            //不牵扯列变动时,仍然提示此句,所以暂时注释掉.end
+
+
+            /*if(CRMtool.isStringNull(this.tnp_cdataauth.text))
+             {
+             CRMtool.tipAlert("数据权限控制类型不能为空！！");
+             return false;
+             }
+             else*/
+            if (CRMtool.isStringNull(this.tnp_ipage.text)) {
+                CRMtool.tipAlert("列表每页行数不能为空！！");
+                return false;
+            }
+            if (CRMtool.isStringNull(this.tnp_ifixnum.text)) {
+                CRMtool.tipAlert("列表冻结列数不能为空！！");
+                return false;
+            }
+            if (bpage.selected && StringUtil.trim(tnp_csql1.text + "").indexOf("exec ") == 0) {
+                CRMtool.tipAlert("存储过程不能参与分页！！");
+                return false;
+            }
+//	XZQWJ 2013-03-08 修改
+            var bcrossrow:Boolean = false;//交叉行
+            var bcrosscol:Boolean = false;//交叉列
+            var btotalfield:Boolean = false;//统计列
+            var bamount:Boolean = false;//汇总列
+            var browtotal:Boolean = false;//行合计
+            var bcoltotal:Boolean = false;//列合计
+            var msg:String = "";
+            if (int(Number(this.typeGrou.selectedValue)) == 3) {//交叉表
+                for (var i:int = 0; i < acListclmVos.length; i++) {
+                    if (acListclmVos[i].bcrossrow as Boolean) {
+                        bcrossrow = true;
+                    }
+                    if (acListclmVos[i].bcrosscol as Boolean) {
+                        bcrosscol = true;
+                    }
+                    if (acListclmVos[i].btotalfield as Boolean) {
+                        btotalfield = true;
+                        if (acListclmVos[i].ifieldtype == 1 || acListclmVos[i].ifieldtype == 2) {
+
+                        } else {
+                            msg = "列表第" + (i + 1) + "行统计列只能为整型或浮点型，请确认!";
+                            break;
+                        }
+                    }
+                    if (acListclmVos[i].bamount as Boolean) {
+                        bamount = true;
+                        if (acListclmVos[i].bcrossrow as Boolean) {
+
+
+                        } else {
+                            msg = "列表第" + (i + 1) + "行汇总字段不属于交叉列，请确认!";
+                            CRMtool.tipAlert(msg);
+                            return false;
+                            break;
+                        }
+                    }
+                    if (acListclmVos[i].browtotal as Boolean) {
+                        if (acListclmVos[i].btotalfield as Boolean) {
+
+                        } else {
+                            msg = "列表第" + (i + 1) + "行所选行汇总字段不属于统计字段，请确认!";
+                            CRMtool.tipAlert(msg);
+                            return false;
+                            break;
+                        }
+                    }
+                    if (acListclmVos[i].bcoltotal as Boolean) {
+                        if (acListclmVos[i].btotalfield as Boolean) {
+
+                        } else {
+                            msg = "列表第" + (i + 1) + "行所选列汇总字段不属于统计字段，请确认!";
+                            CRMtool.tipAlert(msg);
+                            return false;
+                            break;
+                        }
+                    }
+                }
+                if (!bcrossrow) {
+                    CRMtool.tipAlert("列表交叉行不能为空！！");
+                    return false;
+                }
+                if (!bcrosscol) {
+                    CRMtool.tipAlert("列表交叉列不能为空！！");
+                    return false;
+                }
+                if (!btotalfield) {
+                    CRMtool.tipAlert("列表统计列不能为空！！");
+                    return false;
+                } else {
+                    if (msg != "") {
+                        CRMtool.tipAlert(msg);
+                        return false;
+                    }
+                }
+//		if(bamount){
+//			if(msg!=""){
+//				CRMtool.tipAlert(msg);
+//				return false;
+//			}
+//		}
+            }
+
+            return true;
+        }
+
+        public function getcnewcaption(item:Object, icol:int):String {
+            return item.ccaption;
+        }
+
+
+        public function onEditEvent(event:Event):void {
+            if (!this.tre_datadictonary.selectedItem) {
+                CRMtool.tipAlert(ConstsModel.CHOOSE_ROLE);
+                return;
+            }
+            this.isEn = true;
+            this.dgrd_listet.editable = true;
+            this.itemType = "onEdit";
+            this.btn_sql.enabled = true;
+            CRMtool.toolButtonsEnabled(this.lbr_Department, "onEdit");
+            CRMtool.containerChildsEnabled(this.myBorder, true);
+        }
+
+        public function checkbox1_changeHandler(data:Object, selecede:Boolean):void {
+            data.bsearch = selecede;
+        }
+
+        public function chk_bshow_changeHandler(data:Object, selecede:Boolean):void {
+            data.bshow = selecede;
+        }
+
+        public function chk_blinkfun_changeHandler(data:Object, selecede:Boolean):void {
+            data.blinkfun = selecede;
+        }
+
+        public function onGiveUp(event:Event):void {
+            this.isEn = false;
+            this.tnp_csql1.text = "";
+//	this.tnp_cdataauth.text ="";
+            this.tnp_ipage.text = "";
+            this.tnp_ifixnum.text = "";
+            acListclmVos.removeAll();
+            this.itemType = "onGiveUp";
+            this.btn_sql.enabled = false;
+            CRMtool.toolButtonsEnabled(this.lbr_Department, "onGiveUp");
+            CRMtool.containerChildsEnabled(this.myBorder, false);
+        }
+
+
+        public function onReset(event:Event):void {
+            var paramObj:Object = new Object();
+            paramObj.ilist = this.acListsetVo.iid;
+            AccessUtil.remoteCallJava("ACListsetDest", "deleteList", updatelistsetsBack, paramObj);
+        }
+
+        private function openWindow():void {
+            if (!this.tre_datadictonary.selectedItem) {
+                CRMtool.tipAlert("请选择后，在操作！！");
+                return;
+            }
+            if (CRMtool.isStringNull(this.tnp_csql1.text)) {
+                CRMtool.tipAlert("请输入SQL，在操作...");
+                return;
+            }
+            var ass:ListcdWindow = new ListcdWindow();
+            ass.width = 700;
+            ass.height = 500;
+            ass.csql1 = this.tnp_csql1.text;
+            ass.ifuncregedit = int(Number(this.tre_datadictonary.selectedItem.@iid));
+            ass.title = "视图查询";
+            //ass.winParam = "defaultParameters:ifuncregedit*"+int(Number(this.tre_datadictonary.selectedItem.@iid))+",fileds:listcedArr,dest:ACListsetDest,onNewMethod:addListcd,onEditMethod:updateListcd,onDeleteMethod:removeListcd,onGet:getListcd,onTest:testSql,count:1,LinkButtonArr:LISTCD_LBRITEM";
+            /*	ass.ifuncregedit = int(Number(this.tre_datadictonary.selectedItem.@iid));
+             ass.funcregeditCname =this.tre_datadictonary.selectedItem.@cname;
+             ass.csql1 = this.tnp_csql1.text;
+             ass.listcd_lbritem =ConstsModel.LISTCD_LBRITEM;
+             ass.deleteLable="这个视图？";*/
+            /*	var mainApp:DisplayObject = FlexGlobals.topLevelApplication as DisplayObject;
+             PopUpManager.addPopUp(ass, mainApp);
+             PopUpManager.centerPopUp(ass);*/
+            CRMtool.openView(ass);
+        }
+
+        private function generateSql():void {
+            var objvalue:Object = {};
+            var iifun:String = this.tre_datadictonary.selectedItem.@ifuncregedit;
+            if (CRMtool.isStringNull(iifun) || iifun == '0') {
+                CRMtool.tipAlert("请先在功能建模中配置相关功能...");
+                return;
+            }
+            var ifuncregedit:int = int(Number(this.tre_datadictonary.selectedItem.@ifuncregedit));
+
+            var ctalble:String = this.tre_datadictonary.selectedItem.@ctable;
+            objvalue.ctable = ctalble;
+            objvalue.ifuncregedit = ifuncregedit;
+
+            AccessUtil.remoteCallJava("AcDatadictionaryDest", "createListSql", generateSqlBack, objvalue);
+        }
+
+        private function generateSqlBack(event:ResultEvent):void {
+            this.tnp_csql1.text = event.result as String;
+        }
+
+        public function chk_bgroup_changeHandler(data:Object, selecede:Boolean):void {
+            data.bgroup = selecede;
+        }
+
+        public function chk_bfilter_changeHandler(data:Object, selecede:Boolean):void {
+            data.bfilter = selecede;
+        }
+
+        //-------------------------XZQWJ 2013-02-23 增加  交叉行------------------------------------------------
+        public function chk_bcrossrow_changeHandler(data:Object, selecede:Boolean):void {
+            data.bcrossrow = selecede;
+        }
+
+        //-------------------------XZQWJ 2013-02-23 增加  交叉列------------------------------------------------
+        public function chk_bcrosscol_changeHandler(data:Object, selecede:Boolean):void {
+            data.bcrosscol = selecede;
+        }
+
+        //-------------------------XZQWJ 2013-02-23 增加  统计字段------------------------------------------------
+        public function chk_btotalfield_changeHandler(data:Object, selecede:Boolean):void {
+            data.btotalfield = selecede;
+        }
+
+        //-------------------------XZQWJ 2013-02-23 增加  小计字段------------------------------------------------
+        public function chk_bamount_changeHandler(data:Object, selecede:Boolean):void {
+            data.bamount = selecede;
+        }
+
+        //-------------------------XZQWJ 2013-03-12 增加 行汇总------------------------------------------------
+        public function chk_browtotal_changeHandler(data:Object, selecede:Boolean):void {
+            data.browtotal = selecede;
+        }
+
+        //-------------------------XZQWJ 2013-03-12 增加 列汇总------------------------------------------------
+        public function chk_bcoltotal_changeHandler(data:Object, selecede:Boolean):void {
+            data.bcoltotal = selecede;
+        }
+
+
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = dgrd_listet.dataProvider.getItemIndex(item) + 1;
+            item.ino = lineNum;
+            return lineNum + "";
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <!-- 数据类型 -->
+        <!-- 对齐方式 -->
+        <fx:Component id="ialignEditor">
+            <mx:ComboBox dataProvider="{outerDocument.ialignArr}"/>
+        </fx:Component>
+        <s:RadioButtonGroup id="typeGrou"/>
+        <s:RadioButtonGroup id="idiagramGrou"/>
+    </fx:Declarations>
+
+    <!-- 角色树 -->
+    <mx:VBox width="20%" height="100%" verticalGap="10">
+        <mx:VBox width="100%" height="50%" styleName="lefttree">
+            <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                <s:Label styleName="contentTitle" text="列表目录"/>
+            </mx:ApplicationControlBar>
+            <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                <comps:TreeCompsVbox id="tre_datadictonary" width="100%" height="100%"
+                                     click="getAcConsultclm()" enabled="{!isEn}"/>
+            </mx:HBox>
+        </mx:VBox>
+        <mx:VBox width="100%" height="50%" styleName="lefttree">
+            <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                <s:Label styleName="contentTitle" text="查询视图"/>
+            </mx:ApplicationControlBar>
+            <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                <comps:TreeCompsVbox id="tre_listcd" width="100%" height="100%"/>
+            </mx:HBox>
+            <mx:HBox width="100%" height="10%" paddingBottom="10" paddingLeft="10" paddingRight="10">
+                <s:Button width="50%" height="25" label="维护" click="openWindow();"/>
+                <s:Button width="50%" height="25" label="刷新" click="getListcd();"/>
+            </mx:HBox>
+        </mx:VBox>
+    </mx:VBox>
+
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="centerbg4">
+        <mx:ApplicationControlBar width="100%" height="32" styleName="centertop">
+            <comps:LinkBarVboxComps id="lbr_Department" width="15%" height="25"
+                                    dataProvider="{ConstsModel.LISTSET_LBRITEM}"
+                                    onEditEvent="onEditEvent(event)" onGiveUpEvent="onGiveUp(event)"
+                                    onRefreshEvent="onRefresh(event)" onResetEvent="onReset(event);"
+                                    onSaveEvent="onSave(event)" styleName="contentButtonBar"/>
+            <s:Spacer width="95%"/>
+            <mx:Button id="btn_sql" label="生成Sql语句" click="generateSql()" enabled="false"/>
+        </mx:ApplicationControlBar>
+        <mx:VBox id="myBorder" width="100%" height="100%" styleName="roleHbox">
+            <mx:VBox width="100%" styleName="content">
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox width="33%">
+                        <mx:Label styleName="contentLabel" text="关联功能："/>
+                        <mx:TextInput id="tnp_ifuncregedit" enabled="false"
+                                      styleName="contentTextInput"
+                                      text="{this.tre_datadictonary.selectedItem.@cname}" width="100%"/>
+                    </mx:HBox>
+                    <mx:HBox width="33%">
+                        <mx:Label styleName="contentLabel" text="每页行数："/>
+                        <mx:TextInput id="tnp_ipage" restrict="[0-9]" styleName="contentTextInput" width="100%"/>
+                    </mx:HBox>
+                    <mx:HBox width="33%">
+                        <mx:Label styleName="contentLabel" text="冻结列数："/>
+                        <mx:TextInput id="tnp_ifixnum" restrict="[0-9]" styleName="contentTextInput" width="100%"/>
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox width="50%">
+                        <mx:Label styleName="contentLabel" text="列表类型："/>
+                        <mx:HBox width="100%">
+                            <s:RadioButton id="type_1" label="单据列表" group="{typeGrou}" name="1" value="1"/>
+                            <s:RadioButton id="type_2" label="普通报表" group="{typeGrou}" name="2" value="2"/>
+                            <s:RadioButton id="type_3" label="交叉报表" group="{typeGrou}" name="3" value="3"/>
+                            <s:RadioButton id="type_4" label="存储过程及函数" group="{typeGrou}" value="4"/>
+                        </mx:HBox>
+                    </mx:HBox>
+                    <mx:HBox width="50%">
+                        <mx:Label styleName="contentLabel" text="图表类型："/>
+                        <mx:HBox width="100%">
+                            <s:RadioButton id="idiagram_0" label="无图表" group="{idiagramGrou}"
+                                           name="0" value="0"/>
+                            <s:RadioButton id="idiagram_1" label="柱状图" group="{idiagramGrou}"
+                                           name="1" value="1"/>
+                            <s:RadioButton id="idiagram_2" label="饼状图" group="{idiagramGrou}"
+                                           name="2" value="2"/>
+                            <s:RadioButton id="idiagram_3" label="线状图" group="{idiagramGrou}"
+                                           name="3" value="3"/>
+                        </mx:HBox>
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox width="100%" verticalAlign="bottom" horizontalGap="2">
+                        <mx:Label styleName="contentLabel" text="图表X轴字段："/>
+                        <mx:TextInput id="tnp_cxfield"
+                                      styleName="contentTextInput"
+                                      width="100%"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%" verticalAlign="bottom" horizontalGap="2">
+                        <mx:Label styleName="contentLabel" text="图表Y轴字段："/>
+                        <mx:TextInput id="tnp_cyfield"
+                                      styleName="contentTextInput"
+                                      width="100%"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%" verticalAlign="bottom" horizontalGap="2">
+                        <mx:Label styleName="contentLabel" text="地图区域字段："/>
+                        <mx:TextInput id="tnp_cmapfield"
+                                      styleName="contentTextInput"
+                                      width="100%"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%">
+                        <s:CheckBox id="border" label="允许用户排序"
+                                    selected="{this.acListsetVo.border}"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%">
+                        <s:CheckBox id="bpage" label="允许分页"
+                                    selected="{this.acListsetVo.bpage}"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%" enabled="false">
+                        <s:CheckBox id="bmap" label="支持地图显示"
+                                    selected="{CRMtool.isStringNotNull(tnp_cmapfield.text)}"/>
+                    </mx:HBox>
+                </mx:HBox>
+            </mx:VBox>
+
+            <mx:Label paddingLeft="20" paddingRight="20" text="列表SQL"></mx:Label>
+            <mx:VBox width="100%" paddingLeft="10" paddingRight="10" styleName="content">
+                <mx:TextArea id="tnp_csql1" width="100%" height="100" styleName="contentTextInput"/>
+            </mx:VBox>
+            <mx:Label paddingLeft="20" paddingRight="20" text="列表信息"></mx:Label>
+            <mx:HBox width="100%" height="100%">
+                <mx:DataGrid id="dgrd_listet" width="98%" height="100%" borderAlpha="1"
+                             borderColor="#c4cccc" borderStyle="solid" dataProvider="{acListclmVos}"
+                             dragEnabled="{itemType=='onEdit'}" dropEnabled="{itemType=='onEdit'}"
+                             dragMoveEnabled="{itemType=='onEdit'}"
+                             editable="true" verticalScrollPolicy="auto">
+                    <mx:columns>
+                        <mx:DataGridColumn width="50" dataField="ino" editable="false" headerText="序号"
+                                           labelFunction="{doLineNum}"/>
+                        <mx:DataGridColumn dataField="cfield" editable="true" headerText="列名"/>
+                        <mx:DataGridColumn width="120" dataField="ccaption" editable="true"
+                                           headerText="默认标题"/>
+                        <mx:DataGridColumn width="120" dataField="cnewcaption" editable="false"
+                                           headerText="显示标题" labelFunction="getcnewcaption"/>
+                        <mx:DataGridColumn dataField="bshow" editable="false" headerText="是否显示">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_bshow"
+                                                     change="outerDocument.chk_bshow_changeHandler(data,chk_bshow.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bshow}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="blinkfun" editable="false" headerText="是否相关功能字段">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_blinkfun"
+                                                     change="outerDocument.chk_blinkfun_changeHandler(data,chk_blinkfun.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.blinkfun}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="ifieldtype" editorDataField="value"
+                                           headerText="数据类型" labelFunction="ifieldtypeFormat"
+                                           sortable="false">
+                            <mx:itemEditor>
+                                <fx:Component>
+                                    <mx:HBox>
+                                        <fx:Script>
+										<![CDATA[
+                                            public function get value():Object {
+                                                var obj:Object = cmb_ifieldtype.selectedItem;
+                                                return obj.iid;
+                                            }
+                                            ]]>
+									</fx:Script>
+                                        <mx:ComboBox id="cmb_ifieldtype" width="100%"
+                                                     dataProvider="{outerDocument.ifieldtypeArr}"
+                                                     labelField="cname"
+                                                     selectedIndex="{data.ifieldtype}">
+                                        </mx:ComboBox>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemEditor>
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="icolwidth" editable="true" headerText="列宽"/>
+                        <mx:DataGridColumn dataField="ialign" editorDataField="value" headerText="对齐方式"
+                                           labelFunction="ialignFormat" sortable="false">
+                            <mx:itemEditor>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <fx:Script>
+										<![CDATA[
+                                            import mx.collections.ArrayCollection;
+
+                                            [Bindable]
+                                            public var ialignArr:ArrayCollection = new ArrayCollection([
+                                                {value: 0, label: "居左对齐"},
+                                                {value: 1, label: "居中对齐"},
+                                                {value: 2, label: "居右对齐"}
+                                            ]);
+
+                                            public function get value():Object {
+                                                var obj:Object = cmb_ialign.selectedItem;
+                                                return obj.value;
+                                            }
+                                            ]]>
+									</fx:Script>
+                                        <mx:ComboBox id="cmb_ialign" width="100%"
+                                                     dataProvider="{ialignArr}"
+                                                     selectedIndex="{data.ialign}">
+                                        </mx:ComboBox>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemEditor>
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="bsearch" editable="false" headerText="快速搜索">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_isEn"
+                                                     change="outerDocument.checkbox1_changeHandler(data,chk_isEn.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bsearch}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="bsum" editable="false" headerText="是否合计">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_isBsum" change="{data.bsum = chk_isBsum.selected}"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bsum}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="bgroup" editable="false" headerText="是否汇总">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_isGroup"
+                                                     change="outerDocument.chk_bgroup_changeHandler(data,chk_isGroup.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bgroup}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="bfilter" editable="false" headerText="是否智能过滤">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_bfilter"
+                                                     change="outerDocument.chk_bfilter_changeHandler(data,chk_bfilter.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bfilter}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+
+                        <!-- XZQWJ 2013-02-23 增加  交叉行-->
+
+                        <mx:DataGridColumn dataField="bcrossrow" editable="false" headerText="交叉行">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_bcrossrow"
+                                                     change="outerDocument.chk_bcrossrow_changeHandler(data,chk_bcrossrow.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bcrossrow}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+
+
+                        <!-- XZQWJ 2013-02-23 增加  交叉列-->
+
+                        <mx:DataGridColumn dataField="bcrosscol" editable="false" headerText="交叉列">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_bcrosscol"
+                                                     change="outerDocument.chk_bcrosscol_changeHandler(data,chk_bcrosscol.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bcrosscol}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+
+
+                        <!-- XZQWJ 2013-02-23 增加  统计字段-->
+
+                        <mx:DataGridColumn dataField="btotalfield" editable="false" headerText="统计字段">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_btotalfield"
+                                                     change="outerDocument.chk_btotalfield_changeHandler(data,chk_btotalfield.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.btotalfield}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+
+                        <!-- XZQWJ 2013-02-23 增加  小计字段-->
+
+                        <mx:DataGridColumn dataField="bamount" editable="false" headerText="小计字段">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_bamount"
+                                                     change="outerDocument.chk_bamount_changeHandler(data,chk_bamount.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bamount}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+
+                        <!-- XZQWJ 2013-03-12 增加  行汇总-->
+
+                        <mx:DataGridColumn dataField="browtotal" editable="false" headerText="行汇总">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_browtotal"
+                                                     change="outerDocument.chk_browtotal_changeHandler(data,chk_browtotal.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.browtotal}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+
+                        <!-- XZQWJ 2013-03-12 增加  列汇总-->
+
+                        <mx:DataGridColumn dataField="bcoltotal" editable="false" headerText="列汇总">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <mx:CheckBox id="chk_bcoltotal"
+                                                     change="outerDocument.chk_bcoltotal_changeHandler(data,chk_bcoltotal.selected)"
+                                                     enabled="{outerDocument.isEn}"
+                                                     selected="{data.bcoltotal}"/>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+
+
+                        <!--<mx:DataGridColumn headerText="搜索字段" dataField="cshfield" editable="true"  width="150" />-->
+                    </mx:columns>
+                </mx:DataGrid>
+                <mx:VBox width="2%" height="100%" cornerRadius="0" horizontalAlign="center"
+                         styleName="content" verticalAlign="middle">
+                    <mx:LinkButton click="CRMtool.rowMoveEndUp(dgrd_listet,'ino')"
+                                   icon="{ConstsModel._UPENDICON}" toolTip="置顶"/>
+                    <mx:LinkButton click="CRMtool.rowMoveUp(dgrd_listet,'ino')"
+                                   icon="{ConstsModel._UPICON}" toolTip="上移"/>
+                    <mx:LinkButton click="CRMtool.rowMoveDown(dgrd_listet,'ino')"
+                                   icon="{ConstsModel._DOWNICON}" toolTip="下移"/>
+                    <mx:LinkButton click="CRMtool.rowMoveEndDown(dgrd_listet,'ino')"
+                                   icon="{ConstsModel._DOWNENDICON}" toolTip="置底"/>
+                </mx:VBox>
+            </mx:HBox>
+        </mx:VBox>
+    </mx:VBox>
+</mx:HDividedBox>

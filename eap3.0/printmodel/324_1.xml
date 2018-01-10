@@ -1,0 +1,1306 @@
+<ReportSettings version="1.1">
+  <PageWidth>84</PageWidth>
+  <PageHeight>42</PageHeight>
+  <TableHeaderRepeat>true</TableHeaderRepeat>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>人员计划分析表</Value>
+          <Width>80.9</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>18.8</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>18.8</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>18.8</Width>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.5</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.2</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.5</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.3</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划类型</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划指标</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>部门</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>人员</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>年度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>7月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>8月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>9月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>10月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>11月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>12月份</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>比率</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>计划类型</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.Value=="部门计划"</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.Value=="公司计划"</Condition>
+              <Style>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>计划指标</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.Value=="部门计划"</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.value=="公司计划"</Condition>
+              <Style>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>部门</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.Value=="部门计划"</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.value=="公司计划"</Condition>
+              <Style>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>人员</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.Value=="部门计划"</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.value=="公司计划"</Condition>
+              <Style>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>年度</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.Value=="部门计划"</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Fields!计划类型.value=="公司计划"</Condition>
+              <Style>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Fields!计划数1.Value+Fields!计划数2.Value+Fields!计划数3.Value+Fields!计划数4.Value+Fields!计划数5.Value+Fields!计划数6.Value+Fields!计划数7.Value+Fields!计划数8.Value+Fields!计划数9.Value+Fields!计划数10.Value+Fields!计划数11.Value+Fields!计划数12.Value</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Fields!实际数1.Value+Fields!实际数2.Value+Fields!实际数3.Value+Fields!实际数4.Value+Fields!实际数5.Value+Fields!实际数6.Value+Fields!实际数7.Value+Fields!实际数8.Value+Fields!实际数9.Value+Fields!实际数10.Value+Fields!实际数11.Value+Fields!实际数12.Value</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((Fields!计划数1.Value+Fields!计划数2.Value+Fields!计划数3.Value+Fields!计划数4.Value+Fields!计划数5.Value+Fields!计划数6.Value+Fields!计划数7.Value+Fields!计划数8.Value+Fields!计划数9.Value+Fields!计划数10.Value+Fields!计划数11.Value+Fields!计划数12.Value)==0,1,(Fields!实际数1.Value+Fields!实际数2.Value+Fields!实际数3.Value+Fields!实际数4.Value+Fields!实际数5.Value+Fields!实际数6.Value+Fields!实际数7.Value+Fields!实际数8.Value+Fields!实际数9.Value+Fields!实际数10.Value+Fields!实际数11.Value+Fields!实际数12.Value)/(Fields!计划数1.Value+Fields!计划数2.Value+Fields!计划数3.Value+Fields!计划数4.Value+Fields!计划数5.Value+Fields!计划数6.Value+Fields!计划数7.Value+Fields!计划数8.Value+Fields!计划数9.Value+Fields!计划数10.Value+Fields!计划数11.Value+Fields!计划数12.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数1.Value==0,"",Fields!计划数1.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数1.Value==0,"",Fields!实际数1.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数1.Value==0,1,Fields!实际数1.Value/Fields!计划数1.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数2.Value==0,"",Fields!计划数2.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数2.Value==0,"",Fields!实际数2.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数2.Value==0,1,Fields!实际数2.Value/Fields!计划数2.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数3.Value==0,"",Fields!计划数3.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数3.Value==0,"",Fields!实际数3.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数3.Value==0,1,Fields!实际数3.Value/Fields!计划数3.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数4.Value==0,"",Fields!计划数4.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数4.Value==0,"",Fields!实际数4.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数4.Value==0,1,Fields!实际数4.Value/Fields!计划数4.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数5.Value==0,"",Fields!计划数5.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数5.Value==0,"",Fields!实际数5.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数5.Value==0,1,Fields!实际数5.Value/Fields!计划数5.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数6.Value==0,"",Fields!计划数6.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数6.Value==0,"",Fields!实际数6.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数6.Value==0,1,Fields!实际数6.Value/Fields!计划数6.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数7.Value==0,"",Fields!计划数7.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数7.Value==0,"",Fields!实际数7.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数7.Value==0,1,Fields!实际数7.Value/Fields!计划数7.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数8.Value==0,"",Fields!计划数8.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数8.Value==0,"",Fields!实际数8.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数8.Value==0,1,Fields!实际数8.Value/Fields!计划数8.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数9.Value==0,"",Fields!计划数9.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数9.Value==0,"",Fields!实际数9.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数9.Value==0,1,Fields!实际数9.Value/Fields!计划数9.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数10.Value==0,"",Fields!计划数10.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数10.Value==0,"",Fields!实际数10.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数10.Value==0,1,Fields!实际数10.Value/Fields!计划数10.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数11.Value==0,"",Fields!计划数11.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数11.Value==0,"",Fields!实际数11.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数11.Value==0,1,Fields!实际数11.Value/Fields!计划数11.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数12.Value==0,"",Fields!计划数12.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实际数12.Value==0,"",Fields!实际数12.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!计划数12.Value==0,1,Fields!实际数12.Value/Fields!计划数12.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P0</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+      <Enabled>true</Enabled>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

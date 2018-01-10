@@ -1,0 +1,41 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：as_smsset
+ * 创建人：lzx
+ * 创建时间：2012-09-24 11:48:29
+ * 
+ -->
+<sqlMap>
+<!--      获得记录列表 -->
+     <select id="get_all_as_smsset" parameterClass="yssoft.vos.AsSmssetVO" resultClass="java.util.HashMap">
+            Select  iid,ipid,ccode,cname,cuser,cpassword,cport,cphoneprefix,cmemo,caddress
+            from as_smsset
+            where 1=1	
+            order by ccode
+     </select>
+<!--      增加一条记录 -->
+     <insert id="add_as_smsset" parameterClass="yssoft.vos.AsSmssetVO">
+            insert into as_smsset (ipid,ccode,cname,cuser,	cpassword, cport,cphoneprefix,cmemo,caddress) 
+            values( #ipid#, #ccode#, #cname#,#cuser#, #cpassword#,#cport#,#cphoneprefix#,#cmemo#,#caddress#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+<!--      更新一条记录 -->
+     <update id="update_as_smsset" parameterClass="yssoft.vos.AsSmssetVO">
+            begin  
+            	update as_smsset set ipid = #ipid#,ccode = #ccode#,cname = #cname#,cuser = #cuser#,cpassword = #cpassword#,cport = #cport#,cphoneprefix = #cphoneprefix#,cmemo = #cmemo#,caddress=#caddress#
+            	where iid = #iid# ; 
+            	Update as_smsset set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)), #oldCcode#, #ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+            end;
+     </update>
+<!--      删除记录列表 -->
+     <delete id="delete_as_smsset_byiid" parameterClass="int">
+     		begin
+     			delete from as_smsset where ipid = #iid#
+            	delete from as_smsset where iid = #iid#
+            end;	
+     </delete>
+</sqlMap>

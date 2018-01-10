@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        title="数据导入"
+                        width="600" height="300"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.FrameworkVBoxView;
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+            import yssoft.tools.CRMtool;
+
+            private var fv:FrameworkVBoxView = null;
+			
+			private var fileReference:FileReference=new FileReference();
+			private var fileFilter:FileFilter=new FileFilter("选择文件","*.xls");
+
+            private var datalist:ArrayCollection;//枚举列表
+            public var aclist:ArrayCollection;
+            public var errString:String = "@*#@";
+            public var catchString:String = "@#*@";
+            public var ob:Object = new Object();
+
+			public function myinit(fv:FrameworkVBoxView):void{
+				this.fv = fv;
+			}
+			
+			private var downloadText =
+				"您导入的EXCEL文件字段名称和顺序必须与“导入模板”相符合，<FONT COLOR='#3300FF'><A HREF='"
+				+ConstsModel.publishUrlRoot+"/importDataTemplate/"+"customer.xls"
+				+"' TARGET='_blank'>点此下载数据导入模板。</A></FONT>"
+
+			//选择文件
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				
+				fileReference.addEventListener(Event.SELECT,function(event:Event):void{
+					localSrc.text = fileReference.name;
+				});
+				
+				fileReference.browse([fileFilter]);
+			}
+
+			//导入
+			protected function button3_clickHandler(event:MouseEvent):void
+			{
+                /**
+                 * LC Add   20160226
+                 * 判断是否选择导入文件
+                 */
+                var flag = localSrc.text;
+                if(flag != ""){
+                    daoruText.visible = true;
+                    var url:String = "/eap1.0/FileUploadServlet?param=importdata";
+                    var request:URLRequest = new URLRequest(url);
+                    fileReference.upload(request);
+                    fileReference.addEventListener(Event.COMPLETE,function(event:Event):void{
+                        AccessUtil.remoteCallJava("MrCustomerDest","onMrCustomerImport",function(event:ResultEvent):void{
+                            /*var ac:ArrayCollection  = event.result as ArrayCollection;
+                            if(ac!=null && ac.length>2000){
+                                CRMtool.showAlert("一次导入最多支持2000条数据，请检查您的文件。");
+                                return;
+                            }
+                            aclist = ac;*/
+                            onCloseHandler();
+                            fv.refreshGrid();
+                        },{filename:fileReference.name,imaker:CRMmodel.userId});
+                    });
+                }else{
+                    CRMtool.showAlert("请选择导入文档！");
+                }
+
+			}
+			//取消
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				onCloseHandler();
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" paddingBottom="18" paddingLeft="10" paddingRight="10" paddingTop="10" verticalGap="10">
+		<s:Label text="请选择要导入的EXCEL数据文件：" fontSize="18"/>
+		<mx:HBox width="100%">
+			<s:TextInput id="localSrc" editable="false" width="100%"/>
+			<s:Button label="选择" click="button1_clickHandler(event)"/>
+		</mx:HBox>
+		<s:Spacer height="20"/>
+		<s:Label text="温馨提示："  fontSize="12"/>		
+		<mx:Text htmlText="{downloadText}"/>					
+		<s:Spacer height="100%"/>
+		<mx:HBox width="100%">
+			<s:Label id="daoruText" visible="false" text="正在导入，请稍后......" color="red"/>
+			<s:Spacer width="100%"/>
+			<s:Button label="导入" click="button3_clickHandler(event)"/>
+			<s:Button label="取消" click="button2_clickHandler(event)"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+</basic:BasicTitleWindow>

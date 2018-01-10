@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="336" height="98" title="加密锁提示" creationComplete="onCreationCompleteHandler()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+        import mx.controls.Alert;
+        import mx.events.CloseEvent;
+        import mx.events.FlexEvent;
+        import mx.managers.PopUpManager;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.views.MainView;
+
+        private var _keyTimer:Timer = null;
+        private var _timeDelay:int = 1200;
+
+        [Bindable]
+        private var _maxCount:int = 30;
+
+        public function set maxCount(value:int):void {
+            this._maxCount = value;
+        }
+
+        public function get macCount():int {
+            return this._maxCount;
+        }
+
+        public function startTimer():void {
+            _keyTimer = new Timer(_timeDelay);
+            _keyTimer.addEventListener(TimerEvent.TIMER, onTimer);
+            stopTimer();
+            _keyTimer.start();
+        }
+
+        public function stopTimer():void {
+            if (_keyTimer) {
+                _keyTimer.stop();
+            }
+            _maxCount = 30;
+        }
+
+        private function onTimer(event:TimerEvent):void {
+            _maxCount--;
+            if (_maxCount <= 1) {
+                (this.owner as MainView).jumpeToIndex();
+            }
+        }
+
+        public function myclose():void {
+            CRMmodel.isKeyWindow = false;
+            stopTimer();
+            PopUpManager.removePopUp(this);
+        }
+
+        protected function onCreationCompleteHandler():void {
+            this.closeButton.visible = false;
+            this.ts.setFocus();
+            this.startTimer();
+        }
+        ]]>
+	</fx:Script>
+	<mx:VBox width="100%" height="100%"  horizontalAlign="center" verticalAlign="middle">
+			<s:Button id="ts" label="将在{_maxCount}秒后，注销系统" verticalCenter="0" horizontalCenter="0"/>
+	</mx:VBox>
+</basic:BasicTitleWindow>

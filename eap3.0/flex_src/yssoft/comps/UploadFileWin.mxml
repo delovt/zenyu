@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="500" height="300" close="onCloseHandler()" title="文件上传"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<basic:layout>
+		<s:VerticalLayout gap="0" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+	</basic:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.AbInvoiceatmVo;
+			
+			
+			public var ifuncregedit:int=10; 	// 表单类型
+			public var iinvoice:int=0;			// 表单 iid
+			[Bindable]
+			public var iinvoices:int=0;		// 表单子iid
+			public var cdataauth:String="";	// 数据权限
+			
+			public var isImmediate:Boolean=true;	//是否立即上传
+			
+			public var callBack:Function;		//回调函数
+					
+			[Bindable]
+			private var attItems:ArrayCollection=new ArrayCollection();
+			
+			//当前正在操作的上传文件
+			private var fileItem:AbInvoiceatmVo;
+			
+			private function addatt_clickHandler(event:MouseEvent):void{
+				//selectFile();
+				mutiSelectFiles();
+			}
+			
+			
+			//多选 上传文件
+			private var mutiUploadFile:FileReferenceList=null;
+			
+			private function mutiSelectFiles():void{
+				fileIndex=0;
+				mutiUploadFile=new FileReferenceList();
+				mutiUploadFile.addEventListener(Event.SELECT,onMutiFileSelect);
+				//mutiUploadFile.addEventListener(Event.CANCEL,cancelHandler);
+				mutiUploadFile.browse();
+			}
+			private function cancelHandler(event:Event):void {
+				Alert.show("---取消多选---");
+			}
+			
+			private function onMutiFileSelect(event:Event):void {
+				if(mutiUploadFile==null){
+					return;
+				}
+				if(mutiUploadFile.fileList.length>10){
+					CRMtool.tipAlert("一次最多只能选择不超过10个文件");
+					return;
+				}
+				if(mutiUploadFile==null ||  mutiUploadFile.fileList.length<=0){
+					return;
+				}
+				singleFile(fileIndex);
+			}
+			
+			//当前文件的索引
+			private var fileIndex:int=0;
+			// 
+			private function singleFile(index:int=0):void{
+				if(mutiUploadFile==null ||  mutiUploadFile.fileList.length<=0){
+					return;
+				}
+				if(index<0 || index>mutiUploadFile.fileList.length-1){
+					return;
+				}
+				uploadFile=mutiUploadFile.fileList[index] as FileReference;
+				//uploadFile.addEventListener(Event.SELECT,onFileSelect);
+				uploadFile.addEventListener(Event.COMPLETE,onFileComplete);
+				uploadFile.addEventListener(IOErrorEvent.IO_ERROR,onError);
+				//uploadFile.browse([flieType]);
+				uploadFile.load();
+			}
+			
+			private var uploadFile:FileReference;
+			//文件类型
+			private var flieType:FileFilter=new FileFilter("文件类型*.xls;*.doc;*.txt","*.xls;*.doc;*.txt");
+			
+			//禁止的文件类型
+			private var forbidFileType:Array=[".exe",".bat"];
+			private function selectFile():void{
+				uploadFile=new FileReference();
+				//uploadFile.addEventListener(Event.SELECT,onFileSelect);
+				uploadFile.addEventListener(Event.COMPLETE,onFileComplete);
+				uploadFile.addEventListener(IOErrorEvent.IO_ERROR,onError);
+				//uploadFile.browse([flieType]);
+				uploadFile.browse();
+			}
+			
+			private function onError(e:IOErrorEvent):void{
+				CRMtool.tipAlert("可能由于网络等原因，导致文件上传失败");
+			}
+			private function onFileSelect(event:Event):void{
+				uploadFile.load();
+			}
+			
+			private function onFileComplete(event:Event):void{
+				getFileInfo(this.uploadFile);
+			}
+			
+			
+			private function getFileInfo(file:FileReference=null):void{
+				// 不管 最终，验证是不是成功
+				fileIndex=fileIndex+1;
+				if(file==null){
+					return;
+				}
+				
+				if(this.forbidFileType.indexOf(file.type.toLowerCase()) !=-1 ){
+					CRMtool.tipAlert("该文件类型["+file.type+"]不予上传!");
+					singleFile(this.fileIndex);
+					return;
+				}
+				//Alert.show(""+this.file.size);
+				if(file.size > 50*1024*1024 ){
+					CRMtool.tipAlert("单个文件大小不能超过50M");
+					singleFile(this.fileIndex);
+					return;
+				}
+				fileItem=new AbInvoiceatmVo();
+				fileItem.cextname=file.type.substr(1);
+				fileItem.cname=file.name;
+				fileItem.iperson=CRMmodel.userId;
+				fileItem.size=zfsize(file.size);
+				fileItem.fdata=file.data;
+				
+				fileItem.iinvoice=this.iinvoice;
+				fileItem.iinvoices=iinvoices;
+				if(iinvoices >0){
+					fileItem.iinvoice=iinvoices;
+					fileItem.ifuncregedit=ifuncregedit;
+				}else{
+					fileItem.ifuncregedit=10;
+				}
+				
+				//fileItem.iinvoice=this.iinvoices;
+				fileItem.cdataauth=this.cdataauth;
+				
+				attItems.addItem(fileItem);
+				allSizeM=cacSize();
+				
+				singleFile(this.fileIndex);
+				
+			}
+
+			[Bindable]
+			private var allSizeM:Number=0;
+			// B 转化为 M
+			private function zfsize(size:Number):String{
+				return (size/(1024*1024)).toFixed(2);
+			}
+			// 计算总大小
+			private function cacSize():Number{
+				var ret:Number=0;
+				for each(var item:AbInvoiceatmVo in this.attItems){
+					ret +=Number(item.size);
+				}
+				return ret;
+			}
+			
+			private function deleteall_clickHandler(event:MouseEvent):void{
+				this.attItems=new ArrayCollection();
+				this.allSizeM=0;
+			}
+			
+			public function deleteItem():void{
+				this.attItems.removeItemAt(this.itemdg.selectedIndex);
+				allSizeM=cacSize();
+			}
+			
+			private function uploadatt_clickHandler(event:MouseEvent):void{
+				if(! attItems || attItems.length == 0){
+					CRMtool.tipAlert("请选择文件后，再上传!");
+					return;
+				}
+				
+				if(!isImmediate){//是否立即上传
+					this.callBack(this.attItems,"0");
+					onCloseHandler();
+					return;
+				}
+				AccessUtil.remoteCallJava("WorkFlowDest","batchUploadFile",uploadCallBack,this.attItems,"上传文件...");
+			}
+			private function uploadCallBack(event:ResultEvent):void{
+				//mx.controls.Alert.show(""+(event.result as String));
+				onCloseHandler();
+				this.callBack(this.attItems,"1");
+			}
+			
+			private function lbfun(item:Object,column:DataGridColumn):String{
+				return ""+(this.attItems.getItemIndex(item)+1);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:Text width="100%" textIndent="5">
+		<mx:htmlText>
+			<![CDATA[温馨提示：不可以上传扩展名为“exe、bat”格式的文件！]]>
+		</mx:htmlText>
+	</mx:Text>
+	<mx:HBox width="100%" paddingLeft="5" paddingBottom="5" paddingRight="5" paddingTop="5">
+		<s:Button id="addatt" label="添加附件" click="addatt_clickHandler(event)"/>
+		<s:Button id="uploadatt" label="上传附件" click="uploadatt_clickHandler(event)"/>
+		<s:Spacer width="100%"/>
+		<s:Button id="deleteall" label="全部删除" click="deleteall_clickHandler(event)"/>
+	</mx:HBox>
+	<mx:Text width="100%" text=" 已添加{attItems.length}个附件(大小{allSizeM.toFixed(2)}MB)"/>
+	<mx:Canvas width="100%" height="100%">
+		<mx:DataGrid id="itemdg" width="100%" height="100%" dataProvider="{attItems}">
+			<mx:columns>
+				<mx:DataGridColumn headerText="序号" width="60" labelFunction="lbfun"/>
+				<mx:DataGridColumn headerText="文件名" width="260" dataField="cname"/>
+				<mx:DataGridColumn headerText="大小/MB" width="80"  dataField="size"/>
+				<mx:DataGridColumn headerText="操作" width="80">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:LinkButton label="删除" click="{outerDocument.deleteItem()}"/>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:Canvas>
+	
+</basic:BasicTitleWindow>

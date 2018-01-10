@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 新增  -->
+	<insert id="add_AsAuthcontent" parameterClass="yssoft.vos.AsAuthcontentVo">
+		insert into AS_authcontent(ipid,ccode,cname,coperauth,buse,cmemo) 
+		values(#ipid#,#ccode#,#cname#,#coperauth#,#buse#,#cmemo#)
+	   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update_AsAuthcontent" parameterClass="yssoft.vos.AsAuthcontentVo">
+		begin 
+			update AS_authcontent set ipid=#ipid#,cname=#cname#,coperauth=#coperauth#,
+				cmemo=#cmemo# where iid=#iid#;
+			update AS_authcontent set  ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)),
+			buse=#buse# where ccode like #oldCcode#+'%';
+		end;
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="remove_AsAuthcontent" parameterClass="int">
+		delete from AS_authcontent where iid=#iid#
+	</delete>
+	
+	<!-- 查询 -->
+	<select id="get_all_AsAuthcontent" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select iid,ipid,ccode,cname,coperauth,buse,cmemo,0 STATE 
+ 		from AS_authcontent where 1=1 
+ 		<isNotEmpty prepend="and" property="isT">
+			buse =#buse#
+		</isNotEmpty>
+		order by ccode
+	</select>
+</sqlMap>	

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*"
+                width="100%" height="100%" creationComplete="getCorporationTreeXml();"
+                implements="yssoft.impls.ICRMWindow" styleName="contentHDividedBox">
+    <fx:Script>
+		<![CDATA[
+        import yssoft.models.ConstsModel;
+
+        public var currid:int;
+        ]]>
+	</fx:Script>
+    <fx:Script source="../../../yssoft/scripts/CorporationViewScript.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <!-- 组织树 -->
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <s:Label styleName="contentTitle" text="组织结构"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_corporation" width="100%" height="100%"
+                                 click="onTreeClick(event)"/>
+        </mx:HBox>
+    </mx:VBox>
+
+    <mx:HBox width="80%" height="100%" styleName="centerbg4">
+        <mx:VBox width="100%" height="100%" verticalGap="0">
+            <mx:ApplicationControlBar width="100%" height="32" styleName="centertop" dock="true">
+                <comps:LinkBarVboxComps id="lbr_Corporation" width="15%" height="25"
+                                        dataProvider="{ConstsModel.LBRITEM}"
+                                        onDeleteEvent="onDelete(event);" onEditEvent="onEdit(event)"
+                                        onGiveUpEvent="onGiveUp(event);" onNewEvent="onNew(event)"
+                                        onSaveEvent="onSave(event)" styleName="contentButtonBar"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox width="100%" verticalGap="0" paddingLeft="10" paddingRight="10">
+                <mx:Canvas id="formShowArea" width="100%" height="100%"
+                           horizontalScrollPolicy="off">
+                </mx:Canvas>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:HBox>
+</mx:HDividedBox>

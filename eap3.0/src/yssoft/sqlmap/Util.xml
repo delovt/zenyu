@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	
+	<!-- 修改物料借用已归还数量 -->
+	<update id="updateRdrecords" parameterClass="java.util.HashMap">
+		update sc_rdrecords set fwoquantity=isnull(fwoquantity,0)+#fquantity# where irdrecord in (select iinvoice from sc_rdrecord where iid=#iid#) and iproduct=#iproduct# and (csn=#csn# or csn is null)
+	</update>
+
+    <!-- 查询单据关系 -->
+    <select id="getRelationshipByiid" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select * from AC_relationship where iid=#iid#
+    </select>
+
+    <!-- 查询业务字典 -->
+    <select id="getTableMessageByifuncregedit" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select * from ac_tableRelationship where ifuncregedit=#ifuncregedit#
+    </select>
+
+    <select id="getRelationshipsByirelationship" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select * from ac_cfieldrelationship where irelationship=#irelationship#
+    </select>
+
+    <select id="getConsultSet" resultClass="java.util.HashMap" parameterClass="String">
+        select * from ac_consultset where iid=#iid#
+    </select>
+ 
+	<select id="getRelationshipByifuncregedit" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select * from AC_relationship where isnull($cfield$,0)=0 and AC_relationship.ifuncregedit2=#ifuncregedit# and (AC_relationship.bpull=1 or AC_relationship.bpush=1)
+	</select>
+	
+	<select id="getTableNamByIid" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select * from as_funcregedit where iid=#iid#
+	</select>
+	
+	<select id="query_vouchFomByiinvoice" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select * from $ctable$ where ifuncregedit=#ifuncregedit# and iinvoice=#iid#
+	</select>
+	
+	<!-- YJ Add 产品档案是否被以下单据引用 -->
+	<select id="getIsQuote" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select iid from sc_orders where iproduct=#iinvoice#
+		union
+		select iid from sc_ordersbom where iproduct=#iinvoice#
+		union
+		select iid from sc_rdrecords where iproduct=#iinvoice#
+		union
+		select iid from sc_rdrecordsbom where iproduct=#iinvoice#
+	</select>
+	
+	<!-- YJ Add 20141008  产品模块是否被以下单据引用 -->
+	<select id="getBomIsQuote" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select iid from sc_ordersbom where iproduct in (select iid from SC_boms where ibom=#iinvoice#)
+		union
+		select iid from sc_rdrecordsbom where iproduct in (select iid from SC_boms where ibom=#iinvoice#)
+	</select>
+	
+		<!-- SZC Add 20150604 客商是否被以下单据引用 -->
+        <!-- LC Add 20160505 客商关联销售回款单据不允许被删除 H79 -->
+	<select id="getCScustomerIsQuote" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select iid,ifuncregedit from CS_custproduct where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from oa_workplan where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from oa_workdiary where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from sa_clue where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from sa_opportunity where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from sa_presupport where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from SC_rdrecord where icustomer=#iinvoice# and sc_rdrecord.iifuncregedit in(228,167,175)
+		union   
+		select iid,ifuncregedit from sc_spinvoice where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from sr_trains where icustomer=#iinvoice#
+		union
+		select iid,ifuncregedit from sc_rpinvoice where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from sr_bill where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from SR_feedback where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from sr_project where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from mr_markets where icustomer=#iinvoice#
+		union   
+		select iid,ifuncregedit from SC_order where icustomer=#iinvoice#
+	</select>
+
+    <select id="getStatusList" resultClass="java.util.HashMap" parameterClass="int">
+        select ass.*,asts.cname from ac_statussets ass
+        left join as_funcregedit at on at.istatusset = ass.istatusset
+        left join ac_status asts on asts.iid = ass.istatus
+        where at.iid=#ifunid#
+        order by ass.ino
+    </select>
+
+    <select id="getTableNameByifuncregedit" parameterClass="int" resultClass="string">
+        select ctable from dbo.as_funcregedit where iid = #ifunid#
+    </select>
+
+    <insert id="insertInvoicestatus" parameterClass="java.util.HashMap">
+        insert into ab_invoicestatus(ifuncregedit,iinvoice,istatus,imaker,dmaker,csubject,itype)
+        values(#ifuncregedit#,#iinvoice#,#istatus#,#imaker#,#dmaker#,#csubject#,#itype#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <select id="getStatusrls" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select als.* from ac_statusrls als
+        left join ac_statusrl al on al.iid = als.istatusrl
+        where al.ifuncregedit=#ifuncregedit# and als.ipstatus=#istatus#
+    </select>
+
+    <select id="getLasStatusPositive" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select top 1 imaker,dmaker from ab_invoicestatus
+        where ifuncregedit=#ifuncregedit#
+        and iinvoice=#iinvoice# and istatus=#istatus# and isnull(itype,0)!=3
+        order by iid desc
+    </select>
+    <insert id="insertTasks" parameterClass="java.util.HashMap">
+        insert into sr_projectTask (iproject,itype,icustomer,ilevel,imodule,cmemo,cdetail,imaker,dmaker,ccode,iinvoice,iperson,dbegin,dend,cNeedDesign) values(#iproject#,#itype#,#icustomer#,
+        #ilevel#,#imodule#,#cmemos#,#cdetail#,#imaker#,getdate(),#ccode#,#iinvoice#,#iperson#,#dbegin#,#dend#,#cresult#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+ 	<!--  修改合同利润 -->
+	<update id="updateOrderFsum" parameterClass="java.util.HashMap">
+		update sc_order set forderprofit=#forderprofit# where iid=#iinvoice#;
+	</update>
+	<!--  修改合同回款利润 -->
+	<update id="updateOrderfbackprofit" parameterClass="java.util.HashMap">
+		update sc_order set forderprofit=#fbackprofit# where iid=#iinvoice#;
+	</update>
+		<!--  修改合同成本 -->
+	<update id="updateOrderfcost" parameterClass="java.util.HashMap">
+		update sc_order set fcost=#fcost# where iid=#iinvoice#;
+	</update>
+	<!--  修改合同回款利润 ,成本-->
+	<update id="updateOrderFcostForCsn" parameterClass="java.util.HashMap">
+		update sc_order set forderprofit=#forderprofit#,fcost=#fcost#  where iid=#iid#;
+	</update>
+	
+	<!--  插入其他入库-->
+	<insert id="setRdrecord" parameterClass="java.util.HashMap">
+        insert into sc_rdrecord (ccode,ddate,irdtype,iwarehouse,fsum,cmemo,iifuncregedit,imaker,dmaker,iproperty,ifuncregedit,iinvoice) values(#ccode#,#ddate#,#irdtype#,#iwarehouse#,#fsum#,#cmemo#,#iifuncregedit#,#imaker#,#dmaker#,#iproperty#,#ifuncregedit#,#iinvoice#);
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+    <!--  插入其他出库子表-->
+	<insert id="setRdrecords" parameterClass="java.util.HashMap">
+        insert into sc_rdrecords (iproduct,csn,iunit,fquantity,fstaxprice,fstaxsum,irdrecord,cmemo) values(#iproduct#,#csn#,#iunit#,#fquantity#,#fstaxprice#,#fstaxsum#,#irdrecord#,#cmemo#);
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+     <!--  插入其他入库子表-->
+	<insert id="setRdrecordsin" parameterClass="java.util.HashMap">
+        insert into sc_rdrecords (iproduct,csn,iunit,fquantity,fprice,fsum,irdrecord,cmemo) values(#iproduct#,#csn#,#iunit#,#fquantity#,#fprice#,#fsum#,#irdrecord#,#cmemo#);
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+    <!--  插入其他入库子表子表-->
+	<insert id="setRdrecordsbom" parameterClass="java.util.HashMap">
+        insert into sc_rdrecordsbom (iproduct,iproductp,fprice,fquantity,irdrecords) values(#iproduct#,#iproductp#,#fprice#,#fquantity#,#irdrecords#);
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+    <!--  插入进程推进-->
+	<insert id="setInvoiceprocess" parameterClass="java.util.HashMap">
+      insert into ab_invoiceprocess(ifuncregedit,iinvoice,icustomer,iprocess,ddate,iifuncregedit,imaker,dmaker) values(#ifuncregedit#,#iinvoice#,#icustomer#,#iprocess#,#ddate#,#iifuncregedit#,#imaker#,#dmaker#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+        
+	<insert id="InsertSqls" parameterClass="java.util.HashMap">
+            $sql$
+		<selectKey resultClass="int" keyProperty="iid" > 
+			SELECT @@IDENTITY AS iid 
+	    </selectKey>
+    </insert>
+      <!-- 查询业务字典 -->
+    <select id="selectNum" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+            $sql$
+    </select>
+</sqlMap>

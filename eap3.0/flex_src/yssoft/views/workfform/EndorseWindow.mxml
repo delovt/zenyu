@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="850" height="550"
+                        title="加签" xmlns:workfform="yssoft.views.workfform.*" close="onCloseHandler()"
+                        creationComplete="onWindowInit()" implements="yssoft.impls.ICRMWindow"
+                        xmlns:comps="yssoft.comps.*" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.LinkButton;
+        import mx.events.CloseEvent;
+        import mx.events.ItemClickEvent;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.frameui.FrameCore;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [SkinPart(required="false")]
+        public var submitButton:LinkButton;
+
+        [SkinPart(required="false")]
+        public var resetButton:LinkButton;
+
+        //jq.ifuniid=ifuncregedit;
+        //jq.iinvoice=iinvoice;
+
+        public var ifuniid:int = 0;
+        public var iinvoice:int = 0;
+        public var ioaiid:int = 0;
+
+        private var items:ArrayCollection = new ArrayCollection([
+            {label: "提交", name: "onSubmit", id: "submitButton"},
+            {label: "还原", name: "onReset", id: "resetButton"    }
+        ]);
+        private var requestType:String = "rbg"; //请求 从哪里发出的
+        private var roleXml:XML = <node>
+            <node iid="2" cname="部门主管" cmemo="发起人员部门主管"/>
+            <node iid="3" cname="分管主管" cmemo="发起人员分管主管"/>
+            <node iid="4" cname="分管领导" cmemo="发起人员分管领导"/>
+            <node iid="1" cname="发起人员" cmemo="发起人员"/>
+            <node iid="5" cname="全部人员" cmemo="全部人员"/>
+        </node>;
+        ;		// 角色xml
+        [Bindable]
+        private var treeXml:XML = new XML();		// 组织层级xml
+        [Bindable]
+        private var personXml:XML = new XML(); 	// 人员数据
+        private var nullXml:XML = new XML(); 	// 用于清空
+
+        [Bindable]
+        private var _iNodeType:String = "1";   //节点类型
+        [Bindable]
+        private var _iNodeTypeName:String = "部门";   //节点类型
+
+
+        //窗体初始化
+        public function onWindowInit():void {
+            getNodeTypeDetail(_iNodeType); // 获取部门的层级信息
+            selfDepartment(_iNodeType, "" + CRMmodel.hrperson.idepartment, CRMmodel.hrperson.departcname); // 获取当前登录用户 所在部门的人员信息
+            drawFormWorkFlow();
+
+            if (this.submitButton != null) {
+                this.submitButton.addEventListener(MouseEvent.CLICK, onSubmintHandler);
+            }
+
+            if (this.resetButton != null) {
+                this.resetButton.addEventListener(MouseEvent.CLICK, onResetHandler);
+            }
+
+        }
+
+        private function onResetHandler(evnet:MouseEvent):void {
+            //首先 清空 工作流中的节点
+            this.mainDraw.clearAllNodes();
+            this.drawFormWorkFlow();
+        }
+
+        //窗体打开
+        public function onWindowOpen():void {
+            onWindowInit();
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+            //clearWindowData();
+        }
+
+        // 清空 窗体数据
+
+        private function iNodeType_itemClickHandler():void {
+            requestType = "rbg";
+            var tpRB:RadioButton = this.iNodeType.selection;
+            this._iNodeType = tpRB.name;
+            this._iNodeTypeName = tpRB.label;
+
+            this.ttinfo.text = "";
+            personXml = nullXml;
+
+            if (this._iNodeType == "2") {//角色特殊 ，分开处理
+                treeXml = roleXml;
+            } else {
+                if (tpRB.hasOwnProperty("data") && tpRB.data is XML) { // 判断该组织节点的层级信息时候加载
+                    treeXml = tpRB.data as XML;
+                } else { //到后台请求数据
+                    getNodeTypeDetail(this._iNodeType);
+                }
+            }
+        }
+
+        // 根据nodetype来获取对应的详细信息,获取组织对应层级信息
+        private function getNodeTypeDetail(nodeType:String = "1"):void {
+            AccessUtil.remoteCallJava("WorkFlowDest", "getNodeTypeDetail", nodeTypeCallBack, nodeType, null, false);
+        }
+
+        // 获取组织指定层级中人员信息
+        private function nodeTypeTree_itemClickHandler():void {
+            var nodeType:String = this.iNodeType.selection.name;
+            var nodeValue:String = (nodeTypeTree.selectedItem as XML).@iid;
+            var cname:String = (nodeTypeTree.selectedItem as XML).@cname;
+            selfDepartment(nodeType, nodeValue, cname);
+        }
+
+        //获取 当前登录用户所在的 部门的人员信息
+        private function selfDepartment(nodeType:String, nodeValue:String, cname:String):void {
+            this.ttinfo.text = "";
+            if (nodeType || nodeValue) {
+                if (nodeType == "2" && nodeValue == "1") {
+                    personXml = new XML("<root><node iid='" + CRMmodel.userId + "' cname='" + CRMmodel.hrperson.cname + "' /></root>");
+                    this.ttinfo.text = cname + "(" + personXml.children().length() + ")";
+                } else {
+                    var param:Object = {"nodeType": nodeType, "nodeValue": nodeValue};
+                    getPersons(param);
+                }
+            } else {
+                CRMtool.tipAlert("数据不合法，不予查询");
+            }
+        }
+
+
+        //获取组织对应的人员数据
+        private function getPersons(param:Object):void {
+            requestType = "tree";
+            param.iperson = CRMmodel.userId;
+            AccessUtil.remoteCallJava("WorkFlowDest", "getPersons", personCallBack, param, null, false);
+        }
+
+        // 回调
+        private function nodeTypeCallBack(event:ResultEvent):void {
+            treeXml = new XML(event.result);
+            this.iNodeType.selection.data = treeXml;
+        }
+
+        private function personCallBack(event:ResultEvent):void {
+            personXml = new XML(event.result);
+            this.ttinfo.text = (nodeTypeTree.selectedItem ? (nodeTypeTree.selectedItem as XML).@cname : CRMmodel.hrperson.departcname) + "(" + personXml.children().length() + ")"
+        }
+
+        private function dataTipFun(item:Object):String {
+            if (item.hasOwnProperty("@cmemo")) {
+                return String(item.@cmemo);
+            } else {
+                return String(item.@cname);
+            }
+        }
+
+        override protected function onCloseHandler():void {
+            this.mainDraw.isJQ = false;
+            PopUpManager.removePopUp(this);
+        }
+
+        // 绘制 流程图
+        private function drawFormWorkFlow():void {
+            if (ioaiid == 0) {
+                CRMtool.tipAlert("获取不到协同工作流信息");
+                return;
+            }
+            if (ifuniid != 0 && iinvoice != 0) {
+                this.mainDraw.isJQ = true;
+                this.mainDraw.isLeafNode = false;
+                this.mainDraw.getFormWorkFlow(ifuniid, iinvoice);
+            }
+        }
+
+
+        // 提交 加签
+
+        private function onSubmintHandler(event:MouseEvent):void {
+            if (ioaiid == 0) {
+                CRMtool.tipAlert("获取不到协同工作流信息");
+                return;
+            }
+            var obj:Object = this.mainDraw.jqHandler();
+            if (obj != null) {
+                obj.ioainvoice = ioaiid;
+                onSubmit1(obj);
+            }
+        }
+
+         private function onSubmit1(param:Object):void {
+            param.iperson = CRMmodel.userId;
+            AccessUtil.remoteCallJava("WorkFlowDest", "co_jq_handler", onSubmitCallBack, param, "正在处理加签，请稍后...");
+        }
+
+        private function onSubmitCallBack(event:ResultEvent):void {
+            if (event.result && ((event.result as String) == "suc")) {
+                CRMtool.tipAlert("加签成功");
+                if (this.owner is FrameCore) {
+                    if ((this.owner as FrameCore).workflow) {
+                        (this.owner as FrameCore).workflow.getFormWorkFlow(ifuniid, iinvoice);
+                    }
+                }
+                onCloseHandler();
+            } else {
+                CRMtool.tipAlert("加签失败");
+            }
+        }
+
+        protected function endorseButton_itemClickHandler(event:ItemClickEvent):void {
+            if (event.item.name == "onSubmit") {
+                onSubmintHandler(null);
+            } else if (event.item.name == "onReset") {
+                onResetHandler(null);
+            }
+
+        }
+        ]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:HBox id="fwfpart" width="100%" height="100%" horizontalGap="0" paddingBottom="10">
+		<mx:VBox id="leftPart" width="200" height="100%" verticalGap="0"  borderStyle="solid" borderVisible="true" borderAlpha="0.3">
+			<mx:Canvas width="100%" height="60" borderVisible="false">
+				<mx:RadioButtonGroup id="iNodeType" itemClick="iNodeType_itemClickHandler()"/>
+				<mx:RadioButton x="38" 	y="10" groupName="iNodeType" name="1" label="部门" styleName="radioButton" selected="true"/>
+				<mx:RadioButton x="108" y="10" groupName="iNodeType" name="3" label="岗位" styleName="radioButton"/>
+				<mx:RadioButton x="38" 	y="30" groupName="iNodeType" name="4" label="职务" styleName="radioButton"/>
+				<mx:RadioButton x="108" y="30" groupName="iNodeType" name="2" label="角色" styleName="radioButton"/>
+			</mx:Canvas>
+			<mx:HRule height="1" width="100%"/>
+			<comps:TreeCompsVbox id="nodeTypeTree" borderVisible="false" width="100%" height="100%" 
+								 dataProvider="{treeXml}" 
+								 labelField="@cname" 
+								 dragMoveEnabled="false" 
+								 showRoot="false"
+								 showDataTips="true"
+								 dataTipFunction="dataTipFun" 
+								 itemClick="nodeTypeTree_itemClickHandler()" 
+								 dragEnabled="true">
+				
+			</comps:TreeCompsVbox>
+			<mx:HRule height="1" width="100%"/>
+			<mx:HBox width="100%" height="25" verticalAlign="middle" borderVisible="false">
+				<s:Label id="ttinfo" fontWeight="bold" text="人员信息" width="100%" textAlign="center"/>
+			</mx:HBox>
+			<mx:HRule height="1" width="100%"/>
+			<mx:List id="personnList" width="100%" height="100%" 
+					 dataProvider="{personXml.children()}"
+					 borderVisible="false" 
+					 dragMoveEnabled="false"
+					 labelField="@cname" dragEnabled="true">
+				
+			</mx:List>
+		</mx:VBox>
+			<mx:VBox width="100%" horizontalGap="0" borderVisible="false" height="100%" >
+				<mx:ApplicationControlBar width="100%" height="32" styleName="centertop1" dock="true">
+					<mx:ButtonBar id="endorseButton" dataProvider="{this.items}" buttonWidth="48" height="25" itemClick="endorseButton_itemClickHandler(event)"/>
+					
+				</mx:ApplicationControlBar>
+				<workfform:FWFDrawView id="mainDraw" owner="{this}"  width="100%" height="100%" styleName="CoPaintViewMainDraw" 
+									   iNodeType="{_iNodeType}"  borderStyle="solid" borderVisible="true" borderAlpha="0.3"/>
+			</mx:VBox>
+			
+		</mx:HBox>
+</basic:BasicTitleWindow>

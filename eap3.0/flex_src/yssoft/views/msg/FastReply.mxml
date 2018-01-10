@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="300" height="250" close="onCloseHandler()"
+                        currentState="read" title.send="发送信息给[{_msgBody.ispersonname}]"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<basic:states>
+		<s:State name="read"/>
+		<s:State name="send"/>
+	</basic:states>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<basic:layout>
+		<s:VerticalLayout horizontalAlign="right" paddingBottom="10" paddingRight="10" paddingLeft="10" paddingTop="10" gap="2"/>
+	</basic:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.LoginTool;
+			[Bindable]
+			private var _msgBody:Object=new Object();//消息内容
+			public function set msgBody(value:Object):void{
+				this._msgBody=value;
+				if(this._msgBody){
+					if(this._msgBody.itype==0){
+						this.title="[对话信息]发送人:"+this._msgBody.ispersonname;
+						if(this.fastbt){
+							this.fastbt.enabled=true;
+						}
+					}else{
+						this.title="[公告信息]发送人:"+this._msgBody.ispersonname;
+						if(this.fastbt){
+							this.fastbt.enabled=false;
+						}
+					}
+				}
+			}
+			public function get msgBody():Object{
+				return this._msgBody;
+			}
+			
+			//发送消息
+			private function sendMsg():void{
+				if( ! LoginTool.stringIsNull(this.msgtxt.text)){
+					LoginTool.tipAlert("内容不能为空");
+					return;
+				}
+				var msgBody:Object={};
+				msgBody.itype=0;
+				msgBody.isperson=CRMmodel.userId;
+				msgBody.ispersonname=CRMmodel.hrperson.cname;
+				msgBody.irperson=_msgBody.isperson;
+				msgBody.irpersonname=_msgBody.ispersonname;
+				msgBody.cdetail=StringUtil.trim(this.msgtxt.text);
+				msgBody.dsend=LoginTool.getFormatDateString();
+				if(_msgBody.hasOwnProperty("isonline")){
+					if(_msgBody.isonline=="1" || _msgBody.isonline==1){
+						msgBody.isonline="1"; // 默认在线
+					}else{
+						msgBody.isonline="0";
+					}
+				}else{
+					msgBody.isonline="1"; // 默认在线
+				}
+				
+				AccessUtil.remoteCallJava("MsgDest","sendMsg",msgCallBack,msgBody,null,false);
+			}
+			private function msgCallBack(event:ResultEvent):void{
+				if((event.result as String)=="suc"){
+					this.msgtxt.text="";
+					onCloseHandler();
+				}
+			}
+			private function changeState():void{
+				if(this.currentState=="send"){
+					this.currentState="read";
+				}else{
+					this.currentState="send";
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:TextArea id="msgtxt" width="100%" height="100%" text.read="{_msgBody.cdetail}" text.send=""/>
+	<mx:HBox width="100%" horizontalGap="0" horizontalAlign="right">
+		<s:Button label="浏览信息" visible.read="false" visible.send="true" click="changeState()"/>
+		<s:Button id="fastbt" label.read="快速回复" label.send="发送" click.read="changeState()" click.send="sendMsg()"/>
+	</mx:HBox>
+</basic:BasicTitleWindow>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  paddingTop="0" paddingBottom="0" gap="-1"
+		  height="100%" xmlns:callcenter="yssoft.views.callcenter.*" contentBackgroundColor="#ffffff" creationComplete="conSocketServer()">
+	<fx:Script>
+		<![CDATA[
+			import flexlib.containers.SuperTabNavigator;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.tools.AccessUtil;
+			
+			[Bindable]
+			public var ctelState:String ="正在链接……";
+			
+			//连接 呼叫中心 服务端
+			private var cpSocket:Socket=null;
+			
+			//IP地址
+			private var _cpsip:String;//="10.60.2.185";
+			private var _cpsport:int;//=1978;
+			
+			
+			private function conSocketServer():void
+			{
+				setCCitemVisible(false);
+				AccessUtil.remoteCallJava("CallCenterDest","getCpsipAndPort",ongetCpsipAndPort,null,null,false);
+			}
+			
+			private function setCCitemVisible(bool:Boolean):void
+			{
+				
+				ccitem_1.visible=bool;
+				ccitem_2.visible=bool;
+				ccitem_3.visible=bool;
+				ccitem_4.visible=bool;
+			}
+			
+			private function ongetCpsipAndPort(evt:ResultEvent):void
+			{
+//------------开始：XZQWJ 2012-11-27 修改  功能：如果存在加密狗，判断加密狗中呼叫中心可用的线路数-------------------				
+				var map:Object=evt.result;
+				if(map.hasOwnProperty("line")){
+					var ret:Object=evt.result as Object;
+					var line_num:String =String(ret["line"]==null?"4":ret["line"].toString())
+					var num:Number = Number(line_num);
+					for(var i:Number = 1; i <= num; i++)
+					{
+						(this["ccitem_"+i] as CCItem).visible=true;
+					}
+				}else{
+				
+					setCCitemVisible(true);
+				}
+//--------------结束:XZQWJ--------------------------------------------------------------------- 		
+				_cpsip=evt.result.cpsip;
+				_cpsport=evt.result.cpsport;
+				
+				if(cpSocket==null){
+					cpSocket=new Socket();
+				}else{
+					removeListener(cpSocket);
+					closcSocket();
+				}
+				cpSocket.connect(_cpsip,_cpsport);
+				addListener(cpSocket);
+				cpSocket.flush();
+			}
+			//添加 相关事件
+			private function addListener(cpSocket:Socket):void
+			{
+				if(!cpSocket){
+					return;
+				}
+				cpSocket.addEventListener(Event.CONNECT,connectHandler,false,0,true);
+				cpSocket.addEventListener(Event.CLOSE,closeHandler,false,0,true);
+				cpSocket.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler,false,0,true);
+				cpSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR,secuityErrorHandler,false,0,true);
+				cpSocket.addEventListener(ProgressEvent.SOCKET_DATA,socketData,false,0,true);
+			}
+			
+			//删除 相关事件
+			private function removeListener(cpSocket:Socket):void
+			{
+				if(!cpSocket){
+					return;
+				}
+				cpSocket.removeEventListener(Event.CONNECT,connectHandler);
+				cpSocket.removeEventListener(Event.CLOSE,closeHandler);
+				cpSocket.removeEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
+				cpSocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,secuityErrorHandler);
+				cpSocket.removeEventListener(ProgressEvent.SOCKET_DATA,socketData);
+			}
+			
+			//关闭 socket
+			public function closcSocket():void{
+				if(cpSocket!=null){
+					cpSocket.close();
+					cpSocket=null;
+				}
+			}
+			//建立socket连接后，调用
+			public function connectHandler(event:Event):void{
+				ctelState="连接成功";
+				//Alert.show("呼叫中心服务端连接成功！","提示");
+			}
+			//服务器关闭 socket时，调用
+			public function closeHandler(event:Event):void{
+				ctelState="连接关闭";
+				//Alert.show("呼叫中心服务端关闭，请联系管理员！","提示");
+			}
+			//出现输入 输出错误时，调用
+			public function ioErrorHandler(event:IOErrorEvent):void{
+				ctelState="连接异常";
+				//Alert.show("无法连接呼叫中心，请检查IP地址和端口是否设置有误,以及服务端是否启动！","提示");
+			}
+			//出现安全沙箱错误时，调用
+			public function secuityErrorHandler(event:SecurityErrorEvent):void{
+				ctelState="连接异常";
+				//Alert.show("出现连接安全错误"+event,"提示");
+			}
+			//获取 socket返回数据时，调用
+			public function socketData(event:ProgressEvent):void{
+				try{
+					var msg:String="";
+					while(cpSocket.bytesAvailable){
+						msg +=cpSocket.readUTFBytes(cpSocket.bytesAvailable);
+					}
+					if(msg.length==0){
+						return;
+					}
+					var clinestate:String = XML("<device>"+msg+"</device>").node.@clinestate;
+					if(clinestate=="挂机"||clinestate=="未接来电" || true){
+						this.dispatchEvent(new Event("msgChange"));
+					}		
+					configCCItem(XML("<device>"+msg+"</device>"));
+				}catch(e:Error){
+					//Alert.show("解析数据错误！！原因："+e.message,"提示");
+				}
+			}
+			
+			// 设置 对应线路 的状态
+			
+			private function configCCItem(xml:XML):void
+			{
+				var xl:int=parseInt(xml.node.@xl)+1; // 线路的索引号，从1开始
+				if (xl>0)
+				{
+				   (this["ccitem_"+xl] as CCItem).infoXml=xml;
+				}
+				//(this["ccitem_"+xl] as CCItem).setStyle("statusStyleName","cc_enable");
+			}
+			
+			protected function onDoubleClickHandler(event:MouseEvent):void
+			{
+				var item:XML=(event.currentTarget as CCItem).infoXml
+				//Alert.show("xml,"+item.node.toString());
+				if(item == null){
+					Alert.show("请选择后，再操作！！","提示");
+					return;
+				}
+				// 首页先排除 内部号码
+				if(String(item.node.@ccustid)==null || item.node.@ccustid==0){
+					Alert.show("内部电话，不予操作！！","提示");
+					return;
+				}
+				/* 				if(String(item.node.@iid)==null || String(item.node.@iid)==""){
+				Alert.show("数据不合法，不予操作","提示");
+				return;
+				} */
+				
+				// 检查 是否有重复的窗口
+				if(!this.owner){
+					Alert.show("主窗体引用出错，不予操作！！","提示");
+					return;
+				}
+				
+				var stn:SuperTabNavigator=this.owner as SuperTabNavigator;
+				for each(var child:DisplayObject in stn.getChildren()){
+					if(child.name=="hl"+item.iid){
+						//stn.selectedChild=child as DisplayObject;
+						stn.selectedIndex=stn.getChildIndex(child);
+						return;
+					}
+				}
+				
+				var hlc:HotLineCard=new HotLineCard();
+				if(cb.selected){
+					PopUpManager.addPopUp(hlc,this);
+					PopUpManager.centerPopUp(hlc);
+				}else{
+					stn.addChild(hlc);
+					stn.selectedIndex=stn.numChildren-1;
+				}
+				hlc.winParam={ccid:String(item.node.@iid),icustomer:String(item.node.@ccustid)};	
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+		[Event(name="CallMsg")]
+		[Event(name="msgChange",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<callcenter:CCItem id="ccitem_1" status="线路1" statusStyleName="cc_normal" doubleClickEnabled="false" doubleClick="onDoubleClickHandler(event)" lineShow="true"/>
+	<callcenter:CCItem id="ccitem_2" status="线路2" statusStyleName="cc_normal" doubleClickEnabled="false" doubleClick="onDoubleClickHandler(event)" lineShow="true"/>
+	<callcenter:CCItem id="ccitem_3" status="线路3" statusStyleName="cc_normal" doubleClickEnabled="false" doubleClick="onDoubleClickHandler(event)" lineShow="true"/>
+	<callcenter:CCItem id="ccitem_4" status="线路4" statusStyleName="cc_normal" doubleClickEnabled="false" doubleClick="onDoubleClickHandler(event)" lineShow="false"/>
+	<mx:Canvas width="100%" height="0" borderStyle="solid" borderColor="#e1e1e1" borderAlpha="1" backgroundColor="#f7f7f7">
+		<s:CheckBox label="来电弹屏" id="cb" verticalCenter="0" horizontalCenter="0" visible="false" includeInLayout="false"/>
+	</mx:Canvas>
+</s:VGroup>

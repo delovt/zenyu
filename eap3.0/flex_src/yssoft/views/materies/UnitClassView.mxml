@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        width="747" height="516"
+                        styleName="contentHDividedBox" creationComplete="init()" close="TitleClose()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ItemClickEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.ScProductClassVo;
+			
+			[Bindable]public var treeXML:String  = "";
+			[Bindable]public var titleLabel:String ="";
+			[Bindable]public var treObject:XML;
+			[Bindable]public var operateState:String = "";
+			[Bindable]public var classVo:ScProductClassVo = new ScProductClassVo(); //暂借此类动态操作树结构
+			
+			
+			private var sc_unitlist:ArrayCollection;
+			
+			
+			private function init():void{
+				//回车替代TAB键
+				CRMtool.setTabIndex(tabVbox);
+				CRMtool.toolButtonsEnabled(this.lbr_role,null);
+				refTree();
+			}
+
+			
+			private function tree_click():void{
+				if(this.tree_pub.selectedItem == null){
+					return ;
+				}
+				treObject= this.tree_pub.selectedItem as XML;
+				
+				var obj:Object = new Object();
+				obj.iunitclass = (String)(treObject.@iid);
+							
+				AccessUtil.remoteCallJava("CalculateMaterielDest","getScUnitList",function(e:ResultEvent):void{
+					if(e.result!=null&&e.result.length>0)
+					{
+						sc_unitlist = e.result as ArrayCollection;
+					}else{
+						sc_unitlist = new ArrayCollection();
+					}
+				},obj);
+				
+				if(treObject.hasComplexContent()){return;}
+			}
+
+			private function onOperate(event:ItemClickEvent):void{
+				var type:String  = event.item.name;
+				CRMtool.toolButtonsEnabled(this.lbr_role,type); //按钮互斥
+				if(type=="onNew"){
+					clearFrom();
+					this.Vbox_Enabld.enabled = true;
+					operateState = "onNew";
+					
+				}else if(type == "onEdit"){
+					this.Vbox_Enabld.enabled = true;
+					operateState = "onEdit";
+					
+				}else if(type== "onDelete"){
+					
+					if(tree_pub.selectedIndex==-1){
+						return;
+					}
+					
+					if(treObject.hasComplexContent()){
+						CRMtool.tipAlert("请先删除下一级单位组信息！");
+						return;
+					}
+					
+					
+					if(sc_unitlist.length>0)
+					{
+						CRMtool.showAlert("已被计量单位引用，不允许删除！");
+					}else{
+						operateState = "onDelete";
+						CRMtool.tipAlert(ConstsModel.DETERMINE_HEAD+ treObject.@cname +"]计量单位组?",null,"AFFIRM",this,"onDeleteUnitclass");
+					}
+					
+				}else if(type == "onSave"){
+					if(!this.tree_pub.isExistsParent(this.tnp_unitCode.text,ConstsModel.ROLE_PID_WARNMSG))return;  //判断输入编号是否有父节点
+						
+					if(this.Vbox_Enabld.enabled == false){ CRMtool.tipAlert("您还未选择要执行的操作！"); return;}
+					if(operateState == "onNew"){
+						AccessUtil.remoteCallJava("CalculateMaterielDest","addScUnitClass",call_fun_result,this.getParams());			
+					}else{
+						AccessUtil.remoteCallJava("CalculateMaterielDest","updateScUnitClass",call_fun_result,this.getParams());
+					}
+				
+				}else if(type == "onGiveUp"){
+					this.Vbox_Enabld.enabled = false;
+				}
+				
+			}
+			
+			
+			private function call_fun_result(e:ResultEvent):void
+			{
+				var str:String = e.result as String;
+				this.loadClassVo();
+				
+				if(operateState =="onNew"){str = e.result.flag;}
+				
+				if(str == "success") {
+					CRMtool.tipAlert("操作成功！");
+					if(operateState == "onNew")     { 
+						classVo.iid = e.result.iid;
+						this.tree_pub.AddTreeNode(classVo);}
+					else if(operateState=="onEdit") { this.tree_pub.EditTreeNode(classVo); }
+					else if(operateState=="onDelete") { this.tree_pub.DeleteTreeNode(); }
+				}
+				else CRMtool.tipAlert("操作失败！");
+					
+			}
+			
+			public function onDeleteUnitclass():void{
+				var params:Object = this.getParams();
+				if(treObject.hasComplexContent()){
+					params.delSonNode = "true";
+				}
+				AccessUtil.remoteCallJava("CalculateMaterielDest","delScUnitClass",call_fun_result,params );
+			}
+			
+			
+			//获取所有参数
+			private function getParams():Object
+			{
+				var params:Object = {};	
+				params.iid 	 =   treObject == null?"":int(treObject.@iid);
+				params.ccode =    this.tnp_unitCode.text;
+				params.cmemo =  this.tnp_unitMemo.text;
+				params.cname  =   this.tnp_unitName.text;
+				params.cabbreviation = this.tnp_cabbreviation.text;
+				params.ipid      =    this.tree_pub.getIpid(this.tnp_unitCode.text);
+				params.oldCode =   treObject == null?"":treObject.@ccode +"";
+				return params;
+			}
+			
+			private function loadClassVo():void
+			{
+				var params:Object = this.getParams();
+				//加载  vo 对象
+				classVo.iid = params.iid; 			  classVo.ccode=params.ccode;
+				classVo.cname = params.cname;  classVo.ipid = params.ipid;
+				classVo.cmemo = params.cmemo;
+				classVo.cabbreviation = params.cabbreviation;
+			}
+			
+			//清空
+			private function clearFrom():void{
+				this.tnp_unitCode.text = "";
+				this.tnp_unitMemo.text ="";
+				this.tnp_unitName.text ="";
+				this.tnp_cabbreviation.text = "";
+			}
+			
+			private function TitleClose():void{
+				PopUpManager.removePopUp(this);
+			}
+			
+			
+			//刷新树
+			private function refTree():void{
+				AccessUtil.remoteCallJava("CalculateMaterielDest","getScUnitClassList",callfun_unitclass);	
+			}
+			
+			private function callfun_unitclass(e:ResultEvent):void{				
+				if(e.result  != null&&e.result!="<root />")
+					this.tree_pub.treeCompsXml = new XML(e.result as String);
+				else
+					this.tree_pub.treeCompsXml = null;
+			}
+			
+		]]>
+	</fx:Script>
+	<basic:layout>
+		<s:VerticalLayout gap="0" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+	</basic:layout>
+	
+<mx:HDividedBox width="100%" height="100%">
+	<!-- 角色树 -->
+	<mx:VBox width="25%" height="100%" styleName="lefttree">
+		<mx:ApplicationControlBar width="100%" height="32" dock="true">
+			<mx:Label text="{titleLabel}" styleName="contentTitle"/>
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox id="tree_pub"  width="100%" height="100%" click="tree_click()"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<!-- 右边 -->
+	<mx:VBox width="75%" height="100%" styleName="centerbg4">
+		<mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+			<comps:LinkBarVboxComps id="lbr_role" height="25" width="15%" buttonWidth="48"  dataProvider="{ConstsModel.LBRITEM}" itemClick="onOperate(event)"  styleName="contentButtonBar"/>
+			<s:Spacer width="95%"/>
+		</mx:ApplicationControlBar>
+		<mx:VBox width="100%" height="100%" styleName="roleHbox" enabled="false" id="Vbox_Enabld">
+			<mx:VBox width="100%" height="100%" horizontalAlign="center" >
+					<mx:Canvas id="vsCav_Unit"  width="100%" >
+						<mx:HBox width="100%" horizontalAlign="center" >
+							<mx:VBox  width="100%" styleName="content" id="tabVbox">
+								
+								<mx:HBox  height="28" width="100%" verticalAlign="middle">
+									<mx:Label text="  单位组编码" /> <mx:TextInput  id="tnp_unitCode" width="100%" text="{treObject.@ccode}" styleName="contentTextInput"	/>	
+								</mx:HBox>
+								<mx:HRule width="100%"/>
+								
+								<mx:HBox  height="28" width="100%" verticalAlign="middle">
+									<mx:Label text="  单位组名称" /> <mx:TextInput  id="tnp_unitName" width="100%" text="{treObject.@cname}" styleName="contentTextInput"/>	
+								</mx:HBox>
+								<mx:HRule width="100%"/>
+								
+								<mx:HBox  height="26" width="100%" verticalAlign="middle">
+									<mx:Label text="  单位组说明" /> <mx:TextInput  id="tnp_unitMemo" width="100%" text="{treObject.@cmemo}" styleName="contentTextInput"/>	
+								</mx:HBox>
+								
+								<mx:HRule width="100%"/>
+								
+								<mx:HBox  height="26" width="100%" verticalAlign="middle">
+									<mx:Label text="  单位组前缀" /> <mx:TextInput  id="tnp_cabbreviation" width="100%" text="{treObject.@cabbreviation}" styleName="contentTextInput"/>	
+								</mx:HBox>
+							</mx:VBox>
+						</mx:HBox>
+					</mx:Canvas>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:VBox>
+</mx:HDividedBox>
+</basic:BasicTitleWindow>

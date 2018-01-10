@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<basic:BasicMxLabel xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+					creationComplete="creationCompleteHandler(event)" color="{_textColor}">
+	<!-- To change this template use File | Settings | File Templates. -->
+	<fx:Script><![CDATA[
+		import mx.controls.dataGridClasses.DataGridListData;
+		import mx.events.FlexEvent;
+
+		import yssoft.comps.frame.module.Basic.BasicMxDataGrid;
+
+		private var _basicMxDataGrid:BasicMxDataGrid;
+		[Bindable]private var _textColor:uint = 0x000000;
+
+		private function creationCompleteHandler(event:FlexEvent):void {
+			if (this.owner is BasicMxDataGrid)
+				_basicMxDataGrid = this.owner as BasicMxDataGrid;
+		}
+
+		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+			super.updateDisplayList(unscaledWidth, unscaledHeight);
+			var dataField:String = (this.listData as DataGridListData).dataField;
+			_textColor = 0x000000;
+			if(data.rowTextColor){
+				//var rowTextColor:String = data.rowTextColor.toString(16);
+				//this.htmlText = "<font color='#" + rowTextColor + "'>" + data[dataField] + "</font>";
+				_textColor = data.rowTextColor;
+			}
+			if (_basicMxDataGrid && _basicMxDataGrid.rowColorFunction) {
+				this.graphics.clear();
+				var itemColor:ListItemColor = _basicMxDataGrid.itemColorFunction.call(this, data, dataField) as ListItemColor;
+				if (itemColor) {
+					if (itemColor.itemBackgroundColor!=uint.MAX_VALUE) {
+						this.graphics.beginFill(itemColor.itemBackgroundColor);
+						this.graphics.drawRect(0, 0, unscaledWidth, unscaledHeight);
+					}
+
+					if (itemColor.itemTextColor != uint.MAX_VALUE) {
+						_textColor = itemColor.itemTextColor;
+					}
+				}
+			}
+		}
+
+		]]></fx:Script>
+</basic:BasicMxLabel>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" verticalGap="0"
+		 label="业务注释{items.length==0?'':'('+items.length+')'}" width="100%" height="100%" xmlns:comps="yssoft.comps.*" xmlns:renders="yssoft.renders.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			[Bindable]
+			public var ifuncregedit:int=0;
+			[Bindable]
+			public var iinvoice:int=0;
+			[Bindable]
+			private var items:ArrayCollection=new ArrayCollection();
+			
+			private var optType:String="";
+			
+			public function ywzs_selete_items():void{
+				this.clearParam();
+				//CRMtool.tipAlert("表单信息ifuncregedit["+ifuncregedit+"],iinvoice["+iinvoice+"]");
+				if(ifuncregedit<=0 || iinvoice <=0){
+					//CRMtool.tipAlert("表单信息不全[业务注释]");
+					return;
+				}
+				optType="selete";
+				param={};
+				param.ifuncregedit=ifuncregedit;
+				param.iinvoice=iinvoice;
+				AccessUtil.remoteCallJava("WorkFlowDest","ywzs_selete_items",callBack,param,"正在获取业务注释...");
+			}
+			
+			private var param:Object;
+			private function ywzs_insert_item():void{
+				if(ifuncregedit<=0 || iinvoice <=0){
+					CRMtool.tipAlert("表单信息不全，不予提交");
+					return;
+				}
+				
+				if( ! CRMtool.isStringNotNull(cmemo.text)){
+					CRMtool.tipAlert("内容不能为空",this.cmemo);
+					return;
+				}
+				optType="insert";
+				param={};
+				param.ifuncregedit=ifuncregedit;
+				param.iinvoice=iinvoice;
+				param.cmemo=this.cmemo.text;
+				param.imaker=CRMmodel.userId;
+				AccessUtil.remoteCallJava("WorkFlowDest","ywzs_insert_item",callBack,param,"正在添加业务注释...");
+			}
+			private var selindex:int=-1;
+			private function ywzs_delete_item(event:Event):void{
+				optType="delete";
+				var index:int=int(event.currentTarget.name);
+				var item:Object=items.getItemAt(index);
+				if(item && item.imaker == CRMmodel.userId){
+					//param={};
+					//param.iid=item.iid;
+					//param.imaker=item.imaker;
+					selindex=index;
+					//Alert.show("index["+index+"]");
+					AccessUtil.remoteCallJava("WorkFlowDest","ywzs_delete_item",callBack,item,"正在删除业务注释...");
+				}
+				
+			}
+			
+			private function callBack(event:ResultEvent):void{
+				if(optType=="selete"){
+					items=event.result as ArrayCollection;
+				}else if(optType=="delete"){
+					if(selindex != -1)
+					items.removeItemAt(selindex);
+				}else if(optType=="insert"){
+					param.iid=event.result;
+					param.cname=CRMmodel.hrperson.cname;
+					param.dmaker=CRMtool.getFormatDateString();
+					items.addItemAt(param,0);
+					this.cmemo.text="";
+				}
+			}
+			public function clearParam():void{
+				items=new ArrayCollection();
+			}
+		]]>
+	</fx:Script>
+	<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off">
+		<mx:VBox width="100%" height="100%" borderVisible="false" verticalGap="0" horizontalScrollPolicy="off">
+			<mx:Repeater id="rep" dataProvider="{items}" width="100%">
+				<renders:YwzsRender width="100%" item="{rep.currentItem}" name="{rep.currentIndex}" onDelete="ywzs_delete_item(event)"/>
+				<comps:CrmDotLine width="100%" height="1" dotLineColor="0xcccccc"/>
+			</mx:Repeater>
+		</mx:VBox>
+	</mx:Canvas>
+
+	<mx:HBox  paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5" width="100%" >
+		<mx:HBox  paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" cornerRadius="8" width="100%" borderStyle="solid" borderColor="#c4cccc" borderAlpha="1">
+			<s:TextArea id="cmemo" width="100%" height="37"  borderVisible="false" />
+		</mx:HBox>
+	</mx:HBox>
+	<mx:HBox height="27" width="100%" verticalAlign="top" horizontalAlign="right" paddingRight="5" >
+		<s:Button width="50" label="发送" click="ywzs_insert_item()"/>
+	</mx:HBox>
+</mx:VBox>

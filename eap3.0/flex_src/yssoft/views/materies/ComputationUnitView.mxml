@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                width="100%" height="100%" creationComplete="init()" xmlns:comps1="yssoft.comps.dataGridForCheckBox.*"
+                xmlns:comps="yssoft.comps.*">
+    <fx:Script source="../../../yssoft/scripts/ComputationUnitScript.as"/>
+
+    <!-- 角色树 -->
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <mx:Label text="计算单位信息" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_calculate" width="100%" height="100%" click="to_unitClass_Click()"/>
+        </mx:HBox>
+        <mx:HBox width="100%" height="5%" paddingLeft="10" paddingRight="10" paddingBottom="10">
+            <mx:Button label="单位组刷新" height="25" width="50%" click="init();"/>
+            <mx:Button label="单位组维护" height="25" width="50%" click="openUntiClassView()"/>
+        </mx:HBox>
+    </mx:VBox>
+
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="centerbg03">
+        <mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+            <comps:LinkBarVboxComps id="lbr_role" height="25" width="15%" buttonWidth="48"
+                                    dataProvider="{ConstsModel.PERSONLBRITEM_01}" itemClick="onOpenUnit(event)"/>
+            <!-- mx:PopUpMenuButton label="更多操作" height="25"  dataProvider="{menuData}" itemClick="onClick(event);" -->
+
+            <s:Spacer width="92%"/>
+            <mx:Label height="0" visible="false" id="val" color="red" fontWeight="bold"/>
+            <comps:CrmTextInput id="tnp_bjobstatus" search="search();"/>
+        </mx:ApplicationControlBar>
+
+
+        <mx:VBox width="100%" height="100%">
+            <mx:VBox width="100%" height="100%" paddingLeft="1" paddingRight="1">
+                <!--mx:DataGrid width="100%" height="100%" dataProvider="{unitArr}" id="dgrid" >
+                            <mx:columns>
+                                <comps1:CheckBoxColumn  id="cbCol" textAlign="center" width="40"  sortable="false"  itemRenderer="{new ClassFactory(CheckBoxItemRenderer)}" headerRenderer="{new ClassFactory(CheckBoxHeaderRenderer)}" />
+                                <mx:DataGridColumn  dataField="ccode" headerText="编号" />
+                                <mx:DataGridColumn  dataField="cname" headerText="名称"/>
+                                <mx:DataGridColumn  dataField="fchangerate" headerText="换算率"/>
+                                <mx:DataGridColumn  dataField="bdefault" headerText="是否默认主计量单位"/>
+                            </mx:columns>
+                        </mx:DataGrid -->
+
+                <comps:CRMDataGridForCheckBox allowMulti="true" width="100%" height="100%" id="dgrid"
+                                              horizontalScrollPolicy="auto" dataProvider="{unitArr}"
+                                              doubleClickEnabled="true" onGridClick="onGridClick(event)"
+                                              doubleClick="onDouble()"/>
+
+
+                <mx:HBox width="100%" height="33" horizontalAlign="right" verticalAlign="middle">
+                    <comps:PageBar paddingRight="10" id="pageBar"/>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:VBox>
+</mx:HDividedBox>

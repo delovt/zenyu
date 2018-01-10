@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" gap="0" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:comps="yssoft.comps.*" xmlns:fwm="yssoft.pub.fwm.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:ApplicationControlBar width="100%" height="35" borderVisible="false">
+		<fwm:FMTop/>
+	</mx:ApplicationControlBar>
+	<comps:YSDataGrid width="100%" height="100%"/>
+	<s:BorderContainer width="100%" height="30">
+		<comps:PageBar right="2" top="2" bottom="2" right="10"/>
+	</s:BorderContainer>
+</s:VGroup>

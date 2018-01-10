@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         paddingTop="0" paddingLeft="0" paddingBottom="0" paddingRight="0" label="坐席管理"
+         height="100%" width="100%" contentBackgroundColor="#c4cccc" horizontalGap="0"
+         creationComplete="ini()" initialize="initial()">
+    <fx:Script>
+		<![CDATA[
+        import flexlib.containers.SuperTabNavigator;
+
+        import mx.collections.ArrayCollection;
+        import mx.containers.HBox;
+        import mx.containers.HBox;
+        import mx.containers.VBox;
+        import mx.controls.Alert;
+        import mx.controls.Label;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.scripts.CallCenterConnect;
+        import yssoft.views.callcenter.HotLineCard;
+
+        public var ccc:CallCenterConnect;
+
+        public function initial():void {
+
+            //ccc = new CallCenterConnect();
+
+            //获取线路号码
+            AccessUtil.remoteCallJava("LocalNumber", "getLocalNumber", function (event:ResultEvent):void {
+                list = ArrayCollection(event.result);
+            }, null, null, false);
+
+
+        }
+
+        private function ini():void {
+
+            ItemLayout();
+
+            if (!CRMmodel.modelSocket) {
+                CRMtool.showAlert("socket连接失败！");
+                dispatchEvent(new Event("connerror"));
+                return;
+            }
+
+            CRMmodel.modelSocket.addEventListener(Event.CONNECT, connectHandler, false, 0, true);
+            CRMmodel.modelSocket.addEventListener(Event.CLOSE, closeHandler, false, 0, true);
+            CRMmodel.modelSocket.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler, false, 0, true);
+            CRMmodel.modelSocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, secuityErrorHandler, false, 0, true);
+            CRMmodel.modelSocket.addEventListener(ProgressEvent.SOCKET_DATA, socketData, false, 0, true);
+
+
+        }
+
+
+        //建立socket连接后，调用
+        public function connectHandler(event:Event):void {
+
+            this.dispatchEvent(new SocketMsgEvent("socketmsg", CRMmodel.modelSocket));
+        }
+
+        //服务器关闭 socket时，调用
+        public function closeHandler(event:Event):void {
+
+            this.dispatchEvent(new Event("connclose"));
+            //connectsocket();
+        }
+
+        //出现输入 输出错误时，调用
+        public function ioErrorHandler(event:IOErrorEvent):void {
+
+            this.dispatchEvent(new Event("connerror"));
+        }
+
+        //出现安全沙箱错误时，调用
+        public function secuityErrorHandler(event:SecurityErrorEvent):void {
+
+            this.dispatchEvent(new Event("connerror"));
+        }
+
+        //获取 socket返回数据时，调用
+        public function socketData(event:ProgressEvent):void {
+            try {
+                var hlv:HotLineViews = this.parent.parent as HotLineViews;
+                var msg:String = "";
+                while (CRMmodel.modelSocket.bytesAvailable) {
+                    msg += CRMmodel.modelSocket.readUTFBytes(CRMmodel.modelSocket.bytesAvailable);
+                }
+                if (msg.length == 0) {
+                    return;
+                }
+                var clinestate:String = XML("<device>" + msg + "</device>").node.@clinestate;
+                var ctellout:String = XML("<device>" + msg + "</device>").node.@ctellout;
+                hlv.iCallincount = XML("<device>" + msg + "</device>").node.@iCallinCount;
+                hlv.iCalloutcount = XML("<device>" + msg + "</device>").node.@iCalloutCount;
+                hlv.iFreecount = XML("<device>" + msg + "</device>").node.@iFreeCount;
+
+                if (clinestate == "挂机" || clinestate == "未接来电") {
+                    dispatchEvent(event); //刷新右侧datagrid数据
+                    this.dispatchEvent(new Event("msgChange"));
+
+                }
+                if (clinestate.substr(0, 2) == "响铃") {  //来电
+                    //来电线路与设置的默认线路一致时弹屏
+
+                    var line:String = XML("<device>" + msg + "</device>").node.@xl;
+                    if (String(CRMmodel.icallline - 1) == line) {  //线路从1开始，服务端ichannel从0开始
+                        callinJump(XML("<device>" + msg + "</device>"), "呼入");
+                    }
+
+                }
+                if (clinestate.substr(0, 5) == "摘机PR+" && CRMtool.isStringNotNull(ctellout)) {  //设置呼出弹屏且对方接听
+
+                    if (CRMmodel.bcallout) {
+                        callinJump(XML("<device>" + msg + "</device>"), "呼出");
+                    }
+
+                }
+                if (clinestate == "软拨号挂机") {  //软拨号对方挂机
+//                    hlv.iCalloutcount = hlv.iCalloutcount - 1;
+                    this.dispatchEvent(new Event("softhangup"));
+
+                }
+
+                configCCItem(XML("<device>" + msg + "</device>"));
+                var hlv:HotLineViews = this.parent.parent as HotLineViews;
+                hlv.onPage();
+
+            } catch (e:Error) {
+                //Alert.show("解析数据错误！！原因："+e.message,"提示");
+            }
+        }
+
+        public function callinJump(xml:XML, lab:String):void { //弹屏
+            var hlv:HotLineViews = this.parent.parent as HotLineViews;
+            var stnav:SuperTabNavigator = hlv.owner as SuperTabNavigator;
+
+            var obj:Object = new Object();
+//            var hotlinecards:HotLineCards = new HotLineCards();
+//
+//            var label:String = CRMtool.isStringNotNull(xml.node.@ccustperson) ? xml.node.@ccustperson : "未知客户";
+//
+//            hotlinecards.label = lab + ":" + label;
+//            hotlinecards.iid = 0;
+            obj.phonenum = (String(xml.node.@ctellin) == null || String(xml.node.@ctellin) == '') ? xml.node.@ctellout : xml.node.@ctellin;
+//            hotlinecards.phoneNum = phonenum;
+            obj.line = int(xml.node.@xl);
+//            hotlinecards.crouteline = "line" + (line + 1);
+//            var callintime:String = String(xml.node.@cbegintime).substr(11, 8);
+            obj.callinfulltime = String(xml.node.@cbegintime);
+//
+//            hotlinecards.callInFullTime = callinfulltime;
+//            hotlinecards.callinTime = callintime;
+//
+            AccessUtil.remoteCallJava("LocalNumber", "getRecordId", function (event:ResultEvent):void {
+                var o:Object = new Object();
+                o = Object(event.result);
+
+                var hlc:HotLineCard = new HotLineCard();
+                stnav.addChild(hlc);
+                stnav.selectedIndex = stnav.numChildren - 1;
+                hlc.winParam = o;
+                hlc.callBackFun = hlv.onPage;
+
+            }, obj, null, false);
+
+        }
+
+        // 设置 对应线路 的状态
+
+        public function configCCItem(xml:XML):void {
+            var xl:int = parseInt(xml.node.@xl) + 1; // 线路的索引号，从1开始
+            if (xl > 0) {
+                for each(var obj:Object in this.box.getChildren()) {
+                    if (obj is HBox) {
+                        for each(var itemobj:Object in obj.getChildren()) {
+                            var i:int = 0;
+                            if (itemobj is CCItems) {
+                                if (itemobj.no == String(xl)) {
+                                    itemobj.infoXml = xml;
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+        public function itemDoubleClick(event:Event):void {
+//            var i:CCItems = event.target as CCItems;
+//            if (CRMtool.isStringNotNull(i.callphone.text)) {
+//                //呼入记录手动弹屏
+//                var type:String = (String(i.infoXml.node.@ctellin) == null || String(i.infoXml.node.@ctellin) == '') ? "呼出" : "呼入";
+//                callinJump(i.infoXml, type);
+//            } else {
+//                CRMtool.showAlert("暂无来电信息！");
+//            }
+        }
+
+        public var item:CCItems;
+        public static var itemlist:ArrayCollection = new ArrayCollection();
+
+        public var list:ArrayCollection = new ArrayCollection();
+
+        protected function ItemLayout():void {
+            var allowcount:int = 0;
+            allowcount = CRMmodel.cc_allowcount;
+            var irow:int = 0;
+            var hbox:HBox = null;
+            var rowNum = CRMmodel.ilayout;  //一行显示列数
+
+            if (allowcount > 0) {
+//                CRMmodel.cc_allowcount = allowcount;
+                if (allowcount % rowNum == 0) {
+                    irow = allowcount / rowNum;
+                } else {
+                    irow = allowcount / rowNum + 1;
+                }
+                if (allowcount < rowNum) {
+                    rowNum = allowcount;
+                }
+                for (var i:int = 0; i < irow; i++) {
+                    hbox = new HBox();
+                    if ((allowcount % rowNum != 0) && (i == irow - 1)) {
+                        for (var j:int = 0; j < (allowcount % rowNum); j++) {
+                            if (i == 0 && j == 0) {
+                                item = new CCItems();
+                                item.addEventListener("CC_ItemDoubleClick", itemDoubleClick);
+                                item.lineShow = false;
+                                item.no = String(CRMmodel.icallline);
+                                item.defaultColor = 0x519DD4;
+                                item.bdefault = true;
+
+                                for (var m:int = 0; m < list.length; m++) {
+                                    var obj:Object = list.getItemAt(m);
+                                    if (Number(obj["clineno"]) == (CRMmodel.icallline)) {
+                                        item.number = obj["clinenum"];
+                                    }
+                                }
+
+                                hbox.addChild(item);
+                                hbox.setStyle("horizontalGap",1);
+                            } else {
+                                var current:int = (i * rowNum + j);
+                                if (CRMmodel.icallline <= current) {
+                                    current++;
+                                }
+                                item = new CCItems();
+                                //item.addEventListener("CC_ItemDoubleClick",itemDoubleClick);
+                                item.lineShow = false;
+                                item.no = current.toString();
+                                item.defaultColor = 0xC8C8C8;
+                                item.bdefault = false;
+
+                                for (var m:int = 0; m < list.length; m++) {
+                                    var obj:Object = list.getItemAt(m);
+                                    if (Number(obj["clineno"].toString()) == current) {
+                                        item.number = obj["clinenum"];
+                                    }
+                                }
+                                itemlist.addItem(item);
+                                hbox.addChild(item);
+                                hbox.setStyle("horizontalGap",1);
+                            }
+
+                        }
+                    } else {
+                        for (var j:int = 0; j < rowNum; j++) {
+                            if (i == 0 && j == 0) {
+                                item = new CCItems();
+                                item.addEventListener("CC_ItemDoubleClick", itemDoubleClick);
+                                item.lineShow = false;
+                                item.no = String(CRMmodel.icallline);
+                                item.defaultColor = 0x519DD4;
+                                item.bdefault = true;
+
+                                for (var m:int = 0; m < list.length; m++) {
+                                    var obj:Object = list.getItemAt(m);
+                                    if (Number(obj["clineno"]) == (CRMmodel.icallline)) {
+                                        item.number = obj["clinenum"];
+                                    }
+                                }
+
+                                hbox.addChild(item);
+                                hbox.setStyle("horizontalGap",1);
+                            } else {
+                                var current:int = (i * rowNum + j);
+                                if (CRMmodel.icallline <= current) {
+                                    current++;
+                                }
+                                item = new CCItems();
+                                item.addEventListener("CC_ItemDoubleClick", itemDoubleClick);
+                                item.lineShow = false;
+                                item.no = current.toString();
+                                item.defaultColor = 0xC8C8C8;
+                                item.bdefault = false;
+
+                                for (var m:int = 0; m < list.length; m++) {
+                                    var obj:Object = list.getItemAt(m);
+                                    if (Number(obj["clineno"]) == current) {
+                                        item.number = obj["clinenum"];
+                                    }
+                                }
+                                hbox.addChild(item);
+                                hbox.setStyle("horizontalGap",1);
+                            }
+
+                        }
+                    }
+                    hbox.setStyle("paddingBottom", 1);
+                    this.box.addChild(hbox);
+
+                }
+
+            }
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Metadata>
+        [Event(name="msgChange", type="flash.events.Event")]
+        [Event(name="socketMsg", type="flash.events.Event")]
+        [Event(name="connerror", type="flash.events.Event")]
+        [Event(name="connclose", type="flash.events.Event")]
+        [Event(name="softhangup", type="flash.events.Event")]
+    </fx:Metadata>
+
+    <mx:VBox id="box" width="100%" horizontalGap="0" verticalGap="0" borderStyle="none"/>
+
+</mx:VBox>

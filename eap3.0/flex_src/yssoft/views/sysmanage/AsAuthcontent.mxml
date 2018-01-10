@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 xmlns:comps="yssoft.comps.*"
+		 creationComplete="ini()">
+	
+	<!--载入对应的脚本类-->
+	<fx:Script source="../../scripts/AsAuthcontentScript.as"/>
+	
+	<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+		
+		<!--树菜单-->
+		<mx:VBox width="20%" height="100%" styleName="lefttree" >
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<mx:Label text="权限目录" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+				<comps:TreeCompsVbox width="100%" height="100%" id="treeMenu" dropShadowVisible="false"
+								 dataProvider="{treeXml}" itemClick="treeMenu_itemClickHandler(event)">
+				</comps:TreeCompsVbox>	
+			</mx:HBox>
+		</mx:VBox>
+		
+		<!--中间的分割线-->
+		
+		
+		<!--权限设置列表区-->
+		<mx:VBox width="80%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="32" dock="true">
+				<mx:ButtonBar id="btn_menubar" width="10%" height="80%" styleName="contentButtonBar"
+							  dataProvider="{menubar}" creationComplete="CRMtool.toolButtonsEnabled(btn_menubar,null)"
+							  itemClick="btn_menubar_itemClickHandler(event)"/>
+				<mx:PopUpButton id="ppb" height="25" label="更多操作" openAlways="true"/>
+				<s:Spacer width="100%"/>
+				<s:Label id="lbltablename" visible="false"/>
+				<s:Spacer width="3%"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" styleName="lefttree1" >
+			<mx:DataGrid id="dglist" width="100%" height="100%" styleName="contentDataGrid" horizontalScrollPolicy="auto"
+						 lockedColumnCount="3" allowMultipleSelection="true" editable="{myenabled}" borderStyle="none">
+				<mx:columns>
+					<mx:DataGridColumn headerText="内码" dataField="iid" visible="false"/>
+					<mx:DataGridColumn headerText="序号" labelFunction="rownum_DataGrid" width="50" textAlign="center" editable="false"/>
+					<mx:DataGridColumn headerText="是否启用" editable="false" dataField="buse">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:CheckBox textAlign="center" click="data.buse=!data.buse" selected="{(data.buse==0)?false:true}" enabled="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="权限编码" dataField="ccode" editable="false" width="100"/>
+					<mx:DataGridColumn headerText="权限默认内容" dataField="cname" editable="false" width="200"/>
+					<mx:DataGridColumn headerText="权限标题" dataField="ccaption" width="200">
+						<mx:itemEditor>
+							<fx:Component>
+								<mx:TextInput editable="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="权限功能" dataField="cfunction" width="200"/>
+					<mx:DataGridColumn headerText="权限窗体" dataField="cform" width="200"/>
+					<mx:DataGridColumn headerText="备注" dataField="cmemo">
+						<mx:itemEditor>
+							<fx:Component>
+								<mx:TextInput editable="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+			</mx:VBox>
+		</mx:VBox>
+		
+	</mx:HDividedBox>
+</mx:HBox>

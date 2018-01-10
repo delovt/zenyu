@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+         creationComplete="init()">
+
+    <mx:HBox width="100%" height="100%" borderStyle="solid" borderAlpha="1" top="0">
+        <mx:VBox width="300" height="100%" horizontalAlign="center">
+            <mx:HBox borderStyle="solid" borderAlpha="1" width="100%">
+                <mx:TextInput width="90%" id="phoneNumber" restrict="0-9#*" borderStyle="none" focusAlpha="0"
+                              editable="true" fontWeight="normal" fontSize="20" textAlign="center"/>
+                <mx:LinkButton width="10%" height="30" id="deleteNumber" click="deleteNumber_clickHandler(event)"
+                               label="删除" color="#CBCBCB"/>
+            </mx:HBox>
+            <mx:HBox width="100%" height="100%">
+                <mx:Button click="dial(event)" label="1" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+                <mx:Button click="dial(event)" label="2" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+                <mx:Button click="dial(event)" label="3" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+            </mx:HBox>
+            <mx:HBox width="100%" height="100%">
+                <mx:Button click="dial(event)" label="4" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+                <mx:Button click="dial(event)" label="5" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+                <mx:Button click="dial(event)" label="6" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+            </mx:HBox>
+            <mx:HBox width="100%" height="100%">
+                <mx:Button click="dial(event)" label="7" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+                <mx:Button click="dial(event)" label="8" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+                <mx:Button click="dial(event)" label="9" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+            </mx:HBox>
+            <mx:HBox width="100%" height="100%">
+                <mx:Button click="dial(event)" label="*" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+                <mx:Button click="dial(event)" label="0" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+                <mx:Button click="dial(event)" label="#" width="100%" height="100%" fontWeight="bold" fontSize="16"/>
+            </mx:HBox>
+            <mx:HBox width="100%" height="100%">
+                <mx:Button id="setAside" width="100%" height="100%" label="拨打"
+                           click="click_handel()"/>
+            </mx:HBox>
+        </mx:VBox>
+
+    </mx:HBox>
+
+
+
+    <fx:Script><![CDATA[
+        import mx.controls.Alert;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.CRMtool;
+
+        import yssoft.tools.AccessUtil;
+
+        //IP地址
+        private var _cpsip:String;
+        private var _cpsport:int;
+
+        private function deleteNumber_clickHandler(event:MouseEvent):void {
+            this.phoneNumber.text = "";
+        }
+
+        private function dial(event:MouseEvent):void {
+            this.phoneNumber.text += event.target.label
+        }
+
+        //连接 呼叫中心 服务端
+        private var _softSocket:Socket = null;
+
+        private function init():void {
+
+            setAside_color(0x8CCD45);
+
+            deleteNumber.graphics.beginFill(0x787878);
+            deleteNumber.graphics.drawRect(0, 0, deleteNumber.width, deleteNumber.height);
+            deleteNumber.graphics.endFill();
+
+        }
+
+        private function click_handel():void {
+            var num:String = this.phoneNumber.text;
+
+            var type:String = this.setAside.label;
+            if(type == "拨打") {
+                if(CRMtool.isStringNull(num) || num.length < 3) {
+                    CRMtool.showAlert("拨打号码有误，请核查！");
+                    return;
+                }
+
+                this.setAside.label = "挂机";
+                setAside_color(0xCC0032);
+            } else if(type == "挂机") {
+                this.setAside.label = "拨打";
+                setAside_color(0x8CCD45);
+            }else {
+                return;
+            }
+            sendMsg(type,num);
+        }
+
+        private function sendMsg(type:String,num:String):void {
+
+            if (CRMtool.isStringNull(num)) {
+                return;
+            } else {
+                var channel:String = (String)(CRMmodel.icallline - 1);
+                var msg:String = "CallMsg:";
+                if(type == "拨打") {
+
+                    msg += num;
+                }
+                if(type == "挂机") {
+                    phoneNumber.text = "";
+                    msg += "hangup";
+                }
+
+                msg += ":" + channel;
+
+                var message:ByteArray = new ByteArray(); //新建一个ByteArray存放数据
+
+                message.writeUTFBytes(msg);
+
+                softSocket.writeBytes(message); //写入Socket的缓冲区
+
+                softSocket.flush(); //调用flush方法发送信息
+
+            }
+        }
+
+        public function set softSocket(value:Socket):void {
+            _softSocket = value;
+        }
+
+        public function get softSocket():Socket {
+            return _softSocket;
+        }
+
+        public function setAside_color(color:uint) {
+
+            setAside.setStyle("chromeColor",color);
+
+            setAside.graphics.beginFill(color);
+            setAside.graphics.drawRect(0, 0, setAside.width, setAside.height);
+            setAside.graphics.endFill();
+        }
+        ]]></fx:Script>
+</mx:HBox>
+
+<!--<mx:stytle type="text/css">-->
+    <!--#id{       border:1px solid #ccc;}-->
+<!--</mx:stytle>-->
+

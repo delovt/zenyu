@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 单据对应关系  -->
+	
+	<!-- 获取可建立对应关系的单据 信息  -->
+	<select id="fr.getTables" resultClass="java.util.HashMap">
+		select iid,ipid,ccode,cname,cprogram,ctable,iworkflow,bworkflow from as_funcregedit  order by ccode
+	</select>
+	<!-- 获取单据对应表 的字段信息 -->
+	<select id="fr.getTableFields" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select *,'' dyfunction,'' dyfield from AC_datadictionary where ifuncregedit=#ifuniid# and ctable = #ctname#
+	</select>
+	
+	<!-- 插入单据与单据之间的对应关系 -->
+	<insert id="fr.insertFormRelation" parameterClass="java.util.HashMap">
+		insert into ac_relationship (ifuncregedit,ifuncregedit2,bpull,bpush,cmemo)
+		values (#ifuniid1#,#ifuniid2#,#bpull#,#bpush#,#cmemo#)
+		<selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey>
+	</insert>
+	
+	<!-- 插入单据对应关系中，字段的对应信息 -->
+	<insert id="fr.insertFormFields" parameterClass="java.util.HashMap">
+		insert into ac_write (irelationship,ctable,cfield,ctable2,cfield2,bpushwriteback,cpushfunction,bpullwriteback,cpullfunction)
+		values 
+		(#irsiid#,#ctable#,#cfield#,#ctable2#,#cfield#,#bpush#,#cpushfun#,#bpull#,#cpullfun#)
+	</insert>
+</sqlMap>

@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%" height="100%"
+				implements="yssoft.interfaces.IMainViewStackSearch"
+				creationComplete="myinit(event)"
+				>
+	<fx:Declarations>
+		<s:RadioButtonGroup id="typeBG"/>
+		<s:RadioButtonGroup id="quarterBG"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.frameui.formopt.OperDataAuth;
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.models.DateHadle;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+
+		[Bindable]
+		private var _title:String = "";
+
+		//默认选中月
+		[Bindable]
+		private var _itype:int = 4;
+
+		//默认年度
+		[Bindable]
+		private var _year:int = int(DateHadle.getYear());
+		[Bindable]
+		private var _yearList:ArrayCollection = new ArrayCollection();
+
+		//默认季度
+		[Bindable]
+		private var _quarter:int = Math.ceil((new Date().month + 1) / 3);
+
+		//默认月
+		[Bindable]
+		private var _month:int = new Date().month + 1;
+
+		private var _personListBasic:ArrayCollection;
+		private var _personList:ArrayCollection;
+		private var _personListNo:ArrayCollection;
+
+		private var _week:int;
+
+		private var authSql:String;
+			
+		private var ui_idepartment:CrmEapTextInput;//部门参照 2013-1-26 XZQWJ增加
+
+		private var _monthList:ArrayCollection = new ArrayCollection(['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']);
+
+		[Bindable]
+		private var _planListAc:ArrayCollection;
+
+		[Bindable]
+		[Embed(source="/yssoft/assets/images/pre1.png")]
+		private var preIcon:Class;
+
+		[Bindable]
+		[Embed(source="/yssoft/assets/images/next1.png")]
+		private var nextIcon:Class;
+
+		private const _basicSql:String = "select oa_plan.*,h1.cname as iperson_cname,datename(weekday, oa_plan.dmaker)weekDate,h2.cname as iinstruction_cname,hd.cname as idepartment_cname from oa_plan" +
+				" left join hr_person h1 on h1.iid = oa_plan.iperson" +
+				" left join hr_person h2 on h2.iid = oa_plan.iinstruction" +
+				" left join hr_department hd on hd.iid = oa_plan.idepartment where 1=1 ";
+
+		private const _getPersonSql:String = "select hr_person.iid as iperson,hr_person.cname,hr_department.cname as dcname from hr_person left join hr_department on hr_person.idepartment = hr_department.iid  where bjobstatus=1 and idepartment in " +
+				"(select iid from hr_department where ihead=" + CRMmodel.userId + " or icharge=" + CRMmodel.userId + " or ilead=" + CRMmodel.userId + ") order by hr_department.ccode,hr_person.ccode";
+
+		public function searchFromMain(s:String):void {
+			if (_planListAc && _planListAc.length > 0) {
+				for each(var item:Object in _planListAc) {
+					if ((item.iperson_cname + "").search(s) > -1) {
+						planListDG.selectedItem = item;
+						planListDG.scrollToIndex(_planListAc.getItemIndex(item));
+						break;
+					}
+				}
+			}
+		}
+
+		private function initYearList():void {
+			_yearList.removeAll();
+			for (var year:int = CRMmodel.minYear; year <= CRMmodel.maxYear; year++) {
+				var item:Object = {year: year};
+				_yearList.addItem(item);
+				if (year == _year)
+					yearSelect.selectedItem = item;
+			}
+		}
+
+		protected function yearSelect_changeHandler(event:IndexChangeEvent):void {
+			_year = yearSelect.selectedItem.year;
+			setDtdDate(new Date(_year, dtd_select.selectedDate.month, dtd_select.selectedDate.date));
+		}
+
+		protected function monthSelect_changeHandler(event:IndexChangeEvent):void {
+			_month = monthSelect.selectedIndex + 1;
+		}
+			
+		private function initConsultItem(name:String):void{
+			var obj1:Object=new Object();
+			obj1.cobjectname="ui_"+name;
+			obj1.ifuncregedit="162";
+			obj1.ctable="sc_order";
+			obj1.cfield=name;
+			AccessUtil.remoteCallJava("CommonalityDest","queryFun",initConsultBack,obj1);		
+		}
+			
+			private function initConsultBack(evt:ResultEvent):void{
+				
+				if(evt.result!=null){
+					var consultObj:Object = evt.result;
+					var cobjectname:String = evt.result.cobjectname;
+					
+					this[cobjectname] = new CrmEapTextInput();
+					var consultTextInput:CrmEapTextInput = this[cobjectname];
+					
+					consultTextInput.width	=140;
+					consultTextInput.name			= "UI_C1";
+					consultObj.cobjectname	="UI_C1";
+					consultTextInput.singleType		=consultObj;
+					consultTextInput.styleName="contentTextInputOther";
+					this[cobjectname+"_box"].addChild(consultTextInput);					
+				}		
+			}
+			
+		protected function myinit(event:FlexEvent):void {
+			initYearList();
+			setDtdDate(new Date());
+
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				_personListBasic = event.result as ArrayCollection;
+			}, _getPersonSql);
+
+			var auth2:OperDataAuth = new OperDataAuth();
+			auth2.addEventListener("onGet_FundataauthSucess", function (evt:Event):void {
+				authSql = auth2.getdataauthcondition("01", 320, CRMmodel.userId, CRMmodel.hrperson.idepartment, "oa_plan", 1);
+			});
+			auth2.get_fundataauth({ifuncregedit: 320, iperson: CRMmodel.userId});
+			
+			//2013-01-27 XZQWJ 增加
+			initConsultItem("idepartment");
+		}
+
+		protected function dtd_select_changeHandler(event:CalendarLayoutChangeEvent):void {
+			setDtdDate(dtd_select.selectedDate);
+		}
+
+		private function setDtdDate(d:Date):void {
+			dtd_select.selectedDate = d;
+
+			_year = d.fullYear;
+			_week = CRMtool.weekOfYear(d)
+			dtd_select.selectedRanges = [
+				{rangeStart: CRMtool.firstDayInWeek(d.fullYear, _week), rangeEnd: CRMtool.endDayInWeek(d.fullYear, _week)}
+			];
+			week.text = _year + "年 第" + _week + "周";
+		}
+
+		protected function search():void {
+			var childSql:String = " and itype=" + _itype;
+			var departSql:String="";//增加部门的过滤条件
+			if(ui_idepartment.consultList.length>0){
+				
+				departSql=" and oa_plan.idepartment in ( select iid from hr_department where ccode like '"+this.ui_idepartment.consultList[0].ccode+"%')";
+			}
+			
+			switch (_itype) {
+				case 1:
+					childSql += " and iyear=" + _year;
+					break;
+				case 2:
+					childSql += " and iyear=" + _year + " and iseason=" + _quarter;
+					break;
+				case 3:
+					childSql += " and iyear=" + _year + " and imonth=" + _month;
+					break;
+				case 4:
+					var debgin:String = CRMtool.formatDateNoHNS(CRMtool.firstDayInWeek(_year, _week));
+					var dend:String = CRMtool.formatDateNoHNS(CRMtool.endDayInWeek(_year, _week));
+
+					childSql += " and dbegin='" + debgin + "' and dend='" + dend + "'";
+					break;
+			}
+
+			var sql3:String = _basicSql + departSql + childSql + authSql + " order by hd.ccode,h1.ccode,oa_plan.dmaker";
+			var cname:String = "";
+			switch (_itype) {
+				case 1:
+					cname = _year + "年 计划";
+					break;
+				case 2:
+					cname = _year + "年 第" + _quarter + "季 计划";
+					break;
+				case 3:
+					cname = _year + "年 " + _month + "月 计划";
+					break;
+				case 4:
+					cname = _year + "年 第" + _week + "周 计划";
+					break;
+			}
+			_title = cname;
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var ac:ArrayCollection = event.result as ArrayCollection;
+				_personList = new ArrayCollection(CRMtool.ObjectCopy(_personListBasic.toArray()));
+//***************XZQWJ 增加2013-01-29 修改：如果在选在部门过滤的时候，将_personList移除非本部门的人员********************************************	
+					if(ui_idepartment.consultList.length>0){
+						var departName:Object=ui_idepartment.consultList[0].cname;
+						for(var i:int=_personList.length-1;i>=0;i--){
+							if(_personList.getItemAt(i).dcname!=departName){
+								_personList.removeItemAt(i);
+							}
+						}
+					}
+//*****************************************************************************************************************************					
+					for each(var item:Object in ac) {
+						item.cname = cname;
+						for each(var pitem:Object in _personList) {
+							if (pitem.iperson == item.iperson)
+								pitem.has = true;
+						}
+					}
+				
+				_personListNo = new ArrayCollection();
+				var s:String = "";
+				var i:int = 1;
+				for each(var pitem:Object in _personList) {
+					if (!pitem.has) {
+						//_personListNo.addItem(pitem);
+						//if(i==1)
+						//	s="您所负责部门中，未制定此计划的人员有：\n\n";
+
+						if ((pitem.cname + "").length == 2)
+							s += (pitem.dcname + "：" + pitem.cname + "  \t");
+						else
+							s += (pitem.dcname + "：" + pitem.cname + " \t");
+
+						//if(i%2==1)
+						//	s+="\t";
+
+						if (i % 2 == 0)
+							s += "\n";
+						i++;
+					}
+				}
+				notHasPlanPersonList.text = s;
+				_planListAc = ac;
+			}, sql3);
+		}
+
+		protected function planListDG_doubleClickHandler(event:MouseEvent):void {
+			if (planListDG.selectedItem) {
+				var obj:Object = planListDG.selectedItem;
+				obj.year = obj.iyear;
+				obj.quarter = obj.iseason;
+				obj.week = obj.iweek;
+				obj.month = obj.imonth;
+				obj.iplan = obj.iid;
+
+				CRMtool.openMenuItemFormOther("yssoft.views.plan.PlanMainView", obj, obj.cname);
+			}
+		}
+
+		private function doLineNum(item:Object, column:DataGridColumn):String {
+			var lineNum:int = planListDG.dataProvider.getItemIndex(item) + 1;
+			return lineNum + "";
+		}
+
+		protected function pre_clickHandler(event:MouseEvent):void {
+			switch (_itype) {
+				case 1:
+					if (yearSelect.selectedIndex - 1 >= 0) {
+						yearSelect.selectedIndex = yearSelect.selectedIndex - 1;
+						_year--;
+					}
+					break;
+				case 2:
+					if (_quarter - 1 > 0)
+						_quarter--;
+					break;
+				case 3:
+					if (monthSelect.selectedIndex - 1 >= 0) {
+						monthSelect.selectedIndex = monthSelect.selectedIndex - 1;
+						_month--;
+					}
+					break;
+				case 4:
+					if (_week - 1 > 0) {
+						_week--;
+						week.text = _year + "年 第" + _week + "周";
+						dtd_select.selectedDate = CRMtool.firstDayInWeek(_year, _week);
+						dtd_select.selectedRanges = [
+							{rangeStart: CRMtool.firstDayInWeek(_year, _week), rangeEnd: CRMtool.endDayInWeek(_year, _week)}
+						];
+					}
+					break;
+			}
+			search();
+		}
+
+		protected function next_clickHandler(event:MouseEvent):void {
+			switch (_itype) {
+				case 1:
+					if (yearSelect.selectedIndex + 1 <= (yearSelect.dataProvider as ArrayCollection).length - 1) {
+						yearSelect.selectedIndex = yearSelect.selectedIndex + 1;
+						_year++;
+					}
+
+					break;
+				case 2:
+					if (_quarter + 1 < 5)
+						_quarter++;
+					break;
+				case 3:
+					if (monthSelect.selectedIndex + 1 <= (monthSelect.dataProvider as ArrayCollection).length - 1) {
+						monthSelect.selectedIndex = monthSelect.selectedIndex + 1;
+						_month++;
+					}
+					break;
+				case 4:
+					if (_week + 1 <= 53) {
+						_week++;
+						week.text = _year + "年 第" + _week + "周";
+						dtd_select.selectedDate = CRMtool.firstDayInWeek(_year, _week);
+						dtd_select.selectedRanges = [
+							{rangeStart: CRMtool.firstDayInWeek(_year, _week), rangeEnd: CRMtool.endDayInWeek(_year, _week)}
+						];
+					}
+					break;
+			}
+			search();
+		}
+
+		private function updateWeekPlanDate_clickHandler(event:MouseEvent):void {
+			var sql:String = "select * from oa_plan where itype=4 and isnull(iweek,0)>0";
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var list:ArrayCollection = event.result as ArrayCollection;
+				for each(var item:Object in list){
+					updateWeekPlanDate(item);
+				}
+			},sql);
+		}
+
+		private function updateWeekPlanDate(item:Object):void{
+			var debgin:String = CRMtool.formatDateNoHNS(CRMtool.firstDayInWeek(item.iyear, item.iweek));
+			var dend:String = CRMtool.formatDateNoHNS(CRMtool.endDayInWeek(item.iyear, item.iweek));
+
+			var sql:String = "update oa_plan set dbegin='"+debgin+"',dend='"+dend+"' where iid="+item.iid;
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql",null,sql);
+		}
+		]]>
+	</fx:Script>
+	<mx:VBox id="boxLeftRoot" width="257" height="100%" styleName="lefttree" horizontalScrollPolicy="off"
+			 verticalScrollPolicy="off">
+		<mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="frameSideAppBar">
+			<s:Label styleName="contentTitle" text="计划查询"/>
+		</mx:ApplicationControlBar>
+		<mx:VBox paddingLeft="20" paddingTop="10" paddingRight="10" id="searchBox" width="100%" height="100%"
+				 styleName="funnelReportForm"
+				 verticalGap="5">
+			<mx:HBox width="100%" height="25" verticalAlign="middle" horizontalGap="33">
+				<s:RadioButton label="年" selected="{_itype==1}" click="{_itype=1}" groupName="typeBG"/>
+				<s:RadioButton label="季" selected="{_itype==2}" click="{_itype=2}" groupName="typeBG"/>
+				<s:RadioButton label="月" selected="{_itype==3}" click="{_itype=3}" groupName="typeBG"/>
+				<s:RadioButton label="周" selected="{_itype==4}" click="{_itype=4}" groupName="typeBG"/>
+			</mx:HBox>
+			<mx:HBox width="100%" height="25" verticalAlign="middle" paddingRight="15">
+				<mx:FormItemLabel text="年："/>
+				<s:DropDownList id="yearSelect" width="100%" labelField="year" dataProvider="{_yearList}"
+								change="yearSelect_changeHandler(event)"/>
+			</mx:HBox>
+			<mx:HBox width="100%" height="25" verticalAlign="middle" visible="{_itype==2}"
+					 includeInLayout="{_itype==2}">
+				<mx:FormItemLabel text="季："/>
+				<s:RadioButton label="1" selected="{_quarter==1}" click="{_quarter=1}" groupName="quarterBG"/>
+				<s:RadioButton label="2" selected="{_quarter==2}" click="{_quarter=2}" groupName="quarterBG"/>
+				<s:RadioButton label="3" selected="{_quarter==3}" click="{_quarter=3}" groupName="quarterBG"/>
+				<s:RadioButton label="4" selected="{_quarter==4}" click="{_quarter=4}" groupName="quarterBG"/>
+			</mx:HBox>
+			<mx:HBox width="100%" height="25" verticalAlign="middle" visible="{_itype==3}" includeInLayout="{_itype==3}"
+					 paddingRight="15">
+				<mx:FormItemLabel text="月："/>
+				<s:DropDownList id="monthSelect" labelField="year" width="100%" dataProvider="{_monthList}"
+								selectedIndex="{new Date().month}" change="monthSelect_changeHandler(event)"/>
+			</mx:HBox>
+			<mx:HBox width="100%" verticalAlign="middle" visible="{_itype==4}" includeInLayout="{_itype==4}"
+					 paddingRight="15">
+				<mx:FormItemLabel text="周："/>
+				<s:TextInput id="week" width="100%" editable="false" borderVisible="false"/>
+				
+			</mx:HBox>
+			<mx:HBox width="100%" visible="{_itype==4}" includeInLayout="{_itype==4}">
+				<mx:DateChooser borderVisible="false" styleName="date_title" id="dtd_select" cornerRadius="8"
+								width="100%" yearNavigationEnabled="true"
+								dayNames="['日','一','二','三','四','五','六']" change="dtd_select_changeHandler(event)"
+								monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']"/>
+			</mx:HBox>
+			<mx:Label text="您负责的以下人员未制定此计划：" visible="{CRMtool.isStringNotNull(notHasPlanPersonList.text)}"/>
+			<mx:TextArea id="notHasPlanPersonList" width="100%" height="100%" editable="false" borderVisible="false"
+						 leading="5"/>
+		</mx:VBox>
+		<mx:HRule width="100%" height="1"/>
+		<mx:HBox width="100%" height="36" horizontalAlign="center" verticalAlign="middle" paddingLeft="10" horizontalGap="5"
+				 paddingRight="11">
+			<mx:HBox id="ui_idepartment_box" horizontalGap="3" >
+				<mx:FormItemLabel text="部门："/>
+			</mx:HBox>
+			<!--<s:Spacer width="100%"/>-->
+			<!--<mx:Button label="刷新日期" height="25" visible="{CRMmodel.hrperson.cname=='admin'}" includeInLayout="{CRMmodel.hrperson.cname=='admin'}"
+					   click="updateWeekPlanDate_clickHandler(event)" />-->
+			<mx:Button label="查询" click="search()" width="50" height="25"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:VBox width="100%" height="100%" styleName="centerbg03">
+		<mx:ApplicationControlBar width="100%" height="32" styleName="centertop1">
+			<s:Label styleName="contentTitle" text="{_title}"/>
+			<mx:HBox horizontalGap="0" visible="{_title.length>0}">
+				<mx:LinkButton icon="{preIcon}" width="20" click="pre_clickHandler(event)"/>
+				<mx:LinkButton icon="{nextIcon}" width="20" click="next_clickHandler(event)"/>
+			</mx:HBox>
+			<s:Spacer width="100%"/>
+		</mx:ApplicationControlBar>
+		<mx:VBox width="100%" height="100%" paddingTop="-1">
+			<mx:DataGrid id="planListDG" width="100%" height="100%" doubleClickEnabled="true"
+						 doubleClick="planListDG_doubleClickHandler(event)"
+						 horizontalScrollPolicy="auto" lockedColumnCount="1" dataProvider="{_planListAc}"
+						 wordWrap="false">
+				<mx:columns>
+					<mx:DataGridColumn labelFunction="{doLineNum}" width="40"/>
+					<mx:DataGridColumn headerText="计划名称" dataField="cname" width="100"
+									   itemRenderer="mx.controls.Label"/>
+					<mx:DataGridColumn headerText="部门" dataField="idepartment_cname"/>
+					<mx:DataGridColumn headerText="人员" dataField="iperson_cname"/>
+					<mx:DataGridColumn headerText="编制时间" dataField="dmaker" labelFunction="{CRMtool.formatDate}"/>
+					<mx:DataGridColumn headerText="星期" dataField="weekDate" />
+					<mx:DataGridColumn headerText="修改时间" dataField="dmodify" labelFunction="{CRMtool.formatDate}"/>
+					<mx:DataGridColumn headerText="总结" dataField="csummary" itemRenderer="mx.controls.Label"/>
+					<mx:DataGridColumn headerText="总结时间" dataField="dsummary" labelFunction="{CRMtool.formatDate}"/>
+					<mx:DataGridColumn headerText="批注人" dataField="iinstruction_iperson"/>
+					<mx:DataGridColumn headerText="批注" dataField="cinstruction" itemRenderer="mx.controls.Label"/>
+					<mx:DataGridColumn headerText="批注时间" dataField="dinstruction" labelFunction="{CRMtool.formatDate}"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VBox>
+		
+	</mx:VBox>
+</mx:HDividedBox>

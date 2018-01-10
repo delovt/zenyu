@@ -1,0 +1,51 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+	<!--
+		* * 项目名称：yssoft * SqlMap表名：AC_classView * 创建人：XZQWJ * 创建时间：2012-10-11
+		* 修改人： * 修改时间： * 修改备注： * @version 1.0 *
+	-->
+<sqlMap>
+
+	<!-- 列表配置常用条件 -->
+	<!--
+		select iid,ipid,cname,ccode,bdesktop,ccolor,csql from AC_listcd where
+		ifuncregedit=#ifuncregedit# order by ccode
+	-->
+	<!-- select distinct iconsultname cname, RTrim(LTrim(CAST(coiid as char(20))))+'.'+ RTrim(LTrim(CAST(iid as char(20)))) iid,-1 ipid from( -->
+	<!--  select ac_vouchform.ccaption iconsultname,ac.itype itype,ac.iid ,co.iid coiid-->
+	<!--  select distinct iconsultname cname, RTrim(LTrim(CAST(coiid as char(20))))+'.'+ RTrim(LTrim(CAST(iid as char(20))))+'.'+RTrim(LTrim(CAST(itype as char(20)))) iid,-1 ipid from(
+		select co.cclasstitle iconsultname,ac.itype itype,ac.iid ,co.iid coiid
+		from AC_datadictionary d , Ac_consultConfiguration co,ac_consultset ac,as_menu menu,ac_vouch,ac_vouchform
+		where d.iid=co.idatadictionary and d.ctable in(
+		select tableship.ctable from ac_tableRelationship tableship where
+		ifuncregedit in (
+		select irfuncregedit from dbo.as_menu where ifuncregedit=#ifuncregedit#))
+		and ac.iid=co.iconsult and ac.itype in(0,2)
+		and menu.irfuncregedit=d.ifuncregedit and menu.ifuncregedit=#ifuncregedit#
+		and ac_vouch.ifuncregedit in (select irfuncregedit from dbo.as_menu  where ifuncregedit=#ifuncregedit#)
+		and ac_vouch.iid=ac_vouchform.ivouch 
+		and d.iid=ac_vouchform.idatadictionary and ac_vouchform.ccaption is not null
+		and co.bclassview=1 
+		) aa order by iid-->
+	<select id="get_classviewlist" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select distinct iconsultname cname, RTrim(LTrim(CAST(coiid as char(20))))+'.'+ RTrim(LTrim(CAST(iid as char(20))))+'.'+RTrim(LTrim(CAST(itype as char(20)))) iid,-1 ipid from(
+		select co.cclasstitle iconsultname,ac.itype itype,ac.iid ,co.iid coiid
+		from AC_datadictionary d , Ac_consultConfiguration co,ac_consultset ac
+		where d.iid=co.idatadictionary and d.ctable in(
+		select tableship.ctable from ac_tableRelationship tableship where
+		ifuncregedit in (
+		select ifuncregedit from as_funcregedit where iid=#ifuncregedit#))
+		and ac.iid=co.iconsult and ac.itype in(0,2)
+		and co.bclassview=1 and d.ifuncregedit in (select ifuncregedit from as_funcregedit where iid=#ifuncregedit#)
+		) aa order by iid
+		
+	</select>
+	
+	<select id="get_DatadicSql" resultClass="java.util.HashMap" parameterClass="String">
+	select ctreesql,isnull(cgridsql,'') cgridsql,isnull(cconnsql,'') cconnsql from ac_consultset  where iid=#iid#
+	</select>
+	
+	<select id="get_classlist" remapResults="true" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		$sqlValue$
+	</select>
+
+</sqlMap>

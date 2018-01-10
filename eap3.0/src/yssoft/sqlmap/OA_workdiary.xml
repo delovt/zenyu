@@ -1,0 +1,38 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：OA_workdiary
+ * 创建人：刘磊
+ * 创建时间：2012-3-30 16:35:05
+ * 修改人：刘磊
+ * 修改时间：2012-3-30 16:35:05
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_OA_workdiary" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,icorp,iproperty,ifuncregedit,iinvoice,cname,cdetail,icustomer,dbegin,dend,cplace,istyle,itype,bpublic,iplans,ioainvoice,imaker,dmaker,imodify,dmodify,icustperson,iifuncregedit,dmessage,bnomessage from OA_workdiary 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_OA_workdiary" parameterClass="java.util.HashMap">
+            insert into OA_workdiary(icorp,iproperty,ifuncregedit,iinvoice,cname,cdetail,icustomer,dbegin,dend,cplace,istyle,itype,bpublic,iplans,ioainvoice,imaker,dmaker,imodify,dmodify,icustperson,iifuncregedit,dmessage,bnomessage) 
+            values (#icorp#,#iproperty#,#ifuncregedit#,#iinvoice#,#cname#,#cdetail#,#icustomer#,#dbegin#,#dend#,#cplace#,#istyle#,#itype#,#bpublic#,#iplans#,#ioainvoice#,#imaker#,#dmaker#,#imodify#,#dmodify#,#icustperson#,#iifuncregedit#,#dmessage#,#bnomessage#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_OA_workdiary" parameterClass="java.util.HashMap">
+            update OA_workdiary set icorp=#icorp#,iproperty=#iproperty#,ifuncregedit=#ifuncregedit#,iinvoice=#iinvoice#,cname=#cname#,cdetail=#cdetail#,icustomer=#icustomer#,dbegin=#dbegin#,dend=#dend#,cplace=#cplace#,istyle=#istyle#,itype=#itype#,bpublic=#bpublic#,iplans=#iplans#,ioainvoice=#ioainvoice#,imaker=#imaker#,dmaker=#dmaker#,imodify=#imodify#,dmodify=#dmodify#,icustperson=#icustperson#,iifuncregedit=#iifuncregedit#,dmessage=#dmessage#,bnomessage=#bnomessage# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_OA_workdiary" parameterClass="String">
+            delete from OA_workdiary
+            where $condition$
+     </delete>
+</sqlMap>

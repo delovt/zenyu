@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 contentBackgroundAlpha="0">
+	<fx:Metadata>
+		[Event(name="valueChange",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]public var visibleBorder:Boolean=false;//是否显示
+			[Bindable]public var iseditable:Boolean = false;
+			private var fileReference:FileReference;
+			private var fileFilter:FileFilter=new FileFilter("选择文件","*.xml");
+			[Bindable] private var _tvalue:String = "";
+			[Bindable]private var _ifuncregedit:String;
+
+			public function get ifuncregedit():String
+			{
+				return _ifuncregedit;
+			}
+
+			public function set ifuncregedit(value:String):void
+			{
+				_ifuncregedit = value;
+			}
+
+			[Bindable]private var _selectedIndex:String;
+
+			public function get selectedIndex():String
+			{
+				return _selectedIndex;
+			}
+
+			public function set selectedIndex(value:String):void
+			{
+				_selectedIndex = value;
+			}
+
+			
+			public function set tValue(value:String):void{
+				
+				_tvalue = value;
+				
+			}
+			
+			public function get tValue():String{
+				
+				return this._tvalue;
+			}
+			
+			public function get getFileReference():FileReference{
+				return this.fileReference;	
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				fileReference=new FileReference();
+				fileReference.addEventListener(Event.SELECT,checkFile);
+				fileReference.addEventListener(Event.COMPLETE,onFileCompleteHandler);
+				fileReference.browse([fileFilter]);
+			}
+			private function onFileSelectHandler(event:ResultEvent):void{
+				 if(event.result as Boolean){
+					fileReference.load();
+
+                     this.tValue = ifuncregedit+"_"+selectedIndex+".xml";
+
+					if((fileReference.name+"")!=(this.tValue+"")){
+						CRMtool.tipAlert("原文件名："+fileReference.name+"，\n已被系统重命名为："+this.tValue+"!!!");
+					}
+					
+				} 
+				/* else{
+					CRMtool.showAlert("服务器中已有相同文件名，请重命名！");
+					CRMtool.tipAlert1("服务器中已有相同文件名，是否覆盖(有可能会损坏其他配置文件)！！",null,"AFFIRM",function():void{
+						fileReference.load();
+					},function():void{
+						return;
+					});
+					
+				} */
+					
+				
+			}
+			private function onFileSelected(evt:Event):void{
+				
+				fileReference.load();
+				
+			}
+			//wtf modify
+			private function checkFile(event:Event):void{
+				AccessUtil.remoteCallJava("acPrintSetServiceImplDest","mathFile",onFileSelectHandler,{fileName:ifuncregedit+"_"+selectedIndex+".xml",oldFileName:tValue,filePath:("/printmodel")});
+			
+			}
+			//wtf end
+			private function onFileCompleteHandler(event:Event):void{
+				this.txt_filename.text=ifuncregedit+"_"+selectedIndex+".xml";
+				this.tValue = ifuncregedit+"_"+selectedIndex+".xml";
+				this.dispatchEvent(new Event("valueChange"));
+			}
+			
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				if (txt_filename.text=="")
+				{
+					CRMtool.showAlert("请先选择打印模板。");
+				}
+				else
+				{
+					var _param:Object=new Object();
+					var request:URLRequest;
+					request=new URLRequest(ConstsModel.publishUrlRoot+"/printmodel/"+txt_filename.text);
+					_param.printurl=request.url;
+					_param.formIfunIid=data.ifuncregedit;
+					_param.reportiid=data.iid;
+					_param.title=data.cname;
+					_param.filename=txt_filename.text;
+					_param.itemType="onBrowse";
+					CRMtool.openMenuItemFormOther("yssoft.views.printreport.PrintDesign",_param,data.cname,"设计"+"_"+txt_filename.text);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:TextInput id="txt_filename" text="{_tvalue}" width="150" editable="false" borderVisible="false">
+	</mx:TextInput>
+	<mx:Button label="选择" width="65" click="button1_clickHandler(event)"
+			   visible="{this.visibleBorder}"/>
+	<mx:Button label="设计" width="65" click="button2_clickHandler(event)"
+			   visible="{this.visibleBorder}"/>
+</mx:HBox>

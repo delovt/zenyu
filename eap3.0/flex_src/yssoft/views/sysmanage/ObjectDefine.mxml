@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:comps="yssoft.comps.*"
+         width="100%" height="100%"
+         creationComplete="getTreeFuns();CRMtool.toolButtonsEnabled(menuBar,null,1)">
+    <fx:Script>
+	<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.dataGridClasses.DataGridColumn;
+        import mx.events.ItemClickEvent;
+        import mx.events.ListEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        public var title:String = "功能目录";
+        [Bindable]
+        public var arr_menuBar:ArrayCollection = new ArrayCollection(
+                [
+                    {label: "增行", name: "onNew"},
+                    {label: "修改", name: "onEdit"},
+                    {label: "删行", name: "onDelete"},
+                    {label: "保存", name: "onSave"},
+                    {label: "放弃", name: "onGiveUp"}
+                ]
+        );
+
+        [Bindable]
+        private var resultArr:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        public var flag:Boolean = false;
+
+        //获取树菜单
+        protected function getTreeFuns():void {
+
+            AccessUtil.remoteCallJava("As_fcrelationDest", "getAs_fcrelation_tree", onGetLeftFunsBack, null, null, false);
+        }
+
+        private function onGetLeftFunsBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                this.treeFun.treeCompsXml = new XML(evt.result as String);
+            }
+        }
+
+        //tree点击事件
+        protected function treeFun_itemClickHandler(event:ListEvent = null):void {
+            this.flag = false;
+            var treeItem:Object = this.treeFun.selectedItem;
+            if (treeItem == null) {
+                return;
+            }
+            var iid:String = "";
+            if (treeItem) {
+
+                var ccode:String = treeItem.@iid.toString();
+                iid = ccode;
+                var paramObj:Object = new Object();
+                paramObj.iid = iid;
+                paramObj.buse = null;
+            }
+            AccessUtil.remoteCallJava("As_fcrelationDest", "getAs_fcrelation", getFunCallBackHandler, paramObj, null, false);
+        }
+
+        private function getFunCallBackHandler(evt:ResultEvent):void {
+
+            this.resultArr = evt.result as ArrayCollection;
+
+            afterrDgArrCount = resultArr.length;
+
+            CRMtool.toolButtonsEnabled(menuBar, null, 1);
+        }
+
+
+        private var afterrDgArrCount:int = 0;
+        private var SqlMethod:String = "";
+        private var obj:Object = {};
+
+
+        //操作事件
+        protected function menuBar_itemClickHandler(event:ItemClickEvent):void {
+
+            //dgrd_consultclm.editable = true;
+
+            switch (event.item.name) {
+                case "onNew":
+                {
+                    flag = true;
+                    addRow();
+                    SqlMethod = "addAs_fcrelation";
+                    break;
+                }
+                case "onEdit":
+                {
+                    flag = true;
+                    SqlMethod = "updateAs_fcrelation";
+                    obj = this.resultArr;
+                    break;
+                }
+                case "onDelete":
+                {
+
+                    SqlMethod = "deleteAs_fcrelation";
+                    if (dgrd_consultclm.selectedItem != null) {
+                        obj = this.dgrd_consultclm.selectedItem;
+
+                        if (obj.iid != null) {
+                            AccessUtil.remoteCallJava("As_fcrelationDest", SqlMethod, getSaveCallBackHandler, obj);
+                        }
+                        delRow();
+                    } else {
+                        CRMtool.tipAlert("请先选择要删除的纪录！");
+                    }
+                    break;
+                }
+                case "onSave":
+                {
+
+                    //dgrd_consultclm.editable = false;
+                    flag = false;
+
+                    if (SqlMethod == "addAs_fcrelation") {
+                        var newArr:ArrayCollection = new ArrayCollection();
+
+                        for (var i:int = 0; i < (this.resultArr.length - afterrDgArrCount); i++) {
+                            newArr.addItem(resultArr.getItemAt(afterrDgArrCount + i));
+                        }
+
+                        obj = newArr;
+                    }
+
+                    AccessUtil.remoteCallJava("As_fcrelationDest", SqlMethod, getSaveCallBackHandler, obj, "正在保存请稍候……");
+                    break;
+                }
+                case "onGiveUp":
+                {
+                    //dgrd_consultclm.editable = false;
+                    flag = false;
+                    treeFun_itemClickHandler(null);
+                    break;
+                }
+            }
+            CRMtool.toolButtonsEnabled(menuBar, event.item.name, 1)
+        }
+
+        private function getSaveCallBackHandler(evt:ResultEvent):void {
+            var succeed:String = evt.result as String;
+            treeFun_itemClickHandler(null);
+            if (succeed != "success") {
+                CRMtool.showAlert("操作失败！");
+            }
+            else {
+                CRMtool.showAlert("操作成功！");
+            }
+        }
+
+
+        private function addRow():void {
+
+            if (this.treeFun.selectedItem == null || (this.treeFun.selectedItem as XML).hasComplexContent()) {
+                CRMtool.tipAlert("请先选择对应的右侧菜单！");
+                return;
+            }
+            var obj:Object = new Object();
+            obj.ifcrelation = (this.treeFun.selectedItem.@iid) + "";
+            this.resultArr.addItem(obj);
+        }
+
+        private function delRow():void {
+            var index:int = resultArr.length - 1;
+            this.resultArr.removeItemAt(index);
+        }
+
+
+        public function iopenlbl(item:Object, icol:int):String {
+            var lbltext:String;
+            switch (String(item.iopen)) {
+                case "0":
+                {
+                    lbltext = "嵌入式";
+                    break;
+                }
+                case "1":
+                {
+                    lbltext = "页签式";
+                    break;
+                }
+                case "2":
+                {
+                    lbltext = "弹出式";
+                    break;
+                }
+            }
+            return lbltext;
+        }
+
+
+        private function itemEdit():void {
+
+            //	var index:int = this.dgrd_consultclm.selectedIndex + 1;
+
+        }
+
+        private function doLineNum(item:Object, column:DataGridColumn):int {
+            var lineNum:int = dgrd_consultclm.dataProvider.getItemIndex(item) + 1;
+            item.ino = lineNum;
+            return lineNum;
+        }
+        ]]>
+</fx:Script>
+    <mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+        <mx:VBox width="20%" height="100%" styleName="lefttree">
+            <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                <mx:Label id="lblDataName" styleName="contentTitle" text="{this.title}"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox width="100%" height="100%" styleName="lefttree1">
+                <comps:TreeCompsVbox width="100%" height="100%" id="treeFun" dropShadowVisible="false"
+                                     itemClick="treeFun_itemClickHandler(event)">
+                </comps:TreeCompsVbox>
+            </mx:VBox>
+        </mx:VBox>
+        <mx:VBox width="80%" height="100%" styleName="centerbg4" verticalGap="-1">
+            <mx:ApplicationControlBar styleName="centertop" width="100%" height="32" dock="true">
+                <mx:ButtonBar id="menuBar" styleName="contentButtonBar" height="80%" dataProvider="{this.arr_menuBar}"
+                              itemClick="menuBar_itemClickHandler(event)"/>
+            </mx:ApplicationControlBar>
+            <mx:HBox width="100%" height="100%">
+
+                <mx:DataGrid rowHeight="27" id="dgrd_consultclm" width="100%" height="100%" borderVisible="true"
+                             dataProvider="{resultArr}" editable="{flag}"
+                             dragEnabled="{flag}" dropEnabled="{flag}"
+                             dragMoveEnabled="{flag}"
+                             itemEditBegin="itemEdit()">
+                    <mx:columns>
+                        <mx:DataGridColumn width="45" dataField="ino" headerText="顺序" sortable="false"
+                                           textAlign="center" labelFunction="{doLineNum}" editable="false">
+                        </mx:DataGridColumn>
+
+                        <mx:DataGridColumn width="150" dataField="ifuncregedit" headerText="关联功能" editorDataField="text"
+                                           editable="false">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox>
+                                        <fx:Script>
+											<![CDATA[
+                                            [Bindable]
+                                            public var tnp_text_str:String = "";
+
+                                            public function csl_textinput_searchChangeHandler(event:Event):void {
+                                                data.cname = ConsultTextInput(event.currentTarget).tnp_text_str;
+                                                data.ifuncregedit = event.currentTarget.value;
+
+                                            }
+                                            ]]>
+												</fx:Script>
+                                        <comps:ConsultTextInput width="100%" iid="14" value="{data.ifuncregedit}"
+                                                                tnp_text_str="{data.ifuncregedit}"
+                                                                bindValueField="iid" bindLabelField="cname"
+                                                                id="csl_textinput" visibleIcon="{true}"
+                                                                enabled="{outerDocument.flag}"
+                                                                searchChange="csl_textinput_searchChangeHandler(event)"
+                                                                isChanageAcFuncregedit="true">
+                                        </comps:ConsultTextInput>
+
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+
+                        <mx:DataGridColumn width="90" dataField="cname" headerText="对象名称" sortable="false">
+                            <mx:itemEditor>
+                                <fx:Component>
+
+                                    <mx:TextInput click="textinput_change(event)">
+                                        <fx:Script>
+											<![CDATA[
+                                            private function textinput_change(event:Event):void {
+                                                event.currentTarget.text = data.cname;
+                                            }
+                                            ]]>
+													</fx:Script>
+                                    </mx:TextInput>
+                                </fx:Component>
+                            </mx:itemEditor>
+                        </mx:DataGridColumn>
+
+                        <mx:DataGridColumn width="150" dataField="cfcrlfield" headerText="关联字段"
+                                           itemRenderer="yssoft.comps.frame.module.Basic.BasicMxLabel"
+                                           sortable="false"/>
+                        <mx:DataGridColumn dataField="csql" headerText="关联sql"
+                                           itemRenderer="yssoft.comps.frame.module.Basic.BasicMxLabel"
+                                           sortable="false"/>
+                        <mx:DataGridColumn width="150" dataField="cfcrlcondit" headerText="关联条件"
+                                           itemRenderer="yssoft.comps.frame.module.Basic.BasicMxLabel"
+                                           sortable="false"/>
+
+                        <mx:DataGridColumn width="45" editable="false" headerText="生效" sortable="false">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+
+                                        <fx:Script>
+													<![CDATA[
+                                            protected function chk_buse_changeHandler(event:Event):void {
+                                                if (data.ifieldtype == 1) {
+                                                    if (chk_buse.selected) {
+                                                        data.buse = chk_buse.selected;
+                                                    } else {
+                                                        data.buse = false;
+                                                    }
+                                                }
+                                                else {
+                                                    if (chk_buse.selected) {
+                                                        data.buse = chk_buse.selected;
+                                                    } else {
+                                                        data.buse = false;
+                                                    }
+                                                }
+                                            }
+                                            ]]>
+												</fx:Script>
+
+                                        <mx:CheckBox id="chk_buse" change="chk_buse_changeHandler(event)"
+                                                     enabled="{outerDocument.flag}"
+                                                     selected="{data.buse}"></mx:CheckBox>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                    </mx:columns>
+                </mx:DataGrid>
+                <!--旧的改变显示顺序方法，新的为拖拽修改-->
+                <!--<mx:VBox height="100%" horizontalAlign="center" verticalAlign="middle" cornerRadius="0"
+                         styleName="content">
+
+                    <mx:LinkButton id="lnk_upend"
+                                   click="CRMtool.rowMoveEndUp(dgrd_consultclm,'ino')"
+                                   icon="@Embed('/yssoft/assets/images/upend.png')"
+                                   toolTip="置顶">
+                    </mx:LinkButton>
+                    <mx:LinkButton id="lnk_up"
+                                   click="CRMtool.rowMoveUp(dgrd_consultclm,'ino')"
+                                   icon="@Embed('/yssoft/assets/images/up.png')" toolTip="上移">
+                    </mx:LinkButton>
+                    <mx:LinkButton id="lnk_down"
+                                   click="CRMtool.rowMoveDown(dgrd_consultclm,'ino')"
+                                   icon="@Embed('/yssoft/assets/images/down.png')"
+                                   toolTip="下移">
+                    </mx:LinkButton>
+                    <mx:LinkButton id="lnk_downend"
+                                   click="CRMtool.rowMoveEndDown(dgrd_consultclm,'ino')"
+                                   icon="@Embed('/yssoft/assets/images/downend.png')"
+                                   toolTip="置底">
+                    </mx:LinkButton>
+                </mx:VBox>-->
+            </mx:HBox>
+        </mx:VBox>
+    </mx:HDividedBox>
+</mx:HBox>

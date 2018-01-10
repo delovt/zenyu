@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="50">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			import yssoft.models.CRMmodel;
+			
+			[Bindable]
+			public var irank:int;
+			[Bindable]
+			public var item:Object=new Object();
+		]]>
+	</fx:Script>
+	<s:Image left="5" top="5" width="40" height="40" source="{CRMmodel.headerIcon}"/>
+	<s:Label x="50" top="10" text="{item.cname}"/>
+	<s:Label x="100" top="10" text="{((item.fed/item.ded)*100).toFixed(2)}%"/>
+	<s:Label x="50" bottom="10" text="{item.fed}"/>
+	<s:Label x="100" bottom="10" text="{item.ded}"/>
+	<s:Label x="32" bottom="5" text="{irank}" width="18" color="yellow" textAlign="center" backgroundColor="red"/>
+</s:Group>

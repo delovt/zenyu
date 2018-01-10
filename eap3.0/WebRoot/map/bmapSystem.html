@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style type="text/css">
+        body{
+            overflow: hidden;
+        }
+
+        body, html, #allmap {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        #l-map {
+            height: 100%;
+            width: 100%;
+            float: left;
+        }
+
+        #r-all {
+            height: 100%;
+            width: 0px;
+            float: left;
+        }
+
+        #r-result {
+            height: 100%;
+            width: 100%;
+            float: left;
+            overflow: scroll
+        }
+
+            /*隐藏baidu地图logo*/
+        .anchorBL {
+            display: none;
+        }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=E4ffd034ed50b8d31670dd76c4c25569"></script>
+
+    <title></title>
+</head>
+<body onload="onloadHanlder()">
+<!--<div id="allmap"></div>-->
+<div id="l-map"></div>
+<div id="r-all">
+   <!-- <div style="clear:right;height: 20;font-size: 8">
+        <p>
+            在地图上单击鼠标右键，对客户位置进行标注。
+        </p>
+    </div>-->
+    <!--<button onclick="searchCustomerOnceMore()" title="全国范围内搜索客商" >搜索</button>
+    <button onclick="searchBus()" style="clear:right;" title="获取公交路线">公交</button>
+    <button onclick="setCustomerLocation()" style="font:left;" title="写入客商位置信息到客商档案">写入客商位置</button>-->
+    <div id="r-result"/>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    var map;
+    function onloadHanlder() {
+        //initMap();
+        //addCopyright();
+    }
+
+    var mypoint;    // 创建点坐标
+    var menu;
+
+    function initMap() {
+        map = new BMap.Map("l-map");            // 创建Map实例
+        //map.centerAndZoom("中国",5);
+        if(mypoint)
+            map.centerAndZoom(mypoint, 12);                     // 初始化地图,设置中心点坐标和地图级别。
+        else
+            map.centerAndZoom(new BMap.Point(106.505778,36.806354),5);
+
+        map.enableScrollWheelZoom();                            //启用滚轮放大缩小
+
+        map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+
+        initMenu();
+        addCopyright();
+    }
+
+    function setMapCenter(){
+        initMap();
+        //initMap()
+    }
+
+    function initMyPoint(arr){
+        //alert(arr[0]+":"+arr[1])
+        mypoint = new BMap.Point(arr[0],arr[1]);    // 创建点坐标
+        cname = "我公司";
+
+        initMap();
+        setMaker(arr[0],arr[1]);
+    }
+
+    function initMenu(){
+        if(menu)
+            map.removeContextMenu(menu);
+
+        menu = new BMap.ContextMenu();
+        var txtMenuItem = [
+            {
+                text: '在此标注我公司位置',
+                callback: function (p) {
+                    setMaker(p.lng, p.lat);
+                }
+            }
+        ];
+
+        for (var i = 0; i < txtMenuItem.length; i++) {
+            menu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100));
+        }
+
+        map.addContextMenu(menu);
+    }
+
+    function resetMap(){
+        map.clearOverlays();
+        setMaker(maker.getPosition().lng,maker.getPosition().lat);
+        initMenu();
+    }
+
+    var maker;
+    var cname;
+    function setMaker(lng, lat) {
+        if (maker)
+            map.removeOverlay(maker);
+        maker = new BMap.Marker(new BMap.Point(lng, lat));  // 创建标注
+
+
+
+        maker.setTitle(cname);
+        map.addOverlay(maker);              // 将标注添加到地图中
+        var info = new BMap.InfoWindow(cname);
+        maker.openInfoWindow(info);
+        maker.addEventListener("click",function(){ cmaker.openInfoWindow(info);})
+
+        customerLocation =  lng+","+lat;
+    }
+
+    var customerLocation = "";
+    //取得当前标注点信息
+    function getMakerInfo() {
+        return customerLocation;
+    }
+
+    var basicKeys;
+    //本地搜索
+    function searchCustomer(myKeys) {
+        setKeys(myKeys);
+        var local = new BMap.LocalSearch(map, {
+            renderOptions: {map: map, panel: "r-result"}
+        });
+
+        local.setPageCapacity(15);
+        local.searchInBounds(myKeys, map.getBounds());
+    }
+
+    function setKeys(myKeys){
+        basicKeys = myKeys;
+        cname = myKeys[0];
+    }
+
+
+    //再次搜索
+    function searchCustomerOnceMore() {
+        var local = new BMap.LocalSearch("全国", {
+            renderOptions: {
+                map: map,
+                panel : "r-result",
+                autoViewport: true,
+                selectFirstResult: false
+            }
+        });
+        local.search(cname);
+    }
+
+    //根据坐标 显示客户位置
+    function showCustomer(arr) {
+        cname = arr[2];
+        setMaker(arr[0],arr[1]);
+        map.setZoom(15);
+        //searchBus();
+    }
+
+    //添加版权信息
+    function addCopyright() {
+        var cr = new BMap.CopyrightControl({anchor: BMAP_ANCHOR_BOTTOM_RIGHT});
+        map.addControl(cr); //添加版权控件
+        var bs = map.getBounds();
+        cr.addCopyright({id: 1, content: "<a href='http://www.yssoft.com.cn/' target='_blank' style='font-size:12px;' >增宇软件</a>", bounds: bs});
+    }
+
+    function searchBus() {
+        var transit = new BMap.TransitRoute(map, {
+            renderOptions: {map: map, panel: "r-result"}
+        });
+        transit.search(mypoint, maker.getPosition());
+    }
+
+    function setCustomerLocation() {
+        customerLocation =  maker.getPosition().lng+","+maker.getPosition().lat;
+        map.removeOverlay(maker);
+        setMaker(maker.getPosition().lng,maker.getPosition().lat);
+    }
+
+</script>

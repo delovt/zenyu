@@ -1,0 +1,1623 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:callcenter="yssoft.views.callcenter.*" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+         width="100%" height="100%" label="" styleName="rolecontentHbox" verticalGap="0" creationComplete="init()"
+         updateComplete="vbox1_updateCompleteHandler(event)" xmlns:comps="yssoft.comps.*">
+    <fx:Script>
+		<![CDATA[
+        import flexlib.containers.SuperTabNavigator;
+
+        import mx.controls.Alert;
+        import mx.controls.DataGrid;
+        import mx.events.FlexEvent;
+        import mx.events.ItemClickEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.DateHadle;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        private var _winParam:Object;
+
+        public var callBackFun:Function;
+
+        private var arrForCP:ArrayCollection = null;//客商人员
+
+        private var fwbm:CrmEapTextInput;
+
+        private var UI_iservicelevel:CrmEapTextInput;
+        private var UI_iserviceperson:CrmEapTextInput;
+        private var UI_ifiery:CrmEapTextInput;
+
+        private function init():void {
+        }
+
+        public function set winParam(value:Object):void {
+            this._winParam = value;
+            //客商人员如果保存的不是参照里的，则生成服务工单时带不出，需要重新查，由于异步处理很麻烦，所以先查好
+            var sql:String = "select iid,cname,icustomer from cs_custperson";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                arrForCP = event.result as ArrayCollection;
+                if (value && value.hasOwnProperty("ccid")) {
+                    queryCallInfo(_winParam);
+                }
+            }, sql);
+
+        }
+
+        public function get winParam():Object {
+            return this._winParam;
+        }
+
+        private function queryCallInfo(param:Object):void {
+            AccessUtil.remoteCallJava("CallCenterDest", "singleCallInfo", callBack, param, null, false);
+        }
+
+        [Bindable]
+        public var item:Object = new Object();
+
+        private function callBack(event:ResultEvent):void {
+            if (event.result) {
+                item = event.result;
+
+
+                if (String(item.callphone).indexOf("呼入 摘机") != -1) {
+                    myImage.source = "yssoft/assets/call/callin.png";
+                }
+                else if (String(item.callphone).indexOf("呼出") != -1) {
+                    myImage.source = "yssoft/assets/call/callout.png";
+                }
+                else if (String(item.callphone).indexOf("呼入 未接来电") != -1) {
+                    myImage.source = "yssoft/assets/call/uncall.png";
+                }
+
+                this._winParam.carditem = item;
+                this.setCZText(this.dwcz, item.dwname);
+                this.setCZText(this.rycz, item.cname);
+                if (item.hasOwnProperty("dwname") == false || item.dwname == null || item.dwname == "") {
+                    this.label = "无联系人";
+                } else {
+                    this.label = item.dwname;
+                }
+                this.name = "hl" + item.iid; // 设置 当前单据的 唯一值，防止 重复打开
+                if (item.isolution == 0) {
+                    rbg.selection = null;
+                } else {
+                    if (item.isolution == null || item.isolution == "") {
+                        rbg.selection = null;
+                    } else {
+                        (this["solution_" + item.isolution] as RadioButton).selected = true;
+                    }
+                }
+                addCZ();
+            }
+        }
+
+
+        private var optType:String = "";
+        private var param:Object;
+
+        //暂存
+        public function savemoment(mytype:String = 'savemoment',iswaining:Boolean = true):void {
+            if (item.isolution > 0) {
+                if (iswaining) {
+                    CRMtool.showAlert("已处理，禁止暂存。");
+                }
+                return;
+            }
+            param = new Object();
+
+            if (this.dwczInConsult) {//单位在参照中有，取内码
+                if (this.dwcz.consultList.length > 0 || this.item.icustomer != null) {//客商ID
+                    if (this.dwcz.consultList.length > 0)
+                        param.icustomer = this.dwcz.consultList[0].iid;
+                    else
+                        param.icustomer = this.item.icustomer;
+                } else {
+                    param.icustomer = null;
+                }
+            } else {//单位不在参照中
+                param.icustomer = null;
+            }
+
+            if (this.ryczInConsult) {// 参考上面单位 的注释
+                if (this.rycz.consultList.length > 0 || this.item.icustperson != null) {//联系人内码
+                    if (this.rycz.consultList.length > 0)
+                        param.icsperson = this.rycz.consultList[0].iid;
+                    else
+                        param.icsperson = this.item.icustperson;
+                } else {
+                    param.icsperson = null;
+                }
+            } else {
+                param.icsperson = null;
+            }
+            param.dwname = getCZText(this.dwcz);
+            param.cname = getCZText(this.rycz);
+            if (this.fwbm.consultList.length > 0) {
+                param.iservicesdepart = this.fwbm.consultList.getItemAt(0)[this.fwbm.singleType.cconsultbkfld];
+            }
+            else {
+                param.iservicesdepart = 0;
+            }
+            param.cdepartment = StringUtil.trim(this.cdepartment.text);//客商联系人对应的部门
+            param.cpost = StringUtil.trim(this.cpost.text);
+            param.isex = this.isex.selectedIndex;//性别
+            param.cciid = this.item.iid;
+            param.yydate = this.yydate.text;
+            param.cdetail = StringUtil.trim(this.cdetail.text);
+            if (mytype == "处理") {
+                param.isolution = 9;
+                param.imaker = CRMmodel.userId;
+            } else if (mytype == "报岗") {
+                param.isolution = 7;
+                param.imaker = CRMmodel.userId;
+            } else if (mytype == "线索处理") {
+                param.isolution = 6;
+                param.imaker = CRMmodel.userId;
+            } else {
+                param.isolution = 0;
+            }
+
+            if (mytype == "更新联系人") {
+                AccessUtil.remoteCallJava("CallCenterDest", "saveMoment", saveMomentBackother, param, "正在提交处理...");
+            } else {
+                AccessUtil.remoteCallJava("CallCenterDest", "saveMoment", saveMomentBack, param, "正在提交处理...");
+            }
+            if (param.icustomer) {
+                var sql:String = "update cs_customer set cmemo='" + cmemo.text + "',iservicesdepart='" + param.iservicesdepart + "' where iid=" + param.icustomer;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", null, sql, null, false);
+            }
+
+
+        }
+
+        private function saveMomentBackother(event:ResultEvent):void {
+            var ret:String = event.result as String;
+            if (ret == "sucess") {
+                //removeCurWindow();
+            } else {
+                Alert.show("处理失败!", "提交");
+            }
+
+        }
+
+        private function saveMomentBack(event:ResultEvent):void {
+            var ret:String = event.result as String;
+            if (ret == "sucess") {
+                removeCurWindow();
+            } else {
+                Alert.show("处理失败!", "提交");
+            }
+
+        }
+
+        protected function updatecustperon_clickHandler():void {
+            param = new Object();
+            var dwname:String = getCZText(this.dwcz);
+            var cname:String = getCZText(this.rycz);
+            if (dwname == null || dwname == "") {
+                CRMtool.tipAlert("单位信息为空，请检查！");
+                return;
+            }
+            if (cname == null || cname == "") {
+                CRMtool.tipAlert("人员信息为空，请检查！");
+                return;
+            }
+
+            if (this.dwczInConsult) {//单位在参照中有，取内码
+                if (this.dwcz.consultList.length > 0 || this.item.icustomer != null) {//客商ID
+                    if (this.dwcz.consultList.length > 0)
+                        param.icustomer = this.dwcz.consultList[0].iid;
+                    else
+                        param.icustomer = this.item.icustomer;
+                } else {
+                    CRMtool.tipAlert("未知单位，请验证。");
+                    return;
+                }
+            } else {//单位不在参照中
+                CRMtool.tipAlert("未知单位，请验证。");
+                return;
+            }
+
+            if (this.ryczInConsult) {// 参考上面单位 的注释
+                if (this.rycz.consultList.length > 0 || this.item.icustperson != null) {//联系人内码
+                    if (this.rycz.consultList.length > 0)
+                        param.icsperson = this.rycz.consultList[0].iid;
+                    else
+                        param.icsperson = this.item.icustperson;
+                }
+            } else {
+                param.icsperson = null;
+            }
+
+            param.cname = cname;//客商联系人姓名
+            param.cdepartment = StringUtil.trim(this.cdepartment.text);//客商联系人对应的部门
+            param.cpost = StringUtil.trim(this.cpost.text);
+            param.isex = this.isex.selectedIndex;//性别
+            param.cciid = this.item.iid;
+            param.ctel = this.item.ctel;//电话
+            param.dwname = dwname;//客商
+            param.yydate = this.yydate.text;
+            param.cdetail = StringUtil.trim(this.cdetail.text);
+            param.imaker = CRMmodel.userId;//当前登录者内码
+            param.idepartment = CRMmodel.hrperson.idepartment;//登录者所属部门
+
+            AccessUtil.remoteCallJava("CallCenterDest", "updateCustPerson", updateCustPersonBack, param, "正在提交处理...");
+        }
+
+
+        // 回调处理
+        private function updateCustPersonBack(event:ResultEvent):void {
+            var ret:String = event.result.rvalue as String;
+            if (ret != "") {
+                Alert.show(ret, "提交");
+                if (event.result.hasOwnProperty("newcustpersoniid")) {
+                    item.icustperson = event.result.newcustpersoniid;
+                    //rycz.consultList[0].iid=event.result.newcustpersoniid;//好像不能这么赋值，好在前面的判断比较充分，即使没有赋值也能实现功能。
+                    ryczInConsult = true;
+                }
+                //更新
+                if (callBackFun()) {
+                    callBackFun();
+                }
+                savemoment("更新联系人",false);
+            } else {
+                Alert.show("处理失败!", "提交");
+            }
+        }
+
+        // 删除当前的 窗口
+        private function removeCurWindow():void {
+            if (this.parent is SuperTabNavigator) {
+                (this.parent as SuperTabNavigator).removeChild(this);
+            }
+        }
+
+        private function onupdatesolution(evt:ResultEvent):void {
+            if (evt.result.toString() == "fail") {
+                CRMtool.showAlert("处理方式更新失败！");
+            }
+        }
+
+        // 提交处理 ，生成服务记录单(转至服务记录单) YJ Add 2012-04-20
+        private function submitDJ():void {
+            if (item.isolution > 0) {
+                CRMtool.showAlert("已处理，禁止处理。");
+                return;
+            }
+            if (rbg.selectedValue == null) {
+                CRMtool.showAlert("请先选择处理方式。");
+                return;
+            }
+
+            if (this.dwcz.consultList.length == 0 && (this.item.icustomer == null || this.item.icustomer == 0) && rbg.selectedValue.toString() != "其他") {
+                if (rbg.selectedValue.toString() == "服务回访") {
+                    CRMtool.showAlert("非正式客户请选择“其他”处理方式，再提交服务回访!!");
+                } else {
+                    CRMtool.showAlert("非正式客户请选择“其他”处理方式，再提交服务工单!!");
+                }
+                return;
+            }
+
+            if (rbg.selectedValue.toString() == "服务回访") {
+                toCallback();
+                return;
+            }
+
+            //lr modify  调换		savemoment(); 位置。
+            if (rbg.selectedValue.toString() == "其他") {
+                savemoment("处理");
+                return;
+            }
+
+            if (rbg.selectedValue.toString() == "报岗") {
+                savemoment("报岗");
+                return;
+            }
+
+            if (rbg.selectedValue.toString() == "线索") {
+                savemoment();
+                return;
+            }
+
+            savemoment();
+
+            //服务申请单
+            var param:Object = new Object();
+            param.operId = "onListNew";
+            param.outifuncregedit = "150";
+            param.ifuncregedit = "150";
+            var iid:ArrayCollection = new ArrayCollection();
+            param.personArr = iid;
+            param.itemType = "onNew";
+
+            var hotlineParam:Object = {};
+            if (this.dwczInConsult) {//当前内容为参照中的，则可以找到id，并带出
+                if (this.dwcz.consultList.length > 0 || (this.item.icustomer != null && this.item.icustomer != 0)) {//客商ID
+                    if (this.dwcz.consultList.length > 0)
+                        hotlineParam.icustomer = this.dwcz.consultList[0].iid;
+                    else
+                        hotlineParam.icustomer = this.item.icustomer;
+                }
+            }
+
+            if (this.ryczInConsult) {//当前内容为参照中的，则可以找到id，并带出
+                if (this.rycz.consultList.length > 0 || (this.item.icustomer != null && this.item.icustomer != 0)) {//联系人内码
+                    if (this.rycz.consultList.length > 0) {
+                        hotlineParam.icustperson = this.rycz.consultList[0].iid;
+                    }
+                    else {
+                        //如果保存的不是参照里的，重新跟arrForCP进行对比，找出iid
+                        if (this.item.icustperson == null || this.item.icustperson == 0) {
+                            for each(var obj:Object in arrForCP) {
+                                if (obj.cname == this.rycz.text && obj.icustomer == hotlineParam.icustomer) {
+                                    hotlineParam.icustperson = obj.iid;
+                                }
+                            }
+                        } else {
+                            hotlineParam.icustperson = this.item.icustperson;
+                        }
+                    }
+                }
+            }
+
+
+            hotlineParam.ctel = this.item.ctel;//联系方式
+            hotlineParam.cdetail = this.cdetail.text;//详细情况
+            hotlineParam.iinvoice = this.item.iid;//服务申请单对应的相关单据内码
+            hotlineParam.ifuncregedit = 153;//相关单据注册码
+            hotlineParam.caddress = this.item.cofficeaddress;
+            hotlineParam.daskprocess = this.yydate.text + this.yytime.text;
+            hotlineParam.istatus = 1;
+            if (this.fwbm.consultList.length > 0) {
+                hotlineParam.idepartment = this.fwbm.consultList.getItemAt(0)[this.fwbm.singleType.cconsultbkfld];
+            }
+            else {
+                hotlineParam.idepartment = 0;
+            }
+            if (rbg.selectedValue.toString() == "电话" || rbg.selectedValue.toString() == "远程") {
+                hotlineParam.iengineer = CRMmodel.userId;
+                hotlineParam.cdescription = this.cdetail.text;
+                hotlineParam.cprocess = this.cdetail.text;
+                hotlineParam.iresult = 375;
+                hotlineParam.dengineer = "服务器当前时间";
+                hotlineParam.ifeedback = hotlineParam.icustperson;
+                hotlineParam.irecord = CRMmodel.userId;
+                hotlineParam.drecord = "服务器当前时间";
+                hotlineParam.iclose = CRMmodel.userId;
+                hotlineParam.dclose = "服务器当前时间";
+                hotlineParam.imanager = CRMmodel.userId;
+                hotlineParam.dmanager = "服务器当前时间";
+                hotlineParam.istatus = 4;
+            }
+
+            //var curdatetime:String=CRMtool.getFormatDateString("YYYY-MM-DD HH:NN:SS",new Date());
+            hotlineParam.dmaker = "服务器当前时间";//curdatetime;
+            switch (rbg.selectedValue.toString()) {
+                case "电话":
+                {
+                    hotlineParam.isolution = 368;
+                    break;
+                }
+                case "远程":
+                {
+                    hotlineParam.isolution = 369;
+                    break;
+                }
+                case "现场":
+                {
+                    hotlineParam.isolution = 370;
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            if (mytab.selectedChild == tabAssets) {
+                var assetsDataGrid:DataGrid = tabAssets.getDataGrid();
+                var obj:Object = assetsDataGrid.selectedItem;
+                if (obj) {
+                    hotlineParam.cproductno = obj.csn;
+                    hotlineParam.icustproduct = obj.iid;
+                }
+
+            }
+
+            param.srbillObj = hotlineParam;
+
+            param.formTriggerType = "fromOther";
+            param.ctable = "sr_bill";
+
+            CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "服务记录", "");
+            removeCurWindow();
+        }
+
+        //生成服务回访
+        private function toCallback():void {
+            var sr_feedback:Object = {};
+            //回访客商
+            if (this.dwczInConsult) {
+                if (this.dwcz.consultList.length > 0 || (this.item.icustomer != null && this.item.icustomer != 0)) {
+                    if (this.dwcz.consultList.length > 0)
+                        sr_feedback.icustomer = this.dwcz.consultList[0].iid;
+                    else
+                        sr_feedback.icustomer = this.item.icustomer;
+                }
+            }
+            //联系人员
+            if (this.ryczInConsult) {//当前内容为参照中的，则可以找到id，并带出
+                if (this.rycz.consultList.length > 0 || (this.item.icustomer != null && this.item.icustomer != 0)) {//联系人内码
+                    if (this.rycz.consultList.length > 0) {
+                        sr_feedback.icustperson = this.rycz.consultList[0].iid;
+                    }
+                    else {
+                        //如果保存的不是参照里的，重新跟arrForCP进行对比，找出iid
+                        if (this.item.icustperson == null || this.item.icustperson == 0) {
+                            for each(var obj:Object in arrForCP) {
+                                if (obj.cname == this.rycz.text && obj.icustomer == sr_feedback.icustomer) {
+                                    sr_feedback.icustperson = obj.iid;
+                                }
+                            }
+                        } else {
+                            sr_feedback.icustperson = this.item.icustperson;
+                        }
+                    }
+                }
+            }
+            sr_feedback.ctel = this.item.ctel;//联系电话
+            sr_feedback.vi_iid = this.item.iid;//服务回访单对应的相关单据内码（虚字段）
+            sr_feedback.vi_ifuncregedit = 153;//相关单据注册码（虚字段）
+
+            var param:Object = new Object();
+            var iid:ArrayCollection = new ArrayCollection();
+            param.personArr = iid;
+            param.operId = "onListNew";
+            param.ifuncregedit = "154";
+            param.itemType = "onNew";
+            param.injectObj = sr_feedback;
+            param.formTriggerType = "fromOther";
+            param.ctable = "sr_feedback";
+
+            CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "加载中 ...", "");
+        }
+
+        private function insertDJ():void {
+            var param:Object = new Object();
+
+            // 服务需求单
+            var req:Object = new Object();
+            req.ifunid = "153";
+            req.iinvoice = this.item.iid;
+            req.ccode = "";
+            req.idepartment = CRMmodel.hrperson.idepartment;
+            req.iimportance = "1";
+
+            req.icustomer = (this.item.icustomer == null ? 0 : this.item.icustomer);
+            req.icustperson = (this.item.icsperson == null ? 0 : this.item.icsperson);
+
+            req.ctel = this.item.ctel;
+            req.cdetail = "呼叫中心，生成服务需求单";
+            req.isolution = rbg.selection.name;
+            req.daskprocess = this.yydate.text;
+            req.imaker = CRMmodel.userId;
+
+            param.req = req;
+
+            // 服务工单
+            var bill:Object = new Object();
+            bill.ccode = "";
+            bill.billfunid = "149";
+            bill.billiinvoice = "";
+            bill.isolution = rbg.selection.name;
+            bill.ccode = "";
+            bill.icustomer = (this.item.icustomer == null ? 0 : this.item.icustomer);
+            bill.icustperson = (this.item.icsperson == null ? 0 : this.item.icsperson);
+            bill.cproduct = "";
+            bill.cproductno = "";
+            bill.cservices = "";
+            bill.imaker = CRMmodel.userId;
+            param.bill = bill;
+
+            AccessUtil.remoteCallJava("CallCenterDest", "insertDJ", insertCallBack, param, "正在提交处理...");
+
+        }
+
+        private function insertCallBack(event:ResultEvent):void {
+            var ret:String = event.result as String;
+            if (ret != "suc") {
+                Alert.show(ret, "提示");
+                item.isolution = 0;
+                removeCurWindow();
+            } else {
+                Alert.show("处理成功!", "提示");
+            }
+        }
+
+        private function deleteServiceCallBack(event:ResultEvent):void {
+            var ret:String = event.result as String;
+            if (ret != "suc") {
+                Alert.show(ret, "提示");
+                item.isolution = 0;
+                rbg.selection = null;
+                refTabNavigator();
+                //removeCurWindow();
+            } else {
+                Alert.show("处理成功!", "提示");
+            }
+        }
+
+        private function insertSaCule():void {
+            /* 				var param:Object=new Object();
+
+             param.ifunid="153";
+             param.iinvoice=this.item.iid;
+             param.ccode="";
+             param.cname="来自呼叫中心";
+             param.cdetail="由["+CRMmodel.hrperson.cname+"],在处理呼叫电话，提供";
+             param.iimportance="1";
+             param.iisource="0";
+             param.icustomer=(this.item.icustomer == null ? 0 : this.item.icustomer);
+             param.custname=this.dwname.text
+             param.ccustperson=this.cname.text
+             param.post=this.cpost.text;
+             param.mobile="";
+             param.tel=this.item.ctel;
+             param.imaker=CRMmodel.userId;
+             AccessUtil.remoteCallJava("CallCenterDest","insertSaCule",insertCallBack,param,"正在提交线索..."); */
+
+            if (solution_6.selected = false) {
+                CRMtool.showAlert("请现在处理方式中选择线索，在再执行此操作。");
+                return;
+            }
+
+            savemoment("savemoment",false);
+
+            // 先打开 线索录入界面
+            var param:Object = new Object();
+            param.operId = "onListNew";
+            param.outifuncregedit = "62";
+            param.ifuncregedit = "62";
+            var iid:ArrayCollection = new ArrayCollection();
+            param.personArr = iid;
+            param.itemType = "onNew";
+
+            var custParam:Object = new Object();
+            //客户内码、客商名称、交流内容（分别带入到主题、内容中）、联系人、部门、职务、联系电话
+            custParam.icustomer = (this.item.icustomer == null ? 0 : this.item.icustomer);
+            custParam.ccustomer = this.getCZText(this.dwcz);
+            custParam.cdetail = this.cdetail.text;
+            custParam.ccustperson = this.getCZText(this.rycz);
+            custParam.ccustpersonpost = this.cpost.text;
+            custParam.cdepartment = this.cdepartment.text;
+            custParam.ccustpersontel = this.item.ctel;
+            custParam.icustperson = this.item.icsperson;
+            custParam.iisource = 261;
+            //var curdatetime:String=CRMtool.getFormatDateString("YYYY-MM-DD HH:NN:SS",new Date());
+            custParam.dmaker = "服务器当前时间";//curdatetime;
+            custParam.iinvoice = this.item.iid;//服务申请单对应的相关单据内码
+            custParam.ifuncregedit = 153;//相关单据注册码
+            param.custParam = custParam;
+
+            param.formTriggerType = "fromOther";
+            param.ctable = "sa_clue";
+
+            CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "新建销售线索", "");
+        }
+
+        private function insertHuodong():void {
+
+            // 先打开 线索录入界面
+            var param:Object = new Object();
+            param.operId = "onListNew";
+            param.outifuncregedit = "46";
+            param.ifuncregedit = "46";
+            var iid:ArrayCollection = new ArrayCollection();
+            param.personArr = iid;
+            param.itemType = "onNew";
+
+            var custParam:Object = new Object();
+            //客户内码、客商名称、交流内容（分别带入到主题、内容中）、联系人、部门、职务、联系电话
+//            custParam.icustomer = (this.item.icustomer == null ? 0 : this.item.icustomer);
+            custParam.cdetail = this.cdetail.text;
+//            custParam.ccustperson = this.getCZText(this.rycz);
+            if (this.dwczInConsult) {
+                if (this.dwcz.consultList.length > 0 || (this.item.icustomer != null && this.item.icustomer != 0)) {
+                    if (this.dwcz.consultList.length > 0)
+                        custParam.icustomer = this.dwcz.consultList[0].iid;
+                    else
+                        custParam.icustomer = this.item.icustomer;
+                }
+            }
+            if (this.ryczInConsult) {//当前内容为参照中的，则可以找到id，并带出
+                if (this.rycz.consultList.length > 0 || (this.item.icustomer != null && this.item.icustomer != 0)) {//联系人内码
+                    if (this.rycz.consultList.length > 0) {
+                        custParam.icustperson = this.rycz.consultList[0].iid;
+                    }
+                    else {
+                        //如果保存的不是参照里的，重新跟arrForCP进行对比，找出iid
+                        if (this.item.icustperson == null || this.item.icustperson == 0) {
+                            for each(var obj:Object in arrForCP) {
+                                if (obj.cname == this.rycz.text && obj.icustomer == custParam.icustomer) {
+                                    custParam.icustperson = obj.iid;
+                                }
+                            }
+                        } else {
+                            custParam.icustperson = this.item.icustperson;
+                        }
+                    }
+                }
+            }
+            custParam.dmaker = "服务器当前时间";//curdatetime;
+            param.custParam = custParam;
+            param.injectObj = custParam;
+            param.formTriggerType = "fromOther";
+            param.ctable = "oa_workdiary";
+
+            CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "新建客商活动", "");
+        }
+
+        private function insertZhishi():void {
+
+            // 先打开 线索录入界面
+            var param:Object = new Object();
+            param.operId = "onListNew";
+            param.outifuncregedit = "266";
+            param.ifuncregedit = "266";
+            var iid:ArrayCollection = new ArrayCollection();
+            param.personArr = iid;
+            param.itemType = "onNew";
+
+            var custParam:Object = new Object();
+            //问题现象 相关功能码 相公内码 相关客商
+            custParam.cface = this.cdetail.text;
+            custParam.ifuncregedit = CRMmodel.cc_allowcount > 4 ? 453 : 153;
+            custParam.iinvoice = this.item.iid;//服务申请单对应的相关单据内码
+//            custParam.icustomer = (this.item.icustomer == null ? 0 : this.item.icustomer);
+            if (this.dwczInConsult) {
+                if (this.dwcz.consultList.length > 0 || (this.item.icustomer != null && this.item.icustomer != 0)) {
+                    if (this.dwcz.consultList.length > 0)
+                        custParam.icustomer = this.dwcz.consultList[0].iid;
+                    else
+                        custParam.icustomer = this.item.icustomer;
+                }
+            }
+            param.injectObj = custParam;
+            param.formTriggerType = "fromOther";
+            param.ctable = "sr_knowledge";
+
+            CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "新建知识管理", "");
+        }
+
+        // 撤销
+        private function deleteService():void {
+
+            if (item.isolution == 9 || item.isolution == 7) {//更新状态
+                AccessUtil.remoteCallJava("CallCenterDest", "updateCallcenterIsolution", deleteServiceCallBack, {ccid: this.item.iid, isolution: 0});
+            } else if (item.isolution > 0) {//删除相应单据并更新状态
+
+                //查询对应的服务工单是否存在
+                var param:Object = new Object();
+                param.ccfunid = "153";
+                param.ccid = this.item.iid;
+                AccessUtil.remoteCallJava("CallCenterDest", "getSrbilloniinvoice", getSrbilloniinvoiceBack, param);
+            }
+        }
+
+
+        private function getSrbilloniinvoiceBack(event:ResultEvent):void {
+            if (event.result) {
+                var srbillAc:ArrayCollection = event.result as ArrayCollection;
+                if (srbillAc.length == 0) {
+                    CRMtool.showAlert("未找到相应的服务工单。");
+                } else {
+                    for each(var obj:Object in srbillAc) {
+                        if (obj.istatus == 1 || item.isolution == 1) {
+                            var param:Object = new Object();
+                            param.iid = obj.iid;
+                            AccessUtil.remoteCallJava("CallCenterDest", "deleteService", deleteServiceCallBack, param, "正在撤销...");
+                            AccessUtil.remoteCallJava("CallCenterDest", "updateCallcenterIsolution", null, {ccid: this.item.iid, isolution: 0});
+                        } else {
+                            CRMtool.showAlert("对应的服务工单已有服务记录，不允许撤销。");
+                        }
+                    }
+                }
+            }
+        }
+
+        // 提交协同
+        private function submitXT():void {
+            if (item == null || item.iid == null) {
+                Alert.show("参数不合法，不予提交!", "提示");
+                return;
+            }
+
+            //param.oaiid=selectItem.iid;
+            //param.wfDrawType="open";
+            //param.optType=opt;
+            //yssoft.views.workflow.FreeCoView"
+            CRMtool.openMenuItemFormOther("yssoft.views.workflow.FreeCoView", item, "创建协同", "");
+
+
+            /* 				var param:Object=new Object();
+             param.ifuncregedit="153";
+             param.iinvoice=this.item.iid;
+
+             AccessUtil.remoteCallJava("CallCenterDest","submitXT",insertCallBack,param,"正在提交..."); */
+        }
+
+        //添加 参照
+        private function addCZ():void {
+            createDWCZ();
+            createRYCZ();
+            createIsalesdepart();
+            createIservicelevel();
+            createIserviceperson();
+            createIfiery();
+        }
+
+        private var isFirst:Boolean = true;
+        //创建 单位信息 参照
+        private function createDWCZ():void {
+            var obj:Object = new Object();
+            obj.cobjectname = "UI_DWNAME";
+            obj.ifuncregedit = "153";
+            obj.cfield = "icustomer";
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", dwCallBack, obj);
+        }
+
+        private var dwcz:CrmEapTextInput;
+        private var oldText:String;
+
+        private function dwCallBack(event:ResultEvent):void {
+            var obj:Object = event.result as Object;
+            if (dwcz == null) {
+                dwcz = new CrmEapTextInput();
+                dwcz.conditionSqlFunction = conditionSqlFunction;
+                dwcz.addEventListener("initialization", function (event:Event):void {
+                    dwcz.onDataChange();
+                });
+            }
+            dwcz.percentWidth = 100;
+
+            dwcz.singleType = obj;
+            oldText = item.dwname;
+            dwcz.addEventListener("valueChange", onvalueChangeDW);
+
+            dwcz.addEventListener("noConsultList", dwczGetInConsultNo);
+            dwcz.addEventListener("yesConsultList", dwczGetInConsultYes);
+//            dwcz.addEventListener(FlexEvent.VALUE_COMMIT,dwczValueCommit);
+            dwcz.addEventListener(Event.CHANGE, dwczChange);
+
+            dwnameHBox.addChild(dwcz);
+
+            dwcz.setFocus();
+
+            if (item && this.item.hasOwnProperty("icustomer") && item.icustomer > 0) {
+                this.setCZText(dwcz, item.icustomer);
+            } else if (item && this.item.hasOwnProperty("dwname")) {
+                this.setCZText(dwcz, item.dwname);
+
+            }
+
+            //CRMtool.setTabIndex(mainVbox);
+        }
+
+        private function createIfiery():void {
+            var obj:Object = new Object();
+            obj.cobjectname = "UI_ifiery";
+            obj.ifuncregedit = "44";
+            obj.cfield = "ifiery";
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", createIfieryCallBack, obj);
+        }
+
+        private function createIfieryCallBack(event:ResultEvent):void {
+            var obj:Object = event.result as Object;
+            if (UI_ifiery == null) {
+                UI_ifiery = new CrmEapTextInput();
+                UI_ifiery.addEventListener("initialization", function (event:Event):void {
+                    UI_ifiery.onDataChange();
+                });
+            }
+            UI_ifiery.percentWidth = 100;
+
+            UI_ifiery.singleType = obj;
+
+            ifieryHBox.addChild(UI_ifiery);
+
+
+            if (item && this.item.hasOwnProperty("ifiery") && item.ifiery > 0) {
+                this.setCZText(UI_ifiery, item.ifiery);
+            }
+        }
+
+
+        private function createIserviceperson():void {
+            var obj:Object = new Object();
+            obj.cobjectname = "UI_iserviceperson";
+            obj.ifuncregedit = "44";
+            obj.cfield = "iserviceperson";
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", createIservicepersonCallBack, obj);
+        }
+
+        private function createIservicepersonCallBack(event:ResultEvent):void {
+            var obj:Object = event.result as Object;
+            if (UI_iserviceperson == null) {
+                UI_iserviceperson = new CrmEapTextInput();
+                UI_iserviceperson.addEventListener("initialization", function (event:Event):void {
+                    UI_iserviceperson.onDataChange();
+                });
+            }
+            UI_iserviceperson.percentWidth = 100;
+
+            UI_iserviceperson.singleType = obj;
+
+            iservicepersonHBox.addChild(UI_iserviceperson);
+
+
+            if (item && this.item.hasOwnProperty("iserviceperson") && item.iserviceperson > 0) {
+                this.setCZText(UI_iserviceperson, item.iserviceperson);
+            }
+        }
+
+        private function createIservicelevel():void {
+            var obj:Object = new Object();
+            obj.cobjectname = "UI_iservicelevel";
+            obj.ifuncregedit = "44";
+            obj.cfield = "iservicelevel";
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", createIservicelevelCallBack, obj);
+        }
+
+        private function createIservicelevelCallBack(event:ResultEvent):void {
+            var obj:Object = event.result as Object;
+            if (UI_iservicelevel == null) {
+                UI_iservicelevel = new CrmEapTextInput();
+                UI_iservicelevel.addEventListener("initialization", function (event:Event):void {
+                    UI_iservicelevel.onDataChange();
+                });
+            }
+            UI_iservicelevel.percentWidth = 100;
+
+            UI_iservicelevel.singleType = obj;
+
+            iserviceslevelHBox.addChild(UI_iservicelevel);
+
+
+            if (item && this.item.hasOwnProperty("iservicelevel") && item.iservicelevel > 0) {
+                this.setCZText(UI_iservicelevel, item.iservicelevel);
+            }
+        }
+
+        private function createIsalesdepart():void {
+            var obj:Object = new Object();
+            obj.cobjectname = "UI_ISERVICESDEPART";
+            obj.ifuncregedit = "44";
+            obj.cfield = "iservicesdepart";
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", createIsalesdepartCallBack, obj);
+        }
+
+        private function createIsalesdepartCallBack(event:ResultEvent):void {
+            var obj:Object = event.result as Object;
+            if (fwbm == null) {
+                fwbm = new CrmEapTextInput();
+                fwbm.addEventListener("initialization", function (event:Event):void {
+                    fwbm.onDataChange();
+                });
+            }
+            fwbm.percentWidth = 100;
+
+            fwbm.singleType = obj;
+
+            iservicesdepartHBox.addChild(fwbm);
+
+
+            if (item && this.item.hasOwnProperty("iservicesdepart") && item.iservicesdepart > 0) {
+                this.setCZText(fwbm, item.iservicesdepart);
+            }
+        }
+
+
+        private function conditionSqlFunction(cconsultconfld:String):String {
+            if (this.item.hasOwnProperty("dwname") && (item.dwname + "").search("不唯一") > -1) {
+                return "and iid in (select icustomer from dbo.CS_custperson where ctel like '%" +
+                        StringUtil.trim(String(item.ccallintel))
+                        + "%' or cmobile1 like '%" + StringUtil.trim(String(item.ccallintel)) + "%' or cmobile2 like '%"
+                        + StringUtil.trim(String(item.ccallintel)) + "%')";
+            }
+            else {
+                return "";
+            }
+        }
+
+        private var dwczText:String;						//记录鼠标离开时的文本，即使参照翻译为空，也能不丢失
+        private var ryczText:String;						//记录鼠标离开时的文本，即使参照翻译为空，也能不丢失
+        private var dwczValueCommitFlag:Boolean = false;	//参照返回赋值时，开关，保证只赋值一遍
+        private var ryczValueCommitFlag:Boolean = false;	//参照返回赋值时，开关，保证只赋值一遍
+        private var dwczInConsult:Boolean = false;			//当前内容为参照中的，则可以找到id，并带出
+        private var ryczInConsult:Boolean = true;			//当前内容为参照中的，则可以找到id，并带出
+
+        private function dwczChange(event:Event):void {
+            dwczText = dwcz.text;
+            dwczValueCommitFlag = true;
+            dwczInConsult = true;
+            //if(dwcz.text==oldText)
+            if (dwcz.text == oldText || (dwcz.consultList.length > 0 && dwcz.consultList.getItemAt(0)[dwcz.singleType.cconsultbkfld + ""] == oldText)) {
+
+            }
+            else {
+                oldText = dwcz.text;
+                cdepartment.text = "";
+                cpost.text = "";
+                rycz.text = "";
+                address.text = "";
+                isex.selectedIndex = -1;
+            }
+        }
+
+        /* 			private function dwczValueCommit(event:FlexEvent):void{
+         if(dwczValueCommitFlag){
+         dwczValueCommitFlag = false;
+
+         if(StringUtil.trim(dwcz.text)==""){
+         dwczInConsult = false;
+         dwcz.text = dwczText;
+         item.icustomer = null;
+         }else if(dwcz.consultList.length>0){
+         item.icustomer=dwcz.consultList[0].iid;
+         dwczInConsult = true;
+         }
+         }
+         if(this.dwcz.consultList.length>0){
+         this._winParam.icustomer=this.dwcz.consultList[0].iid;
+         refTabNavigator();
+         }
+         } */
+
+        private function dwczGetInConsultNo(event:Event):void {
+            dwczInConsult = false;
+            dwcz.text = dwczText;
+            item.icustomer = null;
+
+            csButtons.getItemAt(0).label = "新建客户";
+            csButtons.getItemAt(0).name = "newCustomer";
+            csButtons.refresh();
+        }
+
+        private function dwczGetInConsultYes(event:Event):void {
+            if (dwcz.consultList.length > 0) {
+                item.icustomer = dwcz.consultList[0].iid;
+                dwczInConsult = true;
+                this._winParam.icustomer = this.dwcz.consultList[0].iid;
+                refTabNavigator();
+
+                csButtons.getItemAt(0).label = "浏览客户";
+                csButtons.getItemAt(0).name = "viewCustomer";
+                csButtons.refresh();
+            }
+        }
+
+        private function ryczGetInConsultNo(event:Event):void {
+            ryczInConsult = false;
+            rycz.text = ryczText;
+            item.icustperson = null;
+            this.cdepartment.text = null;
+            this.cpost.text = null;
+            this.isex.textInput.text = null;
+        }
+
+        private function ryczGetInConsultYes(event:Event):void {
+            if (rycz.consultList.length > 0) {
+                item.icustperson = rycz.consultList[0].iid;
+                ryczInConsult = true;
+                var param:Object = new Object();
+                param.iid = item.icustperson;
+                AccessUtil.remoteCallJava("CallCenterDest", "getcusperson", getcuspersonBack, param, null, false);
+            }
+        }
+
+
+        private function ryczChange(event:Event):void {
+            ryczText = rycz.text;
+            ryczValueCommitFlag = true;
+            ryczInConsult = true;
+        }
+
+        /* 			private function ryczValueCommit(event:FlexEvent):void{
+         if(ryczValueCommitFlag){
+         ryczValueCommitFlag = false;
+
+         if(StringUtil.trim(rycz.text)==""){
+         ryczInConsult = false;
+         rycz.text = ryczText;
+         item.icustperson = null;
+         this.cdepartment.text=null;
+         this.cpost.text=null;
+         this.isex.textInput.text=null;
+
+         }else{
+         if (item.icustperson!=null && rycz.consultList.length>0)
+         {
+         if (item.icustperson!=rycz.consultList[0].iid)
+         {
+         ryczInConsult = false;
+         rycz.text = ryczText;
+         item.icustperson = null;
+         this.cdepartment.text=null;
+         this.cpost.text=null;
+         this.isex.textInput.text=null;
+         return;
+         }
+         }
+         item.icustperson=rycz.consultList[0].iid;
+         ryczInConsult = true;
+         var param:Object=new Object();
+         param.iid=item.icustperson;
+         AccessUtil.remoteCallJava("CallCenterDest","getcusperson",getcuspersonBack,param,null,false);
+         }
+         }
+         } */
+
+        private function getcuspersonBack(evt:ResultEvent):void {
+            var arr:ArrayCollection = evt.result as ArrayCollection;
+            if (arr != null && arr.length > 0) {
+                this.cdepartment.text = arr[0].cdepartment;
+                this.cpost.text = arr[0].cpost;
+                switch (arr[0].isex) {
+                    case 136:
+                    {
+                        this.isex.selectedIndex = 1;
+                        break;
+                    }
+
+                    case 137:
+                    {
+                        this.isex.selectedIndex = 2;
+                        break;
+                    }
+
+                    case 138:
+                    {
+                        this.isex.selectedIndex = 0;
+                        break;
+                    }
+                }
+            }
+        }
+
+        //创建 人员信息 参照
+        private function createRYCZ():void {
+            var obj:Object = new Object();
+            obj.cobjectname = "UI_RYNAME";
+            obj.ifuncregedit = "153";
+            obj.cfield = "icustperson";
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", yrCallBack, obj);
+        }
+
+
+        //不知道为什么，不监听一下两个时间，在一种情况下，参照返回内码是有问题的。  情况：输入徐州，弹出多个备选
+        private function onvalueChangeRY(evt:Event):void {
+            if (rycz.consultList && rycz.consultList.length > 0) {
+                this.item.icustperson = rycz.consultList[0].iid;
+                ryczInConsult = true;
+                //this.item.icsperson=rycz.consultList[0].iid;
+            }
+            else {
+                this.item.icustperson = null;
+                //this.item.icsperson=null;
+            }
+        }
+
+        private function onvalueChangeDW(evt:Event):void {
+            if (dwcz.consultList && dwcz.consultList.length > 0) {
+                this.item.icustomer = dwcz.consultList[0].iid;
+                dwczInConsult = true;
+                //this.item.icsperson=rycz.consultList[0].iid;
+
+                //YJ Edit 20140924 以下代码用于税控项目，暂时保留
+//                var sql:String = "select a.cofficeaddress,isnull(a.iservicesdepart,0) iservicesdepart,convert(varchar(19),a.decontdate,23) decontdate,c.cname status from cs_customer a " +
+//                        "left join (select t.iid,t.iecstatus,t.icustomer from tr_charge t,(select MAX(iid) iid,icustomer from tr_charge group by icustomer) tr where t.iid = tr.iid and t.istatus = 2) b on a.iid = b.icustomer " +
+//                        "left join (select ccode,cname from aa_data where iclass = 139) c on b.iecstatus = c.ccode where a.iid = " + this.dwcz.consultList[0].iid;
+
+                var sql:String = "select a.cofficeaddress,isnull(a.iservicesdepart,0) iservicesdepart," +
+                        "iservicesdepart,b.cname isalesstatus  from cs_customer a " +
+                        "left join aa_data b on a.isalesstatus=b.iid " +
+                        " where a.iid = " + this.dwcz.consultList[0].iid;
+
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var eventAC:ArrayCollection = event.result as ArrayCollection;
+                    address.text = eventAC[0].cofficeaddress as String;
+                    istatusTextInput.text = eventAC[0].isalesstatus as String;
+                    //decontdate.text = eventAC[0].decontdate as String;//金税合同结束日期
+                    //status.text = eventAC[0].status as String;//税控状态
+                    var iservicesdepartStr:String = eventAC.getItemAt(0).iservicesdepart;
+                    fwbm.addEventListener("initialization", function (event:Event):void {
+                        fwbm.onDataChange();
+                    });
+                    setCZText(fwbm, iservicesdepartStr);
+                }, sql);
+            }
+            else {
+                this.item.icustomer = null;
+                //this.item.icsperson=null;
+            }
+        }
+
+        private var rycz:CrmEapTextInput;
+
+        private function yrCallBack(event:ResultEvent):void {
+            var obj:Object = event.result as Object;
+            if (rycz == null) {
+                rycz = new CrmEapTextInput();
+                rycz.addEventListener("initialization", function (event:Event):void {
+                    rycz.onDataChange();
+                });
+                rycz.addEventListener("valueChange", onvalueChangeRY);
+
+                rycz.addEventListener("noConsultList", ryczGetInConsultNo);
+                rycz.addEventListener("yesConsultList", ryczGetInConsultYes);
+                //rycz.addEventListener(FlexEvent.VALUE_COMMIT,ryczValueCommit);
+                rycz.addEventListener(Event.CHANGE, ryczChange);
+            }
+            rycz.percentWidth = 100;
+
+            //YJ Modify 2012-04-17 人员来源单位对应的人员档案
+            rycz.conditionSqlFunction = onGetConsultSqlCondition;
+
+            rycz.singleType = obj;
+            var arr:Array = cnameHBox.getChildren();
+            if (arr.length == 0) {
+                cnameHBox.addChild(rycz);
+            }
+            if (item && this.item.hasOwnProperty("icustperson") && item.icustperson > 0) {
+                this.setCZText(rycz, item.icustperson);
+            } else if (item && this.item.hasOwnProperty("cname")) {
+                this.setCZText(rycz, item.cname);
+            }
+
+            //CRMtool.setTabIndex(mainVbox);
+        }
+
+        // 获取参照的text
+        private function getCZText(ceti:CrmEapTextInput):String {
+            if (ceti) {
+                return ceti.text;
+            } else {
+                return "";
+            }
+        }
+
+        private function setCZText(ceti:CrmEapTextInput, value:String):void {
+            if (ceti) {
+                ceti.text = value;
+                ceti.onDataChange();
+            }
+        }
+
+        //YJ Add 人员参照来源客商对应的人员信息
+        public function onGetConsultSqlCondition(value:String = "icustomer=icustomer"):String {
+            var icustomer:String = "0";//客商内码
+            var csql:String = "";//返回值
+            var o:Object = this.dwcz.consultList;
+            if (this.dwcz.consultList.length > 0) {
+                icustomer = this.dwcz.consultList.getItemAt(0)[this.dwcz.singleType.cconsultbkfld] + "";
+            }
+            else if (item && this.item.hasOwnProperty("icustomer"))
+                icustomer = item.icustomer;
+
+            item.icustomer = icustomer;
+            csql = " and icustomer=" + icustomer;
+
+            return csql;
+
+        }
+
+        protected function vbox1_updateCompleteHandler(event:FlexEvent):void {
+            // lr add
+            CRMtool.setTabIndex(mainVbox);
+        }
+
+        protected function refTabNavigator():void {
+            //if(	_winParam.startTime == null){
+            _winParam.startTime = DateHadle.getFirstOfYear();
+            _winParam.endTime = DateHadle.getEndOfYear();
+            //}
+
+            thisYear.selected = true;
+            uistartTime.text = DateHadle.getFirstOfYear();
+            uiendTime.text = DateHadle.getEndOfYear();
+
+            //allTime.selected = false;
+
+            // lr add  刷新 各 datagrid 的内容
+            this.tabActivity.winParam = this._winParam;
+            this.tabAssets.winParam = this._winParam;
+            this.tabHistory.winParam = this._winParam;
+            this.tabWorkOrder.winParam = this._winParam;
+            this.tabHistoryWork.winParam = this._winParam;
+            this.tabBuyConsumable.winParam = this._winParam;
+            this.tabReceivable.winParam = this._winParam;
+            //this.tabHistoryPaid.winParam = this._winParam;
+        }
+
+
+        private var billButtons:ArrayCollection = new ArrayCollection([
+            {label: "提交工单", name: "submitBill"    },
+            {label: "生成回访", name: "submitBill"    },
+            {label: "暂存待办", name: "saveMoment"    }
+        ]);
+
+        [Bindable]
+        private var csButtons:ArrayCollection = new ArrayCollection([
+            {label: "新建客户", name: "newCustomer"    },
+            {label: "更新人员", name: "newCustomerperson"}
+        ]);
+
+        private var oaButtons:ArrayCollection = new ArrayCollection([
+            {label: "提交协同", name: "submitXieTong"    },
+            {label: "提交线索", name: "submitXianSuo"        },
+            {label: "新增活动", name: "submitHuodong"        },
+            {label: "知识归档", name: "submitZhishi"        }
+        ]);
+
+        private var backButtons:ArrayCollection = new ArrayCollection([
+            {label: "撤销处理", name: "backSubmit"    }
+        ]);
+
+
+        private function buttonbar_itemClickHandler(event:ItemClickEvent):void {
+
+            if (event.item.label == "生成回访") {
+                if (rbg.selectedValue.toString() != "服务回访") {
+                    Alert.show("请选择处理方式为：服务回访");
+                    return;
+                }
+            }
+
+            switch (event.item.name) {
+                case "submitBill":
+                    submitDJ();
+                    break;
+                case "saveMoment":
+                    savemoment();
+                    break;
+                case "newCustomer":
+                    newCustomer();
+                    break;
+                case "newCustomerperson":
+                    updatecustperon_clickHandler();
+                    break;
+                case "submitXieTong":
+                    submitXT();
+                    break;
+                case "submitXianSuo":
+                    insertSaCule();
+                    break;
+                case "backSubmit":
+                    deleteService();
+                    break;
+                case "viewCustomer":
+                    viewCustomer();
+                    break;
+                case "submitHuodong":
+                    insertHuodong();
+                    break;
+                case "submitZhishi":
+                    insertZhishi();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private function viewCustomer():void {
+            CRMtool.openbillonbrowse(44, dwcz.consultList[0].iid as int, dwcz.text);
+        }
+
+        private function newCustomer():void {
+
+            if (dwczInConsult) {
+                CRMtool.showAlert("已有此客户");
+                return;
+            }
+
+            var param:Object = new Object();
+            param.operId = "onListNew";
+            param.outifuncregedit = "44";
+            param.ifuncregedit = "44";
+            var iid:ArrayCollection = new ArrayCollection();
+            param.personArr = iid;
+            param.itemType = "onNew";
+            param.formTriggerType = "fromOther";
+            param.ctable = "cs_customer";
+
+            var sexid:int = 0;
+            var sexName:String = "";
+            switch (isex.selectedItem && isex.selectedItem.name) {
+                case 0:
+                    sexid = 138;
+                    sexName = "未知";
+                    break;
+                case 1:
+                    sexid = 136;
+                    sexName = "男";
+                    break;
+                case 2:
+                    sexid = 137;
+                    sexName = "女";
+                    break;
+            }
+            var cs_custperson:ArrayCollection = new ArrayCollection;
+            cs_custperson.addItem({cname: rycz.text, cdepartment: cdepartment.text, cpost: cpost.text,
+                isex: sexid, isex_Name: sexName, bkeycontect: 1,
+                istate: 326, ctitle: "", ctel: "", cmobile1: "", cmobile2: "",
+                cemail: "", cqqmsn: ""
+            });
+            var injectObj:Object = new Object();
+            injectObj.cs_custperson = cs_custperson;
+            injectObj.cname = dwcz.text;
+            injectObj.cofficeaddress = address.text;
+
+            param.injectObj = injectObj;
+            CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "新建客商档案", "");
+        }
+
+        protected function button1_clickHandler(event:MouseEvent):void {
+            var startTime:String = uistartTime.text;
+            var endTime:String = uiendTime.text;
+
+            if (CRMtool.isStringNull(startTime) || CRMtool.isStringNull(endTime))
+                return;
+
+            thisYear.selected = false;
+            allTime.selected = false;
+
+            _winParam.startTime = startTime;
+            _winParam.endTime = endTime;
+
+            this.tabHistory.winParam = this._winParam;
+            this.tabActivity.winParam = this._winParam;
+            this.tabHistoryWork.winParam = this._winParam;
+            this.tabBuyConsumable.winParam = this._winParam;
+            this.tabReceivable.winParam = this._winParam;
+            //this.tabHistoryPaid.winParam = this._winParam;
+        }
+
+        protected function thisYear_clickHandler(event:MouseEvent):void {
+            _winParam.startTime = DateHadle.getFirstOfYear();
+            _winParam.endTime = DateHadle.getEndOfYear();
+
+            uistartTime.text = DateHadle.getFirstOfYear();
+            uiendTime.text = DateHadle.getEndOfYear();
+
+            this.tabHistory.winParam = this._winParam;
+            this.tabActivity.winParam = this._winParam;
+            this.tabHistoryWork.winParam = this._winParam;
+            this.tabBuyConsumable.winParam = this._winParam;
+            this.tabReceivable.winParam = this._winParam;
+            //this.tabHistoryPaid.winParam = this._winParam;
+        }
+
+        protected function allTime_clickHandler(event:MouseEvent):void {
+            _winParam.startTime = null;
+            _winParam.endTime = null;
+
+            uistartTime.text = "";
+            uiendTime.text = "";
+
+            this.tabHistory.winParam = this._winParam;
+            this.tabActivity.winParam = this._winParam;
+            this.tabHistoryWork.winParam = this._winParam;
+            this.tabBuyConsumable.winParam = this._winParam;
+            this.tabReceivable.winParam = this._winParam;
+            //this.tabHistoryPaid.winParam = this._winParam;
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:RadioButtonGroup id="rbg"/>
+    </fx:Declarations>
+    <mx:VBox id="mainVbox" width="100%">
+        <mx:ApplicationControlBar width="100%" height="32" styleName="centertop1" paddingRight="10">
+            <s:Image id="myImage"/>
+            <mx:Label text="{item.callphone2}" fontSize="15" fontWeight="bold" selectable="true"/>
+            <s:Spacer width="10"/>
+            <mx:Label text="{item.dategap}" fontSize="14"/>
+            <s:Spacer width="100%"/>
+            <mx:ButtonBar dataProvider="{billButtons}" height="25" buttonWidth="65" styleName="contentButtonBar"
+                          itemClick="buttonbar_itemClickHandler(event)"/>
+            <mx:ButtonBar id="csBar" dataProvider="{csButtons}" height="25" buttonWidth="65"
+                          styleName="contentButtonBar" itemClick="buttonbar_itemClickHandler(event)"/>
+            <mx:ButtonBar dataProvider="{oaButtons}" height="25" buttonWidth="65" styleName="contentButtonBar"
+                          itemClick="buttonbar_itemClickHandler(event)"/>
+            <mx:ButtonBar dataProvider="{backButtons}" height="25" buttonWidth="65" styleName="contentButtonBar"
+                          itemClick="buttonbar_itemClickHandler(event)"/>
+
+
+            <!--	<s:Button label="更新联系人"  click="updatecustperon_clickHandler()"/>
+                <s:Button label="提交协同" click="submitXT()"/>
+                <s:Button label="提交线索" click="insertSaCule()"/>
+                <s:Button label="提交工单" click="submitDJ()"/>
+                <s:Button label="暂存待办" click="savemoment()"/>
+                <s:Button label="撤销工单" enabled="{(item.isolution>0)}" click="deleteService()"/>
+    -->
+        </mx:ApplicationControlBar>
+        <s:Spacer height="10"/>
+        <mx:HBox width="100%">
+
+            <mx:VBox width="50%" height="100%" styleName="content">
+                <!--				<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                                    <mx:Label styleName="contentLabel" text="电话:"/>
+                                    <mx:TextInput width="50%" styleName="contentTextInput" editable="false"
+                                                  text="{item.callphone}"/>
+                                    <mx:Label styleName="contentLabel" text="时间:"/>
+                                    <mx:TextInput width="50%" styleName="contentTextInput" text="{item.dategap}" editable="false"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>-->
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label styleName="contentLabel" text="单位:"/>
+                    <mx:HBox id="dwnameHBox" width="100%">
+
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label styleName="contentLabel" text="地址:"/>
+                    <mx:TextInput width="100%" styleName="contentTextInput" id="address"
+								  text="{item.cofficeaddress}"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label styleName="contentLabel" text="人员:"/>
+                    <mx:HBox id="cnameHBox" width="50%">
+
+                    </mx:HBox>
+                    <mx:Label styleName="contentLabel" text="性别:"/>
+                    <s:ComboBox id="isex" width="50%" height="100%" borderColor="white"
+                                borderVisible="false" dropShadowVisible="false" labelField="label"
+                                selectedIndex="{item.isex}"
+                                skinClass="yssoft.skins.CrmComboBoxSkin">
+                        <s:ArrayCollection>
+                            <fx:Object name="0" label="未知"/>
+                            <fx:Object name="1" label="先生"/>
+                            <fx:Object name="2" label="女士"/>
+                        </s:ArrayCollection>
+                    </s:ComboBox>
+                </mx:HBox>
+
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <!--<mx:TextInput width="50%" styleName="contentTextInput" text="{item.cname}" id="cname"/>-->
+                    <mx:Label styleName="contentLabel" text="部门:"/>
+                    <mx:TextInput width="50%" styleName="contentTextInput" text="{item.cdepartment}" id="cdepartment"/>
+                    <mx:Label styleName="contentLabel" text="职务:"/>
+                    <mx:TextInput width="50%" styleName="contentTextInput" text="{item.cpost}" id="cpost"/>
+
+                    <!--<mx:TextInput width="50%" styleName="contentTextInput" text="{item.ctitle}"/>-->
+
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox width="100%" height="100%">
+                        <mx:Label styleName="contentLabel" text="销售状态:"/>
+                        <mx:TextInput id="istatusTextInput" width="100%" styleName="contentTextInput"
+                                      text="{item.isalesstatus_cname}" editable="false"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%" height="100%">
+                        <mx:Label styleName="contentLabel" text="服务部门:"/>
+                        <mx:HBox id="iservicesdepartHBox" width="100%"/>
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox width="100%" height="100%">
+                        <mx:Label styleName="contentLabel" text="服务级别:"/>
+                        <mx:HBox id="iserviceslevelHBox" width="100%"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%" height="100%">
+                        <mx:Label styleName="contentLabel" text="服务人员:"/>
+                        <mx:HBox id="iservicepersonHBox" width="100%"/>
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:HBox width="100%" height="100%">
+                        <mx:Label styleName="contentLabel" text="客户热度:"/>
+                        <mx:HBox id="ifieryHBox" width="100%"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%" height="100%">
+                        <mx:Label styleName="contentLabel" text="客户备注:"/>
+                        <mx:TextInput id="cmemo" width="100%" styleName="contentTextInput" text="{item.cmemo}"/>
+                    </mx:HBox>
+                </mx:HBox>
+				<mx:HBox width="100%" height="100%" styleName="contentSubHbox" visible="false">
+					<mx:Label styleName="contentLabel" text="金税合同结束日期:"/>
+					<mx:TextInput id="decontdate" width="100%" styleName="contentTextInput" editable="false" text="{item.decontdate}"/>
+					<mx:Label styleName="contentLabel" text="税控状态:"/>
+					<mx:TextInput id="status" width="100%" styleName="contentTextInput" editable="false" text="{item.status}"/>
+				</mx:HBox>
+            </mx:VBox>
+
+            <mx:VBox width="50%" height="100%" styleName="content">
+                <mx:HBox width="100%" height="25%" styleName="contentSubHbox">
+                    <mx:Label styleName="contentLabel" text="沟通记录:"/>
+                    <mx:TextInput id="cdetail" width="100%" styleName="contentTextInput" text="{item.cdetail}"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="25%" styleName="contentSubHbox">
+                    <mx:Label styleName="contentLabel" text="处理方式:"/>
+                    <mx:HBox width="100%" enabled="{!(item.isolution>0)}">
+                        <s:RadioButton label="电话" id="solution_1" name="1" group="{rbg}"/>
+                        <s:RadioButton label="远程" id="solution_2" name="2" group="{rbg}"/>
+                        <s:RadioButton label="现场" id="solution_3" name="3" group="{rbg}"/>
+                        <s:RadioButton label="服务回访" id="solution_4" name="4" group="{rbg}"/>
+                        <s:RadioButton label="线索" id="solution_6" name="6" group="{rbg}"/>
+                        <s:RadioButton label="报岗" id="solution_7" name="7" group="{rbg}"/>
+                        <s:RadioButton label="其他" id="solution_9" name="9" group="{rbg}"/>
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="25%" styleName="contentSubHbox">
+                    <mx:Label styleName="contentLabel" text="预约时间:"/>
+                    <mx:HBox width="100%">
+                        <mx:DateField id="yydate" width="50%" text="{item.dend==null?'':item.dend.substr(0,10)}"
+                                      yearNavigationEnabled="true"
+                                      formatString="YYYY-MM-DD" dayNames="['日','一','二','三','四','五','六']"
+                                      monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]"/>
+                        <comps:CRMTimerSetting id="yytime" text="{item.dend==null?'':item.dend.substr(11,5)}"/>
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="25%" styleName="contentSubHbox">
+                    <mx:Label styleName="contentLabel" text="处理人员:"/>
+                    <mx:TextInput width="50%" styleName="contentTextInput" editable="false"
+                                  text="{item.imaker}"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="25%" styleName="contentSubHbox">
+                    <mx:Label styleName="contentLabel" text="处理时间:"/>
+                    <mx:TextInput width="50%" styleName="contentTextInput" text="{item.dmaker}" editable="false"/>
+                </mx:HBox>
+            </mx:VBox>
+
+        </mx:HBox>
+        <s:Spacer height="10"/>
+    </mx:VBox>
+    <mx:HBox depth="10" width="{mytab.width}" includeInLayout="false" verticalAlign="middle">
+        <s:Spacer width="100%"/>
+        <s:RadioButton id="thisYear" label="本年" selected="true" click="thisYear_clickHandler(event)"/>
+        <s:RadioButton id="allTime" label="全部" click="allTime_clickHandler(event)"/>
+        <basic:BasicDateField id="uistartTime"/>
+        <basic:BasicDateField id="uiendTime"/>
+        <s:Button width="60" label="查询" click="button1_clickHandler(event)"/>
+    </mx:HBox>
+    <mx:TabNavigator depth="9" id="mytab" width="100%" height="100%" creationPolicy="auto" paddingTop="-1"
+                     paddingLeft="-1" paddingRight="-1" paddingBottom="-1">
+        <callcenter:WorkOrder id="tabWorkOrder" width="100%" height="100%" label="进行工单" parentCard="{this}">
+        </callcenter:WorkOrder>
+        <callcenter:Assets id="tabAssets" width="100%" height="100%" label="资产">
+        </callcenter:Assets>
+        <callcenter:BuyConsumable id="tabBuyConsumable" width="100%" height="100%" label="耗材">
+        </callcenter:BuyConsumable>
+        <callcenter:Activity id="tabActivity" width="100%" height="100%" label="活动">
+        </callcenter:Activity>
+        <callcenter:HistoryHotLine id="tabHistory" width="100%" height="100%" label="热线">
+        </callcenter:HistoryHotLine>
+        <callcenter:HistoryWorkOrder id="tabHistoryWork" width="100%" height="100%" label="工单">
+        </callcenter:HistoryWorkOrder>
+        <callcenter:Receivable id="tabReceivable" width="100%" height="100%" label="应收">
+        </callcenter:Receivable>
+        <!--<callcenter:HistoryPaidRecord id="tabHistoryPaid" width="100%" height="100%" label="历史收费记录">
+        </callcenter:HistoryPaidRecord>-->
+    </mx:TabNavigator>
+
+</mx:VBox>

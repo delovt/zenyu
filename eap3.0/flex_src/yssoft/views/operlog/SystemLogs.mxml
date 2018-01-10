@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                width="100%" height="100%" xmlns:comps="yssoft.comps.*"
+                creationComplete="getDate(3);" implements="yssoft.impls.ICRMWindow">
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.formatters.DateFormatter;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        //汇集统计条目
+        [Bindable]
+        public var item1:String;
+        [Bindable]
+        public var item2:String;
+        [Bindable]
+        public var item3:String;
+
+        private var moduleStr:String = "";
+
+        //窗体初始化
+        public function onWindowInit():void {
+
+        }
+
+        //窗体打开
+        public function onWindowOpen():void {
+            moduleStr = "";
+            item1 = "";
+            item2 = "";
+            item3 = "";
+            modulenumber.visible = false;
+            modulenumber.newArr = new ArrayCollection();
+            getDate(3);
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+
+        }
+
+        private function onClick(module:String):void {
+            if (CRMtool.isStringNull(module)) {
+                CRMtool.tipAlert("请选择要统计的模块");
+                return;
+            }
+            moduleStr = module;
+            var params:Object = new Object();
+            if (CRMtool.isStringNull(this.dc_begin.text)) {
+                CRMtool.tipAlert("请输入开始时间");
+                return;
+            }
+            else if (CRMtool.isStringNull(this.dc_end.text)) {
+                CRMtool.tipAlert("请输入结束时间");
+                return;
+            }
+
+            params.dbegin = this.dc_begin.text;
+            params.dend = this.dc_end.text;
+
+            switch (module) {
+                case "modulenumber":
+                {
+                    this.currentState = "modulenumber";
+                    AccessUtil.remoteCallJava("AS_operlogDest", "queryModuleNumber", function (event:ResultEvent):void {
+                                reSetAllBack(event, module);
+                            }
+                            , params);
+
+                    break;
+                }
+                case "personnumber":
+                {
+                    this.currentState = "modulenumber";
+                    AccessUtil.remoteCallJava("AS_operlogDest", "queryPersonNumber", function (event:ResultEvent):void {
+                        reSetAllBack(event, module);
+                    }, params);
+                    break;
+                }
+                case "doperatenumber":
+                {
+                    this.currentState = "doperatenumber";
+                    AccessUtil.remoteCallJava("AS_operlogDest", "querydoperateNumber", function (event:ResultEvent):void {
+                        title.text = "系统使用情况";
+
+                        var moduleNumber:ArrayCollection = new ArrayCollection();
+                        moduleNumber = event.result as ArrayCollection;
+                        crmLineChart.visible = true;
+                        crmLineChart.historyData = moduleNumber;
+                        var arr:Array = new Array();
+                        for each (var item:Object in moduleNumber) {
+                            arr.push(item.number);
+                        }
+                        item1 = "最大上线人数：" + CRMtool.getMaxMinAvg(2, arr);
+                        item2 = "最小上线人数：" + CRMtool.getMaxMinAvg(0, arr);
+                        item3 = "平均上线人数：" + Number(CRMtool.getMaxMinAvg(1, arr)).toFixed(0).toString();
+                        crmLineChart.panel1_creationCompleteHandler();
+                    }, params);
+                }
+                default:
+                {
+                    break;
+                }
+            }
+        }
+
+        private function reSetAllBack(event:ResultEvent, module:String):void {
+            var moduleNumber:ArrayCollection = new ArrayCollection();
+            moduleNumber = event.result as ArrayCollection;
+            modulenumber.visible = true;
+            modulenumber.newArr = moduleNumber;
+            var arr:Array = new Array();
+            for each (var item:Object in moduleNumber) {
+                arr.push(item.number);
+            }
+
+            switch (module) {
+                case "modulenumber":
+                {
+                    modulenumber.titleLable = "模块使用情况";
+                    title.text = "模块使用情况";
+
+                    this.item1 = "使用最多模块平率：";
+                    this.item2 = "使用最少模块平率：";
+                    this.item3 = "平均模块使用频率：";
+                    break;
+                }
+                case "personnumber":
+                {
+                    modulenumber.titleLable = "人员使用情况";
+                    title.text = "人员使用情况";
+
+                    this.item1 = "最大上线天数：";
+                    this.item2 = "最小上线天数：";
+                    this.item3 = "平均上线天数：";
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            this.item1 += CRMtool.getMaxMinAvg(2, arr);
+            this.item2 += CRMtool.getMaxMinAvg(0, arr);
+            this.item3 += Number(CRMtool.getMaxMinAvg(1, arr)).toFixed(0).toString();
+
+            modulenumber.init();
+        }
+
+        private static var df:DateFormatter = new DateFormatter();
+
+        private function getDate(str:int = 0):void {
+            var sql:String = "";
+            switch (str) {
+                case 0:
+                {
+                    sql = "select convert(varchar(10),dateadd(wk,datediff(wk,0,getdate()),0),120) rq";
+                    break;
+                }
+                case 1:
+                {
+                    sql = "select convert(varchar(10),dateadd(day,-day(getdate())+1,getdate()),120) rq";
+                    break;
+                }
+                case 2:
+                {
+                    sql = "SELECT convert(varchar(10),DATEADD(qq, DATEDIFF(qq,0,getdate()), 0),120) rq";
+                    break;
+                }
+                case 3:
+                {
+                    sql = "SELECT convert(varchar(10),DATEADD(yy, DATEDIFF(yy,0,getdate()), 0),120) rq ";
+                    break;
+                }
+            }
+
+            //调用后台方法
+            AccessUtil.remoteCallJava("hrPersonDest", "verificationSql", function (evt:ResultEvent):void {
+                var rArr:ArrayCollection = evt.result as ArrayCollection;
+                dc_begin.text = rArr.getItemAt(0).rq.toString();
+                dc_end.text = CRMtool.getFormatDateString('YYYY-MM-DD');
+                if (CRMtool.isStringNotNull(moduleStr)) {
+                    onClick(moduleStr);
+                }
+            }, sql, null, false)
+        }
+        ]]>
+	</fx:Script>
+    <mx:states>
+        <s:State name="modulenumber"/>
+        <s:State name="doperatenumber"/>
+    </mx:states>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:VBox width="20%" height="100%" id="customerVBox" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <s:Label text="操作分析" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:VBox width="100%" height="100%" verticalGap="5" paddingTop="5" styleName="lefttree1">
+            <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/Tree_defaultLeafIcon.png')" label="系统使用情况"
+                           click="onClick('doperatenumber');"/>
+            <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/Tree_defaultLeafIcon.png')" label="人员使用情况"
+                           click="onClick('personnumber')"/>
+
+            <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/Tree_defaultLeafIcon.png')" label="模块使用情况"
+                           click="onClick('modulenumber')"/>
+
+            <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/Tree_defaultLeafIcon.png')" label="人员上线日历"/>
+
+            <s:Spacer height="100%"/>
+            <mx:HRule width="100%"/>
+            <mx:VBox width="100%" verticalGap="10" horizontalAlign="center" paddingLeft="10" paddingBottom="10"
+                     paddingRight="10">
+                <mx:VBox width="100%" verticalGap="6">
+                    <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/menu2.png')" label="本周"
+                                   click="getDate();"/>
+                    <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/menu2.png')" label="本月"
+                                   click="this.getDate(1)"/>
+                    <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/menu2.png')" label="本季"
+                                   click="getDate(2);"/>
+                    <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/menu2.png')" label="本年"
+                                   click="getDate(3)"/>
+                </mx:VBox>
+                <mx:VBox width="100%" verticalGap="10" borderStyle="solid" borderAlpha="1" borderColor="#c4cccc"
+                         cornerRadius="8" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
+
+                    <mx:HBox height="100%" width="100%">
+                        <mx:Label text="从："/>
+                        <comps:DateControl borderVisible="true" borderStyle="solid" borderAlpha="1"
+                                           borderColor="#c4cccc" id="dc_begin" showShape="0"/>
+                    </mx:HBox>
+
+                    <mx:HBox height="100%" width="100%">
+                        <mx:Label text="到："/>
+                        <comps:DateControl borderVisible="true" borderStyle="solid" borderAlpha="1"
+                                           borderColor="#c4cccc" id="dc_end" showShape="0"/>
+                    </mx:HBox>
+                    <mx:HBox height="100%" width="100%" horizontalAlign="right">
+                        <mx:Button label="查询" width="70" click="onClick(this.moduleStr);"/>
+                    </mx:HBox>
+                </mx:VBox>
+
+
+            </mx:VBox>
+        </mx:VBox>
+    </mx:VBox>
+
+    <mx:VBox width="80%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+            <mx:HBox width="100%" height="32" verticalAlign="middle">
+                <mx:Label id="title" styleName="contentTitle"/>
+                <!--<mx:Legend id="legend" direction="horizontal" paddingRight="20"/>-->
+            </mx:HBox>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" paddingLeft="1" paddingRight="10">
+            <comps:CrmColumnChart visible="false" id="modulenumber" width="100%" height="100%" includeIn="modulenumber"
+                                  cxfield="cname" cyfield="number"/>
+            <comps:CrmLineChart visible="false" id="crmLineChart" width="100%" height="100%" includeIn="doperatenumber"
+                                cxfield="cname" cyfield="number"/>
+        </mx:HBox>
+        <mx:HBox width="100%" horizontalGap="15" paddingTop="10" horizontalAlign="center" verticalAlign="middle"
+                 paddingBottom="10">
+            <mx:Label text="{item1}"/>
+            <mx:Label text="{item2}"/>
+            <mx:Label text="{item3}"/>
+        </mx:HBox>
+    </mx:VBox>
+</mx:HDividedBox>

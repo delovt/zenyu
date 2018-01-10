@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--FLEX4版本的重写最大化、最小化、还原TitleWindow组件-->
+<s:TitleWindow cornerRadius="0" xmlns:fx="http://ns.adobe.com/mxml/2009" mouseEnabled="true"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               skinClass="yssoft.comps.window.skins.skinForTitleWindow">
+    <s:layout>
+        <s:BasicLayout/>
+    </s:layout>
+    <fx:Metadata>
+        [Event(name="myClose")]
+        [Event(name="myMax")]
+        [Event(name="myMin")]
+        [Event(name="myRestore")]
+    </fx:Metadata>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.core.FlexGlobals;
+        import mx.managers.CursorManager;
+
+        import spark.components.Button;
+
+        //声明Skin中的变量，名称必须一样，能和skinForTitleWindow中的变量对应起来
+        [SkinPart(required="false")]
+        public var btnMin:Button;
+        [SkinPart(required="false")]
+        public var btnMax:Button;
+        [SkinPart(required="false")]
+        public var btnRestore:Button;
+        [SkinPart(required="false")]
+        public var btnClose:Button;
+
+        private var _theStatus:int = 0;//窗口状态，0正常 1最大化 2最小化；
+        public var isReSize:Boolean;//是否允许缩放
+        private var theMinWidth:Number = 0;//窗口最小宽度
+        private var theMinHeight:Number = 0;//窗口最大高度
+        private var theOldPoint:Point;//改变大小前窗口的x，y坐标
+        private var theOldWidth:Number;//最大最小化时的宽
+        private var theOldHeight:Number;//最大最小化时的高
+
+        private var mouseMargin:Number = 4;//响应范围
+        //设置光标的位置值 右上：3  右下：6 左下：11  左上8
+        private var theSide:Number = 0;
+        private var SIDE_OTHER:Number = 0;
+        private var SIDE_TOP:Number = 1;
+        private var SIDE_RIGHT:Number = 2;
+        private var SIDE_LEFT:Number = 7;
+        private var SIDE_BOTTOM:Number = 4;
+
+        //当前鼠标光标类
+        public var currentType:Class = null;
+
+        //鼠标光标图标
+        [Embed("/yssoft/comps/window/images/resizeCursorH.gif")]
+        private var CursorH:Class;
+        [Embed("/yssoft/comps/window/images/resizeCursorTLBR.gif")]
+        private var CursorR:Class;
+        [Embed("/yssoft/comps/window/images/resizeCursorTRBL.gif")]
+        private var CursorL:Class;
+        [Embed("/yssoft/comps/window/images/resizeCursorV.gif")]
+        private var CursorV:Class;
+        private var CursorNull:Class = null;
+
+        protected override function createChildren():void {
+            super.createChildren();
+            //监听按钮事件
+            if (btnClose)
+                btnClose.addEventListener(MouseEvent.CLICK, onCloseClick);
+            if (_isShowMinButton) {
+                btnMin.addEventListener(MouseEvent.CLICK, onMinClick);
+            }
+            if (btnMin) {
+                btnMin.visible = _isShowMinButton;
+            }
+            if (btnMax) {
+                btnMax.visible = _isAllowMax;
+            }
+            if (btnMax) {
+                btnMax.addEventListener(MouseEvent.CLICK, onMaxClick);
+            }
+            if (btnRestore) {
+                btnRestore.addEventListener(MouseEvent.CLICK, onReClick);
+            }
+            //侦听拖拽相关的事件
+            if (_isMove) {
+                //this.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+                this.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+                this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+            } else {
+                isPopUp = false;
+            }
+        }
+
+        private function onCloseClick(event:MouseEvent):void {
+            if(isAllowMax){
+                btnMax.visible = true;
+                btnRestore.visible = false;
+            }
+
+            _theStatus = 0;
+            this.dispatchEvent(new Event("myClose"));
+        }
+
+        private function onMinClick(event:MouseEvent):void {
+            theStatus = 2;
+        }
+
+        private function onMaxClick(event:MouseEvent):void {
+            theStatus = 1;
+        }
+
+        private function onReClick(event:MouseEvent):void {
+            theStatus = 0;
+        }
+
+        public function headClick():void {
+            if (isAllowMax)
+                theStatus = (theStatus == 1 ? 0 : 1);
+        }
+
+        private function onMouseUp(event:MouseEvent):void {
+            if (isReSize) {
+                FlexGlobals.topLevelApplication.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+                FlexGlobals.topLevelApplication.removeEventListener(MouseEvent.MOUSE_MOVE, onResize);
+                isReSize = false;
+            }
+            onChangeCursor(CursorNull);
+        }
+
+        private function onMouseDown(event:MouseEvent):void {
+            if (theSide != 0) {
+                isReSize = true;
+                FlexGlobals.topLevelApplication.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+                FlexGlobals.topLevelApplication.addEventListener(MouseEvent.MOUSE_MOVE, onResize);
+                var point:Point = new Point();
+                point = this.localToContent(point);
+                theOldPoint = point;
+            }
+        }
+
+        private function onResize(event:MouseEvent):void {
+            if (isReSize) {
+                var xPlus:Number = FlexGlobals.topLevelApplication.mouseX - this.x;
+                var yPlus:Number = FlexGlobals.topLevelApplication.mouseY - this.y;
+                switch (theSide) {
+                    case SIDE_RIGHT + SIDE_BOTTOM:
+                        this.width = xPlus > theMinWidth ? xPlus : theMinWidth;
+                        this.height = yPlus > theMinHeight ? yPlus : theMinHeight;
+                        break;
+                    case SIDE_LEFT + SIDE_TOP:
+                        this.width = this.width - xPlus > theMinWidth ? this.width - xPlus : theMinWidth;
+                        this.height = this.height - yPlus > theMinHeight ? this.height - yPlus : theMinHeight;
+                        this.x = this.width > theMinWidth ? FlexGlobals.topLevelApplication.mouseX : this.x;
+                        this.y = this.height > theMinHeight ? FlexGlobals.topLevelApplication.mouseY : this.y;
+                        break;
+                    case SIDE_LEFT + SIDE_BOTTOM:
+                        this.width = this.width - xPlus > theMinWidth ? this.width - xPlus : theMinWidth;
+                        this.height = yPlus > theMinHeight ? yPlus : theMinHeight;
+                        this.x = this.width > theMinWidth ? FlexGlobals.topLevelApplication.mouseX : this.x;
+                        break;
+                    case SIDE_RIGHT + SIDE_TOP:
+                        this.width = xPlus > theMinWidth ? xPlus : theMinWidth;
+                        this.height = this.height - yPlus > theMinHeight ? this.height - yPlus : theMinHeight;
+                        this.y = this.height > theMinHeight ? FlexGlobals.topLevelApplication.mouseY : this.y;
+                        break;
+                    case SIDE_RIGHT:
+                        this.width = xPlus > theMinWidth ? xPlus : theMinWidth;
+                        break;
+                    case SIDE_LEFT:
+                        this.width = this.width - xPlus > theMinWidth ? this.width - xPlus : theMinWidth;
+                        this.x = this.width > theMinWidth ? FlexGlobals.topLevelApplication.mouseX : this.x;
+                        break;
+                    case SIDE_BOTTOM:
+                        this.height = yPlus > theMinHeight ? yPlus : theMinHeight;
+                        break;
+                    case SIDE_TOP:
+                        this.height = this.height - yPlus > theMinHeight ? this.height - yPlus : theMinHeight;
+                        this.y = this.height > theMinHeight ? FlexGlobals.topLevelApplication.mouseY : this.y;
+                        break;
+                }
+            }
+
+        }
+
+        private function onMouseOut(event:MouseEvent):void {
+            if (!isReSize && this.theStatus == 0) {
+                theSide = 0;
+                onChangeCursor(CursorNull);
+                this.isPopUp = true;
+            }
+        }
+
+        private function onMouseMove(event:MouseEvent):void {
+            if (!theStatus) {
+                var point:Point = new Point();
+                point = this.localToGlobal(point);
+                var xPosition:Number = FlexGlobals.topLevelApplication.mouseX;
+                var yPosition:Number = FlexGlobals.topLevelApplication.mouseY;
+                if (xPosition >= (point.x + this.width - mouseMargin) && yPosition >= (point.y + this.height - mouseMargin)) {//右下
+                    onChangeCursor(CursorR, -9, -9);
+                    theSide = SIDE_RIGHT + SIDE_BOTTOM;
+                    this.isPopUp = false;
+                } else if (xPosition <= (point.x + mouseMargin) && yPosition <= (point.y + mouseMargin)) {//左上
+                    onChangeCursor(CursorR, -9, -9);
+                    theSide = SIDE_LEFT + SIDE_TOP;
+                    this.isPopUp = false;
+                } else if (xPosition <= (point.x + mouseMargin) && yPosition >= (point.y + this.height - mouseMargin)) {//左下
+                    onChangeCursor(CursorL, -9, -9);
+                    theSide = SIDE_BOTTOM + SIDE_LEFT;
+                    this.isPopUp = false;
+                } else if (xPosition >= (point.x + this.width - mouseMargin) && yPosition <= (point.y + mouseMargin)) {//右上
+                    onChangeCursor(CursorL, -9, -9);
+                    theSide = SIDE_RIGHT + SIDE_TOP;
+                    this.isPopUp = false;
+                } else if (xPosition > (point.x + this.width - mouseMargin)) {//右
+                    onChangeCursor(CursorH, -9, -9);
+                    theSide = SIDE_RIGHT;
+                    this.isPopUp = false;
+                } else if (xPosition < (point.x + mouseMargin)) {//左
+                    onChangeCursor(CursorH, -9, -9);
+                    theSide = SIDE_LEFT;
+                    this.isPopUp = false;
+                } else if (yPosition < (point.y + mouseMargin)) {//上
+                    onChangeCursor(CursorV, -9, -9);
+                    theSide = SIDE_TOP;
+                    this.isPopUp = false;
+                }
+                else if (yPosition > (point.y + this.height - mouseMargin)) {//下
+                    onChangeCursor(CursorV, -9, -9);
+                    theSide = SIDE_BOTTOM;
+                    this.isPopUp = false;
+                }
+                else {
+                    onChangeCursor(CursorNull);
+                    if (!isReSize && theStatus == 0) {
+                        theSide = 0;
+                        this.isPopUp = true;
+                    }
+                }
+                event.updateAfterEvent();
+            }
+        }
+
+        private function onChangeCursor(type:Class, xOffset:Number = 0, yOffset:Number = 0):void {
+            if (currentType != type) {
+                currentType = type;
+                CursorManager.removeCursor(CursorManager.currentCursorID);
+                if (type != null) {
+                    CursorManager.setCursor(type, 2, xOffset, yOffset);
+                }
+            }
+        }
+
+        private function onSaveRestore():void {
+            var point:Point = new Point();
+            theOldPoint = this.localToGlobal(point);
+            theOldWidth = this.width;
+            theOldHeight = this.height;
+        }
+
+        private function onGetRestore():void {
+            this.x = theOldPoint.x;
+            this.y = theOldPoint.y
+            this.width = theOldWidth;
+            this.height = theOldHeight;
+        }
+
+        //是否显示 最小化 按钮
+        private var _isShowMinButton:Boolean = false;
+
+        private var _isAllowMax:Boolean = false;
+
+        public function get isShowMinButton():Boolean {
+            return _isShowMinButton;
+        }
+
+        public function set isShowMinButton(value:Boolean):void {
+            _isShowMinButton = value;
+        }
+
+        //是否可以移动
+        private var _isMove:Boolean = true;
+
+        public function get isMove():Boolean {
+            return _isMove;
+        }
+
+        public function set isMove(value:Boolean):void {
+            _isMove = value;
+        }
+
+        public function get isAllowMax():Boolean {
+            return _isAllowMax;
+        }
+
+        public function set isAllowMax(value:Boolean):void {
+            _isAllowMax = value;
+        }
+
+        public function get theStatus():int {
+            return _theStatus;
+        }
+
+        public function set theStatus(value:int):void {
+            if (value == 0) {
+                onGetRestore();
+                this.dispatchEvent(new Event("myRestore"));
+                this.isPopUp = true;
+                btnMax.visible = true;
+                btnRestore.visible = false;
+
+            } else if (value == 1) {
+                onSaveRestore();
+                this.dispatchEvent(new Event("myMax"));
+                this.isPopUp = false;
+                btnMax.visible = false;
+                btnRestore.visible = true;
+                this.width = stage.stageWidth;
+                this.height = stage.stageHeight - 2;
+                this.x = 0;
+                this.y = 0;
+            } else if (value == 2) {
+                onSaveRestore();
+                this.dispatchEvent(new Event("myMin"));
+                btnMax.visible = false;
+                btnRestore.visible = true;
+            }
+            _theStatus = value;
+        }
+        ]]>
+	</fx:Script>
+</s:TitleWindow>

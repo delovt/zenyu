@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+	<!-- 推式生单，A生成B， 根据A的内码，到B中查询相关单据内码，返回A到B生成的记录 -->
+	<select id="getDatabyiinvoiceInTable" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" remapResults="true">
+		<!-- select * from sa_opportunity where iinvoice = #iinvoice# -->
+		$sqlValue$
+	</select>
+</sqlMap>

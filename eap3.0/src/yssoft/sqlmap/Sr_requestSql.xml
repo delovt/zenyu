@@ -1,0 +1,40 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!-- 调试服务申请 - SDY                   -->
+
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_sr_request" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,isourceregedit,isource,idepartment,ipriority,icustomer,icustperson, ccustpersontel,isalesperson,iservicesperson,
+            	cproduct,cdetail,isolution,daskprocess,iresultperson,cresultstate,dresultdate,citemcode,cmemo,imaker,dmaker from sr_request 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_sr_request" parameterClass="java.util.HashMap">
+            insert into sr_request(
+            	isourceregedit,isource,idepartment,ipriority,icustomer,icustperson, ccustpersontel,isalesperson,iservicesperson,
+            	cproduct,cdetail,isolution,daskprocess,iresultperson,cresultstate,dresultdate,citemcode,cmemo,imaker,dmaker
+            ) 
+            values (
+            #isourceregedit#,#isource#,#idepartment#,#ipriority#,#icustomer#,#icustperson#,#ccustpersontel#,#isalesperson#,
+            #iservicesperson#,#cproduct#,#cdetail#,#isolution#,#daskprocess#,#iresultperson#,#cresultstate#,#dresultdate#,#citemcode#,#cmemo#,#imaker#,#dmaker#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_sr_request" parameterClass="java.util.HashMap">
+            update sr_request set isourceregedit=#isourceregedit#,isource=#isource#,idepartment=#idepartment#,ipriority=#ipriority#,icustomer=#icustomer#,icustperson=#icustperson#,
+            ccustpersontel=#ccustpersontel#,isalesperson=#isalesperson#,iservicesperson=#iservicesperson#,cproduct=#cproduct#,cdetail=#cdetail#,isolution=#isolution#,daskprocess=#daskprocess#,iresultperson=#iresultperson#,cresultstate=#cresultstate#,dresultdate=#dresultdate#,citemcode=#citemcode#,cmemo=#cmemo#,imaker=#imaker#,dmaker=#dmaker#
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_sr_request" parameterClass="String">
+            delete from sr_request
+            where $condition$
+     </delete>
+     
+	<!--  YJ Add 2012-04-06 终止服务请求 -->
+     <update id="Sr_RequestDest.StopRequest" parameterClass="java.util.HashMap">
+     	$sqlValue$
+     </update>
+</sqlMap>

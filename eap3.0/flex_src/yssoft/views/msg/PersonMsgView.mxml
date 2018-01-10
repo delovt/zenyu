@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*" x="1000"
+                        width="320" height="450" close="onCloseHandler()"
+                        creationComplete="onCreationCompleteHandler(event)" currentState="online"
+                        title="在线用户[{this._onlineUserXml.children().length()}]"
+                        stateChangeComplete="titlewindow1_stateChangeCompleteHandler(event)"
+                        width.online="320"
+                        width.showmsg="724" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.LinkButton;
+			import mx.effects.Move;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.MainView;
+			
+			
+			[SkinPart(required="false")]
+			public var refreshlkbutton:LinkButton;
+			[SkinPart(required="false")]
+			public var historyMsglkbutton:LinkButton;
+			
+			private var dept_xml:XML=new XML();
+			private var person_xml:XML=new XML();
+			
+			private function onCreationCompleteHandler(event:FlexEvent):void{
+				
+				(this.owner as MainView).addEventListener("onlineCountChange",function(event:Event):void{
+					getDeptPersonInfo();
+				});
+				
+				if(CRMmodel.hrperson.ccode == "admin"){
+					qunfabt.visible=true;
+				}
+				
+				getDeptPersonInfo();
+				if(refreshlkbutton){
+					refreshlkbutton.addEventListener(MouseEvent.CLICK,onLineUser);
+				}
+				if(historyMsglkbutton){
+					historyMsglkbutton.addEventListener(MouseEvent.CLICK,getHistoryMsg);
+				}
+				showMoveEffect();
+			}
+			
+			private function getDeptPersonInfo():void{
+				AccessUtil.remoteCallJava("MsgDest","getDeptPersonInfo",onInfoCallBack,null,null,false);
+			}
+			
+			private function onInfoCallBack(event:ResultEvent):void{
+				if(event.result){
+					var ret:Object=event.result;
+					dept_xml=new XML(event.result.dept_xml);
+					person_xml=new XML(event.result.person_xml);
+					for each(var node:XML in dept_xml..node){
+						node.appendChild(this.person_xml.node.(@idepartment==node.@iid));
+					}
+					//xmlAC=new XMLListCollection(this.dept_xml.node);
+					this.deptPersons.dataProvider=this.dept_xml;
+					//获取在线人员
+					onLineUser();
+				}
+			}
+			
+			override protected function onCloseHandler():void{
+				closehmv("1");
+				CRMmodel.isShowMsg=false;
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function onLineUser(event:MouseEvent=null):void{
+				var str:String = CRMmodel.userId+"";
+				AccessUtil.remoteCallJava("UserDest","onLineUserParseXML",onLineCallBack,str,null,false);
+			}
+			[Bindable]
+			private var _onlineUserXml:XML=new XML();
+			private function onLineCallBack(event:ResultEvent):void{
+				if(event.result){
+					_onlineUserXml=new XML(event.result.user_xml);
+					if(this.owner is MainView){
+						//(this.owner as MainView).zxyhlkbt.floatTxt=""+(_onlineUserXml..node as XMLList).length();
+						CRMmodel.online_count=(_onlineUserXml..node as XMLList).length();
+					}
+					showOnlineUser();
+				}
+			}
+			
+			// 显示在线人员
+			
+			private function showOnlineUser():void{
+				for each(var item:XML in this._onlineUserXml.children()){
+					(this.dept_xml..node.(hasOwnProperty("@isonline") && @personid==item.@iid)[0] as XML).@isonline="1";
+				}
+				this.deptPersons.dataProvider=this.dept_xml;
+			}
+			
+			private  var dept_xml_copy:XML=null;
+			//过滤
+			private function filterIems(type:String="0"):void{
+				this.deptPersons.dataProvider=dept_xml
+/* 				if(type=="0"){
+					dept_xml_copy=ObjectUtil.copy(dept_xml) as XML;
+					this.deptPersons.dataProvider=dept_xml;
+				}else{
+					if(dept_xml_copy==null){
+						dept_xml_copy=ObjectUtil.copy(dept_xml) as XML;
+					}
+					
+ 					var tpxmllist:XMLList=dept_xml_copy..node;
+					var tplen:int=tpxmllist.length();
+					
+					for(var i:int=tplen-1;i>0;i--){
+						var item:XML=tpxmllist[i] as XML;
+						if(item.hasOwnProperty("@isonline") && item.@isonline=="0"){
+							delete tpxmllist[i];
+						}
+					} 
+ 					for each(var item:XML in dept_xml_copy..node){
+						if(item.hasOwnProperty("@isonline") && item.@isonline=="0"){
+							delete dept_xml_copy..node.(hasOwnProperty("@personid") && @personid==item.@personid)[0]
+						}
+					} 
+					this.deptPersons.dataProvider=dept_xml_copy;
+				} */
+			}
+			
+			// 在线显示
+			private function lbfun(item:Object):String{
+				if(item.hasOwnProperty("@isonline")){
+					if(item.@isonline=="0"){
+						return "[离线]"+item.@cname;
+					}else{
+						return "[在线]"+item.@cname;
+					}
+				}else{
+					return item.@cname;
+				}
+			}
+			
+			private function deptPersons_itemClickHandler():void{
+ 				var userXml:XML=deptPersons.selectedItem as XML;
+/*  				if(userXml.hasComplexContent()==true || userXml.hasOwnProperty("@isonline")==false  || userXml.@isonline=="0"){
+					return;
+				} */
+				if(userXml.hasComplexContent()==true || userXml.hasOwnProperty("@isonline")==false ){
+					return;
+				}
+/* 				var sendMsg:SendMsgView=new SendMsgView();
+				sendMsg.userXml=userXml;
+				PopUpManager.addPopUp(sendMsg,this);  */ 
+				if(this.currentState !="showmsg"){
+					this.currentState="showmsg";
+					showMoveEffect();
+				}
+				createMsgItem(userXml);
+				if(hmv){
+					closehmv();
+				}
+				
+			}
+			
+			// 从 mainViewStack 中删除 组件 ,index 是子组件的 索引号
+			private function linkBarCallBack(index:int):void{
+				//closehmv();
+				if(index<0){
+					return;
+				}
+				this.msgcontent.removeChildAt(index);
+				
+				if(this.msgcontent.numChildren>=1){
+					if(index==0){
+						this.msgcontent.selectedIndex=0;
+						refreshMagItem(0);
+					}else{
+						this.msgcontent.selectedIndex=index-1;
+						refreshMagItem(index-1);
+					}
+				}else{
+					this.alluserbthandler();
+				}
+			}
+			public function alluserbthandler():void{
+				this.currentState="online";
+				//关闭 历史
+				closehmv();
+				showMoveEffect();
+			}
+			
+			public function showMoveEffect(type:String="0"):void{
+				if(type=="1"){
+					this.hmv=null;
+				}
+				moveEffect.xTo=(this.stage.width-this.width)/2;
+				moveEffect.yTo=(this.stage.height-this.height)/2;
+				moveEffect.play();
+			}
+			// 创建 会话窗体
+			private function createMsgItem(userXml:XML=null):void{
+				if(userXml==null){
+					return;
+				}
+				var personid:String=String(userXml.@personid);
+				if(isExist(personid) == null){
+					var msgItem:MsgItem=new MsgItem();
+					msgItem.name=userXml.@personid;
+					msgItem.userXml=userXml;
+					msgcontent.addChild(msgItem);
+					addMsgItem(personid,msgItem);
+					this.msgcontent.selectedIndex=this.msgcontent.getChildren().length-1;
+					this.crmLinkBar.selectedIndex=this.msgcontent.selectedIndex;
+				}else{
+					var index:int=getMsgItemIndex(personid);
+					if(index != -1){
+						this.msgcontent.selectedIndex=index;
+						this.crmLinkBar.selectedIndex=this.msgcontent.selectedIndex;
+					}else{
+						var item:Object=isExist(personid);
+						if(item != null){
+							this.msgcontent.addChild(item.msgItem);
+							this.msgcontent.selectedIndex=this.msgcontent.getChildren().length-1;
+							this.crmLinkBar.selectedIndex=this.msgcontent.selectedIndex;
+						}
+					}
+				}
+			}
+			private function addMsgItem(personid:String,msgItem:MsgItem):void{
+				CRMmodel.MsgItemAc.addItem({"iid":personid,"msgItem":msgItem});
+			}
+			private function isExist(personid:String):Object{
+				for each(var item:Object in CRMmodel.MsgItemAc){
+					if(item.iid==personid){
+						return item;
+					}
+				}
+				return null;
+			}
+			
+			private function getMsgItemIndex(personid:String):int{
+				for each(var child:MsgItem in msgcontent.getChildren()){
+					if(child.name==personid){
+						return msgcontent.getChildIndex(child);
+					}
+				}
+				return -1;
+			}
+			//
+			private function getPersonInfoXml(personid:String):XML{
+				return person_xml..node.(hasOwnProperty("@personid") && @personid==personid)[0] as XML;
+			}
+			
+			
+				
+			protected function titlewindow1_stateChangeCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(this.currentState=="online"){
+					if(historyMsglkbutton){
+						historyMsglkbutton.visible=false;
+					}
+				}else{
+					if(historyMsglkbutton){
+						historyMsglkbutton.visible=true;
+					}
+				}
+			}
+			// 历史消息
+			private var hmv:HistoryMsgView; 
+			private function getHistoryMsg(e:Event):void{
+				if(hmv==null){
+					hmv=new HistoryMsgView();
+					hmv.owner=this;
+					PopUpManager.addPopUp(hmv,this);
+					moveEffectHandler();
+				}
+				//hmv.userXml=deptPersons.selectedItem as XML;
+				var child:MsgItem=this.msgcontent.getChildAt(this.crmLinkBar.selectedIndex) as MsgItem;
+				hmv.userXml=child.userXml;
+				hmv.getHistoryMsg();
+				
+			}
+			private function moveEffectHandler(offsetX:Number=0):void{
+				moveEffect.xTo=this.x-130;
+				moveEffect.play();
+			}
+			private function closehmv(type:String="0"):void{
+				if(hmv){
+					PopUpManager.removePopUp(hmv);
+					hmv=null;
+				}
+				if(type=="0"){
+					showMoveEffect();
+				}
+			}
+			
+			protected function crmLinkBar_itemClickHandler(event:ItemClickEvent):void
+			{
+				//closehmv();
+				/* var child:MsgItem=this.msgcontent.getChildAt(event.index) as MsgItem;
+				if(hmv){
+					hmv.userXml=child.userXml;
+					hmv.getHistoryMsg();
+				} */
+				refreshMagItem(event.index);
+			}
+			
+			//刷新
+			private function refreshMagItem(index:int):void{
+				var child:MsgItem=this.msgcontent.getChildAt(index) as MsgItem;
+				if(hmv){
+					hmv.userXml=child.userXml;
+					hmv.getHistoryMsg();
+				}
+			}
+			
+			private function onlyshowperson():void{
+				/* for each(var item:XML in dept_xml_copy..node){
+					if(item.hasOwnProperty("@isonline") && item.@isonline=="0"){
+						delete dept_xml_copy..node.(hasOwnProperty("@personid") && @personid==item.@personid)[0]
+					}
+				}  */
+				this.deptPersons.dataProvider=dept_xml..node.(hasOwnProperty("@isonline") && @isonline=="1");
+			}
+			
+			private function dtlbfun(item:Object):String{
+				if(item.hasOwnProperty("@isonline")){
+					return "电话:"+item.@ctel+",手机:"+item.@cmobile1+",邮件:"+item.@cemail;
+				}
+				return "";
+			}
+			
+			private function openAllOrHide():void{
+				var xml:XML=deptPersons.selectedItem as XML;
+				if(xml.hasComplexContent()){
+					this.deptPersons.expandItem(xml,!this.deptPersons.isItemOpen(xml));
+				}
+			}
+			
+			protected function qunfabt_clickHandler(event:MouseEvent):void
+			{
+				var qf:QunFaMsgWindow=new QunFaMsgWindow();
+				CRMtool.openView(qf); 
+			}
+			
+			protected function crmLinkBar_doubleClickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				linkBarCallBack(crmLinkBar.selectedIndex);
+			}
+			
+		]]>
+	</fx:Script>
+	<basic:states>
+		<s:State name="online"/>
+		<s:State name="showmsg"/>
+	</basic:states>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:Move id="moveEffect" target="{this}"/>
+	</fx:Declarations>
+	<basic:layout>
+		<s:HorizontalLayout gap="2"/>
+	</basic:layout>
+	<mx:VBox width="100%" height="100%" verticalGap="0" paddingBottom="10" includeIn="online,showmsg" id="body">
+		<mx:HBox backgroundColor="#f7f7f7" width="100%" paddingBottom="2" paddingTop="2" paddingLeft="2" paddingRight="2">
+			<!--<comps:CrmTextInput/>-->
+			<mx:LinkButton id="onlineuserbt" label="在线" click="onlyshowperson()"/>
+			<mx:LinkButton id="alluserbt" label="全部" click="filterIems('0')"/>
+			<mx:LinkButton id="qunfabt" label="群发" click="qunfabt_clickHandler(event)" visible="false"/>
+		</mx:HBox>
+		<mx:HRule width="100%" height="1"/>
+<!--		<comps:TreeCompsVbox id="deptPersons" itemRenderer="yssoft.renders.personMsgRender" labelField="@cname" doubleClickEnabled="true" labelFunction="lbfun" itemDoubleClick="deptPersons_itemClickHandler()" width="100%" height="100%" showRoot="false">
+		</comps:TreeCompsVbox>-->
+		<mx:Tree borderVisible="false" id="deptPersons" doubleClickEnabled="true" itemRenderer="yssoft.renders.personMsgRender" labelField="@cname" 
+				 showDataTips="true" itemClick="openAllOrHide()"
+				 itemDoubleClick="deptPersons_itemClickHandler()" width="100%" height="100%" showRoot="false">
+		</mx:Tree>
+		
+	</mx:VBox>
+	<mx:HBox width="360" height="100%" horizontalGap="0" visible.online="false" includeInLayout.online="false">
+		<mx:VRule height="100%"/>
+		<mx:ViewStack id="msgcontent" width="100%" height="100%">
+		</mx:ViewStack>
+		<mx:VRule height="100%"/>
+		<mx:HBox height="{body.height}" horizontalScrollPolicy="off">
+			<comps:CRMLinkBar id="crmLinkBar" doubleClickEnabled="true" doubleClick="crmLinkBar_doubleClickHandler(event)" itemClick="crmLinkBar_itemClickHandler(event)" width="80" direction="vertical" dataProvider="{msgcontent}" disabledColor="gray" selectedItemIcon="{ConstsModel.png_cancel}" height="100%" selectedItemColor="black" callBack="linkBarCallBack"/>
+		</mx:HBox>
+	</mx:HBox>
+</basic:BasicTitleWindow>
+
+
+
+
+
+
+
+
+
+
+

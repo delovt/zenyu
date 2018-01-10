@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               title="取消核销"
+               width="660" height="360"
+               close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.controls.TextInput;
+			import mx.events.DataGridEvent;
+			import mx.events.DataGridEventReason;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import yssoft.comps.CRMDataGridForCheckBox;
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var sc_ctrpclosetableac:ArrayCollection;
+			
+			private var crmeap:CrmEapRadianVbox;
+			private var irpinvoice:int;
+			private var flag:Boolean=false;
+			
+			//外部子表
+			private var sc_ctrpclosetable:ArrayCollection;
+			
+			private var needRe:ArrayCollection = new ArrayCollection();
+			
+			public function init(_sc_ctrpclosetable:ArrayCollection,irpinvoice:int,crmeap:CrmEapRadianVbox):void
+			{
+				this.sc_ctrpclosetable = _sc_ctrpclosetable;
+				this.sc_ctrpclosetableac = new ArrayCollection(CRMtool.ObjectCopy(_sc_ctrpclosetable.toArray()));
+				this.crmeap = crmeap;
+				this.irpinvoice = irpinvoice;
+				//this.sc_ctrpclosetableac.addAll(_sc_ctrpclosetable);
+
+ 				for each(var sco:Object in this.sc_ctrpclosetableac){
+					sco.checked = false;
+				}
+			}
+
+            protected function reCheckSales(event:MouseEvent):void {
+				var num:int=0;
+                for each(var o:Object in myDataGrid.getSelectRows()) {
+					num=1;
+                    needRe.addItem(o);
+                    sc_ctrpclosetableac.removeItemAt(sc_ctrpclosetableac.getItemIndex(o)) ;
+                }
+				if(myDataGrid.getSelectRows().length==0 && num==1){
+					flag=true;
+				}
+            }
+			
+			override protected function onCloseHandler():void{
+				sc_ctrpclosetableac.removeAll();
+				needRe.removeAll();
+				PopUpManager.removePopUp(this);
+			}
+				
+			protected function submit(event:MouseEvent):void
+			{
+				var allthisfclosemoney:Number = 0;
+				if(flag==false){
+				CRMtool.showAlert("全部取消核销后才能执行该操作！");
+				return;
+				}
+				AccessUtil.remoteCallJava("checkSalesDest","reCheckSalesSubmit",function(event:ResultEvent):void{
+					sc_ctrpclosetable.removeAll();
+					for each(var o:Object in sc_ctrpclosetableac){		
+						var nthisfclosemoney:Number = parseFloat(o.fclosemoney);
+						allthisfclosemoney = allthisfclosemoney + nthisfclosemoney;
+						
+						sc_ctrpclosetable.addItem(o);
+						//sc_ctrpclosetable.refresh();
+					} 
+					
+					//更新表单数据
+					var value:Object = new Object();						 
+					var mainValue:Object = crmeap.getValue();
+					mainValue.fclosemoney =allthisfclosemoney;
+					mainValue.istatus=2;//修改状态为已审核
+					var upSql:String="update sc_rpinvoice set istatus=2 where iid="+mainValue.iid;
+					AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql",null ,upSql);
+					value.mainValue = mainValue;
+					value.sc_ctrpclose = sc_ctrpclosetable;
+					crmeap.setValue(value,1,1);
+					crmeap.vouchFormValue = CRMtool.ObjectCopy(value);
+					crmeap.oldvouchFormValue = crmeap.vouchFormValue;
+					
+					onCloseHandler();
+				},{"needRe":needRe,"irpinvoice":irpinvoice});
+				
+			}
+
+			protected function myDataGrid_doubleClickHandler(event:MouseEvent):void
+			{
+				if(myDataGrid.selectedItem){
+					needRe.addItem(myDataGrid.selectedItem);
+					sc_ctrpclosetableac.removeItemAt(myDataGrid.selectedIndex);	
+				}							
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox id="dataGridHbox" width="100%" height="280">
+			<basic:BasicMxDataGrid id="myDataGrid" dataProvider="{sc_ctrpclosetableac}" doubleClickEnabled="true" doubleClick="myDataGrid_doubleClickHandler(event)"
+                                   width="100%" height="100%" horizontalScrollPolicy="auto" isAllowMulti="true" isShowLineNum="true">
+				<basic:columns>
+					<mx:DataGridColumn headerText="合同编码" dataField="iorder_Name" width="120" />
+					<mx:DataGridColumn headerText="核销计划" dataField="ictrpplan_Name" width="210" />
+					<mx:DataGridColumn headerText="核销金额" dataField="fclosemoney" width="90" />
+					<mx:DataGridColumn headerText="核销日期" dataField="dmaker" width="100" labelFunction="CRMtool.formatDate" />
+					<mx:DataGridColumn headerText="核销人" dataField="imaker_Name" width="60" />
+		
+				</basic:columns>
+			</basic:BasicMxDataGrid>
+		</mx:HBox>
+		<mx:HRule width="100%"/>
+		<mx:HBox height="38" width="100%" verticalAlign="middle" paddingRight="10" paddingLeft="10">
+			<s:Button label="取消核销" id="csButton" click="reCheckSales(event)" />
+			<s:Spacer width="100%"/>
+			<s:Button label="确定" click="submit(event)" />
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="0" 
+		 xmlns:comps="yssoft.comps.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 label="协同附件{items.length==0?'':'('+items.length+')'}" >
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.UploadFileWin;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.preview.PreviewFile;
+			import yssoft.vos.WfNodeVo;
+			
+			[Bindable]
+			private var items:ArrayCollection=new ArrayCollection();
+			private var handleNode:WfNodeVo; // 处理节点
+			
+			[Bindable]
+			public var iid:int=0; // 自由协同的iid ，业务协同的内码
+			[Bindable]
+			public var ifuncregedit:int=0; // 自由协同的功能注册码啊，业务协同的 表单功能注册码
+			[Bindable]
+			public var iinvoices:int;	//单据的iid
+			
+			public var isImmediate:Boolean=false;// 是否立即上传文件
+			
+			
+			private function uploadbt_clickHandler():void{
+				if(ifuncregedit <=0 || iinvoices <=0){
+					//CRMtool.tipAlert("单据信息不全不能添加附件");
+					isImmediate=false;
+					//return;
+				}
+				
+				var uploadFileWin:UploadFileWin=new UploadFileWin();
+				
+				uploadFileWin.ifuncregedit=ifuncregedit;
+				
+				//uploadFileWin.iinvoices=ifuncregedit; //
+				uploadFileWin.isImmediate=isImmediate;
+				uploadFileWin.callBack=callBackHandler;
+				uploadFileWin.iinvoice=iid;
+				uploadFileWin.iinvoices=iinvoices;
+				
+				
+				CRMtool.openView(uploadFileWin);
+			}
+			
+			public function getCoFileList(iid1:int=0,iinvoices1:int=0):void{
+				//this.clearParam();
+				if(ifuncregedit ==0 ){
+					return;
+				}
+				if(this.iid == 0 && this.iinvoices == 0){
+					return;
+				}
+				//业务协同 -- 原来的 iid 表单关联的 协同iid
+				//AccessUtil.remoteCallJava("WorkFlowDest","selectFile",fileListCallBack,{"ifunid":11,"iinvoice":iid,"iinvoices":ifuncregedit},null,false);
+				AccessUtil.remoteCallJava("WorkFlowDest","selectFile",fileListCallBack,{"ifunid":ifuncregedit,"iinvoice":iid,"iinvoices":iinvoices},null,false);
+			}
+			private function fileListCallBack(event:ResultEvent):void{
+				this.items=event.result as ArrayCollection;
+				//{items.length==0?'':'(&lt;font size=\'14\' color=\'#FF0000\'&gt;'+items.length+'&lt;/font&gt;)'}
+				//this.label="协同附件<b><font color='#FF0000'>("+items.length+")</font></b>";
+			}
+			
+			
+			private function fileList_itemClickHandler(event:ListEvent):void{
+				onDownFile();
+			}
+			
+			private var downFile:FileReference;
+			public function onDownFile():void{
+				downFile = new FileReference();
+				
+				var item:Object=fileList.selectedItem;
+				
+				if(item==null || item.iid==null || item.iid==""){
+					return;
+				}
+				
+				//var url:URLRequest=new URLRequest("/downfile/")
+				var url:URLRequest=new URLRequest("./downfile/")
+				var urlparam:URLVariables=new URLVariables();
+				urlparam.fileName=item.csysname+"."+item.cextname;
+				urlparam.isDelete="1";
+				urlparam.type="1";
+				urlparam.iid=item.iid;
+				url.data=urlparam;
+				downFile.addEventListener(IOErrorEvent.IO_ERROR,onFileIoError);
+				downFile.addEventListener(Event.COMPLETE,onFileComplete);
+				//downFile.addEventListener(ProgressEvent.PROGRESS,onProgress);
+				downFile.addEventListener(Event.SELECT,onSelect);
+				downFile.download(url,String(item.cname).replace("|",""));
+			}
+			private function onSelect(e:Event):void{
+				CRMtool.showLoadingView("开始下载文件...");
+			}
+			private function onProgress(event:ProgressEvent):void{
+				
+			}
+			private function onFileIoError(event:IOErrorEvent):void{
+				CRMtool.tipAlert("文件不存在!");
+				CRMtool.hideLoadingView();
+			}
+			private function onFileComplete(event:Event):void{
+				CRMtool.hideLoadingView();
+				CRMtool.tipAlert("文件下载成功!");
+				//this.items.removeItemAt(this.fileList.selectedIndex);
+			}
+			
+			public function deleteFile():void{
+				CRMtool.tipAlert1("确认删除文件?",null,"AFFIRM",deleteFile1);
+			}
+			
+			// 删除 newFileItems 文件
+			private function deleteNewFileItems(filename:String):void{
+				for each(var file:Object in newFileItems){
+					if(file.cname==filename){
+						newFileItems.removeItemAt(this.newFileItems.getItemIndex(file));
+					}
+				}
+			}
+			
+			public function deleteFile1():void{
+				var item:Object=fileList.selectedItem;
+				
+				if(item.hasOwnProperty("iid") == false){
+					// 删除 newFileItems 对应的 文件
+					this.items.removeItemAt(this.fileList.selectedIndex);
+					deleteNewFileItems(item.cname);
+					return;
+				}
+				
+/* 				if(item==null || item.iid==null || item.iid==""){
+					this.items.removeItemAt(fileList.selectedIndex);
+					return;
+				} */
+				var param:Object={};
+					param.iid=item.iid;
+					param.fileName=item.csysname+"."+item.cextname;
+					param.deleteType="1";
+				AccessUtil.remoteCallJava("WorkFlowDest","wfDeleteFile",deleteFileCallBack,param,null,false);
+			}
+			private function deleteFileCallBack(event:ResultEvent):void{
+				if(event.result){
+					if((event.result as String)=="suc"){
+						CRMtool.tipAlert("删除文件成功!");
+						this.items.removeItemAt(this.fileList.selectedIndex);
+					}
+				}else{
+					CRMtool.tipAlert("删除文件失败!");
+				}
+			}
+			[Bindable]
+			private var newFileItems:ArrayCollection=new ArrayCollection();
+			public function callBackHandler(ac:ArrayCollection,flag:String='0'):void{
+				//getCoFileList(iid);
+				newFileItems.addAll(ac);
+				for each (var item:Object in ac ){
+					items.addItem({"cname":item.cname,"enable":flag});
+				}
+				
+			}
+			
+			public function uploadHandler():void{
+				//Alert.show("文件个数："+newFileItems.length);
+				if(! newFileItems || newFileItems.length == 0){
+					//CRMtool.tipAlert("请选择文件后，再上传!");
+					return;
+				}
+				
+				for each (var item:Object in newFileItems ){
+					/* item.iinvoice=this.iid;
+					item.ifuncregedit=this.ifuncregedit;
+					item.iinvoices=this.iinvoices; */
+					
+					item.iinvoice=this.iinvoices;
+					item.ifuncregedit=this.ifuncregedit;
+					item.iinvoices=this.iid;
+				}
+				
+				AccessUtil.remoteCallJava("WorkFlowDest","batchUploadFile",onUploadFileCallBack,this.newFileItems,null,false);
+			}
+			private function onUploadFileCallBack(event:ResultEvent):void{
+				var ret:String=event.result as String;
+				if(ret=="suc"){
+					newFileItems.removeAll();
+				}
+				refreshFile();
+			}
+			
+			public function refreshFile():void
+			{
+				getCoFileList(this.iid,iinvoices);
+			}
+			
+			public function clearParam():void{
+				iinvoices=0;
+				iid=0;
+				ifuncregedit=0;
+				items.removeAll();
+				newFileItems.removeAll();
+			}
+			//
+			private function lbfun(item:Object):String{
+				if(item){
+					return	String(item.cname).replace("|","");
+				}else{
+					return "";
+				}
+			}
+			//预览文件
+			public function previewFile():void{
+				if(this.fileList.selectedIndex <0){
+					CRMtool.showAlert("请选在在处理");
+					return;
+				}
+				var selectItem:Object=this.items[this.fileList.selectedIndex];
+				
+				if(selectItem==null){
+					CRMtool.showAlert("被选择的文件信息错误，请重试");
+					return;
+				}
+				if(selectItem.hasOwnProperty("csysname")==false || selectItem.csysname==null || selectItem.csysname==""){
+					CRMtool.showAlert("刚上传的文件不予预览");
+					return;
+				}
+				var ectname:String=String(selectItem.cextname).toLowerCase();
+				if(ectname=="png" || ectname=="jpg" || ectname=="bmp"){
+					swfViewer(selectItem.csysname+"."+selectItem.cextname,false);
+					return;
+				}
+				var param:Object={};
+				param.filename=selectItem.csysname;
+				param.extname=selectItem.cextname;
+				AccessUtil.remoteCallJava("PreFile","transFileToSwf",previewFileCallBack,param,"预览文件转化中...");
+			}
+			private function previewFileCallBack(event:ResultEvent):void{
+				if(event.result){
+					var ret:Object=event.result;
+					if(ret.hasOwnProperty("error")){
+						CRMtool.showAlert(""+ret.error);
+					}else{
+						callLater(swfViewer,[ret.suc])
+					}
+				}
+			}
+			
+			private function swfViewer(swfpath:String=null,iswf:Boolean=true):void{
+				if(swfpath==null || swfpath==""){
+					CRMtool.showAlert("预览文件路径不存在");
+					return;
+				}
+				
+				var preFile:PreviewFile=new PreviewFile();
+				preFile.swfFilePath=swfpath;
+				preFile.iswf=iswf;
+				CRMtool.openView(preFile);
+				preFile.swfViewer();
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<fx:Component id="listItemRender">
+			<mx:HBox width="100%" paddingLeft="5" paddingRight="5">
+				<fx:Script>
+					<![CDATA[
+						import yssoft.models.ConstsModel;
+					]]>
+				</fx:Script>
+				
+				<s:Label text="{String(data.cname).replace('|','')}" width="100%" toolTip="{String(data.cname).replace('|','')}"/>
+				<s:Image source="{ConstsModel.png_cancel}" click="outerDocument.deleteFile()" buttonMode="true" useHandCursor="true" 
+						 visible="{outerDocument.iid == 0 ?true:false}" includeInLayout="{outerDocument.iid == 0 ?true:false}"/>
+				<s:Image source="{ConstsModel.DOWNFILE}" toolTip="下载 {String(data.cname).replace('|','')}" click="outerDocument.onDownFile()" buttonMode="true" useHandCursor="true"/>
+				<!--<s:Label text="预览" width="45" textAlign="right" click="outerDocument.previewFile()"/>-->
+				<s:Image source="{ConstsModel.PREVIEW}" toolTip="预览 {String(data.cname).replace('|','')}" click="outerDocument.previewFile()" buttonMode="true" useHandCursor="true"/>
+			</mx:HBox>
+		</fx:Component>
+	</fx:Declarations>
+	<mx:List id="fileList" width="100%" height="100%" borderVisible="false" dataProvider="{items}" itemRenderer="{listItemRender}"/>
+	<comps:CrmDotLine width="100%"/>
+	<mx:HBox id="optbar" width="100%" height="30"  horizontalAlign="right" verticalAlign="middle" paddingRight="5">
+		<s:Button id="uploadbt" label="上传" click="uploadbt_clickHandler()" width="50" />
+		<s:Button id="refreshbt" label="刷新" click="refreshFile()" width="50"/>
+	</mx:HBox>
+</mx:VBox>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

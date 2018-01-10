@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" isAllowMax="true"
+                        creationComplete="creationCompleteHandler(event)" title="状态变更" width="700" height="300">
+    <mx:VBox width="100%" height="100%">
+        <mx:HBox id="statusBox" width="100%" height="35" verticalAlign="middle" horizontalAlign="center"/>
+        <mx:HRule width="100%" height="1"/>
+        <mx:HBox width="100%" height="28" paddingLeft="10" verticalAlign="middle">
+            <mx:RadioButtonGroup id="rbg" itemClick="rbg_itemClickHandler(event)"/>
+            <mx:RadioButton label="同意" group="{rbg}" selected="true"/>
+            <mx:RadioButton label="拒绝" group="{rbg}"/>
+        </mx:HBox>
+        <mx:VBox width="100%" height="100%" paddingLeft="10" paddingRight="10">
+            <mx:TextArea id="ta" width="100%" height="100%"/>
+        </mx:VBox>
+        <mx:Spacer height="10"/>
+        <mx:HBox width="100%" height="35" paddingRight="10">
+            <mx:Spacer width="100%"/>
+            <mx:Button label="确定" click="submit_clickHandler(event)"/>
+            <mx:Button label="取消" click="close()"/>
+        </mx:HBox>
+    </mx:VBox>
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Label;
+        import mx.events.FlexEvent;
+        import mx.events.ItemClickEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        public var statusList:ArrayCollection;
+
+        public var currid:int;
+        public var ifuncregedit:int;
+        public var ctable:String;
+        public var istatus:int;
+
+        public var newistatus:int;
+        public var nowistatus:int;
+        public var nextitst:int;
+
+        private var csubject:String;//通过
+        private var crsubject:String;//拒绝
+
+        private function submit_clickHandler(event:MouseEvent):void {
+            AccessUtil.remoteCallJava("CommonalityDest", "updateStatus", function (event:ResultEvent):void {
+                CRMtool.showAlert("状态更新成功");
+                close();
+                dispatchEvent(new Event("changeSuccess"));
+            }, {iinvoice: currid, ifuncregedit: ifuncregedit, ctable: ctable, istatus: newistatus, iperson: CRMmodel.userId, csubject: ta.text}, null, false);
+        }
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            var i:int = 1;
+            var flag:Boolean = true;
+            for each(var item:Object in statusList) {
+                var label:Label = new Label();
+                label.text = i + ":" + item.cname;
+                label.setStyle("color", "0x0DAAD8");
+                if (!flag)
+                    label.setStyle("color", "0xC3C3C3");
+                if (item.istatus == istatus) {
+                    flag = false;
+                    csubject = item.csubject;
+                    crsubject = item.crsubject;
+                    ta.text = csubject;
+                }
+                statusBox.addChild(label);
+                i++;
+            }
+            newistatus = istatus;
+        }
+
+        private function rbg_itemClickHandler(event:ItemClickEvent):void {
+            if (event.index == 0) {
+                newistatus = istatus;
+                ta.text = csubject;
+            } else {
+                newistatus = 0 - nowistatus;
+                ta.text = crsubject;
+            }
+        }
+        ]]></fx:Script>
+</basic:BasicTitleWindow>

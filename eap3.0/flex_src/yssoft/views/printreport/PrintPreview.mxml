@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:myreport="myreport.*"
+         width="100%" height="100%" styleName="topcontent"
+         implements="yssoft.impls.ICRMWindow"
+         creationComplete="Init();creationCompleteHandler(event)">
+    <fx:Script>
+		<![CDATA[
+        import hlib.MsgUtil;
+
+        import mx.events.FlexEvent;
+
+        import myreport.ExportUtil;
+        import myreport.ReportEngine;
+        import myreport.res.Asset;
+        import myreport.util.ToolButton;
+
+        [Bindable]
+        public var winParam:Object = new Object();
+
+
+        private function Init():void {
+            //隐藏控件关于和关闭按钮
+            this.printReport._ReportViewer_ToolButton2.visible = false;
+            this.printReport._ReportViewer_ToolButton3.visible = false;
+            //printReport.Show(new XML(winParam.style.ToXML()), winParam.style.TableData, winParam.style.ParameterData);
+            printReport.Load(new XML(winParam.style.ToXML()), winParam.style.TableData, winParam.style.ParameterData);
+
+
+        }
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            //外部方式向printReport添加自定义按钮
+            var exportPDF1:ToolButton = new ToolButton();
+            exportPDF1.width = 23;
+            exportPDF1.setStyle("icon", Asset.ICON_FILE_PDF16);
+            exportPDF1.toolTip = "导出PDF";
+            exportPDF1.addEventListener(MouseEvent.CLICK, OnExportPDFAsync1);
+            printReport.CustomToolBar.addChild(exportPDF1);
+
+            var exportXLS1:ToolButton = new ToolButton();
+            exportXLS1.width = 23;
+            exportXLS1.setStyle("icon", Asset.ICON_FILE_XLS16);
+            exportXLS1.toolTip = "导出XLS";
+            exportXLS1.addEventListener(MouseEvent.CLICK, OnExportXLSAsync1);
+            printReport.CustomToolBar.addChild(exportXLS1);
+        }
+
+        //窗体初始化
+        public function onWindowInit():void {
+
+        }
+
+        //窗体打开
+        public function onWindowOpen():void {
+            Init();
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+
+        }
+
+        private function OnExportPDF1(e:MouseEvent):void
+        {
+            var bytes:* = ExportUtil.ExportPDF(printReport.Setting,
+                    printReport.TableData,
+                    printReport.ParameterData);
+            var file:FileReference = new FileReference();
+            //保存到本地，该方法要Flash player 10以上
+            file.save(bytes, "Export1.pdf");
+            hlib.MsgUtil.ShowInfo("数据已成功导出。");
+        }
+
+        //处理导出PDF代码
+        private function OnExportPDFAsync1(e:MouseEvent):void
+        {
+            ExportUtil.ExportPDFAsync(printReport.Setting,
+                    printReport.TableData,
+                    printReport.ParameterData,
+                    function(bytes:*):void
+                    {
+                        var file:FileReference = new FileReference();
+                        //保存到本地，该方法要Flash player 10以上
+                        file.save(bytes, "Export1.pdf");
+                        hlib.MsgUtil.ShowInfo("数据已成功导出。");
+                    });
+        }
+
+        //处理导出XLS代码
+        private function OnExportXLSAsync1(e:MouseEvent):void
+        {
+            ExportUtil.ExportXLSAsync(printReport.Setting,
+                    printReport.TableData,
+                    printReport.ParameterData, function(bytes:*):void
+                    {
+                        var file:FileReference = new FileReference();
+                        //保存到本地，该方法要Flash player 10以上
+                        file.save(bytes, "Export1.xls");
+                        hlib.MsgUtil.ShowInfo("数据已成功导出。");
+                    });
+        }
+
+
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <myreport:ReportViewer id="printReport" width="100%" height="100%"></myreport:ReportViewer>
+</mx:VBox>

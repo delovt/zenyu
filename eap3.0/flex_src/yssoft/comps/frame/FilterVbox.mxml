@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:module="yssoft.comps.frame.module.*" width="100%" height="100%" minWidth="150"
+         horizontalScrollPolicy="off"
+         creationComplete="creationCompleteHandler(event)">
+    <mx:HBox width="100%" horizontalGap="0" horizontalScrollPolicy="off" paddingLeft="4">
+        <mx:CheckBox id="selectAllBox"/>
+        <mx:Label id="mainLabel" textAlign="left" maxWidth="80" text="{mainLabelText}"/>
+        <mx:Label id="selectLabel" textAlign="left" width="{this.width-mainLabel.width-selectAllBox.width-3}"/>
+    </mx:HBox>
+    <mx:HRule width="100%"/>
+    <module:FilterList id="filterList" width="100%" height="100%"
+                       selectedChanged="filterList_selectedChangedHandler(event)"/>
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+
+        [Bindable]
+        public var mainLabelText:String;
+        public var cfield:String;
+        public var dataValue:ArrayCollection;
+        public var filterAC:ArrayCollection;
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            filterAC.addItem(filterList);
+            filterList.selectLabel = selectLabel;
+            filterList.selectAllBox = selectAllBox;
+            filterList.cfield = cfield;
+            filterList.dataValue = dataValue;
+
+            filterList.refresh(dataValue);
+        }
+
+        private function filterList_selectedChangedHandler(event:Event):void {
+            dispatchEvent(new Event("selectedChanged"));
+        }
+        ]]></fx:Script>
+</mx:VBox>

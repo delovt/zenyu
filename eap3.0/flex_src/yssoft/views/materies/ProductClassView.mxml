@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+                height="100%"
+                xmlns:comps="yssoft.comps.*"
+                creationComplete="init()" implements="yssoft.impls.ICRMWindow">
+    <fx:Script>
+		<![CDATA[
+        import mx.events.ItemClickEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.vos.ScProductClassVo;
+
+        [Bindable]
+        public var titleLabel:String = "";
+        [Bindable]
+        public var treObject:XML;
+        [Bindable]
+        public var operateState:String = "";
+        [Bindable]
+        public var classVo:ScProductClassVo = new ScProductClassVo();
+
+        //窗体初始化
+        public function onWindowInit():void {
+
+        }
+
+        //窗体打开
+        public function onWindowOpen():void {
+            clearFrom();
+            tree_pub.enabled = true;
+            init();
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+
+        }
+
+        private function init():void {
+            //回车替代TAB键
+            CRMtool.setTabIndex(tabVbox);
+            CRMtool.toolButtonsEnabled(this.lbr_role, null); //按钮互斥
+            CRMtool.containerChildsEnabled(this.Vbox_Enabld, false);
+            AccessUtil.remoteCallJava("CalculateMaterielDest", "getSc_productClassList", callFun);
+        }
+
+        private function callFun(e:ResultEvent):void {
+            if (e.result != null) {
+                var treexml:XML = new XML(e.result as String);
+                tree_pub.treeCompsXml = treexml;
+            }
+        }
+
+
+        private function tree_click():void {
+            if (this.tree_pub.selectedItem == null) {
+                return;
+            }
+            treObject = this.tree_pub.selectedItem as XML;
+            if (treObject.hasComplexContent()) {
+                return;
+            }
+        }
+
+        private function onOperate(event:ItemClickEvent):void {
+            var type:String = event.item.name;
+            if (type == "onNew") {
+                clearFrom();
+                tree_pub.enabled = false;
+                CRMtool.containerChildsEnabled(this.Vbox_Enabld, true);
+                CRMtool.toolButtonsEnabled(this.lbr_role, type); //按钮互斥
+                operateState = "onNew";
+            }
+            else if (type == "onEdit") {
+                if (!this.tree_pub.selectedItem) {
+                    CRMtool.tipAlert("请选择要修改的记录");
+                    return;
+                }
+                tree_pub.enabled = false;
+                CRMtool.containerChildsEnabled(this.Vbox_Enabld, true);
+                CRMtool.toolButtonsEnabled(this.lbr_role, type); //按钮互斥
+                operateState = "onEdit";
+            }
+            else if (type == "onDelete") {
+
+                if (!this.tree_pub.selectedItem) {
+                    CRMtool.tipAlert("请选择要删除的记录");
+                    return;
+                }
+                if (this.tree_pub.isExistsChild(this.tree_pub.selectedItem.@ccode, ConstsModel.ROLE_ROMEVE_PID)) {
+                    return;
+                }
+                if (Number(this.tree_pub.selectedItem.@iproductclass) > 0) {
+                    CRMtool.tipAlert("此分类已经被相关产品引用，不允许删除。");
+                    return;
+                }
+                operateState = "onDelete";
+                CRMtool.toolButtonsEnabled(this.lbr_role, type); //按钮互斥
+                CRMtool.tipAlert(ConstsModel.DETERMINE_HEAD + treObject.@cname + "]物料分类?", null, "AFFIRM", this, "onDeleteScProductClass");
+            } else if (type == "onSave") {
+                //首先判断编码是否为空
+                if (CRMtool.isStringNull(this.tnp_classCode.text)) {
+                    CRMtool.tipAlert("分组编码不能为空", this.tnp_classCode);
+                    return;
+                }
+                else if (CRMtool.isStringNull(this.tnp_className.text)) {
+                    CRMtool.tipAlert("分组名称不能为空", this.tnp_className);
+                    return;
+                }
+                //判断编码是否存在
+                if (( tree_pub.selectedItem == null || CRMtool.getNumber(tree_pub.selectedItem.@iid) == 0) && tree_pub.isExistsCcode(this.tnp_classCode.text, "该编码已存在,请重新输入...")) {
+                    return;
+                }
+
+                if (tree_pub.selectedItem != null && CRMtool.getNumber(tree_pub.selectedItem.@iid) >= 0 && this.tnp_classCode.text != tree_pub.selectedItem.@ccode) {
+                    if (tree_pub.isExistsCcode(this.tnp_classCode.text, "该编码已存在,请重新输入")) {
+                        return;
+                    }
+                }
+
+                /*if(type=="onNew"||(type==ConstsModel.ONEDIT_LABLE&&this.tree_pub.selectedItem.@ccode!=this.tnp_classCode.text))
+                 {
+                 if(this.tree_pub.isExistsCcode(this.tnp_classCode.text,ConstsModel.ROLE_CCODE_WARNMSG))
+                 {
+                 return;
+                 }
+                 }*/
+                if (!this.tree_pub.isExistsParent(this.tnp_classCode.text, ConstsModel.ROLE_PID_WARNMSG))return;  //判断输入编号是否有父节点
+                CRMtool.toolButtonsEnabled(this.lbr_role, type); //按钮互斥
+                if (operateState == "onNew") {
+                    AccessUtil.remoteCallJava("CalculateMaterielDest", "addScProductClass", call_fun_result, this.getParams());
+                } else {
+                    AccessUtil.remoteCallJava("CalculateMaterielDest", "updateScProductClass", call_fun_result, this.getParams());
+                }
+            } else if (type == "onGiveUp") {
+                CRMtool.containerChildsEnabled(this.Vbox_Enabld, false);
+                CRMtool.toolButtonsEnabled(this.lbr_role, type); //按钮互斥
+                tree_pub.enabled = true;
+            }
+        }
+
+        private function call_fun_result(e:ResultEvent):void {
+            var str:String = e.result as String;
+            this.loadClassVo();
+            if (operateState == "onNew") {
+                str = e.result.flag;
+            }
+            if (str == "success") {
+                CRMtool.tipAlert("操作成功！");
+                CRMtool.containerChildsEnabled(this.Vbox_Enabld, false);
+                tree_pub.enabled = true;
+                if (operateState == "onNew") {
+                    classVo.iid = int(e.result.iid);
+                    this.tree_pub.AddTreeNode(classVo);
+                } else if (operateState == "onEdit") {
+                    this.tree_pub.EditTreeNode(classVo);
+                } else if (operateState == "onDelete") {
+                    this.tree_pub.DeleteTreeNode();
+                }
+            } else CRMtool.tipAlert("操作失败！");
+        }
+
+        public function onDeleteScProductClass():void {
+            var params:Object = this.getParams();
+
+            if (treObject.hasComplexContent()) {
+                params.delSonNode = "true";
+            }
+            AccessUtil.remoteCallJava("CalculateMaterielDest", "delScProductClass", call_fun_result, params);
+        }
+
+
+        //获取所有参数
+        private function getParams():Object {
+            var params:Object = new Object();
+            params.iid = treObject == null ? "" : int(treObject.@iid);
+            params.ccode = this.tnp_classCode.text;
+            params.cmemo = this.tnp_classMemo.text;
+            params.cname = this.tnp_className.text;
+            params.cabbreviation = this.tnp_cabbreviation.text;
+            params.ipid = this.tree_pub.getIpid(this.tnp_classCode.text);
+            params.oldCode = treObject == null ? "" : treObject.@ccode + "";
+            return params;
+        }
+
+
+        private function loadClassVo():void {
+            var params:Object = this.getParams();
+
+            //加载  vo 对象
+            classVo.iid = params.iid;
+            classVo.ccode = params.ccode;
+            classVo.cname = params.cname;
+            classVo.ipid = params.ipid;
+            classVo.cmemo = params.cmemo;
+            classVo.cabbreviation = params.cabbreviation;
+        }
+
+        //清空
+        private function clearFrom():void {
+            this.tree_pub.selectedIndex = -1;
+            this.tnp_classCode.text = "";
+            this.tnp_className.text = "";
+            this.tnp_classMemo.text = "";
+            this.tnp_cabbreviation.text = "";
+        }
+        ]]>
+	</fx:Script>
+
+    <!-- 角色树 -->
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <mx:Label text="产品分类" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tree_pub" width="100%" height="100%" itemClick="tree_click()"/>
+        </mx:HBox>
+    </mx:VBox>
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="centerbg4">
+        <mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+            <comps:LinkBarVboxComps id="lbr_role" height="25" width="15%" buttonWidth="48"
+                                    dataProvider="{ConstsModel.LBRITEM}" itemClick="onOperate(event)"
+                                    styleName="contentButtonBar"/>
+            <s:Spacer width="95%"/>
+        </mx:ApplicationControlBar>
+        <mx:VBox width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10">
+
+            <mx:VBox width="100%" cornerRadius="8" backgroundColor="#f7f7f7" id="Vbox_Enabld">
+                <mx:Canvas id="vsCav_Unit" width="100%" backgroundAlpha="0">
+                    <mx:HBox width="100%" horizontalAlign="center">
+                        <mx:VBox id="tabVbox" width="100%" styleName="content">
+
+                            <mx:HBox width="100%" height="28" verticalAlign="middle">
+                                <mx:Label text="  分类编码"/>
+                                <mx:TextInput id="tnp_classCode" restrict="^'" width="98%" text="{treObject.@ccode}"
+                                              styleName="contentTextInput"/>
+                            </mx:HBox>
+                            <mx:HRule width="100%"/>
+                            <mx:HBox width="100%" height="28" verticalAlign="middle">
+                                <mx:Label text="  分类名称"/>
+                                <mx:TextInput id="tnp_className" width="98%" text="{treObject.@cname}"
+                                              styleName="contentTextInput"/>
+                            </mx:HBox>
+                            <mx:HRule width="100%"/>
+                            <mx:HBox width="100%" height="26" verticalAlign="middle">
+                                <mx:Label text="  编码前缀"/>
+                                <mx:TextInput id="tnp_cabbreviation" width="98%" text="{treObject.@cabbreviation}"
+                                              styleName="contentTextInput"/>
+                            </mx:HBox>
+                            <mx:HRule width="100%"/>
+                            <mx:HBox width="100%" height="26" verticalAlign="middle">
+                                <mx:Label text="  备注说明"/>
+                                <mx:TextInput id="tnp_classMemo" width="98%" text="{treObject.@cmemo}"
+                                              styleName="contentTextInput"/>
+                            </mx:HBox>
+
+                        </mx:VBox>
+                    </mx:HBox>
+                </mx:Canvas>
+            </mx:VBox>
+
+        </mx:VBox>
+    </mx:VBox>
+</mx:HDividedBox>

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" minHeight="20" horizontalScrollPolicy="off" paddingBottom="-2"
+         paddingRight="10"
+         mouseOver="mOver(data,event)" click="mClick(data,event)"
+
+        >
+
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+
+        import spark.layouts.BasicLayout;
+        import spark.layouts.HorizontalLayout;
+
+        private var labelButtonBasicColor:String = "black";
+        private var labelButtonSelectedColor:String = "#32a7e1";
+        private var labelButtonMultiSelectedAble:Boolean = false;
+
+        public function mOver(myData:Object, evt:MouseEvent):void {
+            var param:Object = {};
+            param.myData = myData;
+            param.evt = evt;
+            dispatchEvent(new MyEvent(param, "mOver", true, true));
+        }
+
+        public function mClick(myData:Object, evt:MouseEvent):void {
+            var param:Object = {};
+            param.myData = myData;
+            param.evt = evt;
+            dispatchEvent(new MyEvent(param, "mClick", true, true));
+        }
+
+        override public function set data(value:Object):void {
+            container.layout = new HorizontalLayout();
+            super.data = value;
+            if (data && data.textButtonsList) {
+                initTextButtons();
+            }
+            if (data && data.labelButtonsList) {
+                initLabelButtons();
+            }
+            if (data && data.dupload) {
+                container.layout = new BasicLayout();
+                labelPlusButtons.visible = true;
+                labelPlusButtons.addChild(attachmentButtons);
+                this.addEventListener(MouseEvent.MOUSE_OVER, hbox1_mouseOverHandler);
+                this.addEventListener(MouseEvent.MOUSE_OUT, hbox1_mouseOutHandler);
+            } else {
+                labelPlusButtons.visible = false;
+                if (this.hasEventListener(MouseEvent.MOUSE_OUT)) {
+                    this.removeEventListener(MouseEvent.MOUSE_OUT, hbox1_mouseOutHandler);
+                }
+                if (this.hasEventListener(MouseEvent.MOUSE_OVER)) {
+                    this.removeEventListener(MouseEvent.MOUSE_OVER, hbox1_mouseOverHandler);
+                }
+            }
+            if (data && (data.mainLabel + "").length > 20)
+                mainLabel.toolTip = data.mainLabel;
+        }
+
+        private function initTextButtons():void {
+            var textButtonsList:ArrayCollection = data.textButtonsList as ArrayCollection;
+            if (textButtonsList.length > 0) {
+                textButtons.removeAllChildren();
+                var i:int = 0;
+                for each(var item:Object in textButtonsList) {
+                    if (i != 0) {
+                        var label:Label = new Label();
+                        label.text = "|";
+                        textButtons.addChild(label);
+                    }
+
+                    var textButton:Label = new Label();
+                    textButton.text = item.label;
+                    textButton.buttonMode = true;
+                    textButton.addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
+                        if (item.buttonEventListener)
+                            item.buttonEventListener(event, data);
+                        event.stopPropagation();
+                    });
+                    item.button = textButton;
+                    textButtons.addChild(textButton);
+                    i++;
+                }
+            }
+        }
+
+        private function drawLabelButtons(labelButtonsList:ArrayCollection, labelButtons:HBox):void {
+            if (labelButtonsList.length > 0) {
+                labelButtons.removeAllChildren();
+//					var i:int = 0;
+                //for each(var item:Object in labelButtonsList){
+//					var labelButtonsList1:ArrayCollection = new ArrayCollection();
+//					labelButtonsList1.addAll(labelButtonsList);
+                for (var i:int = 0; i < labelButtonsList.length; i++) {
+                    var item:Object = labelButtonsList[i];
+//						if(i<labelButtonsList1.length){
+//							labelButtonsList1.removeItemAt(0);
+//						}
+//						if(i>=3){
+//							var hBox:HBox = new HBox();
+//							
+//							hBox.percentHeight=100;
+//							hBox.percentWidth=100;
+//							var hBoxInner:HBox = new HBox();
+//							hBox.addChild(hBoxInner);
+//							this.addChild(hBox);
+//							drawLabelButtons(labelButtonsList1,hBoxInner);
+//							return;
+//							
+//						}
+                    if (i != 0) {
+                        var label:LabelButton = new LabelButton();
+                        label.text = "|";
+                        labelButtons.addChild(label);
+                    }
+
+                    var labelButton:LabelButton = new LabelButton();
+                    if (item.label) {
+                        labelButton.text = item.label;
+                        labelButton.name = item.label;
+                    }
+
+                    labelButton.paramData = {iperson: item.iperson, bselected: false, irole: item.irole};
+                    labelButton.buttonMode = true;
+                    labelButton.addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
+
+//							var label:LabelButton = event.currentTarget as LabelButton;
+//							var item:Object = label.paramData;
+//							if(item.bselected){
+//								item.bselected = false;
+//								label.setStyle("color",labelButtonBasicColor);
+//							}else{
+//								item.bselected = true;
+//								label.setStyle("color",labelButtonSelectedColor);
+//								setLabelButtonsListOtherSelected(label);
+//							}
+                        if (item.buttonEventListener) {
+                            item.buttonEventListener(event);
+                        }
+                        event.stopPropagation();
+                    });
+//						item.button = labelButton;
+
+                    labelButtons.addChild(labelButton);
+//						i++;
+
+                }
+            } else {
+                labelButtons.removeAllChildren();
+            }
+        }
+
+        private function initLabelButtons():void {
+            var labelButtonsList:ArrayCollection = data.labelButtonsList as ArrayCollection;
+
+            drawLabelButtons(labelButtonsList, labelButtons);
+
+        }
+
+        //			private function setLabelButtonsListOtherSelected(label:LabelButton):void{
+        //				for each(var labelitem:LabelButton in labelButtons.getChildren()){
+        //					if(labelitem==label){
+        //
+        //					}else{
+        //						labelitem.paramData.bselected = false;
+        //						labelitem.setStyle("color",labelButtonBasicColor);
+        //					}
+        //				}
+        //			}
+        //
+        private function hbox1_mouseOverHandler(event:MouseEvent):void {
+            labelPlusButtonsFade.alphaTo = 1;
+            labelPlusButtonsFade.stop();
+            labelPlusButtonsFade.play();
+        }
+
+        private function hbox1_mouseOutHandler(event:MouseEvent):void {
+            labelPlusButtonsFade.alphaTo = 0;
+            labelPlusButtonsFade.stop();
+            labelPlusButtonsFade.play();
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Fade id="labelPlusButtonsFade" target="{labelPlusButtons}" duration="200"/>
+        <mx:HBox id="attachmentButtons" backgroundColor="#edf6ff">
+            <mx:LinkButton height="14" icon="@Embed(source='/yssoft/assets/images/attachment_see.png')" visible="false" includeInLayout="false"
+                           click="{dispatchEvent(new MyEvent(data,'attachment_see',true))}"/>
+            <mx:LinkButton height="14" icon="@Embed(source='/yssoft/assets/images/attachment_download.png')"
+                           click="{dispatchEvent(new MyEvent(data,'attachment_download',true))}"/>
+            <mx:LinkButton height="14" icon="@Embed(source='/yssoft/assets/images/attachment_del.png')"
+                           click="{dispatchEvent(new MyEvent(data,'attachment_del',true))}"/>
+        </mx:HBox>
+    </fx:Declarations>
+    <s:Spacer height="2"/>
+    <s:Group width="100%" height="100%" id="container">
+        <s:Group>
+            <s:layout>
+                <s:HorizontalLayout gap="12" paddingLeft="1"/>
+            </s:layout>
+            <s:Image height="100%" source="@Embed(source='/yssoft/assets/images/side_point.png')"/>
+            <s:Label id="mainLabel" text="{data.mainLabel}" fontSize="12" height="100%" maxWidth="240"
+                     maxDisplayedLines="1"/>
+            <mx:HBox id="labelButtons" fontSize="12" height="100%"/>
+            <s:Spacer width="100%"/>
+            <s:Label id="childLabel" text="{data.childLabel}" fontSize="12" color="#ADADAD"/>
+        </s:Group>
+
+        <mx:HBox id="labelPlusButtons" height="100%" alpha="0" visible="false" x="{this.width-110}"/>
+    </s:Group>
+    <mx:HBox id="textButtons" paddingLeft="10" paddingTop="5"/>
+    <mx:Text id="text" width="{explicitWidth-20}" text="{data.text}" color="#FF8406"/>
+</mx:VBox>

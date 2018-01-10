@@ -1,0 +1,334 @@
+<ReportSettings version="1.1">
+  <PageHeight>9.3</PageHeight>
+  <TopMargin>0.9</TopMargin>
+  <BottomMargin>0.5</BottomMargin>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>收  据</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+            <TextUnderline>true</TextUnderline>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <Height>1</Height>
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>收款日期：</Value>
+          <BindingValue>入账日期</BindingValue>
+          <Width>12.8</Width>
+          <Format>D</Format>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>单据号：</Value>
+          <BindingValue>收据单号</BindingValue>
+          <Width>4.8</Width>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.5</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.5</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <Height>1.1</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>交款单位：</Value>
+          <Style>
+            <RightBorder>false</RightBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>交款单位</BindingValue>
+          <Style>
+            <TextUnderline>true</TextUnderline>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>收款方式：</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>收款方式</BindingValue>
+          <Style>
+            <TextUnderline>true</TextUnderline>
+            <LeftBorder>false</LeftBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>2</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <MergeSameContent>true</MergeSameContent>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.9</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>人民币（大写）：</Value>
+          <Style>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=CurrencyCN(Parameters!收款金额.Value)</Value>
+          <BindingValue>收款金额</BindingValue>
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>3</ColSpan>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting"/>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+            <Border>false</Border>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>收款金额</BindingValue>
+          <Style>
+            <TextUnderline>true</TextUnderline>
+            <LeftBorder>false</LeftBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <Format>C#,#2</Format>
+          <ColSpan>2</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>1.2</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>收款事由：</Value>
+          <Style>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>收款事由</BindingValue>
+          <Style>
+            <Border>false</Border>
+            <TextUnderline>true</TextUnderline>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+            <LeftBorder>false</LeftBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>2</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+            <LeftBorder>false</LeftBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>2</ColSpan>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.8</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>制单时间</BindingValue>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <LeftBorder>false</LeftBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <Format>D</Format>
+          <ColSpan>2</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>2</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableFooterSettings>
+    <ItemSetting type="TableRowSetting">
+      <Height>1.4</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>单位盖章</Value>
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>财会主管：</Value>
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>记账：</Value>
+          <BindingValue>记账</BindingValue>
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>出纳：</Value>
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>审核：</Value>
+          <BindingValue>审核</BindingValue>
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>经办：</Value>
+          <BindingValue>经办人</BindingValue>
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

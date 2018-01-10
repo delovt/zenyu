@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" label="关联执行" enabled="false"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" verticalGap="0" horizontalAlign="right"
+		creationComplete="creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+		import mx.events.FlexEvent;
+
+		import spark.events.TextOperationEvent;
+
+		import yssoft.comps.NodeElement;
+
+		import yssoft.evts.FWFChangeEvent;
+		import yssoft.tools.CRMtool;
+
+		[Bindable]
+		private var _cexecsql:String;
+		public function get cexecsql():String {
+			return _cexecsql;
+		}
+
+		public function set cexecsql(value:String):void {
+			_cexecsql = value;
+		}
+
+		private function creationCompleteHandler(event:FlexEvent):void {
+			this.stage.addEventListener(FWFChangeEvent.SOURCEOBJECTCHANGE, onSourceChange);
+		}
+
+		[Bindable]
+		public var nodeElement:NodeElement = new NodeElement();
+
+		private function onSourceChange(event:FWFChangeEvent):void {
+			this.nodeElement = event.source as NodeElement;
+			this.enabled = true;
+		}
+
+		private function cexecsql_ui_changeHandler(event:TextOperationEvent):void {
+			if (CRMtool.replaceReadXMLMarkValues(nodeElement.cexecsql) != cexecsql_ui.text) {
+				var fwf:FWFChangeEvent = new FWFChangeEvent(FWFChangeEvent.PROPERTYCHANGE, nodeElement, "cexecsql", nodeElement.cexecsql, CRMtool.replaceToXMLMarkValues(cexecsql_ui.text));
+				this.stage.dispatchEvent(fwf);
+			}
+		}
+		]]>
+	</fx:Script>
+	<s:TextArea id="cexecsql_ui" width="100%" height="100%" borderVisible="false" text="{CRMtool.replaceReadXMLMarkValues(nodeElement.cexecsql)}"
+				change="cexecsql_ui_changeHandler(event)" editable="{this.enabled}"/>
+<!--	<mx:HBox>
+		<mx:Spacer width="100%"/>
+		<mx:Button label="确定" click="button1_clickHandler(event)"/>
+		<mx:Button label="放弃" click="cexecsql_ui.text=CRMtool.replaceReadXMLMarkValues(nodeElement.cexecsql)"/>
+	</mx:HBox>-->
+</mx:VBox>

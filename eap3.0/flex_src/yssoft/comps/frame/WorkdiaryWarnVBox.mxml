@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*" xmlns:frameui="yssoft.frameui.*" horizontalGap="0"
+                width="100%" height="100%"
+                creationComplete="workdiaryWarnVBox_creationCompleteHandler(event)"
+        >
+
+    <fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.ISort;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import spark.collections.Sort;
+        import spark.collections.SortField;
+        import spark.events.IndexChangeEvent;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.DateHadle;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var ui_iaddress:CrmEapTextInput;//地理区域
+        private var ui_imaker:CrmEapTextInput;//活动跟进人员
+
+        //权限sql
+        private var authSql:String;
+        //权限类对象
+        public var auth:OperDataAuth;
+
+        [Bindable]
+        private var sum:int = 0;
+        private var allList:ArrayCollection = new ArrayCollection();
+        private var jieduan:ArrayCollection = new ArrayCollection();
+
+        private function workdiaryWarnVBox_creationCompleteHandler(event:FlexEvent):void {
+            initAddressItem("iaddress");//地理区域
+            initFollowItem("imaker");//活动跟进人员
+            initStyle();//计划方式
+
+            AccessUtil.remoteCallJava("customerDest", "getJieduan", function (event:ResultEvent):void {
+                if (event.result as ArrayCollection) {
+                    jieduan = event.result as ArrayCollection;
+                    mainDG.rowCount = jieduan.length;
+                }
+            }, {});
+
+            auth = new OperDataAuth();
+
+            //---------------加载数据权限 ---------------//
+            auth.addEventListener("onGet_FundataauthSucess", function (evt:Event):void {
+                authSql = auth.getdataauthcondition("01", 46, CRMmodel.userId, CRMmodel.hrperson.idepartment, "oa_workdiary", 1);
+            });
+            auth.get_fundataauth({ifuncregedit: 46, iperson: CRMmodel.userId});
+        }
+        //地理区域参照
+        private function initAddressItem(name:String):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = "44";
+            obj1.ctable = "cs_customer";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+        //活动跟进人员参照
+        private function initFollowItem(name:String):void{
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = "46";
+            obj1.ctable = "oa_workdiary";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+        //计划方式参照（下拉框）
+        private function initStyle():void{
+            var sql:String = "select '' label union select cname from aa_data where iclass=22";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+                ui_cnexStyle.dataProvider = ac;
+            },sql);
+        }
+
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.width = 161;
+                consultTextInput.name  = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+                consultTextInput.styleName = "contentTextInputOther";
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+
+        //查询
+        protected function searchButton_clickHandler(event:MouseEvent):void {
+
+            this.mainDG.dataProvider = null;
+
+            var searchObj:Object = new Object();
+            //地理区域
+            if (ui_iaddress.consultList.length > 0)
+                searchObj.iaddress = this.ui_iaddress.consultList[0].iid;
+            //活动跟进人员
+            if (ui_imaker.consultList.length > 0)
+                searchObj.imaker = this.ui_imaker.consultList[0].iid;
+            //计划方式
+            if (this.ui_cnexStyle.selectedIndex > 0)
+                searchObj.cnexstyle = this.ui_cnexStyle.selectedItem.label;
+            searchObj.sddate = this.ui_sddate.text;//提醒开始日期
+            searchObj.eddate = this.ui_eddate.text;//提醒结束日期
+
+            searchObj.authSql = authSql;
+            AccessUtil.remoteCallJava("customerDest", "getWorkdiaryDate", searchBack, searchObj);
+        }
+        //列表数据
+        private function searchBack(event:ResultEvent):void {
+            if (event.result) {
+                allList = event.result as ArrayCollection;
+                sum = allList.length;//总条目
+                mainDG.dataProvider = allList;
+            }
+        }
+        //序号
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = mainDG.dataProvider.getItemIndex(item) + 1;
+            return lineNum + "";
+        }
+
+        protected function mainDG_doubleClickHandler(event:MouseEvent):void {
+            CRMtool.openbillonbrowse(46, mainDG.selectedItem.iid, "加载活动.....");
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="stretch" target="{boxLeftRoot}" duration="700" widthTo="257"/>
+        <s:Resize id="contract" target="{boxLeftRoot}" duration="700" widthTo="0"/>
+    </fx:Declarations>
+	<mx:VBox id="boxLeftRoot" width="270"  height="100%" styleName="lefttree" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="frameSideAppBar">
+				<s:Label styleName="contentTitle" text="查询条件"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox paddingLeft="10" paddingTop="10" paddingRight="10" id="searchBox" width="100%" height="270"  styleName="funnelReportForm"
+					 verticalGap="5">
+                <mx:HBox id="ui_iaddress_box" width="100%">
+                    <mx:FormItemLabel text="客户地理区域："/>
+                </mx:HBox>
+                <mx:HBox id="ui_imaker_box" width="100%">
+                    <mx:FormItemLabel text="活动跟进人员："/>
+                </mx:HBox>
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="下次计划方式："/>
+                    <s:ComboBox id="ui_cnexStyle"  width="100%"  selectedIndex="0"/>
+                </mx:HBox>
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="提醒开始日期："/>
+                    <comps:DateControl id="ui_sddate" width="100%" editable="true" isStyle="false" showShape="0"/>
+                </mx:HBox>
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="提醒结束日期："/>
+                    <comps:DateControl id="ui_eddate" width="100%" editable="true" isStyle="false" showShape="0"
+                                       text="{DateHadle.getEndOfYear()}"/>
+                </mx:HBox>
+
+                <mx:HBox width="100%" paddingTop="10" horizontalAlign="right">
+                    <mx:Button label="查询" width="50" height="20"  click="searchButton_clickHandler(event)"/>
+                </mx:HBox>
+			</mx:VBox>
+	</mx:VBox>
+
+    <frameui:FoldGapBox id="jiange" targetBox="{boxLeftRoot}"/>
+	
+	<mx:VBox width="100%" height="100%" styleName="centerbg03">
+        <mx:ApplicationControlBar width="100%" height="32" styleName="centertop1">
+            <s:Label styleName="contentTitle" text="客商活动{sum==0?'':' ['+sum+']'}"/>
+            <s:Spacer width="100%"/>
+        </mx:ApplicationControlBar>
+
+		<mx:VDividedBox width="100%" height="100%">
+			<mx:VBox width="100%" height="100%">
+				<mx:HBox  width="100%" height="100%" paddingTop="-1">
+					<mx:DataGrid  width="100%"  height="100%" id="mainDG" sortableColumns="true" horizontalScrollPolicy="auto" rowHeight="25" doubleClickEnabled="true" doubleClick="mainDG_doubleClickHandler(event)">
+						<mx:columns>
+                            <mx:DataGridColumn labelFunction="{doLineNum}" width="30"/>
+							<mx:DataGridColumn headerText="客户名称" dataField="customer_name" itemRenderer="mx.controls.Label" width="200" />
+							<mx:DataGridColumn headerText="地理区域" dataField="address_name" itemRenderer="mx.controls.Label" width="80" />
+							<mx:DataGridColumn headerText="地址" dataField="cofficeaddress" itemRenderer="mx.controls.Label" width="200" />
+                            <mx:DataGridColumn headerText="商机名称" dataField="opportunity" itemRenderer="mx.controls.Label" width="80" />
+                            <mx:DataGridColumn headerText="最近跟进人" dataField="maker" itemRenderer="mx.controls.Label" width="80" />
+							<mx:DataGridColumn headerText="最近时间" dataField="dbegin" itemRenderer="mx.controls.Label" textAlign="center"  labelFunction="{CRMtool.formatDate}" width="80" />
+                            <mx:DataGridColumn headerText="活动方式" dataField="style" itemRenderer="mx.controls.Label" width="80" />
+                            <mx:DataGridColumn headerText="客户人员" dataField="custperson" itemRenderer="mx.controls.Label" width="80" />
+                            <mx:DataGridColumn headerText="部门" dataField="cdepartment" itemRenderer="mx.controls.Label" width="80" />
+                            <mx:DataGridColumn headerText="职位" dataField="cpost" itemRenderer="mx.controls.Label" width="80" />
+                            <mx:DataGridColumn headerText="电话" dataField="ctel" itemRenderer="mx.controls.Label" width="80" />
+                            <mx:DataGridColumn headerText="手机" dataField="cmobile1" itemRenderer="mx.controls.Label" width="80" />
+                            <mx:DataGridColumn headerText="活动内容" dataField="cdetail" itemRenderer="mx.controls.Label" width="200" />
+                            <mx:DataGridColumn headerText="下次活动时间" dataField="dmessage" itemRenderer="mx.controls.Label" textAlign="center"  labelFunction="{CRMtool.formatDate}" width="80" />
+                            <mx:DataGridColumn headerText="下次活动主题" dataField="cmessage" itemRenderer="mx.controls.Label" width="200" />
+                            <mx:DataGridColumn headerText="下次计划方式" dataField="cnexstyle" itemRenderer="mx.controls.Label" width="80" />
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VDividedBox>
+	</mx:VBox>
+</mx:HDividedBox>

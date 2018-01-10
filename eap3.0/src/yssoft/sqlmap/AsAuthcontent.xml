@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 获取菜单列表(注册表中参与操作权限管理的菜单) -->
+	<select id="AuthcontentDest.getTreeMenu" resultClass="java.util.HashMap" >
+		Select  iid,ipid, ccode, cname, cprogram, ctable, iworkflow, iform, coperauth, cdataauth,bdictionary,bnumber,bquery, 
+		blist,brepeat,isnull(bworkflow,0) bworkflow,cparameter,ifuncregedit,boperauth,bdataauth from as_funcregedit
+		where boperauth=1 
+		order by ccode 
+	</select>
+
+<!--	YJ Add 20111005  获取权限内容	-->
+	<select id="AuthcontentDest.getDataList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap"  >
+		select iid,ipid,ifuncregedit,ccode,cname,ccaption,coperauth,buse,cmemo,cfunction,cform from as_authcontent
+		where 1=1
+		<isNotEmpty prepend="and" property="ifuncregedit"> 
+			 ifuncregedit=#ifuncregedit#
+		 </isNotEmpty>
+		 order by ccode 
+	</select>
+	
+<!--	liulei Add 20111006  按层获取权限内容	-->
+	<select id="AuthcontentDest.getLikeList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	
+    	select as_funcregedit.ccode as funccode,as_authcontent.iid,as_authcontent.ipid,as_authcontent.ifuncregedit,as_authcontent.ccode,as_authcontent.cname,as_authcontent.ccaption,as_authcontent.coperauth,as_authcontent.buse,as_authcontent.cmemo,
+        case when len(operauth.copercode)>0 then 1 else 0 end as sel
+        from as_authcontent inner join as_funcregedit on as_authcontent.ifuncregedit=as_funcregedit.iid and as_funcregedit.ccode like #ccode#+'%' 
+        and as_authcontent.buse=1  left join (select copercode from AS_operauth where irole=#irole#) operauth 
+        on as_authcontent.ccode=operauth.copercode order by as_authcontent.ccode
+        
+	</select>
+
+    <!--	lc Add 20170803  按人员获取权限内容	-->
+    <select id="AuthcontentDest.getLikeListPerson" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+
+        select as_funcregedit.ccode as funccode,as_authcontent.iid,as_authcontent.ipid,as_authcontent.ifuncregedit,as_authcontent.ccode,
+        as_authcontent.cname,as_authcontent.ccaption,as_authcontent.coperauth,as_authcontent.buse,as_authcontent.cmemo
+        ,case when len(operauth.copercode)>0 then 1 else 0 end as sel
+        from as_authcontent
+        inner join as_funcregedit on as_authcontent.ifuncregedit=as_funcregedit.iid and as_funcregedit.ccode like #ccode#+'%' and as_authcontent.buse=1
+        left join (select copercode from as_opersauths where iperson=#iperson#) operauth on as_authcontent.ccode=operauth.copercode
+        order by as_authcontent.ccode
+
+    </select>
+	
+<!--	YJ Add 20111005	更新权限内容	-->
+	<update id="AuthcontentDest.updateAuthcontent" parameterClass="java.util.HashMap">
+		$sqlValue$
+	</update>
+
+
+<!--		YJ Add 20111006	 执行存储过程(不带参数和返回值)	-->
+	<procedure id="AuthcontentDest.writeAuthcontent">
+		 
+      		{call operauth()}
+   		
+	</procedure>
+	
+<!--	YJ Add 20111005  获取权限内容	-->
+	<select id="AuthcontentDest.getListByIfuncregedit" parameterClass="int" resultClass="java.util.HashMap">
+		
+		select iid,ipid,ifuncregedit,substring(ccode,charindex('.',ccode)+1,len(ccode)) ccode,cname,ccaption label,coperauth,buse,
+		cmemo,cfunction,cform 
+		from as_authcontent 
+		where ifuncregedit=#ifuncregedit# and buse=1 and substring(ccode,charindex('.',ccode)+1,len(ccode))>50
+		order by ccode
+	
+	</select>
+		
+</sqlMap>

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" fontFamily="Times New Roman" fontWeight="bold" horizontalAlign="center" creationComplete="hbox1_creationCompleteHandler(event)"
+		 verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingBottom="0" paddingTop="0">
+	<fx:Metadata>
+		[Event(name="selectChange",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.DateField;
+			import mx.events.ChildExistenceChangedEvent;
+			import mx.events.FlexEvent;
+			import mx.events.IndexChangedEvent;
+			import mx.events.ItemClickEvent;
+			
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.CRMtool;
+			//选中色
+			public var selcolor:int=0xFFFF00;
+			//背景色
+			public var backcolor:int=0xFFFFFF;
+			//当前年
+			public var curyear:int;
+			//消前月
+			public var curmonth:int;
+			//选中月索引
+			public var selindex:int;
+			//选中年
+			public var selyear:String;
+			//选中月
+			public var selmonth:String;
+			
+			//上一次选中月份
+			public var preSelmon:String;
+			
+			//选中日期
+			[Bindable]
+			public var curdate:Date=new Date();
+			//选中年月
+			[Bindable]
+			public var bindyearmonth:String;
+			[Bindable]
+			private var _selyearmonth:String;
+			public function get selyearmonth():String
+			{
+				return _selyearmonth;
+			}
+			public function set selyearmonth(value:String):void
+			{
+				_selyearmonth=value;
+				this.dispatchEvent(new Event("selectChange"));
+			}
+			[Bindable]
+			public var arr:ArrayCollection=new ArrayCollection([{label:"year1",oper:"lnk_year1"},
+				{label:"year2",oper:"lnk_year2"},{label:"<",oper:"lnk_lt"},{label:"1",oper:"lnk_m1"},
+				{label:"2",oper:"lnk_m2"},{label:"3",oper:"lnk_m3"},{label:"4",oper:"lnk_m4"},
+				{label:"5",oper:"lnk_m5"},{label:"6",oper:"lnk_m6"},{label:"7",oper:"lnk_m7"},
+				{label:"8",oper:"lnk_m8"},{label:"9",oper:"lnk_m9"},{label:"10",oper:"lnk_m10"},
+				{label:"11",oper:"lnk_m11"},{label:"12",oper:"lnk_m12"},{label:">",oper:"lnk_rt"},
+				{label:"year3",oper:"lnk_year3"},{label:"year4",oper:"lnk_year4"}]);
+			
+/* 			//选中月更新颜色
+			public function setLnkBackColor(lnkbtn:LinkButton,color:int):void
+			{
+				lnkbtn.graphics.beginFill(color);   
+				var len:int=lnkbtn.label.length;
+				var x:int=(len==1?lnkbtn.height-lnkbtn.height/1.75:lnkbtn.height-lnkbtn.height/1.8);
+				lnkbtn.graphics.drawCircle(x, lnkbtn.height/2, lnkbtn.height/3);   
+				lnkbtn.graphics.endFill();
+			} */
+			
+			//刷新工具栏格式
+			public function RefreshStyle():void
+			{
+				for each (var item:Object in arr) 
+				{
+					var s:String=item.label;
+					var i:int=arr.getItemIndex(item);
+					var cur:LinkButton=this.lnk_tool.getChildAt(i) as LinkButton;
+					cur.setStyle("textAlign","center");
+					cur.setStyle("paddingLeft",0);
+					cur.setStyle("paddingRight",0);
+					if (s.length==4)
+					{
+						cur.setStyle("color","black");
+					}
+					if (s==curyear.toString())
+					{
+						cur.setStyle("textDecoration","underline");
+					}
+					var lnkyear1:LinkButton=this.lnk_tool.getChildAt(0) as LinkButton;
+					var lnkyear2:LinkButton=this.lnk_tool.getChildAt(1) as LinkButton;
+					var lnkyear3:LinkButton=this.lnk_tool.getChildAt(16) as LinkButton;
+					var lnkyear4:LinkButton=this.lnk_tool.getChildAt(17) as LinkButton;
+					if ((Number(lnkyear1.label)==curyear||Number(lnkyear2.label)==curyear||Number(lnkyear3.label)==curyear||Number(lnkyear4.label)==curyear) && s ==curmonth.toString())
+					{
+						cur.setStyle("textDecoration","underline");
+					}
+				}
+			}
+			
+			//根据输入年参数值,更新年工具栏
+			public function RefreshYear(curyear:int):void
+			{
+				var year1:Object=arr.getItemAt(0);
+				year1.label=String(curyear-1);
+				arr.setItemAt(year1,0);
+				var year2:Object=arr.getItemAt(1);
+				year2.label=String(curyear);
+				arr.setItemAt(year2,1);
+				var year3:Object=arr.getItemAt(16);
+				year3.label=String(curyear+1);
+				arr.setItemAt(year3,16);
+				var year4:Object=arr.getItemAt(17);
+				year4.label=String(curyear+2);
+				arr.setItemAt(year4,17);
+			}
+			
+			public function hbox1_creationCompleteHandler(event:FlexEvent=null):void
+			{
+				curyear=curdate.fullYear;
+				curmonth=curdate.month+1;
+				RefreshYear(curyear);
+			}
+			
+			protected function lnk_tool_childAddHandler(event:ChildExistenceChangedEvent):void
+			{
+				if (lnk_tool.getChildren().length==18)
+				{
+					RefreshStyle();
+					setSelYearMonth();
+				}
+			}
+			
+			protected function lnk_tool_itemClickHandler(event:ItemClickEvent):void
+			{
+				var cur:LinkButton=this.lnk_tool.getChildAt(this.lnk_tool.selectedIndex) as LinkButton;
+				if (cur.label.length==4)
+				{
+					this.RefreshYear(Number(arr.getItemAt(this.lnk_tool.selectedIndex).label));
+				}
+				
+				setSelYearMonth();
+				
+				for each (var item:LinkButton in this.lnk_tool.getChildren()) 
+				{
+					if (!isNaN(Number(event.label)))
+					{
+						if (item.label.length<4)
+						{
+							if (event.label==item.label)
+							{
+								item.setStyle("color","blue");
+							}
+							else
+							{
+								item.setStyle("color","gray");
+							}
+						}
+					}
+				}
+				
+			}
+			
+			protected function linkbutton1_clickHandler(event:MouseEvent):void
+			{
+				this.RefreshYear(Number(arr.getItemAt(1).label)+1);
+				setSelYearMonth();
+			}
+			
+			protected function linkbutton2_clickHandler(event:MouseEvent):void
+			{
+				this.RefreshYear(Number(arr.getItemAt(1).label)-1);
+				setSelYearMonth();
+			}
+			
+			public function setSelYearMonth():void
+			{
+				if (arr.getItemAt(1).label.indexOf("year")>-1)
+				{
+					selyear=curyear.toString();
+				}
+				else
+				{
+					selyear=arr.getItemAt(1).label;
+				}
+				selmonth=curmonth.toString();
+				if (this.lnk_tool.selectedIndex>2 && this.lnk_tool.selectedIndex<15)
+				{
+					selmonth=arr.getItemAt(this.lnk_tool.selectedIndex).label;
+					preSelmon = selmonth; //sdy add
+				}
+				
+				/** SDY add***/
+				if(preSelmon == "0" || preSelmon==null){
+					preSelmon = selmonth
+				}
+				
+				if(this.lnk_tool.selectedIndex > -1){
+					if( arr.getItemAt(this.lnk_tool.selectedIndex).label == ">" )
+					{
+						if(Number(preSelmon) < 12 ){
+							selmonth = (Number(preSelmon)+1)+"";
+							preSelmon = selmonth;
+						}
+					}
+					else if( arr.getItemAt(this.lnk_tool.selectedIndex).label == "<" )
+					{
+						if(Number(preSelmon) > 1 ){
+							selmonth = (Number(preSelmon)-1)+"";
+							preSelmon = selmonth;
+						}
+					}
+					
+					selmonth = preSelmon ;
+					
+				}
+				
+				/** end **/
+				
+				this.selyearmonth=selyear+"年"+selmonth+"月";
+				this.bindyearmonth=this.selyearmonth;
+			}
+			
+			protected function linkbutton3_clickHandler(event:MouseEvent):void
+			{
+				this.RefreshYear(this.curyear);
+				try
+				{
+					(this.lnk_tool.getChildAt(1) as LinkButton).setStyle("textDecoration","underline");
+				}
+				catch(err)
+				{
+					//mx.controls.Alert.show(err);
+				}
+				setSelYearMonth();
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:LinkButton label="本月" width="34" click="linkbutton3_clickHandler(event)" fontSize="11" paddingLeft="0" paddingRight="2"/>
+	<mx:LinkButton icon="{ConstsModel.leftarrow}" width="20" click="linkbutton2_clickHandler(event)" paddingLeft="0" paddingRight="0"/>
+	<mx:HBox borderStyle="solid" verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingLeft="10" paddingRight="10" paddingBottom="-6" paddingTop="-6" cornerRadius="12">
+		<mx:LinkBar id="lnk_tool" childAdd="lnk_tool_childAddHandler(event)" color="gray" fontSize="11"
+					dataProvider="{arr}" horizontalGap="0" paddingLeft="0" paddingRight="0"
+					separatorWidth="0" verticalGap="0"  itemClick="lnk_tool_itemClickHandler(event)">
+		</mx:LinkBar>
+	</mx:HBox>
+	<mx:LinkButton icon="{ConstsModel.rightarrow}" width="20" click="linkbutton1_clickHandler(event)" paddingLeft="0" paddingRight="0"/>
+</mx:HBox>

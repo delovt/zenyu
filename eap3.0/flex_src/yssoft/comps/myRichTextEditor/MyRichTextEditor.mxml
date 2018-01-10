@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  creationComplete="init()" >
+	<!--<s:layout>
+		<s:VerticalLayout paddingTop="2" paddingBottom="2" paddingLeft="2" paddingRight="2"/>
+	</s:layout>-->
+	<fx:Script>
+		<![CDATA[
+			import flash.text.engine.FontPosture;
+			import flash.utils.getTimer;
+			
+			import flashx.textLayout.conversion.ConversionType;
+			import flashx.textLayout.conversion.TextConverter;
+			import flashx.textLayout.elements.FlowElement;
+			import flashx.textLayout.elements.FlowLeafElement;
+			import flashx.textLayout.elements.InlineGraphicElement;
+			import flashx.textLayout.elements.LinkElement;
+			import flashx.textLayout.elements.ParagraphElement;
+			import flashx.textLayout.elements.SpanElement;
+			import flashx.textLayout.elements.TextFlow;
+			import flashx.textLayout.events.FlowElementMouseEvent;
+			import flashx.textLayout.formats.TextAlign;
+			import flashx.textLayout.formats.TextDecoration;
+			import flashx.textLayout.formats.TextLayoutFormat;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.DropdownEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.formatters.DateFormatter;
+			import mx.graphics.codec.JPEGEncoder;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.DropDownEvent;
+			import spark.events.TextOperationEvent;
+			import spark.utils.TextFlowUtil;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var fileReference:FileReference;
+			private var fileFilter:FileFilter=new FileFilter("选择图片","*.png;*.jpg;*.jpeg;");
+			private var img:InlineGraphicElement = new InlineGraphicElement();
+			
+			
+			
+			//裁剪后的像素数据
+			private var bd:BitmapData;
+			
+			//工具栏是否可见
+			private var _toolbarHBvisible:Boolean = true;
+
+			[Bindable]
+			public function get toolbarHBvisible():Boolean
+			{
+				return _toolbarHBvisible;
+			}
+
+			public function set toolbarHBvisible(value:Boolean):void
+			{
+				_toolbarHBvisible = value;
+				if(value) {
+					toolbarHBHeight = 23;
+				}else {
+					toolbarHBHeight = 0;
+				}
+			}
+			
+			//toobar的高度
+			[Bindable]
+			private var toolbarHBHeight:Number = 23;
+			
+			private var screenHeight:Number = 1;
+			private var rateHeight: Number= 0.00;
+			private var percent:String="'100%'";
+
+			//文本框是否可编辑
+			private var _richEditableTextEditable:Boolean = true;
+
+			[Bindable]
+			public function get richEditableTextEditable():Boolean
+			{
+				return _richEditableTextEditable;
+			}
+
+			public function set richEditableTextEditable(value:Boolean):void
+			{
+				_richEditableTextEditable = value;
+			}
+
+			[Bindable]
+			public var logo:Class;
+					
+			[Event(name="change", type="flash.events.Event")]
+			[DefaultTriggerEvent("change")]
+
+			private var defaultTextFormat:TextLayoutFormat=new TextLayoutFormat();
+			
+			private var textFormatChanged:Boolean = false;
+			
+			private var previousTextFormat:TextLayoutFormat=new TextLayoutFormat();
+			
+			private var lastCaretIndex:int = -1;
+			
+			//设置链接地址
+			//private var popSetUrl:PopSetUrl;
+			
+			private var _htmlText:String;
+
+			public function get htmlText():String
+			{
+				_htmlText = getInputHTML();
+				return _htmlText;
+			}
+			
+			public function set htmlText(value:String):void
+			{
+				_htmlText = value;
+				var tf:TextFlow = TextConverter.importToFlow(value, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				tf.lineHeight = "100%";
+				this.richEditableText.textFlow = tf;
+				
+			}
+			
+			//功能注册码
+			private var _ifuncregedit:int;
+
+			public function get ifuncregedit():int
+			{
+				return _ifuncregedit;
+			}
+
+			public function set ifuncregedit(value:int):void
+			{
+				_ifuncregedit = value;
+			}
+
+			
+			public function init():void {
+				
+				screenHeight=Capabilities.screenResolutionY;
+				
+			}
+			
+			//获得样式
+			private function getTextStyles():void
+			{
+				if (!this.richEditableText)
+					return;
+				
+				var tf:TextLayoutFormat=null;
+				
+				var beginIndex:int = this.richEditableText.selectionAnchorPosition;
+				var endIndex:int = this.richEditableText.selectionActivePosition;
+								
+ 				if (textFormatChanged)
+					previousTextFormat = null;
+								
+				if (beginIndex == endIndex)
+				{
+				 	if (beginIndex>0)
+					{
+					    tf = this.richEditableText.getFormatOfRange(null,beginIndex,endIndex);
+					}
+					else
+					{
+						tf = this.defaultTextFormat;
+					}
+				}
+				else
+					tf = this.richEditableText.getFormatOfRange(null,beginIndex,endIndex);
+				
+				if (!previousTextFormat || previousTextFormat.fontFamily != tf.fontFamily)
+					fontFamilyCombo.textInput.text=tf.fontFamily?tf.fontFamily:"";
+					
+				if (!previousTextFormat || previousTextFormat.fontSize != tf.fontSize)
+					fontSizeCombo.textInput.text=tf.fontSize?tf.fontSize:fontSizeArray.getItemAt(0).toString();
+				
+				if (!previousTextFormat || previousTextFormat.color != tf.color)
+					colorPicker.selectedColor = Number(tf.color);
+				
+				if (!previousTextFormat || previousTextFormat.fontWeight != tf.fontWeight)
+					boldButton.selected = (tf.fontWeight==flash.text.engine.FontWeight.BOLD);
+				
+				if (!previousTextFormat || previousTextFormat.fontStyle != tf.fontStyle)
+					italicButton.selected = (tf.fontStyle==flash.text.engine.FontPosture.ITALIC);
+				
+				if (!previousTextFormat || previousTextFormat.textDecoration != tf.textDecoration)
+					underlineButton.selected = (tf.textDecoration==flashx.textLayout.formats.TextDecoration.UNDERLINE);
+				
+				if (!previousTextFormat || previousTextFormat.textAlign != tf.textAlign)
+				{
+					if (tf.textAlign == flashx.textLayout.formats.TextAlign.LEFT)
+						alignButtons.selectedIndex = 0;
+					else if (tf.textAlign == flashx.textLayout.formats.TextAlign.CENTER)
+						alignButtons.selectedIndex = 1;
+					else if (tf.textAlign == flashx.textLayout.formats.TextAlign.RIGHT)
+						alignButtons.selectedIndex = 2;
+				}
+				if (this.defaultTextFormat != tf)
+				{
+					this.defaultTextFormat = tf;
+					this.richEditableText.setFormatOfRange(this.defaultTextFormat,beginIndex,endIndex);
+				}
+				previousTextFormat = tf;
+				textFormatChanged = false; 
+				lastCaretIndex = endIndex;
+			}
+			
+			//设置样式
+			private function setTextStyles(type:String, value:Object = null):void
+			{
+				var tf:TextLayoutFormat;
+				var beginIndex:int = this.richEditableText.selectionAnchorPosition;
+				var endIndex:int = this.richEditableText.selectionActivePosition;
+				if (beginIndex == endIndex)
+				{
+						tf = previousTextFormat;
+				}
+				else    
+					tf = new TextLayoutFormat();
+				if (type == "fontWeight")
+				{
+					if (value)
+					{
+				       tf[type] = value;
+					}
+					else
+					{
+					   tf[type] = value;
+					}
+				}
+				else if(type == "fontStyle")
+				{
+					if (value)
+					{
+						tf[type]=value;
+					}
+					else
+					{
+						tf[type]=value;
+					}
+				}
+				else if(type == "textDecoration")
+				{
+					if (value)
+					{
+						tf[type]=value;
+					}
+					else
+					{
+						tf[type]=value;
+					}
+				}
+				else if (type == "textAlign")
+				{
+					if (beginIndex == endIndex)
+					{
+						tf = new TextLayoutFormat();
+					}
+					tf[type] = value;
+					previousTextFormat[type]=value;
+					if (!endIndex)
+					{
+						   this.defaultTextFormat=tf;
+						   this.richEditableText.setFormatOfRange(tf,beginIndex,endIndex);
+					}
+				}
+				else if (type == "fontFamily")
+				{
+					tf[type] = value;
+				}
+				else if (type == "fontSize")
+				{
+					var fontSize:uint = uint(value);
+					if (fontSize > 0)
+						tf[type] = fontSize;
+				}
+				else if (type == "color")
+				{
+					tf[type] = uint(colorPicker.selectedColor);
+				}
+/* 				else if (type == "url")
+				{
+					if (value != defaultLinkProtocol && value != "")
+					{
+						tf[type] = value;
+						tf["target"] = "_blank";
+					}
+					else if (tf[type] != "")
+					{
+						tf[type] = ""; 
+						tf["target"] = ""; 
+					}
+				}
+ */				
+				textFormatChanged = true;
+				
+				if (beginIndex == endIndex)
+				{
+					previousTextFormat = tf;
+				}
+				else
+				{
+					this.richEditableText.setFormatOfRange(tf,beginIndex,endIndex);
+				}
+				dispatchEvent(new Event("change"));
+			}
+						
+			protected function fontFamilyCombo_closeHandler(event:DropDownEvent=null):void
+			{
+				setTextStyles("fontFamily",this.fontFamilyCombo.textInput.text);
+			}
+			
+			protected function fontSizeCombo_closeHandler(event:DropDownEvent):void
+			{
+				setTextStyles("fontSize",this.fontSizeCombo.textInput.text);	
+			}
+			
+			protected function colorPicker_closeHandler(event:DropdownEvent):void
+			{
+				setTextStyles("color",this.colorPicker.value);
+			}
+			
+			protected function boldButton_changeHandler(event:Event):void
+			{
+ 				if (this.boldButton.selected)
+				{
+					setTextStyles("fontWeight",flash.text.engine.FontWeight.BOLD);
+				}
+				else
+				{
+					setTextStyles("fontWeight",flash.text.engine.FontWeight.NORMAL);
+				}
+			}
+			
+			protected function italicButton_changeHandler(event:Event):void
+			{
+				if (this.italicButton.selected)
+				{
+					setTextStyles("fontStyle",flash.text.engine.FontPosture.ITALIC);
+				}
+				else
+				{
+					setTextStyles("fontStyle",flash.text.engine.FontPosture.NORMAL);
+				}
+			}
+			
+			protected function underlineButton_changeHandler(event:Event):void
+			{
+				if (this.underlineButton.selected)
+				{
+					setTextStyles("textDecoration",flashx.textLayout.formats.TextDecoration.UNDERLINE);
+				}
+				else
+				{
+					setTextStyles("textDecoration",flashx.textLayout.formats.TextDecoration.NONE);
+				}
+			}
+			
+			protected function alignButtons_itemClickHandler(event:ItemClickEvent):void
+			{
+				switch(event.item.action)
+				{
+					case "left":
+					{
+						setTextStyles("textAlign",flashx.textLayout.formats.TextAlign.LEFT);
+						break;
+					}
+					case "center":
+					{
+						setTextStyles("textAlign",flashx.textLayout.formats.TextAlign.CENTER);
+						break;
+					}
+					case "right":
+					{
+						setTextStyles("textAlign",flashx.textLayout.formats.TextAlign.RIGHT);
+						break;
+					}
+				}
+			}
+			
+			protected function fontFamilyCombo_creationCompleteHandler(event:FlexEvent):void
+			{
+				this.fontFamilyCombo.textInput.text=this.fontFamilyArray.getItemAt(0).toString();
+				this.defaultTextFormat.fontFamily=this.fontFamilyCombo.textInput.text;
+				this.defaultTextFormat.fontSize=this.fontSizeCombo.textInput.text;
+				this.defaultTextFormat.fontStyle=flash.text.engine.FontPosture.NORMAL;
+				this.defaultTextFormat.textDecoration=flashx.textLayout.formats.TextDecoration.NONE;
+				this.defaultTextFormat.textAlign=flashx.textLayout.formats.TextAlign.LEFT;
+				this.defaultTextFormat.color=0;
+				this.getTextStyles();
+				lastCaretIndex=-1;
+			}			
+			
+			protected function richEditableText_keyDownHandler(event:KeyboardEvent):void
+			{
+				    if (event.keyCode>=37 && event.keyCode<=40)
+					{
+						return;
+					}
+					this.defaultTextFormat=previousTextFormat;
+					this.richEditableText.setFormatOfRange(this.defaultTextFormat,this.richEditableText.selectionAnchorPosition,this.richEditableText.selectionActivePosition);
+			}
+						
+			//获得HTML
+			public function getInputHTML():String
+			{
+    			return TextConverter.export(this.richEditableText.textFlow, TextConverter.TEXT_FIELD_HTML_FORMAT, ConversionType.STRING_TYPE) as String;
+			}
+
+			//lzx获得图片位置
+ 			private function selectEmotionHandler():void
+			{
+				var img2:InlineGraphicElement = new InlineGraphicElement();
+				img2.source = this.img.source;
+				//获取当前插入点所在的span，如果没有选择（即还没有激活过ti就直接发表情），就将选择设置为0
+				var anchor:int = this.richEditableText.selectionAnchorPosition;
+				anchor = (anchor == -1) ? 0 : anchor;
+				//获得当前的textflow
+				var tf:TextFlow = this.richEditableText.textFlow;
+				//光标所在的叶子元素
+				var leaf:FlowLeafElement = tf.findLeaf(anchor);
+				//包含叶子元素的ParagraphElement
+				var pe:ParagraphElement = leaf.getParagraph();
+				//在光标位置分割叶子元素
+				leaf.splitAtPosition(anchor - leaf.getAbsoluteStart());
+				var index:int = pe.getChildIndex(leaf);
+				//在分割点插入图片
+				pe.addChildAt(index + 1,img2);
+			}
+				
+			 protected function urlButton_clickHandler(event:MouseEvent):void
+			{
+				
+				 fileReference=new FileReference();
+				 fileReference.addEventListener(Event.SELECT,onFileSelectHandler);
+				 fileReference.addEventListener(Event.COMPLETE,onFileCompleteHandler);
+				 //fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA,chgImgSource);
+				 fileReference.browse([fileFilter]);
+				 
+				
+				
+ 			} 
+			
+			private function onFileSelectHandler(event:Event):void{
+				fileReference.load();
+			}
+			
+			private function onFileCompleteHandler(event:Event):void{
+				var loader:Loader = new Loader();
+				loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loader_complete);
+				loader.loadBytes(fileReference.data);
+				//this.imgname.text=fileReference.name;
+			}
+			
+			
+			
+			public function loader_complete (event:Event):void {
+				try{
+					var sourceBMP:Bitmap = event.currentTarget.loader.content as Bitmap;
+					this.img.source = sourceBMP;
+					if(fileReference==null || this.fileReference.name == ""){
+						return;
+					}
+					
+					var param:Object={};
+					//var date:Date = new Date();
+					//var datetime:Number = date.time;
+					param.fileName=CRMmodel.userId;
+					bd = sourceBMP.bitmapData;
+//*************2013-01-24 XZQWJ 增加：对大图按照一定高度进行缩小*********************************					
+					if(sourceBMP.height>714){
+						rateHeight=714/sourceBMP.height*100;
+						percent="'"+rateHeight+"%'"
+					}else{
+						percent="'100%'";
+					}
+//**********************************************************************************************					
+					param.content=new JPEGEncoder(85).encode(bd);
+					
+					AccessUtil.remoteCallJava("FileDest","uploadImage",upload_callBack,param,"插入图片...");
+					
+				}catch(e:Error){}
+			}
+			
+			//lzx替换textflow生成的html
+			private function upload_callBack(event:ResultEvent):void{
+				if(event.result && (event.result as String)!="fail"){
+					var imgURL:String = event.result as String;
+					selectEmotionHandler();
+					var contents:String = getInputHTML();
+//************2013-01-24 XZQWJ ****修改前代码:*******************************************					
+//					contents = contents.replace("[object Bitmap]","./../importImage/"+imgURL);
+//***********************************************************************************					
+					contents = contents.replace("[object Bitmap]\"","./../importImage/"+imgURL+"\" height="+percent);
+					this.htmlText = contents;
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			private function systemManager_mouseUpHandler(event:MouseEvent):void
+			{
+				    if (lastCaretIndex!=this.richEditableText.selectionActivePosition)
+					{
+					   getTextStyles();
+					}
+				    systemManager.removeEventListener(MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);        
+			}
+				
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ArrayList id="fontFamilyArray">
+			<fx:String>宋体</fx:String>
+			<fx:String>黑体</fx:String>
+			<fx:String>楷体_GB2312</fx:String>
+			<fx:String>新宋体</fx:String>
+			<fx:String>仿宋_GB2312</fx:String>
+			<fx:String>Arial</fx:String>
+			<fx:String>Courier</fx:String>
+			<fx:String>Courier New</fx:String>
+			<fx:String>Geneva</fx:String>
+			<fx:String>Georgia</fx:String>
+			<fx:String>Helvetica</fx:String>
+			<fx:String>Times New Roman</fx:String>
+			<fx:String>Times</fx:String>
+			<fx:String>Verdana</fx:String>
+		</s:ArrayList>
+		
+		<s:ArrayList id="fontSizeArray"> 
+			<fx:String>8</fx:String>
+			<fx:String>9</fx:String>
+			<fx:String>10</fx:String>
+			<fx:String>11</fx:String>
+			<fx:String>12</fx:String>
+			<fx:String>14</fx:String>
+			<fx:String>16</fx:String>
+			<fx:String>18</fx:String>
+			<fx:String>20</fx:String>
+			<fx:String>22</fx:String>
+			<fx:String>24</fx:String>
+			<fx:String>26</fx:String>
+			<fx:String>28</fx:String>
+			<fx:String>36</fx:String>
+			<fx:String>48</fx:String>
+			<fx:String>72</fx:String>
+		</s:ArrayList>
+		<s:ArrayList id="alignButtonsArray"> 
+			<fx:Object icon="@Embed('assets/icon_align_left.png')" action="left"/>
+			<fx:Object icon="@Embed('assets/icon_align_center.png')" action="center"/>
+			<fx:Object icon="@Embed('assets/icon_align_right.png')" action="right"/>
+		</s:ArrayList>
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%">
+		
+	
+	<s:Scroller width="100%" height="100%" id="richEditableTextScroller">
+		<s:RichEditableText id="richEditableText" width="100%" height="100%" keyUp="getTextStyles()"
+							keyDown="richEditableText_keyDownHandler(event)" mouseDown="systemManager.addEventListener(
+							MouseEvent.MOUSE_UP, systemManager_mouseUpHandler, true);" editable="{richEditableTextEditable}"/>
+	</s:Scroller>	
+	
+	<mx:HBox width="100%" backgroundColor="#E8E8E8" id="toolbarHB" visible="{toolbarHBvisible}" height="{toolbarHBHeight}">
+		<mx:ToolBar id="toolbar" width="100%" height="53">
+			<s:ComboBox id="fontFamilyCombo" dataProvider = "{fontFamilyArray}" close="fontFamilyCombo_closeHandler(event)"
+						itemRenderer="yssoft.comps.myRichTextEditor.render.fontFamily" creationComplete="fontFamilyCombo_creationCompleteHandler(event)"  />
+			<s:ComboBox id="fontSizeCombo" width="44" dataProvider="{fontSizeArray}" selectedItem="12" close="fontSizeCombo_closeHandler(event)"
+						 restrict="0-9"/>
+			<mx:HBox id="toolBar2" horizontalGap="0">
+			<mx:Button id="boldButton" width="20" toggle="true" icon="@Embed('assets/icon_style_bold.png')" change="boldButton_changeHandler(event)"/> 
+			<mx:Button id="italicButton" width="20" toggle="true" icon="@Embed('assets/icon_style_italic.png')" change="italicButton_changeHandler(event)"/>
+			
+			<mx:Button id="underlineButton" width="20" toggle="true" icon="@Embed('assets/icon_style_underline.png')" change="underlineButton_changeHandler(event)"/>
+			</mx:HBox>
+			<mx:ColorPicker id="colorPicker" width="22" height="22" close="colorPicker_closeHandler(event)"/>
+			<mx:VRule height="{alignButtons.height}"/>
+			<mx:ToggleButtonBar id="alignButtons" buttonWidth="20" dataProvider="{alignButtonsArray}" itemClick="alignButtons_itemClickHandler(event)"/>
+			<mx:Button id="urlButton" width="20" toggle="true" icon="@Embed('assets/rtf-insertimage.gif')" click="urlButton_clickHandler(event)"/>
+			<mx:VRule height="{this.urlButton.height}"/>
+		</mx:ToolBar>
+	
+	</mx:HBox>
+	</mx:VBox>
+</mx:Canvas>

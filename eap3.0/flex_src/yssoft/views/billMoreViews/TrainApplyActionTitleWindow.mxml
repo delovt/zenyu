@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="申请记录"
+                        width="650" height="500"
+                        xmlns:module="yssoft.comps.frame.module.*"
+                        creationComplete="titlewindow1_updateCompleteHandler(event)"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.tools.AccessUtil;
+			[Bindable]
+			protected var dataArr:ArrayCollection=null;
+			import mx.events.FlexEvent;
+			
+			private var _crmeap:CrmEapRadianVbox;
+			
+			private var param:Object = new Object();
+			
+			protected function titlewindow1_updateCompleteHandler(event:FlexEvent):void
+			{
+                var param:Object = new Object();
+                param.icourses = this.crmeap.getValue().icourses;//培训课程
+				AccessUtil.remoteCallJava("TrainApplyActionDest","query",trainQueryHandler,param);
+			}
+			
+			protected function trainQueryHandler(evt:ResultEvent):void{
+				this.dataArr = evt.result.result;
+				var title:ArrayCollection = evt.result.title;
+				
+				var dgc_name:DataGridColumn = new DataGridColumn();
+				dgc_name.dataField = "申请单号";
+				dgc_name.headerText="申请单号";
+				dgc_name.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name);
+				
+				var dgc_name1:DataGridColumn = new DataGridColumn();
+				dgc_name1.dataField = "申请单位";
+				dgc_name1.headerText="申请单位";
+				dgc_name1.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name1);
+				
+				var dgc_name2:DataGridColumn = new DataGridColumn();
+				dgc_name2.dataField = "申请部门";
+				dgc_name2.headerText="申请部门";
+				dgc_name2.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name2);
+				
+				var dgc_name3:DataGridColumn = new DataGridColumn();
+				dgc_name3.dataField = "培训内容";
+				dgc_name3.headerText="培训内容";
+				dgc_name3.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name3);
+				
+				var dgc_name4:DataGridColumn = new DataGridColumn();
+				dgc_name4.dataField = "业务人员";
+				dgc_name4.headerText="业务人员";
+				dgc_name4.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name4);
+				
+				var dgc_name5:DataGridColumn = new DataGridColumn();
+				dgc_name5.dataField = "主表备注";
+				dgc_name5.headerText="主表备注";
+				dgc_name5.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name5);
+				
+				var dgc_name6:DataGridColumn = new DataGridColumn();
+				dgc_name6.dataField = "客户参训人";
+				dgc_name6.headerText="客户参训人";
+				dgc_name6.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name6);
+				
+				var dgc_name7:DataGridColumn = new DataGridColumn();
+				dgc_name7.dataField = "客户部门";
+				dgc_name7.headerText="客户部门";
+				dgc_name7.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name7);
+				
+				var dgc_name8:DataGridColumn = new DataGridColumn();
+				dgc_name8.dataField = "客户职务";
+				dgc_name8.headerText="客户职务";
+				dgc_name8.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name8);
+				
+				var dgc_name12:DataGridColumn = new DataGridColumn();
+				dgc_name12.dataField = "客户手机";
+				dgc_name12.headerText="客户手机";
+				dgc_name12.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name12);
+				
+				var dgc_name9:DataGridColumn = new DataGridColumn();
+				dgc_name9.dataField = "客户电话";
+				dgc_name9.headerText="客户电话";
+				dgc_name9.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name9);
+				
+				var dgc_name10:DataGridColumn = new DataGridColumn();
+				dgc_name10.dataField = "客户邮件";
+				dgc_name10.headerText="客户邮件";
+				dgc_name10.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name10);
+				
+				var dgc_name11:DataGridColumn = new DataGridColumn();
+				dgc_name11.dataField = "客户备注";
+				dgc_name11.headerText="客户备注";
+				dgc_name11.width=80;
+				this.dGrid.columns = dGrid.columns.concat(dgc_name11);
+				
+			}
+			override protected function onSubmit():void{
+				
+				if(dGrid.getSelectRows()==null||dGrid.selectedIndices==null){
+					Alert.show("请选择！");
+					return;
+				}
+				var iid:int =-1;
+				iid = crmeap.getValue().iid;
+				if(iid==-1){
+					Alert.show("没有主表信息!");
+				}
+				
+				param.iid = iid;
+				var selectedDatas:ArrayCollection =dGrid.getSelectRows();
+				param.selectedDatas = selectedDatas;
+				AccessUtil.remoteCallJava("TrainApplyActionDest","insertIntoSr_Trains",afterInsertHandler,param);
+			}
+			
+			protected function afterInsertHandler(event:ResultEvent):void{
+				var value:Object = crmeap.getValue();
+				var sr_trains:ArrayCollection =  value.sr_trains as ArrayCollection;
+				var arr:ArrayCollection = param.selectedDatas;
+				for each(var o:Object in arr){
+					
+					sr_trains.addItem({icustomer:o.icustomer,icustomer_Name:o.申请单位,
+						icustperson:o.icustperson,icustperson_Name:o.客户参训人,
+						cdepartment:o.客户部门,cpost:o.客户职务,cmobile:o.客户手机,ctel:o.客户电话,
+						cemail:o.客户邮件,cmemo:o.客户备注,ceffect:"",cresult:"",bfeedback:""});
+					
+				}
+				
+				
+				var obj:Object = new Object();
+				obj.mainValue = value;
+				obj.sr_trains = sr_trains;
+				crmeap.setValue(obj,1,1);
+				
+				this.onCloseHandler();
+			}
+
+			protected function onGridClick(event:Event):void{
+				
+			}
+			
+			protected function onDouble():void{
+				onSubmit();
+			}
+
+			public function get crmeap():CrmEapRadianVbox
+			{
+				return _crmeap;
+			}
+
+			public function set crmeap(value:CrmEapRadianVbox):void
+			{
+				_crmeap = value;
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	
+	<mx:VBox id="myBorder" width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" verticalGap="10" >
+		<comps:CRMDataGridForCheckBox allowMulti="true"  width="100%" height="100%" id="dGrid" horizontalScrollPolicy="auto" dataProvider="{dataArr}" 
+									  doubleClickEnabled="true"  onGridClick="onGridClick(event)" doubleClick="onDouble()" />
+		<mx:HBox  verticalAlign="middle" paddingRight="10" paddingLeft="10">
+			<s:Spacer width="455"/>
+			<s:Button label="确定" click="onSubmit()"/>
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

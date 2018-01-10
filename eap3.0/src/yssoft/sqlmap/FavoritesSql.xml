@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 查询 -->
+	<select id="get_favorites" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select iid,ipid,ifuncregedit,iperson,ccode,cname,cdetail,imaker,dmaker from AB_favorites where ifuncregedit=#ifuncregedit# and iperson=#iperson#
+	</select>
+	
+	<update id="update_favorites" parameterClass="java.util.HashMap">
+		begin 
+			update AB_favorites set ipid =#ipid#,cname=#cname# where iid=#iid#;
+			update AB_favorites set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+		end;
+	</update>
+	
+	<insert id="add_favorites" parameterClass="java.util.HashMap">
+		insert into AB_favorites(ipid,ifuncregedit,iperson,ccode,cname,imaker,dmaker)
+		 values(#ipid#,#ifuncregedit#,#iperson#,#ccode#,#cname#,#imaker#,getDate())
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<delete id="remove_favorites" parameterClass="int">
+		delete from AB_favorites where iid=#iid#
+	</delete>
+	
+		
+<!--	YJ Add 更新收藏夹内容	-->
+	<update id="favoritesDest.updateFavorites" parameterClass="java.util.HashMap">
+		update AB_favorites set cdetail=#cdetail# where iid=#iid#
+	</update>
+</sqlMap>

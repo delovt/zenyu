@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        minWidth="400" minHeight="300" width="600" height="450" borderColor="#BABABA"
+                        creationComplete="getHeadData();getBodyData()"
+                        title="表结构" close="closeWindow()"
+                        styleName="contentVBox" implements="yssoft.impls.ICRMWindow"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+    <basic:layout>
+        <s:VerticalLayout gap="-1" paddingLeft="0" paddingRight="0"/>
+    </basic:layout>
+
+    <fx:Script>
+		<![CDATA[
+			import mx.controls.TextInput;
+			import mx.events.DataGridEvent;
+			import mx.events.DataGridEventReason;
+			import mx.events.ListEvent;
+			import mx.utils.StringUtil;
+       		 private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = dgrd_consultclm.dataProvider.getItemIndex(item) + 1;
+            item.ino = lineNum;
+            return lineNum + "";
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Script source="../../scripts/AC_createTableViewScript.as"/>
+   <!-- <s:states>
+        <s:State name="consultState"/>
+        <s:State name="queryState"/>
+    </s:states>-->
+    <fx:Declarations>
+       <!-- <mx:NumberValidator id="vFund" source="{tnp_rownum}" property="text" minValue="1" requiredFieldError="行数不能为空!"
+                            lowerThanMinError="行数必须大于0！"/>-->
+    </fx:Declarations>
+    <mx:ApplicationControlBar id="menuBar2" x="0" y="0" width="100%" height="32" dock="true" styleName="consultTree">
+        <mx:HBox width="100%" horizontalAlign="right">
+			<mx:Label text="表名"/>
+			<mx:TextInput id="cname" width="150" enabled="{!isFand}"/>
+			<s:Spacer width="100%"/>
+			<mx:Label text="中文表名"/>
+			<mx:TextInput id="ccaption" width="180"/>
+			<s:Spacer width="100%"/>
+			<mx:Label text="备注"/>
+			<mx:TextInput id="cmemo" width="70"/>
+            <mx:Button id="btn_resume" label="删除" visible="{isFand}" click="resume()"/>
+        </mx:HBox>
+    </mx:ApplicationControlBar>
+    <mx:VBox id="vbx_grid" width="100%" height="100%" borderStyle="inset" paddingRight="1">
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" height="100%">
+
+            <mx:VBox width="100%" height="100%" paddingTop="-1">
+				<mx:HBox>
+					<mx:LinkButton id="additionicon" toolTip="增行"/>
+					<mx:LinkButton id="subtractionicon" toolTip="删行"/>
+				</mx:HBox>
+                <mx:DataGrid id="dgrd_consultclm"  width="100%" height="100%"
+                             dataProvider="{arrDataList}" editable="true"  itemEditEnd="onEditEnd(event) ">
+                    <mx:columns>
+                        <mx:DataGridColumn id="ino"  headerText="序号" sortable="false" width="50"
+                                           textAlign="center" editable="false" labelFunction="{doLineNum}"/>
+                        <mx:DataGridColumn id="filedName" dataField="filedName"   headerText="字段名称" sortable="false"></mx:DataGridColumn>
+						<mx:DataGridColumn id="CNfiledName" dataField="CNfiledName"  headerText="字段中文名称"  width="150" sortable="false"></mx:DataGridColumn>
+						
+						<mx:DataGridColumn id="fieldtype" dataField="ialign" headerText="类型" sortable="false"
+										   labelFunction="getIalignArrLabel" editorDataField="value">
+							<mx:itemEditor>
+								<fx:Component>
+									<mx:HBox horizontalAlign="center">
+										<fx:Script>
+											<![CDATA[
+												import mx.collections.ArrayCollection;
+												import mx.events.ListEvent;
+												
+												[Bindable]
+												public var ialignArr:ArrayCollection =new ArrayCollection([
+													{value:"nvarchar",label:"字符"},
+													{value:"int",label:"整型"},
+													{value:"float",label:"浮点"},
+													{value:"datetime",label:"日期"},
+													{value:"bit",label:"布尔"},
+													{value:"text",label:"文本"}
+												]);
+												
+												public function get value():Object {
+													var obj:Object = cmb_ialign.selectedItem;
+													return obj.value;
+												}
+
+												protected function cmb_ialign_changeHandler(event:ListEvent):void
+												{
+													if(cmb_ialign.selectedIndex==1){
+														outerDocument.arrDataList.getItemAt(outerDocument.dgrd_consultclm.selectedIndex).num=4;
+													}else if(cmb_ialign.selectedIndex==3){
+														outerDocument.arrDataList.getItemAt(outerDocument.dgrd_consultclm.selectedIndex).num=8;
+													}else if(cmb_ialign.selectedIndex==4){
+														outerDocument.arrDataList.getItemAt(outerDocument.dgrd_consultclm.selectedIndex).num=1;
+													}else if(cmb_ialign.selectedIndex==0){
+														outerDocument.arrDataList.getItemAt(outerDocument.dgrd_consultclm.selectedIndex).num="100";
+													}else{
+														outerDocument.arrDataList.getItemAt(outerDocument.dgrd_consultclm.selectedIndex).num="";
+													}
+												}
+
+
+												protected function cmb_ialign_clickHandler(event:MouseEvent):void
+												{
+													var obj:Object=outerDocument.arrDataList.getItemAt(outerDocument.dgrd_consultclm.selectedIndex).ialign;
+													var index:int=0;
+													if(obj=="nvarchar"){
+														index=0;
+													}else if(obj=="int"){
+														index=1;
+													}else if(obj=="float"){
+														index=2;
+													}else if(obj=="datetime"){
+														index=3;
+													}else if(obj=="bit"){
+														index=4;
+													}else{
+														index=5;
+													}
+													cmb_ialign.selectedIndex=index;
+												}
+
+											]]>
+										</fx:Script>
+										<mx:ComboBox id="cmb_ialign" dataProvider="{ialignArr}" width="100%"
+													 selectedIndex="{data.ialign}" change="cmb_ialign_changeHandler(event)" click="cmb_ialign_clickHandler(event)">
+										</mx:ComboBox>
+									</mx:HBox>
+								</fx:Component>
+							</mx:itemEditor>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="filed_length" dataField="num"  headerText="字段长度" width="60" sortable="false"></mx:DataGridColumn>
+                        <mx:DataGridColumn headerText="是否为空" dataField="bshow" sortable="false"  editable="false"
+                                           width="60">
+                            <mx:itemRenderer>
+                                <fx:Component>
+									<mx:CheckBox textAlign="center" click="data.bshow=!data.bshow"
+												 selected="{(data.bshow=='false')?false:true}"/>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                        
+						<mx:DataGridColumn headerText="关键字"  dataField="bkey" sortable="false"  editable="false"
+										   width="60">
+							<mx:itemRenderer>
+								<fx:Component>
+									<mx:CheckBox textAlign="center" click="data.bkey=!data.bkey"
+									selected="{(data.bkey=='false')?false:true}"/>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn id="filed_iid" dataField="iid"  headerText="字段长度" visible="false"></mx:DataGridColumn>
+                        <mx:DataGridColumn id="dgc_bsum" headerText="合计" dataField="bsum" sortable="false"
+                                           editable="false" width="60" visible="false">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <fx:Script>
+											<![CDATA[
+                                            import mx.controls.Alert;
+
+                                            protected function chk_bshow_changeHandler(event:Event):void {
+                                                if (data.ifieldtype == "1" || data.ifieldtype == "2") {
+                                                    data.bsum = chk_bsum.selected;
+                                                }
+                                                else {
+                                                    chk_bsum.selected = false;
+                                                    data.bsum = 0;
+                                                }
+                                            }
+                                            ]]>
+										</fx:Script>
+                                        <mx:CheckBox id="chk_bsum" selected="{data.bsum}"
+                                                     change="chk_bshow_changeHandler(event)">
+                                        </mx:CheckBox>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                        <mx:DataGridColumn id="dgc_bgroup" headerText="汇总" dataField="bgroup" sortable="false"
+                                           editable="false" width="60" visible="false">
+                            <mx:itemRenderer>
+                                <fx:Component>
+                                    <mx:HBox horizontalAlign="center">
+                                        <fx:Script>
+											<![CDATA[
+                                            import mx.controls.Alert;
+
+                                            protected function chk_bgroup_changeHandler(event:Event):void {
+                                                data.bgroup = chk_bgroup.selected;
+                                            }
+                                            ]]>
+										</fx:Script>
+                                        <mx:CheckBox id="chk_bgroup" selected="{data.bgroup}"
+                                                     change="chk_bgroup_changeHandler(event)">
+                                        </mx:CheckBox>
+                                    </mx:HBox>
+                                </fx:Component>
+                            </mx:itemRenderer>
+                        </mx:DataGridColumn>
+                    </mx:columns>
+                </mx:DataGrid>
+            </mx:VBox>
+            <mx:VRule height="100%"/>
+            <!--<mx:VBox height="100%" verticalAlign="middle" styleName="content" borderVisible="false" visible="false">
+
+                <mx:LinkButton id="lnk_upend"
+                               icon="@Embed('/yssoft/assets/images/upend.png')"
+                               toolTip="置顶" click="rowMoveEndUp()">
+                </mx:LinkButton>
+                <mx:LinkButton id="lnk_up"
+                               icon="@Embed('/yssoft/assets/images/up.png')"
+                               toolTip="上移" click="rowMoveUp()">
+                </mx:LinkButton>
+                <mx:LinkButton id="lnk_down"
+                               icon="@Embed('/yssoft/assets/images/down.png')"
+                               toolTip="下移" click="rowMoveDown()">
+                </mx:LinkButton>
+                <mx:LinkButton id="lnk_downend"
+                               icon="@Embed('/yssoft/assets/images/downend.png')"
+                               toolTip="置底" click="rowMoveEndDown()">
+                </mx:LinkButton>
+            </mx:VBox>-->
+        </mx:HBox>
+    </mx:VBox>
+    <mx:HBox width="100%" paddingLeft="10" paddingRight="10" height="38" verticalAlign="middle">
+        <mx:HBox width="20%" horizontalAlign="left" verticalAlign="middle" visible="false">
+            <s:Label text="每页显示"/>
+            <s:TextInput id="tnp_rownum" width="56" restrict="0-9" text="{acConsultsetVo.ipage}"/>
+            <s:Label text="行"/>
+            <s:Label text="冻结前"/>
+            <s:TextInput id="tnp_fixnum" width="56" restrict="0-9" text="{acConsultsetVo.ifixnum}"/>
+            <s:Label text="列"/>
+        </mx:HBox>
+        <mx:HBox width="80%" horizontalAlign="right" verticalAlign="middle">
+            <s:Button id="btn_ok" label="确定" click="btn_ok_clickHandler()"/>
+            <s:Button id="btn_cancel" label="取消" click="closeWindow()"/>
+        </mx:HBox>
+    </mx:HBox>
+</basic:BasicTitleWindow>

@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		 creationComplete="ini()"  xmlns:comps="yssoft.comps.*">
+	
+	<!--载入对应的脚本类-->
+	<fx:Script source="../../scripts/AcqueryclmViewScript.as"/>
+	
+	<mx:HDividedBox width="100%" height="100%"  styleName="contentHDividedBox">
+		
+		<!--树菜单-->
+		<mx:VBox width="20%" height="100%" styleName="lefttree" >
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<mx:Label text="功能目录" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox width="100%" height="100%" id="treeMenu" x="0" y="38" borderStyle="none"
+								 dataProvider="{treeXml}" itemClick="treeMenu_itemClickHandler(event)">
+				
+			</comps:TreeCompsVbox>
+			</mx:VBox>
+		</mx:VBox>
+		
+		<!--中间的分割线-->
+		
+		
+		<!--数据字典列表区-->
+		<mx:VBox width="80%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="32" dock="true">
+				<mx:ButtonBar id="btn_menubar" width="10%" height="80%" styleName="contentButtonBar"
+							  dataProvider="{menubar}" 
+							  creationComplete="CRMtool.toolButtonsEnabled(btn_menubar,null)"
+							  itemClick="btn_menubar_itemClickHandler(event)"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" paddingLeft="1" paddingRight="1">
+			<mx:DataGrid id="dglist" width="100%" height="100%" x="0" y="38" styleName="contentDataGrid" horizontalScrollPolicy="auto"
+						 editable="{myenabled}" dataProvider="{arrDataList}" draggableColumns="false" sortableColumns="false"
+						 borderStyle="none" lockedColumnCount="3" itemEditEnd="validateItem(event)">
+				<mx:columns>
+					<mx:DataGridColumn headerText="序号" labelFunction="rownum_DataGrid" width="50" textAlign="center" editable="false"/>
+					<mx:DataGridColumn headerText="字段" dataField="cfield" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="字段标题" dataField="ccaption" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="字段类型" dataField="ifieldtype" sortable="false" editorDataField="value" labelFunction="convertType">
+						<mx:itemEditor>
+							<fx:Component>
+								<mx:HBox>			
+									<fx:Script>
+										<![CDATA[
+											import mx.collections.ArrayCollection;									
+											public function get value(): Object
+											{
+												var obj:Object=cbifieldtype.selectedItem;
+												return obj.data;
+											}
+											override public function set data(value:Object) : void
+											{
+												super.data = value;
+												cbifieldtype.selectedItem.value=value.ifieldtype;
+											}
+										]]>
+									</fx:Script>
+									<mx:ComboBox id="cbifieldtype" dataProvider="{outerDocument.arr_ifieldtype}" 
+												 width="100%" enabled="{outerDocument.myenabled}" />
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="默认值" dataField="cdefault" sortable="false" editorDataField="value">
+						<mx:itemEditor>
+							<fx:Component>
+								<mx:HBox>			
+									<fx:Script>
+										<![CDATA[
+											import mx.collections.ArrayCollection;									
+											public function get value(): Object
+											{
+												var obj:Object=cbiscdefault.selectedItem;
+												return obj.data;
+											}
+											override public function set data(value:Object) : void
+											{
+												super.data = value;
+												if(value.ifieldtype=="3")
+												{
+													outerDocument.arr_cdefault=new ArrayCollection();
+													
+													var obj:Object=new Object();
+													obj.label="";
+													obj.data="";
+													outerDocument.arr_cdefault.addItem(obj);
+													
+													var obj1:Object=new Object();
+													obj1.label="本年";
+													obj1.data="本年";
+													outerDocument.arr_cdefault.addItem(obj1);
+													
+													var obj2:Object=new Object();
+													obj2.label="本月";
+													obj2.data="本月";
+													outerDocument.arr_cdefault.addItem(obj2);
+													
+													var obj3:Object=new Object();
+													obj3.label="本周";
+													obj3.data="本周";
+													outerDocument.arr_cdefault.addItem(obj3);
+													
+													var obj4:Object=new Object();
+													obj4.label="今天";
+													obj4.data="今天";
+													outerDocument.arr_cdefault.addItem(obj4);
+													
+													var obj5:Object=new Object();
+													obj5.label="本年第一天";
+													obj5.data="本年第一天";
+													outerDocument.arr_cdefault.addItem(obj5);
+													
+													var obj6:Object=new Object();
+													obj6.label="本月第一天";
+													obj6.data="本月第一天";
+													outerDocument.arr_cdefault.addItem(obj6);
+													
+													var obj7:Object=new Object();
+													obj7.label="本周第一天";
+													obj7.data="本周第一天";
+													outerDocument.arr_cdefault.addItem(obj7);
+													
+												}
+												else if(value.ifieldtype=="0"&&(value.iconsultname!=""&&value.iconsultname!=null))
+												{
+													outerDocument.arr_cdefault=new ArrayCollection();
+													var obj:Object=new Object();
+													obj.label="";
+													obj.data="";
+													outerDocument.arr_cdefault.addItem(obj);
+													
+													var obj1:Object=new Object();
+													obj1.label="登录人";
+													obj1.data="登录人";
+													outerDocument.arr_cdefault.addItem(obj1);
+													
+													var obj2:Object=new Object();
+													obj2.label="登录人部门";
+													obj2.data="登录人部门";
+													outerDocument.arr_cdefault.addItem(obj2);
+												}else if(value.ifieldtype=="0") {
+													outerDocument.arr_cdefault=new ArrayCollection();
+													var obj:Object=new Object();
+													obj.label="";
+													obj.data="";
+													outerDocument.arr_cdefault.addItem(obj);
+													
+													var obj8:Object=new Object();
+													obj8.label="当前年份";
+													obj8.data="当前年份";
+													outerDocument.arr_cdefault.addItem(obj8);
+													
+													var obj9:Object=new Object();
+													obj9.label="当前月份";
+													obj9.data="当前月份";
+													outerDocument.arr_cdefault.addItem(obj9);
+													
+													var obj10:Object=new Object();
+													obj10.label="当前年月";
+													obj10.data="当前年月";
+													outerDocument.arr_cdefault.addItem(obj10);
+												}else if(value.ifieldtype=="1") {
+													outerDocument.arr_cdefault=new ArrayCollection();
+													var obj12:Object=new Object();
+													obj12.label="";
+													obj12.data="";
+													outerDocument.arr_cdefault.addItem(obj12);
+													
+													var obj13:Object=new Object();
+													obj13.label =  "当前年份";
+													obj13.data  =  "当前年份";
+													outerDocument.arr_cdefault.addItem(obj13);
+													
+													var obj14:Object=new Object();
+													obj14.label =  "上一年份";
+													obj14.data  =  "上一年份";
+													outerDocument.arr_cdefault.addItem(obj14);
+												}
+												else
+												{
+													outerDocument.arr_cdefault=new ArrayCollection();
+													var obj:Object=new Object();
+													obj.label="";
+													obj.data="";
+													outerDocument.arr_cdefault.addItem(obj);
+												}
+												cbiscdefault.selectedItem.value=value.cdefault;
+												
+											}
+										]]>
+									</fx:Script>
+									<mx:ComboBox id="cbiscdefault" dataProvider="{outerDocument.arr_cdefault}" 
+												 width="100%" enabled="{outerDocument.myenabled}"/>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="固定默认值" dataField="cfixdefault" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="是否必输" dataField="bunnull" editable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:CheckBox textAlign="center" click="data.bunnull=!data.bunnull" selected="{(data.bunnull==0)?false:true}" enabled="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<!--<mx:DataGridColumn headerText="参照窗体" dataField="iconsult" editable="{myenabled}"/>-->
+					<mx:DataGridColumn headerText="录入参照" dataField="iconsultname" editable="{myenabled}" editorDataField="data_iconsult">
+						<mx:itemEditor>
+							<fx:Component>
+								<s:MXDataGridItemRenderer focusEnabled="true">
+									<fx:Script>
+										<![CDATA[
+											import yssoft.tools.CRMtool;
+											
+											private var _data_iconsult:String;
+											public function get data_iconsult():String{
+												return csl_textinput.tnp_text_str;
+											}
+											public function set data_iconsult(val:String):void{
+												this._data_iconsult=val;
+											}
+											
+											private var _data_iconsult_str:String;
+											public function set data_iconsult_str(value:String):void{
+												this._data_iconsult_str=value;
+											}
+											public function get data_iconsult_str():String{
+												return this._data_iconsult_str;
+											}
+											
+											protected function csl_textinput_searchChangeHandler(event:Event):void
+											{
+												//data_iconsult=csl_textinput.value;
+												data.iconsult=csl_textinput.value;
+												data.iconsultname=csl_textinput.tnp_text_str;
+												outerDocument.dglist.setFocus();
+												//data.iconsultname=csl_textinput.tnp_text_str;
+												//Alert.show("name:["+data.iconsultname+"],iconsult["+data.iconsult+"]");
+											}
+											
+											protected function csl_textinput_valueChangeHandler(event:Event):void
+											{
+												data.iconsult=0;
+												data.iconsultname="";
+												/* 	csl_textinput.value=0;
+												csl_textinput.tnp_text_str=""; */
+												_data_iconsult="";
+												outerDocument.dglist.dataProvider.getItemAt(outerDocument.dglist.selectedIndex).iconsult=0;
+												outerDocument.dglist.dataProvider.getItemAt(outerDocument.dglist.selectedIndex).iconsultname="";
+												
+											}
+											
+										]]>
+									</fx:Script>
+									<comps:ConsultTextInput valueChange="csl_textinput_valueChangeHandler(event)" editable="true" iid="15" value="{data.iconsult}" bindValueField="iid" bindLabelField="cname" tnp_text_str="{data.iconsultname}" 
+															id="csl_textinput" visibleIcon="true" 
+															searchChange="csl_textinput_searchChangeHandler(event)" top="0" left="0" right="0" bottom="0">
+									</comps:ConsultTextInput>
+								</s:MXDataGridItemRenderer>
+							</fx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="参照返回表名" dataField="cconsulttable" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="参照返回字段" dataField="cconsultbkfld" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="参照显示字段" dataField="cconsultswfld" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="参照录入验证字段" dataField="cconsultipvf" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="树参照是否返回末级" dataField="bconsultendbk" editable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:CheckBox textAlign="center" click="data.bconsultendbk=!data.bconsultendbk" selected="{(data.bconsultendbk==0)?false:true}" enabled="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="查询优先序号" dataField="iqryno" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="是否常用条件" dataField="bcommon" editable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:CheckBox textAlign="center" click="data.bcommon=!data.bcommon" selected="{(data.bcommon==0)?false:true}" enabled="{outerDocument.myenabled}"/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="常用条件类型" dataField="icmtype" sortable="false" editorDataField="value" labelFunction="convertIcmType">
+						<mx:itemEditor>
+							<fx:Component>
+								<mx:HBox>			
+									<fx:Script>
+										<![CDATA[
+											import mx.collections.ArrayCollection;
+											public function get value(): Object
+											{
+												var obj:Object=cbicmtype.selectedItem;
+												return obj.data;
+											}
+											override public function set data(value:Object) : void
+											{
+												super.data = value;
+												cbicmtype.selectedItem.value=value.ifieldtype;
+											}
+										]]>
+									</fx:Script>
+									<mx:ComboBox id="cbicmtype" dataProvider="{outerDocument.arr_icmtype}" width="100%" enabled="{outerDocument.myenabled}"/>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="排序优先序号" dataField="isortno" editable="{myenabled}"/>
+					<mx:DataGridColumn headerText="排序类型" dataField="isttype" sortable="false" editorDataField="value" labelFunction="convertIstType">
+						<mx:itemEditor>
+							<fx:Component>
+								<mx:HBox>			
+									<fx:Script>
+										<![CDATA[
+											import mx.collections.ArrayCollection;									
+											public function get value(): Object
+											{
+												var obj:Object=cbisttype.selectedItem;
+												return obj.data;
+											}
+											override public function set data(value:Object) : void
+											{
+												super.data = value;
+												cbisttype.selectedItem.value=value.ifieldtype;
+											}
+										]]>
+									</fx:Script>
+									<mx:ComboBox id="cbisttype" dataProvider="{outerDocument.arr_isttype}" width="100%" enabled="{outerDocument.myenabled}"/>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemEditor>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>	
+			</mx:VBox>
+		</mx:VBox>
+	</mx:HDividedBox>
+</mx:HBox>

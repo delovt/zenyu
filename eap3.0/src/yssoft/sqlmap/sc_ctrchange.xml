@@ -1,0 +1,38 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：sc_ctrchange
+ * 创建人：刘磊
+ * 创建时间：2011-9-29 9:32:37
+ * 修改人：刘磊
+ * 修改时间：2011-9-29 9:32:37
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_sc_ctrchange" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,icontract,inoticetype,ichangetype,citemcode,icustomer,citemname,cdetail,isaleperson,dmakedate,iapprove,dapprove,copinion from sc_ctrchange 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_sc_ctrchange" parameterClass="java.util.HashMap">
+            insert into sc_ctrchange(icontract,inoticetype,ichangetype,citemcode,icustomer,citemname,cdetail,isaleperson,dmakedate,iapprove,dapprove,copinion) 
+            values (#icontract#,#inoticetype#,#ichangetype#,#citemcode#,#icustomer#,#citemname#,#cdetail#,#isaleperson#,#dmakedate#,#iapprove#,#dapprove#,#copinion#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_sc_ctrchange" parameterClass="java.util.HashMap">
+            update sc_ctrchange set icontract=#icontract#,inoticetype=#inoticetype#,ichangetype=#ichangetype#,citemcode=#citemcode#,icustomer=#icustomer#,citemname=#citemname#,cdetail=#cdetail#,isaleperson=#isaleperson#,dmakedate=#dmakedate#,iapprove=#iapprove#,dapprove=#dapprove#,copinion=#copinion# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_sc_ctrchange" parameterClass="String">
+            delete from sc_ctrchange
+            where $condition$
+     </delete>
+</sqlMap>

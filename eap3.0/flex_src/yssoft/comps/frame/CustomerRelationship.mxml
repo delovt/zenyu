@@ -1,0 +1,226 @@
+<?xml version="1.0"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:comps="yssoft.comps.*"
+         width="100%" height="100%" creationComplete="creationCompleteHandler(event)">
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var ui_icustomer:CrmEapTextInput;
+
+        private var _icustomer:int;
+
+        [Bindable]
+        private var shangji:int = 0;
+        [Bindable]
+        private var pingji:int = 0;
+        [Bindable]
+        private var xiaji:int = 0;
+
+        private var customerList:ArrayCollection;//此人能看到的所有客户
+
+        //传入参数
+        public var winParam:Object = new Object();
+        //传入对象
+        public var itemObj:Object;
+
+        //权限sql
+        private var authSql:String;
+
+        var basicSql:String = "select iid,-1 as ipid,cname,'head' as level,'' as treeItemColor  from cs_customer where iid=(select iheadcust from cs_customer where iid=#icustomer# ) " +
+                "union select iid,iheadcust as ipid,cname,'me' as level,'' as treeItemColor from cs_customer where iid=#icustomer# " +
+                "union select iid,iheadcust as ipid,cname,'brothers' as level,'' as treeItemColor from cs_customer where iheadcust=(select iheadcust from cs_customer where iid=#icustomer#) and iid!=#icustomer# " +
+                "union select iid,iheadcust as ipid,cname,'children' as level,'' as treeItemColor from cs_customer where iheadcust=#icustomer# ";
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            itemObj = CRMtool.getObject(winParam);
+
+            initConsultItem("icustomer");
+
+            var auth2:OperDataAuth = new OperDataAuth();
+            auth2.addEventListener("onGet_FundataauthSucess", function (evt:Event):void {
+                authSql = auth2.getdataauthcondition("01", 44, CRMmodel.userId, CRMmodel.hrperson.idepartment, "cs_customer", 1);
+                var sql:String = "select iid from cs_customer where 1=1 " + authSql;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    customerList = event.result as ArrayCollection;
+                }, sql);
+            });
+            auth2.get_fundataauth({ifuncregedit: 44, iperson: CRMmodel.userId});
+        }
+
+        private function initConsultItem(name:String, ifuncregedit:int = 162):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = ifuncregedit;
+            if (ifuncregedit == 162)
+                obj1.ctable = "sc_order";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                ui_icustomer.addEventListener("yesConsultList", function (e:Event):void {
+                    if (ui_icustomer.consultList != null && ui_icustomer.consultList.length > 0) {
+                        icustomer = ui_icustomer.consultList[0].iid;
+                    }
+                });
+                ui_icustomer.addEventListener("noConsultList", function (e:Event):void {
+                    icustomer = 0;
+                });
+                ui_icustomer.addEventListener("initialization", function (event:Event):void {
+
+                    if (itemObj && itemObj.injectObj && itemObj.injectObj.icustomer > 0) {
+                        ui_icustomer.text = itemObj.injectObj.icustomer_NAME;
+                        getTree(itemObj.injectObj.icustomer);
+                    }
+
+                });
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.percentWidth = 100;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+                consultTextInput.styleName = "contentTextInputOther";
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+
+        [Bindable]
+        public function get icustomer():int {
+            return _icustomer;
+        }
+
+        public function set icustomer(value:int):void {
+            _icustomer = value;
+            getTree(value);
+        }
+
+        private function getTree(value:int):void {
+            if (value > 0) {
+                var sql:String = basicSql;
+                while (sql.search("#icustomer#") > -1) {
+                    sql = sql.replace("#icustomer#", value);
+                }
+
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    shangji = 0;
+                    pingji = 0;
+                    xiaji = 0;
+
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    var isHasHead:Boolean = false;
+                    var isHasBrothers:Boolean = false;
+                    var isHasChildren:Boolean = false;
+
+                    var head:Object;
+                    var me:Object;
+                    for each(var item:Object in ac) {
+                        var isIn:Boolean = false;
+                        for each(var citem:Object in customerList) {
+                            if (item.iid == citem.iid)
+                                isIn = true;
+                        }
+
+                        if (!isIn) {
+                            item.treeItemColor = "#EAEAEA";
+                        }
+
+
+                        if (item.level == "head") {
+                            isHasHead = true;
+                            head = item;
+                            shangji = 1;
+                        }
+                        if (item.level == "brothers") {
+                            isHasBrothers = true;
+                            pingji++;
+                        }
+                        if (item.level == "children") {
+                            isHasChildren = true;
+                            xiaji++;
+                        }
+
+                        if (item.level == "me")
+                            me = item;
+                    }
+
+                    if (me == null)
+                        return;
+
+                    if (!isHasHead) {
+                        ac.addItem({iid: 0, ipid: -1, cname: "上级（无）", treeItemColor: ""});
+                        me.ipid = 0;
+                    } else {
+                        var pingjiAndMe = pingji + 1;
+                        head.cname = head.cname + "（" + pingjiAndMe + "）";
+                    }
+
+                    if (!isHasChildren)
+                        ac.addItem({iid: -2, ipid: me.iid, cname: "下级（无）", treeItemColor: ""});
+                    else
+                        me.cname = me.cname + "（" + xiaji + "）";
+
+                    me.treeItemColor = "0xff8100";
+
+                    AccessUtil.remoteCallJava("UtilViewDest", "buildTreeXML", function (e:ResultEvent):void {
+                        var result:String = e.result as String;
+                        if (result.length > 0) {
+                            tree.treeCompsXml = new XML(result);
+                        } else {
+                            tree.treeCompsXml = <node></node>;
+                        }
+
+                        tree.expandAll();
+                    }, {list: ac});
+                }, sql, null, false);
+            }
+        }
+
+
+        private function tree_doubleClickHandler(event:MouseEvent):void {
+            var iid:Number = tree.selectedItem.@iid;
+
+            if (tree.selectedItem.@treeItemColor == "#EAEAEA")
+                return;
+
+            if (iid > 0) {
+                CRMtool.openbillonbrowse(44, iid);
+            }
+        }
+        ]]></fx:Script>
+
+    <mx:HBox width="100%" height="35"  paddingLeft="20" verticalAlign="middle" paddingBottom="3">
+        <mx:Label text="客户：" />
+        <mx:HBox id="ui_icustomer_box" width="500"/>
+        <mx:Spacer width="15"/>
+        <mx:HBox horizontalGap="0" enabled="{icustomer>0}">
+            <mx:Label text="上级（ " />
+            <mx:Label text="{shangji}" color="#ff8100"/>
+            <mx:Label text="） 平级（ " />
+            <mx:Label text="{pingji}" color="#ff8100"/>
+            <mx:Label text="） 下级（ " />
+            <mx:Label text="{xiaji}" color="#ff8100"/>
+            <mx:Label text="）" />
+        </mx:HBox>
+    </mx:HBox>
+    <mx:HRule width="100%" height="1"/>
+    <mx:HBox width="100%" height="100%" >
+        <comps:TreeCompsVbox id="tree" width="100%" height="100%" paddingLeft="20"
+                             doubleClickEnabled="true"
+                             doubleClick="tree_doubleClickHandler(event)" isLock="true"/>
+    </mx:HBox>
+</mx:VBox>

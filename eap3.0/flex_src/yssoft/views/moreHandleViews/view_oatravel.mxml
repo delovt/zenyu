@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+ <!--YJ Add 出差管理-->
+
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="500" height="240"
+                        title="业务出差核销单" close="PopUpManager.removePopUp(this)" xmlns:comps="yssoft.comps.*"
+                        creationComplete="ini()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import yssoft.models.CRMmodel;
+			import yssoft.comps.RadianVbox;
+			import yssoft.models.DateHadle;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			public var parentForm:Object;
+			
+			public var strdfbegin:String = "";
+			public var strdfend:String = "";
+			public var strccompletion:String = "";
+			
+			private function ini():void{
+				parentForm = this.owner;
+			}
+			
+			private function onClick():void{
+				if(!DateHadle.myDateCompare(this.dtstart.text,this.dtend.text)){
+					CRMtool.tipAlert("开始日期不能大于结束日期！");
+					return;
+				}
+				
+				strdfbegin = this.dtstart.text;
+				strdfend = this.dtend.text;
+				strccompletion = this.ccompletion.text;
+				
+				var objup:Object = {};
+				objup.dfbegin = strdfbegin;
+				objup.dfend = strdfend;
+				objup.ccompletion = strccompletion;
+				
+				for(var i:int=0;i<parentForm._frameArr.length;i++)
+				{
+					var obj:Object = parentForm._frameArr.getItemAt(i);
+					var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+					customerVbox.parametersObj = objup;
+					customerVbox.reset();
+				}
+				
+				updateData();
+				
+			}
+			
+			//更新数据
+			private function updateData():void{
+				
+				var arriid:ArrayCollection = new ArrayCollection();
+				arriid = parentForm.personArr;
+				var obj:Object = {};
+				
+				obj.iid = parentForm.curiid;
+				obj.dfbegin = strdfbegin;
+				obj.dfend = strdfend;
+				obj.ccompletion = strccompletion;
+				obj.user = CRMmodel.userId;
+					
+				AccessUtil.remoteCallJava("MoreHandleDest","onTravel",onTravelBack,obj);
+			}
+			
+			private function onTravelBack(evt:ResultEvent):void{
+				var result:String = evt.result+"";
+				if(result == "fail"){CRMtool.tipAlert("核销失败！");return;}
+				PopUpManager.removePopUp(this);
+			}
+			private function onCancle():void{
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox id="container" width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" cornerRadius="8"
+			 styleName="contentVBox" verticalGap="20">
+		<mx:VBox width="100%" cornerRadius="8" styleName="content">
+			
+			<mx:HBox width="100%" styleName="contentSubHbox">
+				<mx:Label text="实际开始时间:" height="100%" styleName="contentLabel"/>
+				<comps:CRMDateField id="dtstart" width="100%"/>
+			</mx:HBox>
+			
+			<mx:HRule width="100%"/>
+			
+			<mx:HBox width="100%" styleName="contentSubHbox">
+				<mx:Label text="实际结束时间:" height="100%" styleName="contentLabel"/>
+				<comps:CRMDateField id="dtend" width="100%"/>
+			</mx:HBox>
+			
+			<mx:HRule width="100%"/>
+			
+			<mx:HBox width="100%" styleName="contentSubHbox">
+				<mx:Label text="任务完成情况:" height="100%" styleName="contentLabel"/>
+				<mx:TextInput id="ccompletion" width="100%" height="100%"
+							  borderVisible="false" styleName="contentTextInput"/>
+			</mx:HBox>
+			
+		</mx:VBox>
+	</mx:VBox>
+	
+	<mx:HBox width="100%" horizontalAlign="right" height="38" verticalAlign="middle" paddingRight="10">
+		<s:Button id="btnOK" label="确定" click="onClick()"/>
+		<s:Button id="btnCancle" label="放弃" click="onCancle()"/>
+	</mx:HBox>
+</basic:BasicTitleWindow>

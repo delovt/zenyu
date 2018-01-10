@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="批量修改积分"
+                        width="700" height="400"
+                        close="onCloseHandler()"
+                        updateComplete="titlewindow1_updateCompleteHandler(event)"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var allocationBillList:ArrayCollection;
+			
+			public function myinit(allocationBillList:ArrayCollection):void
+			{
+				this.allocationBillList = allocationBillList;
+				CRMtool.openView(this);				
+			}
+			
+			protected function remove(event:MouseEvent):void
+			{
+				var array:Array =  myDataGrid.selectedItems;
+				var allocationList:ArrayCollection = myDataGrid.dataProvider as ArrayCollection;
+				if(array&&array.length>0){
+					for each(var o:Object in array){
+						allocationList.removeItemAt(myDataGrid.selectedIndex);
+					}
+				}
+			}
+			
+			protected function submitExpense(event:MouseEvent):void
+			{
+				if(verification()==false){
+					CRMtool.tipAlert("积分不能为空！");
+					return;
+				}
+				var fintegral:Number=parseInt(ui_fintegral.text+"");
+				if(fintegral<0){
+					CRMtool.tipAlert("积分不能小于0！");
+					return;
+				}
+				var allocationList:ArrayCollection = myDataGrid.dataProvider as ArrayCollection;
+				for (var i:int;i<allocationList.length;i++){
+				var sql:String="update sr_bill set fintegral="+ui_fintegral.text+" where iid="+allocationList[i].iid;
+				AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", null,sql);
+				}
+				CRMtool.tipAlert("积分修改成功！");
+			}
+					
+			protected function titlewindow1_updateCompleteHandler(event:FlexEvent):void
+			{
+				CRMtool.setTabIndex(this.myBorder);
+			}
+			
+			private function verification():Boolean{
+				if(!verificationItem(ui_fintegral)){
+					return false;
+				}			
+				return true;				
+			}
+			
+			private function verificationItem(textInput:Object):Boolean{
+				var bool:Boolean = true;
+				if(CRMtool.isStringNull(textInput.text)){
+					bool=false;
+					textInput.setFocus();
+				}
+				return bool;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="10">
+		<mx:DataGrid id="myDataGrid" width="100%" height="100%"  allowMultipleSelection="true"
+					 dataProvider="{allocationBillList}"
+					 horizontalScrollPolicy="auto" >
+			<mx:columns>	
+				<mx:DataGridColumn headerText="服务单号" dataField="ccode_UI5362" width="90" />
+				<mx:DataGridColumn headerText="客户" dataField="cs_customer3_UI5361_cname" width="230" />
+				<mx:DataGridColumn headerText="联系人" dataField="CS_custperson2_UI5358_cname" width="75"  />
+				<mx:DataGridColumn headerText="联系电话" dataField="ctel_UI5360" width="120" />
+				<mx:DataGridColumn headerText="服务方式" dataField="aa_data1_UI5354_cname" width="70" />
+				<mx:DataGridColumn headerText="单据状态" dataField="aa_data10_UI5386_cname" width="70" />
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:VBox id="myBorder" width="100%" height="33" verticalGap="0" paddingRight="10" paddingLeft="10">
+			<mx:VBox width="100%" height="33" styleName="content">
+				<mx:HBox width="100%" height="100%" styleName="contentSubHbox" >
+					<mx:HBox width="50%">
+						<mx:Label text="积分:" styleName="contentLabel"  color="red"/>
+						<mx:TextInput id="ui_fintegral" styleName="contentTextInput" width="100%" />
+					</mx:HBox>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="33" verticalGap="0">
+			<mx:HBox height="100%" width="100%" verticalAlign="middle" paddingRight="10" paddingLeft="10" paddingBottom="5">
+				
+				<s:Button label="删行" click="remove(event)"/>
+				<s:Spacer width="100%"/>
+				<s:Button label="确定" click="submitExpense(event)" />
+				<s:Button label="放弃"  click="onCloseHandler()"/>
+			</mx:HBox>
+		</mx:VBox>
+		
+	</mx:VBox>
+</basic:BasicTitleWindow>

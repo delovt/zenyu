@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" creationComplete="init();">
+	<fx:Metadata>
+		[Event(name="noRelatedList",type="flash.events.Event")]
+		[Event(name="hasRelatedList",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.FrameworkVBoxView;
+			import yssoft.evts.GetPageComplete;
+			import yssoft.frameui.FrameCore;
+			import yssoft.frameui.formopt.OperDataAuth;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.ListclmVo;
+			import yssoft.vos.ListsetVo;
+			
+			public var parentForm:Object;
+			
+			//相关关联功能
+			private var _ifcrelation:int=0;
+			
+			private var _iinvoice:int=0;
+			
+			public function set iinvoice(value:int):void
+			{
+				this._iinvoice= value;
+			}
+			
+			[Bindable]
+			public var resultArr:ArrayCollection = new ArrayCollection();
+			
+			public function set ifcrelation(value:int):void
+			{
+				this._ifcrelation = value;
+				/*  init();  */
+			}
+			
+			
+			public function init():void
+			{
+				parentForm = this.owner;
+				var paramObj:Object = new Object();
+				paramObj.iid = _ifcrelation;
+				paramObj.buse = 1;
+				AccessUtil.remoteCallJava("As_fcrelationDest","getAs_fcrelation",getFunCallBackHandler,paramObj,null,false);
+			}
+			
+			
+			private function getFunCallBackHandler(event:ResultEvent):void
+			{
+				this.resultArr = event.result as ArrayCollection;
+				if(resultArr.length==0){
+					this.dispatchEvent(new Event("noRelatedList"));
+					this.enabled = false;
+				}else{
+					this.dispatchEvent(new Event("hasRelatedList"));
+					linkbutton1_clickHandler2();
+					//refAddLable();
+				}		
+				
+			}
+			
+			public function onClick(mode:String="click"):void
+			{
+				//i = resultArr.length;
+				
+				if(!this.li_fcrelation){
+					return;
+				}
+				
+/* 				if(!this.li_fcrelation.selectedItem&&resultArr&&resultArr.length>0&&resultArr.getItemAt(0)){
+					this.li_fcrelation.selectedItem = resultArr.getItemAt(0);
+				} */
+								
+				queryDatadictionary(this.li_fcrelation.selectedItem,mode);					
+			}
+			
+			public function queryDatadictionary(obj:Object,mode:String="click"):void{
+				if(!obj)
+					return;
+				if(!obj.addcname||obj.addcname=="0"||obj.addcname==0)
+					return;
+				
+				AccessUtil.remoteCallJava("FuncregeditDest","getSingleFuncregeditByID",function(event:ResultEvent):void{
+					getDatadictionary(event,obj,mode);
+				},obj.ifuncregedit);
+			}
+			
+			private function getDatadictionary(event:ResultEvent,obj:Object,mode:String):void
+			{
+				if(event.result)
+				{
+					var item:Object = obj;
+					
+					var result:Object = event.result;
+					var funcregeditObj:Object = new Object();
+					//获得注册表信息
+					funcregeditObj = event.result.funcregeditMap as Object;
+
+					if(mode=="click"&&parentForm.currentState!="openRelated")
+					{											
+						parentForm.currentState ="openRelated";
+					}
+					
+					if(mode=="click"&&parentForm is FrameCore){
+						var frameCore:FrameCore = parentForm as FrameCore;
+						frameCore.initTitle();
+						frameCore.lbl_title.label+=(" > "+item.cname);
+						frameCore.lbl_title.setStyle("color","#ff8100");
+					}
+					
+					var cfcrlfield:String = item.cfcrlfield;
+					var cfcrlfieldArr:Array = cfcrlfield.split("|");
+					var sql:String ="";
+					var itemObj:Object =parentForm.crmeap.getValue();
+					for(var i:int=0;i<cfcrlfieldArr.length;i++)
+					{
+						var singcfcrlfield:String = cfcrlfieldArr[i];
+						var singcfcrlfieldArr:Array = singcfcrlfield.split(",");
+						sql+=" and "+singcfcrlfieldArr[1]+"="+itemObj[singcfcrlfieldArr[0]];
+					}
+					
+					if(null!=item.cfcrlcondit&&""!=item.cfcrlcondit)
+					{
+						sql+=" "+item.cfcrlcondit;
+					}
+					funcregeditObj.relatedSql = sql;
+					funcregeditObj.onBack = onBack;
+					funcregeditObj.relatedObjectsView = this;
+					funcregeditObj.ifuncregedit = int(item.ifuncregedit);
+					
+					//lr modify
+					var framVboxView:FrameworkVBoxView;
+						
+						
+						framVboxView = new FrameworkVBoxView();
+						framVboxView.percentHeight = 100;
+						framVboxView.percentWidth = 100;
+						
+						(parentForm as FrameCore).coreListBox.removeAllChildren();
+						(parentForm as FrameCore).coreListBox.addChild(framVboxView);
+							
+					
+					//var framVboxView:FrameworkVBoxView = parentForm.frv as FrameworkVBoxView;
+/* 					if(!framVboxView.pageBar.hasEventListener("getPageComplete"))
+						framVboxView.pageBar.addEventListener("getPageComplete",pageBarListener); */
+					framVboxView.itemObj = funcregeditObj;		
+					framVboxView.init();
+				
+							
+					/* if(isFind)
+					{} */
+				}
+			}
+			
+			//lr add
+/* 			private var i:int = 0;
+			public function refAddLable():void{
+				for each(var obj:Object in resultArr){
+					obj.addcname="";				
+				} 
+			} */
+			
+			//lr add
+/* 			public function pageBarListener(event:GetPageComplete):void{
+				
+				i++;
+				if(i<resultArr.length)
+					queryDatadictionary(resultArr[i],"init");
+				
+				
+				for each(var item:Object in resultArr){
+					if(item.ifuncregedit==event.ifuncregedit){
+						item.addcname =event.pageNum;
+					}
+				}
+				resultArr.refresh();
+			} */
+			
+			//lr modify
+			public function onBack(event:Event):void
+			{
+				(parentForm as FrameCore).lbl_title_clickHandler();
+			}
+			
+			//lr add
+/* 			protected function linkbutton1_clickHandler():void
+			{
+				i=0;
+				queryDatadictionary(resultArr[i],"init");	
+				resultArr.refresh();
+			} */
+			
+			protected function linkbutton1_clickHandler2():void
+			{
+   				for each(var item:Object in resultArr){
+					getListSet(item);
+				}   
+				
+				//getListSet(resultArr.getItemAt(0));
+				//getListSet(resultArr.getItemAt(1));
+				//getListSet(resultArr.getItemAt(2));
+				
+			}
+			
+			private function getRelatedSql(item:Object):String{
+				var cfcrlfield:String = item.cfcrlfield;
+				var cfcrlfieldArr:Array = cfcrlfield.split("|");
+				var sql:String ="";
+				var itemObj:Object =parentForm.crmeap.getValue();
+				for(var i:int=0;i<cfcrlfieldArr.length;i++)
+				{
+					var singcfcrlfield:String = cfcrlfieldArr[i];
+					var singcfcrlfieldArr:Array = singcfcrlfield.split(",");
+					sql+=" and "+singcfcrlfieldArr[1]+"="+itemObj[singcfcrlfieldArr[0]];
+				}
+				
+				if(null!=item.cfcrlcondit&&""!=item.cfcrlcondit)
+				{
+					sql+=" "+item.cfcrlcondit;
+				}
+				
+				return sql;
+			}
+			
+			
+			
+			private function getListSet(item:Object):void{
+				
+				var ifuncregedit:int=item.ifuncregedit;
+				var outifuncregedit:int=item.outifuncregedit
+				
+				var acListclmVo:ListclmVo = new ListclmVo();
+				
+				acListclmVo.ilist = ifuncregedit;
+				acListclmVo.iperson = CRMmodel.userId;
+				
+				var relatedSql:String = getRelatedSql(item);
+				AccessUtil.remoteCallJava("ACListsetDest","getListset",function(event:ResultEvent):void{
+					var acListsetVo:ListsetVo = event.result.acListsetVo as ListsetVo;
+					//加载完毕列表sql之后，加载权限。				
+					getAuth(ifuncregedit,outifuncregedit,acListsetVo.ctable,relatedSql,acListsetVo.csql1);
+				},acListclmVo);
+			}
+			
+			private function getAuth(ifuncregedit:int,outifuncregedit:int,ctable:String,relatedSql:String,csql1:String):void
+			{
+				var box:VBox = new VBox();
+				var auth:OperDataAuth=new OperDataAuth();
+				//****注操作权限功能注册内码分开，数据权限功能注册内码以单据为准****//
+				//---------------加载操作权限 刘磊 20111014 begin---------------//
+				var params:Object=new Object();
+				params.ifuncregedit=ifuncregedit;
+				params.iperson=CRMmodel.userId;
+				auth.get_funoperauth(params);
+				//---------------加载操作权限 刘磊 20111014 end---------------//
+				
+				//---------------加载数据权限 刘磊 20111015 begin---------------//
+				auth.addEventListener("onGet_FundataauthSucess",function(evt:Event):void{					
+					var authSql:String =auth.getdataauthcondition("01",outifuncregedit,CRMmodel.userId,CRMmodel.hrperson.idepartment,ctable,1);
+					
+					var sql:String ="select count(*) as count from ("+ csql1+")"+ctable+" where 1=1 "+authSql+relatedSql;
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+						var eventAC:ArrayCollection =event.result as ArrayCollection;
+ 						for each(var item:Object in resultArr){
+							if(item.ifuncregedit==ifuncregedit)
+								item.addcname = eventAC[0].count+"";
+							resultArr.refresh();
+						}  
+					},sql);
+				});
+				var params2:Object=new Object();
+				params2.ifuncregedit=outifuncregedit;
+				params2.iperson=CRMmodel.userId;
+				auth.get_fundataauth(params2);
+				//---------------加载数据权限 刘磊 20111015 end---------------//
+			}
+			
+			//lr add
+			private function addlable(item:Object):String{
+				
+				return item.cname + (CRMtool.isStringNotNull(item.addcname)&&item.addcname!="0"?"  ["+item.addcname+"] ":"");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:List paddingLeft="10" borderStyle="none" dataProvider="{resultArr}" id="li_fcrelation" width="100%" height="100%" labelFunction="addlable" itemClick="onClick();"/>
+	<mx:HBox horizontalAlign="right" width="100%" height="28">
+		<mx:LinkButton  styleName="LinkButtonnew" label="刷新" click="linkbutton1_clickHandler2()" />
+	</mx:HBox>
+</mx:VBox>

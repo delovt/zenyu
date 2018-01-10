@@ -1,0 +1,90 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+	<select id="wfm.getMessages" parameterClass="java.util.HashMap" resultClass="yssoft.vos.WfMessageVo">
+		select m.*,p.cname,dbo.getWFMessageResult(m.iresult) resultname,substring(convert(varchar(19),dprocess,120),3,14) fdate from wf_message m
+		left join hr_person p on m.iperson=p.iid
+		where m.ioainvoice=#ioainvoice#  order by m.iid desc
+	</select>
+	<select id="wfm.getMessagesHide" parameterClass="java.util.HashMap" resultClass="yssoft.vos.WfMessageVo">
+		select m.*,p.cname,dbo.getWFMessageResult(m.iresult) resultname,substring(convert(varchar(19),dprocess,120),3,14) fdate from wf_message m
+		left join hr_person p on m.iperson=p.iid
+		where m.ioainvoice=#ioainvoice# and m.bhide=0  order by m.iid desc
+	</select>
+	
+	<insert id="wfm.insertMessage" parameterClass="yssoft.vos.WfMessageVo">
+		insert into wf_message (ioainvoice,iperson,dprocess,iresult,cmessage,bhide,inoticeperson,breceive)
+		values
+		(#ioainvoice#,#iperson#,convert(varchar,getdate(),120),#iresult#,#cmessage#,#bhide#,#inoticeperson#,#breceive#)
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+	</insert>
+	<update id="wfm.updateMessage" parameterClass="yssoft.vos.WfMessageVo">
+		update wf_message set ioainvoice=#ioainvoice#,iperson=#iperson#,dprocess=#iperson#,
+				      		  iresult=#iresult#,cmessage=#cmessage#,bhide=#bhide#,
+				      		  inoticeperson=#inoticeperson#,breceive=#breceive#
+		where iid=#iid#
+	</update>
+	<delete id="wfm.deleteMessage" parameterClass="int">
+		delete from wf_message where iid=#iid#
+	</delete>
+	
+	<select id="wfm.getFormMessages" parameterClass="java.util.HashMap" resultClass="yssoft.vos.WfMessageVo">
+		select m.*,p.cname,dbo.getWFMessageResult(m.iresult) resultname,
+		substring(convert(varchar(19),dprocess,120),3,14) fdate,#flag# isstart from wf_message m
+		left join hr_person p on m.iperson=p.iid
+		where m.ioainvoice=#ioainvoice#  order by m.iid desc
+	</select>
+	
+	<!-- 写入震荡消息 -->
+	<insert id="wf.insertzdmsg"  parameterClass="java.util.HashMap" >
+		insert into wf_messages (imessage,iperson,cmessage,bhide,ioainvoice,dprocess,bpush)
+		values
+		(#imessage#,#iperson#,#cmessage#,#bhide#,#ioainvoice#,convert(varchar(19),getdate(),120),#bpush#)
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	<!-- 获取震荡消息 -->
+	<select id="wf.getzdmsgs" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select c.iid,c.iperson,c.cmessage,c.bhide,h.cname,bpush,substring(convert(varchar(19),dprocess,120),3,14) fdate from (		
+			select * from wf_messages where ioainvoice=#ioainvoice# and imessage = #imessage#  
+		) c left join hr_person h on c.iperson=h.iid order by dprocess desc
+	</select>
+	
+	
+	
+	<!-- 写入 推送的震荡消息 -->
+	<insert id="wf.insertdszdmsg"  parameterClass="java.util.HashMap" >
+		insert into as_communication (itype,isperson,irperson,dsend,cdetail,ifuncregedit,iinvoice,imsgtype,imessages)
+		select 4,#iperson#,a.iperson,convert(varchar(19),getdate(),120),#cmessage#,0,#ioainvoice#,0,#imessages# from (
+			select inodevalue iperson from wf_node where ioainvoice = #ioainvoice# and inodetype = 0 and istatus in (1,5)
+			union
+			select iperson from wf_nodes where ioainvoice=#ioainvoice# and istatus = 5
+		) a where a.iperson != #iperson#
+	</insert>
+	
+	<!-- 获取 推送震荡消息关联的 人员的阅读状态 -->
+	<select id="wf.getdszdmsgs" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select c.imessages,c.iid,h.iid,h.cname,convert(varchar(19),dread,120) dread,case when isread=0 then '未阅读' else '已阅读' end rstatus from as_communication c left join hr_person h 
+		on c.irperson=h.iid
+		where c.itype=4 and c.iinvoice=#ioainvoice# and c.imessages in (select iid from wf_messages where ioainvoice=#ioainvoice# and imessage = #imessage#)
+	</select>
+	
+	<!-- 相关单据一打开，就设置，登录人对应的单据的所属的消息 为已阅读 -->
+	<update id="wf.editdjmsgreaded" parameterClass="java.util.HashMap">
+		begin
+		update as_communication set isread=1,dread=CONVERT(varchar(19),GETDATE(),120) where isread=0 and ifuncregedit=#ifunid# and irperson=#ipersonid# 
+		and iinvoice=(select top 1 iid from oa_invoice where iinvoice = #iinvoice# and ifuncregedit=#ifunid#);
+		update as_communication set isread=1,dread=CONVERT(varchar(19),GETDATE(),120) from  as_communication where isread=0 and iid in (
+			select com.iid from as_communication com 
+			left join oa_invoice oa on com.iinvoice=oa.iid 
+			where com.isread=0 and com.itype=4  and oa.ifuncregedit=#ifunid# 
+			and oa.iinvoice=#iinvoice# and com.irperson=#ipersonid#
+		)
+		end;
+	</update>
+	
+	
+	
+</sqlMap>

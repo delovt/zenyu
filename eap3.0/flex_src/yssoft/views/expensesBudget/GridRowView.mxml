@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="22"  xmlns:comps="yssoft.comps.*">
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		.grid{
+			horizontalGap:0;
+			verticalGap:0; 
+			borderStyle:solid;
+			borderColor:black;
+			borderWeight:Number;
+		}
+		
+		.item{
+			horizontalGap:0;
+			verticalGap:0; 
+		}
+		
+		
+	</fx:Style>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			[Bindable]public var obj:Object = new Object();
+			[Bindable]public var departWidth:Number = 0;
+			[Bindable]private var _consultIid:int = 0;
+			[Bindable]private var _department_consultIid:int = 0;
+			
+			public function set consultIid(value:int):void{
+				this._consultIid = value;
+			}
+			public function set department_consultIid(value:int):void{
+				this._department_consultIid = value;
+			}
+			public function get consultIid():int{
+				return this._consultIid;
+			}
+			
+			public var flagColor:Boolean = false; //判断选中颜色
+			
+			
+			public function getY_PerCent():String{
+				return this.lbl_percent.text;
+			}
+			
+			private function onChanage():void{
+				var t:BudgetView = (this.owner) as BudgetView;
+				t.percent_y_chanage(); //调用父类的方法
+			}
+			
+			protected function grid1_creationCom(event:FlexEvent):void
+			{
+				if(departWidth == 0)
+					this.department_0.width = departWidth;
+				else
+					this.department_0.percentWidth = departWidth;
+			}
+			
+			//移除
+			private function onMouseOut():void{
+				this.row.setStyle("backgroundColor","default");
+			}
+			
+			//悬浮
+			private function onMouseOver():void{
+				if(!flagColor)this.row.setStyle("backgroundColor","#AADAD8");
+				else this.row.setStyle("backgroundColor","#DFFF5F");
+			}
+			
+			//点击选中变色
+			private function onClick():void{
+				if(!flagColor){
+					this.setStyle("backgroundColor","#FFC60A");
+					flagColor = true;
+				}else{
+					this.setStyle("backgroundColor","default");
+					flagColor = false;
+				}
+			}	
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:Grid width="100%" styleName="item" creationComplete="grid1_creationCom(event)" doubleClick="onClick()" doubleClickEnabled="true">
+		<mx:GridRow width="100%" mouseOver="onMouseOver()" mouseOut="onMouseOut()" id="row">
+			
+			<mx:GridItem styleName="item" id="department_0" >
+				<mx:VRule  height="20" strokeWidth="1"/>
+				<mx:VBox width="100%" styleName="item">
+					<!--<mx:Label width="100%" textAlign="center" text="{obj.department}" id="lbl_department" />-->
+					<comps:ConsultTextInput id="lbl_department" width="100%" iid="52" bindValueField="iid" height="20"  bindLabelField="cname" styleName="contentTextInput" editable="false" visibleIcon="{this.lbl_department.enabled}" value="{obj.department}" owner="{this}" isBudgetParent="true" isBudgetGridRow="false" />
+					
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" width="10%">
+				<mx:VRule  height="20" strokeWidth="1"/>
+				<mx:VBox width="100%" styleName="item">
+					<comps:CRMReferTextInput id="lbl_projectName" styleName="contentTextInput"   iid="{consultIid}" te="{obj.projectName}" visibleIcon="{lbl_projectName.editable}" height="20" width="100%"  />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem width="5%" styleName="item"  mouseOver="onChanage()"> 
+				<mx:VBox width="100%" styleName="item">
+					<mx:TextInput id="lbl_percent" width="100%" height="20" text="{obj.percent}"
+								  textAlign="center" change="onChanage()" />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" width="5%"> 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" {obj.df_1_0} " id="lbl_1_0" />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem width="5%" styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" {obj.df_1_1} "  id="lbl_1_1"/>
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem width="5%" styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" {obj.df_1_2} " id="lbl_1_2"/>
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem width="5%" styleName="item" >
+				<mx:VBox width="100%" styleName="item" backgroundColor="#D4D2FF">
+					<mx:Label width="100%" textAlign="center" text=" {obj.df_1_sum} " id="lbl_1_sum" />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			
+			<mx:GridItem width="5%" styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" {obj.df_2_0} "  id="lbl_2_0"/>
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem width="5%" styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text="  {obj.df_2_1} " id="lbl_2_1"/>
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem width="5%" styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text="  {obj.df_2_2} "   id="lbl_2_2"/>
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem width="5%" styleName="item" >
+				<mx:VBox width="100%" styleName="item" backgroundColor="#D4D2FF">
+					<mx:Label width="100%" textAlign="center" text="  {obj.df_2_sum} "  id="lbl_2_sum"/>
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			
+			<mx:GridItem width="5%" styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text="  {obj.df_3_0} "  id="lbl_3_0"/>
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+				<mx:GridItem width="5%" styleName="item" > 
+					<mx:VBox width="100%" styleName="item">
+						<mx:Label width="100%" textAlign="center" text=" {obj.df_3_1} " id="lbl_3_1"/>
+						<mx:HRule width="100%"  strokeWidth="1"  />
+					</mx:VBox>
+					<mx:VRule  height="20" strokeWidth="1"/>
+				</mx:GridItem>
+				<mx:GridItem width="5%" styleName="item" > 
+					<mx:VBox width="100%" styleName="item">
+						<mx:Label width="100%" textAlign="center" text="{obj.df_3_2}" id="lbl_3_2"/>
+						<mx:HRule width="100%"  strokeWidth="1"  />
+					</mx:VBox>
+					<mx:VRule  height="20" strokeWidth="1"/>
+				</mx:GridItem>
+				<mx:GridItem width="5%" styleName="item" >
+					<mx:VBox width="100%" styleName="item" backgroundColor="#D4D2FF">
+						<mx:Label width="100%" textAlign="center" text="{obj.df_3_sum}" id="lbl_3_sum"/>
+						<mx:HRule width="100%"  strokeWidth="1"  />
+					</mx:VBox>
+					<mx:VRule  height="20" strokeWidth="1"/>
+				</mx:GridItem>
+				
+				
+				<mx:GridItem width="5%" styleName="item" > 
+					<mx:VBox width="100%" styleName="item">
+						<mx:Label width="100%" textAlign="center" text="{obj.df_4_0}" id="lbl_4_0"/>
+						<mx:HRule width="100%"  strokeWidth="1"  />
+					</mx:VBox>
+					<mx:VRule  height="20" strokeWidth="1"/>
+				</mx:GridItem>
+				
+				<mx:GridItem width="5%" styleName="item" > 
+					<mx:VBox width="100%" styleName="item">
+						<mx:Label width="100%" textAlign="center" text="{obj.df_4_1}" id="lbl_4_1"/>
+						<mx:HRule width="100%"  strokeWidth="1"  />
+					</mx:VBox>
+					<mx:VRule  height="20" strokeWidth="1"/>
+				</mx:GridItem>
+				<mx:GridItem width="5%" styleName="item" > 
+					<mx:VBox width="100%" styleName="item">
+						<mx:Label width="100%" textAlign="center" text="{obj.df_4_2}" id="lbl_4_2"/>
+						<mx:HRule width="100%"  strokeWidth="1"  />
+					</mx:VBox>	
+					<mx:VRule  height="20" strokeWidth="1"/>
+				</mx:GridItem>
+				<mx:GridItem width="5%" styleName="item" >
+					<mx:VBox width="100%" styleName="item" backgroundColor="#D4D2FF">
+						<mx:Label width="100%" textAlign="center" text=" {obj.df_4_sum} " id="lbl_4_sum" />
+						<mx:HRule width="100%"  strokeWidth="1"  />
+					</mx:VBox>
+					<mx:VRule  height="20" strokeWidth="1"/> 
+				</mx:GridItem>
+				
+				<mx:GridItem width="8%" styleName="item" > 
+					<mx:VBox width="100%" height="100%" styleName="item" verticalAlign="bottom">
+						<mx:Label width="100%" textAlign="center" text=" {obj.df_sum} " id="lbl_sum" height="20"/>
+						<mx:HRule width="100%"  strokeWidth="1"  />
+					</mx:VBox>
+					<mx:VRule  height="20" strokeWidth="1"/>
+				</mx:GridItem>
+			
+		</mx:GridRow>
+	</mx:Grid>
+	
+</mx:Canvas>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark" verticalScrollPolicy="off"
+         xmlns:mx="library://ns.adobe.com/flex/mx" verticalGap="0" borderVisible="false"
+         creationComplete="vbox1_creationCompleteHandler(event)"
+         xmlns:comps="yssoft.comps.*">
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.core.mx_internal;
+        import mx.events.FlexEvent;
+        import mx.managers.ToolTipManager;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.HTMLToolTip;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.tools.LoginTool;
+
+        [Bindable]
+        private var _item:Object
+
+        public function set item(value:Object):void {
+            this._item = value;
+            if (value) {
+                getzdmsgs();
+            }
+        }
+
+        public function get item():Object {
+            return this._item;
+        }
+
+        //comment.png
+        [Embed(source="/yssoft/assets/images/comment.png")]
+        private var comment:Class;
+
+        private function onreset():void {
+            this.cmessage.text = "";
+            //this.bhide.selected=false;
+            showHide(false);
+        }
+
+        private function showHide(bool:Boolean = false):void {
+            sendmsg.visible = bool;
+            sendmsg.includeInLayout = bool;
+        }
+
+        private function openMsg():void {
+            this.cmessage.setFocus();
+            showHide(true);
+        }
+
+        //发送消息
+        private var param:Object;
+
+        private function sendZDMsg(type:String = null):void {
+            if (LoginTool.stringIsNull(this.cmessage.text) == false) {
+                LoginTool.showAlert("消息内容不能为空", this.cmessage);
+                return;
+            }
+            param = {};
+            if (type == "ts") {
+                param.ists = type;
+                param.bpush = "1";
+            } else {
+                param.bpush = "0";
+            }
+            param.iperson = CRMmodel.userId;
+            param.imessage = item.iid; // 宿主消息的iid
+            param.cmessage = this.cmessage.text;
+            param.bhide = true;//this.bhide.selected;
+            param.ioainvoice = item.ioainvoice;
+            AccessUtil.remoteCallJava("WorkFlowDest", "insertzdmsg", onCallBack, param, null, false);
+        }
+
+        private function onCallBack(event:ResultEvent):void {
+            if (event.result == null) {
+                return;
+            }
+            var zd:zditems = new zditems();
+            param.cname = CRMmodel.hrperson.cname;
+            param.fdate = CRMtool.getFormatDateString("YY-MM-DD HH:NN");
+            zd.item = param;
+            this.showmsg.addChildAt(zd, 0);
+
+            onreset();
+        }
+
+        private function getzdmsgs():void {
+            if (item.hasOwnProperty("iid") == false || item.hasOwnProperty("ioainvoice") == false) {
+                return;
+            }
+            var param:Object = {};
+            param.imessage = item.iid; // 宿主消息的iid
+            param.ioainvoice = item.ioainvoice;
+            AccessUtil.remoteCallJava("WorkFlowDest", "getzdmsgs", getCallBack, param, null, false);
+        }
+
+        [Bindable]
+        private var items:ArrayCollection = new ArrayCollection();
+        [Bindable]
+        private var yditems:ArrayCollection = new ArrayCollection(); // 推送消息的 阅读状态
+        private function getCallBack(event:ResultEvent):void {
+            if (event.result == null) {
+                return;
+            }
+            items = (event.result).zdlist as ArrayCollection;
+            yditems = (event.result).ydlist as ArrayCollection;
+        }
+
+        protected function text1_mouseOverHandler(event:MouseEvent):void {
+            //Alert.show("--["+event.currentTarget.name+"]--");
+            // TODO Auto-generated method stub
+            var iid:int = parseInt(event.currentTarget.name);
+            if (isNaN(iid) || iid == 0) {
+                return;
+            }
+            if (yditems == null || yditems.length == 0) {
+                return;
+            }
+
+            var ac:ArrayCollection = getYDStatus(iid);
+            if (ac == null || ac.length == 0) {
+                return;
+            }
+            var tpinfo:String = "";
+            for each(var item:Object in ac) {
+                if (item.rstatus == "已阅读") { // 已经阅读的<font color='#ff0000'>待发送</font>
+                    tpinfo += item.cname + " <font color='#ff0000'>" + item.rstatus + "</font> " + item.dread + "\n";
+                } else {
+                    tpinfo += item.cname + " " + item.rstatus + "\n";
+                }
+
+            }
+            (event.currentTarget as zditems).toolTip = tpinfo;
+        }
+
+        // 获取 指定推送震荡消息的 关联人员的 阅读状态
+        private function getYDStatus(imessages:int):ArrayCollection {
+            if (imessages == 0) {
+                return null;
+            }
+            if (yditems == null || yditems.length == 0) {
+                return null;
+            }
+            var ac:ArrayCollection = new ArrayCollection();
+            for each(var item:Object in yditems) {
+                if (item.imessages == imessages) {
+                    ac.addItem(item);
+                }
+            }
+            return ac;
+        }
+
+        protected function vbox1_creationCompleteHandler(event:FlexEvent):void {
+            // TODO Auto-generated method stub
+            ToolTipManager.toolTipClass = HTMLToolTip; // 更改 tooptip ，来支持 html
+        }
+        ]]>
+	</fx:Script>
+    <mx:HBox horizontalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
+        <!--<s:Image source="{comment}" width="16" height="16" click="openMsg()"/>-->
+		<s:Image height="100%" source="@Embed(source='/yssoft/assets/images/side_point.png')"/>
+		<mx:Spacer width="6"/>
+        <mx:Label text="{_item.cname}" click="openMsg()" buttonMode="true" useHandCursor="true" color="#4F9CD4" fontWeight="bold" width="60" toolTip="点此回复"/>
+		<mx:Spacer width="100%"/>
+        <mx:Label text="{_item.resultname}" fontSize="12" width="45" toolTip="处理状态:{_item.resultname}"/>
+        <mx:HBox  verticalAlign="middle" horizontalAlign="right">
+            <mx:Label text="{_item.fdate}" fontSize="12" color="#ADADAD" width="100%"/>
+        </mx:HBox>
+
+    </mx:HBox>
+    <mx:Canvas id="sendmsg" width="100%" height="78" visible="false" includeInLayout="false">
+        <s:TextArea id="cmessage" right="1" left="1" top="1" bottom="28" height="50" contentBackgroundColor="#f6f2d9"
+                    borderVisible="false" fontSize="12"/>
+        <!--<s:CheckBox id="bhide" label="意见隐藏" bottom="3" left="3"/>-->
+        <s:Button label="推送" bottom="3" left="3" width="45" click="sendZDMsg('ts')"/>
+        <s:Button label="提交" bottom="3" left="51" width="45" click="sendZDMsg()"/>
+        <s:Button label="取消" bottom="3" left="101" width="45" click="onreset();"/>
+    </mx:Canvas>
+    <mx:Text text="{_item.cmessage}" width="100%"/>
+    <mx:VBox id="showmsg" width="100%" verticalGap="0" paddingLeft="10">
+        <mx:Repeater id="rep" dataProvider="{items}" width="100%">
+            <comps:zditems width="100%" item="{rep.currentItem}" mouseOver="text1_mouseOverHandler(event)"
+                           name="{rep.currentItem.iid}"/>
+        </mx:Repeater>
+    </mx:VBox>
+</mx:VBox>
+
+
+
+
+
+
+
+
+

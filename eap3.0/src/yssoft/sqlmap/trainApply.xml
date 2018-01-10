@@ -1,0 +1,25 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+	<!--查询培训 -->
+    <select id="queryForTrainRegist" resultClass="java.util.HashMap">
+        select s.ccode 申请单号,cs.cname 申请单位,hd.cname 申请部门,s.cname 培训内容,hp.cname 业务人员,s.cmemo 主表备注,cc.cname 客户参训人,
+        ss.cdepartment 客户部门,ss.cpost 客户职务,ss.cmobile 客户手机,ss.ctel 客户电话,ss.cemail 客户邮件,ss.cmemo 客户备注,ss.iid ssiid,s.icustomer,ss.icustperson
+        from sr_trainrequests ss
+        left join sr_trainrequest s on ss.itrainrequest = s.iid
+        left join cs_customer cs on cs.iid=s.icustomer
+        left join hr_department hd on hd.iid=s.idepartment
+        left join hr_person hp on hp.iid=s.iperson
+        left join cs_custperson cc on cc.iid=ss.icustperson
+        where isnull(s.istatus,0)!=3 and s.icourses = #icourses# and ss.iid not in (
+        select iinvoices from sr_trains where iinvoices is not null
+        ) order by s.ccode
+    </select>
+
+	<insert id="insertIntoSr_Trains" parameterClass="java.lang.String">
+		$sqlValue$
+	</insert>
+	
+	<update id="wtf.forListHandle" parameterClass="java.util.HashMap">
+		$sqlValue$
+	</update>
+</sqlMap>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+	
+	
+	<!-- 取得所有组织 -->
+	<select id="get_warnset" resultClass="java.util.HashMap" remapResults="true">
+	  select * from as_warnset
+	</select> 
+	
+	<!-- 修改组织ccode -->
+	<update id="update_warnsetCcode" parameterClass="java.util.HashMap">
+		update as_warnset
+		set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode))
+		where ccode like #oldCcode#+'%';
+	</update>
+
+</sqlMap>

@@ -1,0 +1,495 @@
+<?xml version="1.0"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:basic="yssoft.comps.frame.module.Basic.*"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:base="yssoft.comps.frame.module.Basic.*"
+		 xmlns:comps="yssoft.comps.*"
+		 verticalGap="0" horizontalGap="0"
+		 implements="yssoft.interfaces.IMainViewStackSearch"
+		 width="100%" height="100%" creationComplete="creationCompleteHandler(event)">
+	
+	<mx:HBox height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalGap="0">
+		<mx:VBox width="257" id="leftBox" height="100%" horizontalGap="0" horizontalScrollPolicy="off">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true" verticalGap="0" horizontalGap="0">
+				<s:Label styleName="contentTitle" text="查询条件："/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" paddingTop="-1">
+				<mx:VBox width="100%" height="100%" borderVisible="true" borderStyle="inset">
+					<mx:VBox id="vbx_common" width="100%" height="100%" paddingTop="10" backgroundColor="#FFFFFF">
+						
+						<mx:HBox width="100%" height="33" styleName="contentSubHbox">
+							<mx:Label text="客户名称：" styleName="contentLabel" width="30%"/>
+							<mx:HBox id="ui_icustomer_box" width="70%" creationComplete="customerHboxinit(event)"/>
+						</mx:HBox>
+						<mx:HBox  width="100%" height="33" styleName="contentSubHbox">
+							<mx:Label text="销售人员：" styleName="contentLabel" width="30%"/>
+							<mx:HBox id="ui_isalesperson_box" width="70%" creationComplete="isalespersonHboxinit(event)"/>
+						</mx:HBox>
+						<mx:HBox  width="100%" height="33" styleName="contentSubHbox">
+							<mx:Label text="活动类型："  styleName="contentLabel" width="30%"/>
+							<mx:HBox id="ui_itype_box" width="70%" creationComplete="itypeHboxinit(event)"/>
+						</mx:HBox>
+						<mx:HBox  width="100%" height="33" styleName="contentSubHbox">
+							<mx:Label text="客户级别：" styleName="contentLabel" width="30%"/>
+							<mx:HBox id="ui_ivaluelevel_box" width="70%" creationComplete="ivaluelevelHboxinit(event)"/>
+						</mx:HBox>
+						<mx:HBox   width="100%" height="33" styleName="contentSubHbox">
+							<mx:Label text="客户行业：" styleName="contentLabel" width="30%"/>
+							<mx:HBox id="ui_iindustry_box" width="70%" creationComplete="iindustryHboxinit(event)"/>
+						</mx:HBox>
+						<mx:HBox  width="100%" height="33" styleName="contentSubHbox">
+							<mx:Label text="上次活动距今天的天数："  width="30%" color="red"/>
+						</mx:HBox>
+						<mx:HBox  width="100%" height="33" styleName="contentSubHbox">
+							<mx:TextInput id="ui_nowDayOne"  width="40%"  />
+							<mx:Label text="  至"  width="20%" />
+							<mx:TextInput id="ui_nowDayTwo"  width="40%"  />
+						</mx:HBox>
+					</mx:VBox>
+				</mx:VBox>
+			</mx:VBox>
+			<!--<mx:HRule width="100%" height="1"/>-->
+			<mx:VBox width="100%" height="36" horizontalAlign="center" borderStyle="solid" verticalAlign="middle">
+				<mx:HBox width="100%" height="100%" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+					<mx:Button label="清除" click="clear()" width="50" height="25"/>
+					<s:Spacer width="100%"/>
+					<mx:Button label="查询" id="searchButton" click="search()" width="50" height="25"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+		<!--用于控制组件的伸缩-->
+		<s:BorderContainer id="jiange" width="10" height="100%" borderStyle="solid" click="jiange_clickHandler(event)"
+						   borderVisible="false">
+			<s:layout>
+				<s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+			</s:layout>
+			<s:Image id="img" buttonMode="true" source="{arrowsLeft}" top="245"/>
+		</s:BorderContainer>
+		
+		<mx:VBox width="100%" height="100%" paddingLeft="0" horizontalGap="0">
+			
+			
+			<mx:VBox width="100%" height="32" paddingRight="10">
+				<mx:ApplicationControlBar width="100%" height="100%" styleName="centertop1" verticalAlign="middle"
+										  paddingLeft="10" paddingRight="10" paddingBottom="5" paddingTop="5">
+					<mx:HBox  styleName="contentLabel">
+						<mx:Label text="活动数："  styleName="cname"/>
+						<mx:Label text="{datalist.length}"/>
+					</mx:HBox>
+					<mx:HBox width="100%"/>
+					<mx:HBox id="ui_actives_box"  styleName="contentLabel" >
+						<mx:Button label="批量计划" click="button2_clickHandler()"/>
+					</mx:HBox>
+				</mx:ApplicationControlBar>
+				
+				
+			</mx:VBox>
+			
+			<basic:BasicMxDataGrid id="dg" width="100%" height="100%" borderVisible="true"
+								   borderStyle="inset" editable="true"
+								   dataProvider="{datalist}" horizontalScrollPolicy="auto" verticalScrollPolicy="auto"
+								   lockedColumnCount="4"  doubleClickEnabled="true"  doubleClick="ToActivityclickHandler(event)" 
+								   >
+				<!--rowColorFunction="rowColorFunction" itemColorFunction="itemColorFunction">-->
+				<basic:columns>
+					
+					<mx:DataGridColumn id="ck" editable="false" width="30" headerText=" " dataField="chicks"
+									   sortable="false">
+						<mx:headerRenderer>
+							<fx:Component>
+								<mx:HBox verticalAlign="middle" horizontalAlign="center" width="100%">
+									<mx:CheckBox id="allCheckBox" change="allCheckBox_changeHandler(event)"/>
+									<fx:Script><![CDATA[
+										private function allCheckBox_changeHandler(event:Event):void {
+											if (outerDocument.dg.dataProvider.length > 0) {
+												outerDocument.isAllchecked = allCheckBox.selected;
+											}
+										}
+									]]></fx:Script>
+								</mx:HBox>
+							</fx:Component>
+						</mx:headerRenderer>
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:HBox horizontalAlign="center" verticalAlign="middle" width="100%">
+									<mx:CheckBox id="selectBox" textAlign="center"  click="selectBox_clickHandler(event)"
+												 selected="{(data.chicks==1)?true:false}">
+										<fx:Script><![CDATA[
+											import mx.collections.ArrayCollection;
+											private function selectBox_clickHandler(event:MouseEvent):void {
+												data.chicks = !data.chicks;
+												
+											}
+										]]></fx:Script>
+									</mx:CheckBox>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="序号" dataField="sort_id" editable="false"
+									   labelFunction="lineNumColFunction" width="40" textAlign="center"/>
+					<mx:DataGridColumn headerText="内码" dataField="iid" editable="false" visible="false"/>
+					<mx:DataGridColumn headerText="客商编码" dataField="ccode" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="客商名称" dataField="custcname" width="200" editable="false"/>
+					<mx:DataGridColumn headerText="销售部门" dataField="isalesdepart" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="销售人员" dataField="isalesperson" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="服务部门" dataField="iservicesdepart" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="服务人员" dataField="iserviceperson" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="客户级别" dataField="ivaluelevel" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="客商行业" dataField="iindustry" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="活动类型" dataField="itype" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="最近活动主题" dataField="owcname" width="100" editable="false" />
+					<mx:DataGridColumn headerText="最近活动时间" dataField="dend" width="120" editable="false"/>
+					<mx:DataGridColumn headerText="最近活动人员" dataField="icustperson" width="80" editable="false"/>
+					<mx:DataGridColumn headerText="最近活动内容" dataField="cdetail" width="200" editable="false"/>
+					<mx:DataGridColumn headerText="上次活动距今天的天数" dataField="nowDay" width="60" editable="false"/>
+				</basic:columns>
+			</basic:BasicMxDataGrid>
+			
+		</mx:VBox>
+	</mx:HBox>
+	<fx:Script><![CDATA[
+		import yssoft.views.billMoreViews.InsertOaWorkPlanTitleWindow;
+		import mx.collections.ArrayCollection;
+		import mx.events.FlexEvent;
+		import mx.formatters.DateFormatter;
+		import mx.rpc.events.ResultEvent;
+		import mx.utils.ObjectUtil;
+		
+		import yssoft.comps.frame.module.Basic.datagrid.ListItemColor;
+		
+		import yssoft.comps.frame.module.CrmEapTextInput;
+		import yssoft.frameui.formopt.OperDataAuth;
+		import yssoft.models.CRMmodel;
+		import yssoft.models.DateHadle;
+		import yssoft.skins.OnlyBottomBorderTextInputSkin;
+		import yssoft.tools.AccessUtil;
+		import yssoft.tools.CRMtool;
+	
+		
+		
+		[Bindable]
+		public var datalist:ArrayCollection = new ArrayCollection();
+		
+		
+		private var _isAllchecked:Boolean = false;
+		
+		[Bindable]
+		public var selcount:int = 0;
+		[Bindable]
+		public var counts:int = 0;
+		
+		[Bindable]
+		public var fsum:Number = 0.0;
+		
+		[Bindable]
+		public var selectList:ArrayCollection=new ArrayCollection();
+		public function set isAllchecked(value:Boolean):void {
+			_isAllchecked = value;
+		   if(value){
+			   selectList=ObjectUtil.clone(datalist) as ArrayCollection;
+		   }
+			
+			for each(var item:Object in dg.dataProvider) {
+				item.chicks = value == true ? 1 : 0;
+			}
+			dg.dataProvider.refresh();
+		}
+		
+		public function get isAllchecked():Boolean {
+			return _isAllchecked;
+		}
+		
+		[Bindable]
+		/**
+		 * 查询信息
+		 */
+		private var icustomer:int;
+		private var ui_icustomer:CrmEapTextInput;//客商
+		private var ui_isalesperson:CrmEapTextInput;//销售人员
+		private var ui_itype:CrmEapTextInput;//活动类型
+		public var ui_ivaluelevel:CrmEapTextInput;//客商级别
+		public var ui_iindustry:CrmEapTextInput;//客商行业
+		
+		public var identifying:Boolean = false; //标识组件是伸展还是缩小
+		//窗口折叠显示的图片 左箭头
+		[Bindable]
+		[Embed(source="/yssoft/assets/images/gap/left.png")]
+		public var arrowsLeft:Class;
+		//窗口折叠显示的图片 右箭头
+		[Bindable]
+		[Embed(source="/yssoft/assets/images/gap/right.png")]
+		public var arrowsRight:Class;
+		//权限类对象
+		public var auth:OperDataAuth;
+		
+		private function initConsultItem(name:String, ifuncregedit:int):void {
+			var obj1:Object = new Object();
+			obj1.cobjectname = "ui_" + name;
+			obj1.ifuncregedit = ifuncregedit;
+			obj1.cfield = name;
+			AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+		}
+		
+		private function initConsultBack(evt:ResultEvent):void {
+			if (evt.result != null) {
+				var consultObj:Object = evt.result;
+				var cobjectname:String = evt.result.cobjectname;
+				this[cobjectname] = new CrmEapTextInput();
+				var consultTextInput:CrmEapTextInput = this[cobjectname];
+				var flag:Boolean = consultObj.cfield == "icustomer" ? true : false
+				/*     if (CRMmodel.user.itype == 5 && flag)
+				consultTextInput.editable = false;*/
+				consultTextInput.width = 150;
+				consultTextInput.name = "UI_C1";
+				consultObj.cobjectname = "UI_C1";
+				consultTextInput.setStyle("borderStyle", "inset");
+				consultTextInput.styleName = "borderStyle";
+				consultTextInput.singleType = consultObj;
+				;
+				
+				this[cobjectname + "_box"].addChild(consultTextInput);
+			}
+		}
+		
+		//业务人员（参照）
+		private function isalespersonHboxinit(event:FlexEvent):void {
+			initConsultItem("isalesperson", 44);
+		}
+		
+		//客户级别（参照）
+		private function ivaluelevelHboxinit(event:FlexEvent):void {
+			initConsultItem("ivaluelevel", 44);
+		}
+		
+		
+		private function itypeHboxinit(event:FlexEvent):void {
+			initConsultItem("itype", 46);
+		}
+		
+		//客户行业（参照）
+		private function iindustryHboxinit(event:FlexEvent):void {
+			initConsultItem("iindustry", 44);
+		}
+		
+	
+		private function customerHboxinit(event:FlexEvent):void {
+			initConsultItem("icustomer", 46);
+		}
+		
+		private function creationCompleteHandler(event:FlexEvent):void {
+			this.dg.isAllowMulti = false;
+			this.dg.isShowLineNum = false;
+			//activeState.selectedIndex = 2;
+			/*var params1:Object = new Object();
+			params1.ifuncregedit = 380;
+			params1.iperson = CRMmodel.userId;
+			auth.get_fundataauth(params1);
+			auth.get_funoperauth(params1);*/
+		}
+		
+		
+		public function searchFromMain(s:String):void {
+		}
+		
+		private function clear():void {
+			 ui_icustomer.text="";//客商
+			ui_isalesperson.text="";//销售人员
+			 ui_itype.text="";//活动类型
+			 ui_ivaluelevel.text="";//客商级别
+			 ui_iindustry.text="";//客商行业
+			 ui_nowDayOne.text="";
+			 ui_nowDayTwo.text="";
+		}
+		
+		private function search():void {
+			var icustomer:String="";//客商
+			var isalesperson:String="";//销售人员
+			var itype:String="";//活动类型
+			var ivaluelevel:String="";//客商级别
+			var iindustry:String="";//客商行业
+			if (this.ui_nowDayOne.text == null || this.ui_nowDayOne.text == "" ||this.ui_nowDayTwo.text == null || this.ui_nowDayTwo.text == "") {
+				CRMtool.showAlert("红色标签项必填！！");
+				return;
+			}
+			if (parseInt(this.ui_nowDayOne.text+"")<0 || parseInt(this.ui_nowDayTwo.text+"")<0 ) {
+				CRMtool.showAlert("上次活动距今天的天数不能小于0！");
+				return;
+			}
+			if (parseInt(this.ui_nowDayOne.text+"")>parseInt(this.ui_nowDayTwo.text+"") ) {
+				CRMtool.showAlert("后面的天数必须大于前面的天数！");
+				return;
+			}
+			
+			var nowDay1:int=parseInt(ui_nowDayOne.text+"");
+			var nowDay2:int=parseInt(ui_nowDayTwo.text+"");
+			var pattern:RegExp = /^[0-9]*[1-9][0-9]*$/g　 ;
+			var pattern1:RegExp = /^[0-9]*[1-9][0-9]*$/g　 ;
+			if(!( pattern.test(nowDay1+""))){
+				CRMtool.showAlert("天数必须是正整数！");
+				return ;
+			}
+			if(!( pattern1.test(nowDay2+""))){
+				CRMtool.showAlert("天数必须是正整数！");
+				return ;
+			}
+			
+			
+			
+			if (ui_icustomer) {
+				icustomer = this.ui_icustomer.text;//客商
+			}
+			
+			if (ui_isalesperson) {
+				isalesperson = this.ui_isalesperson.text;
+			}
+			
+			if (ui_itype) {
+				itype = this.ui_itype.text;
+			}
+			if (ui_ivaluelevel) {
+				ivaluelevel = this.ui_ivaluelevel.text;
+			}
+			if (ui_iindustry) {
+				iindustry = this.ui_iindustry.text;
+			}
+			
+			
+			var sql:String = " select * from (select CONVERT(varchar,oaw.dend, 120 ) dend,oaw.icustomer,a.iid,a.custiid,a.ccode,a.custcname,a.isalesperson, "+
+                                    " a.isalesdepart,a.iservicesdepart,a.iserviceperson,a.iindustry, "+
+                                    " a.ivaluelevel,a.itype,a.owcname, "+
+                                    " a.icustperson,a.cdetail, datediff(day,oaw.dend,GETDATE()) nowDay from (select max(work.dend)dend,work.icustomer "+
+                                    " from oa_workdiary work where work.dend is not null group by work.icustomer) oaw "+
+                                    "   left join (select ow.iid,cust.iid custiid,cust.ccode,cust.cname custcname,hp1.cname isalesperson, "+
+                                    " h1.cname isalesdepart,h2.cname iservicesdepart,hp2.cname iserviceperson,a2.cname iindustry, "+
+                                    " a1.cname ivaluelevel,a3.cname itype,ow.cname owcname,CONVERT(varchar, ow.dend, 120 ) dend, "+
+                                    " hp3.cname icustperson,ow.cdetail from oa_workdiary ow  "+
+                                    " left join CS_customer cust on cust.iid=ow.icustomer  left join hr_person hp1 on hp1.iid=cust.isalesperson "+
+                                    "  left join HR_department h1 on h1.iid=cust.isalesdepart left join hr_person hp2 on hp2.iid=cust.iserviceperson  "+
+                                    "  left join HR_department h2 on h2.iid=cust.iservicesdepart  "+
+                                    " left join (select iid,ipid,ccode,cname,cabbreviation from aa_data where iclass=10) a2 on a2.iid=cust.iindustry  "+
+                                    "  left join (select iid,ipid,ccode,cname,cabbreviation from aa_data where iclass=15)a1 on a1.iid=cust.ivaluelevel "+
+                                    "  left join (select iid,ipid,ccode,cname,cabbreviation from aa_data where iclass=23)a3 on a3.iid=ow.itype "+
+                                     " left join hr_person hp3 on hp3.iid=ow.imaker where ow.iifuncregedit=46) a on a.custiid=oaw.icustomer and a.dend=oaw.dend) b where 1=1 ";
+			if (CRMtool.isStringNotNull(icustomer)) {
+				sql += " and custcname like " + "'%" + icustomer + "%'";
+			}
+			if (CRMtool.isStringNotNull(isalesperson)) {
+				sql += " and isalesperson like " + "'%" + isalesperson + "%'";
+			}
+			if (CRMtool.isStringNotNull(itype)) {
+				sql += " and itype like " + "'%" + itype + "%'";
+			}
+			if (CRMtool.isStringNotNull(ivaluelevel)) {
+				sql += " and ivaluelevel like " + "'%" + ivaluelevel + "%'";
+			}
+			if (CRMtool.isStringNotNull(iindustry)) {
+				sql += " and iindustry like " + "'%" + iindustry + "%'";
+			}
+	
+		   sql += " and nowDay  between "+nowDay1+" and "+nowDay2;
+			
+			
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var arr:ArrayCollection=new ArrayCollection();
+				arr= event.result as ArrayCollection;
+				datalist=arr;
+				
+			}, sql);
+		}
+		
+		
+		protected function jiange_clickHandler(event:MouseEvent):void {
+			if (identifying) {
+				identifying = false;
+				this.stretch.stop();
+				this.stretch.play();
+				
+				this.img.source = arrowsLeft;
+			} else {
+				identifying = true;
+				this.contract.stop();
+				this.contract.play();
+				this.img.source = arrowsRight;
+				
+			}
+		}
+		
+		protected function ToActivityclickHandler(event:MouseEvent):void {
+			CRMtool.openbillonbrowse(46, dg.selectedItem.iid, "加载活动.....");
+		}
+		
+		
+		private function lineNumColFunction(item:Object, column:DataGridColumn):String {
+			if (dg.dataProvider) {
+				for (var i:int = 1; i <= dg.dataProvider.length; i++) {
+					if (dg.dataProvider[i - 1] == item) {
+						item.sort_id = i;
+						return i + "";
+					}
+				}
+				
+			}
+			return "0";
+		}
+		
+		public function operrecord(type:String):Boolean {
+			var operid:String = auth.getOperidByName(type);
+			var warning:String = auth.reuturnwarning(operid);
+			
+			var flag:Boolean = warning == null ? true : false;
+			if (!flag) {
+				CRMtool.showAlert(warning);
+			}
+			return flag;
+		}
+		
+		
+		private function button2_clickHandler():void {
+			/*if(selectList.length<=0){
+				CRMtool.showAlert("请先勾选需要处理的数据！");
+				return;
+			}*/
+			var flag:Boolean=false;
+			for each (var item:Object in datalist){
+				if(item.chicks==1 || item.chicks=="true"){
+					var flag:Boolean=true;
+				}
+			}
+			var str:String = "";
+			if(flag){
+					
+					 var custiid:String="";
+								for each (var item:Object in datalist){
+									if(item.chicks==1 || item.chicks=="true"){
+										custiid+=item.custiid+",";
+									}
+								}
+						var sql:String="select cc.ccode,cc.cname custcname,a3.cname  iindustry,a2.cname isalesstatus,a1.cname ivaluelevel,cc.iid "+
+							"  from CS_customer cc "+
+							" left join (select iid,ipid,ccode,cname,cabbreviation from aa_data where iclass=15)a1 on a1.iid=cc.ivaluelevel"+
+							" left join (select iid,ipid,ccode,cname,cabbreviation from aa_data where iclass=16)a2 on a2.iid=cc.isalesstatus"+
+							" left join (select iid,ipid,ccode,cname,cabbreviation from aa_data where iclass=10)a3 on a3.iid=cc.iindustry"+
+							"  where cc.iid in("+custiid.substring(0,custiid.length-1)+")";
+						AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+							var asc:ArrayCollection =event.result as  ArrayCollection;
+							var insertOaWorkPlanTitleWindow:InsertOaWorkPlanTitleWindow = new InsertOaWorkPlanTitleWindow();
+							var obj:Object=new Object();
+							obj.asc=asc;
+							insertOaWorkPlanTitleWindow.myinit(obj);
+							
+						}, sql);
+					
+			}else{
+				CRMtool.showAlert("请先勾选需要处理的数据！");  return;
+			}
+			
+		
+		}
+	]]></fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:Resize id="stretch" target="{leftBox}" duration="700" widthTo="257"/>
+		<s:Resize id="contract" target="{leftBox}" duration="700" widthTo="0"/>
+	</fx:Declarations>
+</mx:VBox>

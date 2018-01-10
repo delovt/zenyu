@@ -1,0 +1,9 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+	<select id="crm.print_selete_item" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select top 1 * from ac_printset where ifuncregedit=#ifunid# and buse='1' order by iid desc
+	</select>	
+	<select id="crm.print_selete_items" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from ac_printset where ifuncregedit=#ifunid# and buse='1' order by bdefault desc
+	</select>
+</sqlMap>

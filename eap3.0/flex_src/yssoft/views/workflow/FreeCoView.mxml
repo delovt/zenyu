@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                width="100%"
+                height="100%"
+                currentState="desciption"
+                xmlns:workflow="yssoft.views.workflow.*" styleName="contentHDividedBox"
+                implements="yssoft.impls.ICRMWindow" creationComplete="onWindowInit()"
+                xmlns:comps="yssoft.comps.*"
+                stateChangeComplete="hdividedbox1_stateChangeCompleteHandler(event)"
+                updateComplete="vbox1_updateCompleteHandler(event);"
+                xmlns:side="yssoft.frameui.side.*"
+                xmlns:frameui="yssoft.frameui.*">
+    <fx:Script source="../../../yssoft/scripts/FreeCoView.as"/>
+    <mx:states>
+        <s:State name="desciption"/>
+        <s:State name="draw"/>
+    </mx:states>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:HBox width="100%" height="100%" styleName="centerbg04" >
+        <mx:VBox width="100%" height="100%" verticalGap="0"  paddingTop="0">
+            <mx:ApplicationControlBar styleName="centertop1" dock="true" height="32" width="100%" verticalAlign="middle"
+                                      paddingRight="10" paddingLeft="10">
+                <mx:ButtonBar id="optbb" styleName="contentButtonBar" height="25"
+                              itemClick="optbb_itemClickHandler(event)">
+                    <s:ArrayCollection>
+                        <fx:Object label="增加" opt="onNew"/>
+                        <fx:Object label="修改" opt="onEdit"/>
+                        <fx:Object label="删除" opt="onDelete"/>
+                        <fx:Object label="发送" opt="onSend"/>
+                        <fx:Object label="暂存" opt="onPause"/>
+                        <fx:Object label="放弃" opt="onGiveup"/>
+                    </s:ArrayCollection>
+                </mx:ButtonBar>
+                <mx:Label id="optlb" text="" styleName="contentTitle" includeInLayout="false" visible="false"/>
+                <s:Spacer width="100%"/>
+                <mx:Button id="zfbt" label="转发本协同" click="zfbtHandler()" visible="false" includeInLayout="false"
+                           height="25"/>
+                <s:Spacer width="2"/>
+                <mx:HBox horizontalGap="5" verticalGap="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
+                    <s:Group width="100%" height="32" styleName="contentHbox">
+                        <mx:Text x="5" y="6" htmlText="状态:  &lt;font color='#ff0000'&gt;进程中&lt;font&gt;"
+                                 visible="false">
+                        </mx:Text>
+                        <mx:HBox width="100%" styleName="" horizontalAlign="center" height="100%" verticalAlign="middle"
+                                 horizontalGap="5">
+                            <mx:RadioButton id="descbt" click="{this.currentState='desciption'}" selected="true"
+                                            styleName="radioButton" toolTip="表单" label="表单" useHandCursor="true"
+                                            buttonMode="true" mouseChildren="false"/>
+                            <mx:HBox  enabled="{drawbtEnabled}">
+                            <mx:RadioButton id="drawbt" click="{this.currentState='draw'}" styleName="radioButton"
+                                            toolTip="流程" label="流程" useHandCursor="true" buttonMode="true"
+                                            mouseChildren="false"/>
+                            </mx:HBox>
+                        </mx:HBox>
+                    </s:Group>
+                </mx:HBox>
+            </mx:ApplicationControlBar>
+            <!--<mx:VBox width.desciption="1029" height.desciption="503">-->
+
+            <mx:VBox includeIn="draw" width="100%" height="99%" styleName="contentHbox">
+                <!--<workflow:CoPaintView id="workflow" owner="{this}" width="100%" height="100%"  includeIn="draw"  borderStyle="solid" borderVisible="true" borderAlpha="0.5"/>-->
+                <workflow:CoPaintView id="workflow" width="100%" height="99%" owner="{this}"/>
+            </mx:VBox>
+            <mx:VBox width="100%" height="100%" id="mainVbox" includeIn="desciption">
+                <mx:HBox width="100%" styleName="contentHbox">
+                    <mx:Canvas width="60" height="60" cornerRadius="4" borderStyle="solid">
+                        <s:Image id="headericon" width="54" height="54" left="2" top="2"
+                                 source="{CRMmodel.headerIcon}"/>
+                    </mx:Canvas>
+                    <mx:VBox width="100%" verticalGap="0" styleName="content" enabled="{cdetailEnabled}">
+                        <mx:HBox width="100%" styleName="contentSubHbox">
+                            <mx:Label height="100%" styleName="contentLabel" text="协同主题"/>
+                            <mx:TextInput id="csubject" width="50%" styleName="contentTextInput"
+                                          text="{oAinvoiceVo.csubject}"/>
+                            <mx:Label height="100%" styleName="contentLabel" text="相关单位"/>
+                            <!--<mx:TextInput id="icustomer" width="50%" styleName="contentTextInput" text="{oAinvoiceVo.customername}" restrict="0-9" enter="enterHandler(event)"/>-->
+                            <mx:HBox width="50%" id="subHBox">
+
+                            </mx:HBox>
+                            <!--<comps:CRMReferTextInput id="icustomer" width="50%" styleName="contentTextInput" iid="65" te="{oAinvoiceVo.icustomer}" restrict="0-9" enter="enterHandler(event)" />-->
+                        </mx:HBox>
+                        <mx:HRule width="100%"></mx:HRule>
+                        <mx:HBox width="100%" styleName="contentSubHbox">
+                            <mx:Label height="100%" styleName="contentLabel" text="完成时间"/>
+                            <!--<mx:TextInput width="20%" styleName="contentTextInput" text="{CRMtool.getFormatDateString()}"/>-->
+                            <comps:CRMDateField id="dfinished" isShowToday="true" width="50%"
+                                                text="{oAinvoiceVo.dfinished==null?'':oAinvoiceVo.dfinished}"
+                                                editable="true" restrict="0-9\-"/>
+                            <mx:Label height="100%" styleName="contentLabel" text="发起信息"/>
+                            <mx:TextInput id="launchinfo" width="50%" styleName="contentTextInput" editable="false"
+                                          text="{oAinvoiceVo.maker} {oAinvoiceVo.dmaker}"/>
+                        </mx:HBox>
+                    </mx:VBox>
+                </mx:HBox>
+                <mx:VBox width="100%" height="100%" styleName="contentHbox" paddingBottom="10">
+                    <mx:VBox width="100%" height="100%" borderStyle="solid" borderVisible="true" borderColor="#c4cccc"
+                             borderAlpha="1">
+                        <mx:Label width="100%" styleName="contentLabel" text="协同说明："/>
+                        <comps:CRMRichTextEditor id="cdetail" width="100%" height="100%" enabled="{cdetailEnabled}"
+                                                 htmlText="{oAinvoiceVo.cdetail}"/>
+                        <mx:VBox width="100%" height="80" id="zfvbox" visible="false" includeInLayout="false"
+                                 verticalGap="0">
+                            <mx:Label width="100%" styleName="contentLabel" text="转发说明:"/>
+                            <mx:TextArea id="csendnew" width="100%" borderVisible="false"
+                                         htmlText="{oAinvoiceVo.csendnew}" height="100%"/>
+                            <!--<comps:CRMRichTextEditor id="csendnew" width="100%" borderVisible="false" htmlText="{oAinvoiceVo.csendnew}" height="100%" />-->
+                        </mx:VBox>
+                    </mx:VBox>
+                </mx:VBox>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:HBox>
+    <mx:Accordion id="ac" width="20%" height="100%" creationPolicy="all" headerHeight="32"
+                  width.desciption="257">
+        <workflow:ReplyView id="replyView" width="100%" height="100%" owner="{this}"/>
+        <workflow:CoAttachment id="coAttachment" width="100%" height="100%" owner="{this}" iid="{this.oaiid}"/>
+    </mx:Accordion>
+
+    <!--<mx:HBox id="leftHbox" visible="false" includeInLayout="false"  borderColor="#e1e1e1" borderStyle="solid" borderAlpha="1" paddingLeft="-1" paddingTop="-1" paddingBottom="-1" paddingRight="-1" width="20%" height="100%">
+         <frameui:LeftPart id="leftPart" width="100%" height="100%"  headerHeight="32" owner="{this}"/>
+     </mx:HBox>
+     <mx:VBox id="sideBox" paddingRight="-1" width="270" height="100%">
+         <side:FrameCoreSide id="coreSide" width="100%" height="100%" verticalScrollPolicy="auto" owner="{this}" buttonState="{this}"/>
+     </mx:VBox>-->
+
+</mx:HDividedBox>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*" xmlns:frameui="yssoft.frameui.*" horizontalGap="0"
+                width="100%" height="100%"
+                creationComplete="funnelReportVBox_creationCompleteHandler(event)"
+                updateComplete="funnelReportVBox_updateCompleteHandler(event)"
+                xmlns:module="yssoft.comps.frame.module.*"
+        >
+
+    <fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.ISort;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+        import mx.rpc.events.ResultEvent;
+        
+        import spark.collections.Sort;
+        import spark.collections.SortField;
+        import spark.events.IndexChangeEvent;
+        
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.DateHadle;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var ui_iinvoice:CrmEapTextInput;
+        private var ui_icustomer:CrmEapTextInput;
+
+        private function funnelReportVBox_creationCompleteHandler(event:FlexEvent):void {
+            initConsultItem("iinvoice");
+            initConsultItem("icustomer");
+          //  initConsultItem2("isalesregion");//销售区域
+
+           
+        }
+
+
+        private function initConsultItem(name:String):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = "384";
+            obj1.ctable = "mr_markets";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.width = 161;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+                consultTextInput.styleName = "contentTextInputOther";
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+
+        protected function funnelReportVBox_updateCompleteHandler(event:FlexEvent):void {
+            //CRMtool.setTabIndex(this.searchBox);
+        }
+			
+		private function clear():void {
+				ui_iinvoice.text = "";
+				ui_icustomer.text = "";
+			}
+
+        protected function searchButton_clickHandler(event:MouseEvent):void {
+            if(ui_iinvoice.text=="" || ui_iinvoice.text==null){
+				CRMtool.tipAlert("活动主题不能为空！");
+				return;
+			}
+			
+            var sql:String="select * from(select cs.iid cusiid,cs.cname custcname,case dd.custNum when 0 then null else dd.custNum end oppNum,case cc.ordNum when 0 then null else cc.ordNum end ordNum,cc.fsum from( "+
+                                  " select count(so.icustomer) ordNum,ms.iinvoice,SUM(so.fsum)fsum,ms.icustomer from mr_market mr"+
+                                  " left join (select distinct mm.icustomer,mm.iinvoice from mr_markets mm) ms on ms.iinvoice=mr.iid"+
+                                  " left join (select s.ddate,s.fsum,s.icustomer from SC_order s) so on so.icustomer=ms.icustomer  and so.ddate>= mr.dbegin and  so.ddate <=mr.dend"+
+                                  " where ms.iinvoice="+ui_iinvoice.consultList[0].iid+" group by ms.iinvoice ,ms.icustomer)cc"+
+                                  " left join (select count(so.icustomer) custNum,ms.iinvoice,ms.icustomer from mr_market mr "+
+                                  " left join (select distinct mm.icustomer,mm.iinvoice from mr_markets mm) ms on ms.iinvoice=mr.iid"+
+                                  " left join sa_opportunity so on so.icustomer=ms.icustomer  and so.dmaker>= mr.dbegin and  so.dmaker <=mr.dend"+
+                                  " where ms.iinvoice="+ui_iinvoice.consultList[0].iid+" group by ms.iinvoice,ms.icustomer )dd on dd.icustomer=cc.icustomer and cc.iinvoice=dd.iinvoice"+
+                                  " left join CS_customer cs on cc.icustomer=cs.iid) a where 1=1";
+			
+			if (ui_icustomer.consultList != null && ui_icustomer.text !=null && ui_icustomer.text !="") {
+				if (ui_icustomer.consultList.length > 0) {
+					sql += " and custcname = '" + ui_icustomer.consultList[0].cname + "' ";
+				}
+			}
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (result:ResultEvent):void {
+				
+				var res:ArrayCollection = result.result as ArrayCollection;
+					if(res.length==0){
+					   return;
+					}
+					mainDG.dataProvider=res;
+					mainDG.dataProvider.refresh();
+			},sql);
+			var sql2:String="";
+			if (ui_icustomer.consultList != null  && ui_icustomer.text !=null && ui_icustomer.text !="") {
+				if (ui_icustomer.consultList.length > 0) {
+					sql2="exec p_selectActive "+ui_iinvoice.consultList[0].iid+",'"+ui_icustomer.consultList[0].cname+"'";
+				}else{
+				   sql2="exec p_selectActive "+ui_iinvoice.consultList[0].iid+",''";
+				}
+			}else{
+				  sql2="exec p_selectActive "+ui_iinvoice.consultList[0].iid+",''";
+			}
+			
+			
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (result:ResultEvent):void {
+				
+				var res:ArrayCollection = result.result as ArrayCollection;
+				if(res.length==0){
+					return;
+				}
+				childDG.dataProvider=res;
+				childDG.dataProvider.refresh();
+			},sql2);
+			
+        }
+
+     
+
+			private function lineNumColFunction(item:Object, column:DataGridColumn):String {
+				if (mainDG.dataProvider) {
+					for (var i:int = 1; i <= mainDG.dataProvider.length; i++) {
+						if (mainDG.dataProvider[i - 1] == item) {
+							item.sort_id = i;
+							return i + "";
+						}
+					}
+					
+				}
+				return "0";
+			}
+
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = childDG.dataProvider.getItemIndex(item) + 1;
+            return lineNum + "";
+        }
+
+
+
+
+       
+
+        
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="stretch" target="{boxLeftRoot}" duration="700" widthTo="257"/>
+        <s:Resize id="contract" target="{boxLeftRoot}" duration="700" widthTo="0"/>
+    </fx:Declarations>
+	<mx:VBox id="boxLeftRoot" width="257"  height="100%" styleName="lefttree" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="frameSideAppBar">
+				<s:Label styleName="contentTitle" text="查询条件"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox paddingLeft="10" paddingTop="10" paddingRight="10" id="searchBox" width="100%" height="93%"  styleName="funnelReportForm"
+					 verticalGap="5">	
+					<mx:HBox id="ui_iinvoice_box" width="100%">
+						<mx:FormItemLabel text="活动主题：" color="red"/>
+					</mx:HBox>
+                    <mx:HBox id="ui_icustomer_box" width="100%">
+                        <mx:FormItemLabel text="客户名称："/>
+                    </mx:HBox>
+			</mx:VBox>
+					
+					<mx:VBox id="searchItemBox" width="100%" height="7%" paddingTop="10" paddingLeft="10" paddingRight="10">
+					<mx:HRule width="100%" height="1"/>
+							<mx:HBox width="100%" paddingTop="10" horizontalAlign="right">
+								<mx:Button label="清除" width="50" height="20"  click="clear()"/>
+								<s:Spacer width="30" />
+								<mx:Button label="查询" width="50" height="20"  click="searchButton_clickHandler(event)"/>
+							</mx:HBox>	
+				</mx:VBox>
+	</mx:VBox>
+
+    
+	
+	<mx:VBox width="100%" height="100%" styleName="centerbg03">
+		<mx:ApplicationControlBar width="100%" height="32" styleName="centertop1">
+			<mx:HBox width="100%"/>
+			<mx:Label  text="展现活动开始日期 — 结束日期数据"/>
+		</mx:ApplicationControlBar>
+		
+		<mx:VDividedBox width="100%" height="100%">
+			<mx:VBox width="100%" height="100%">
+				<mx:HBox  width="100%" height="100%" paddingTop="-1">
+					<mx:DataGrid  width="100%"  height="100%" id="mainDG"  sortableColumns="false">
+						<mx:columns>
+							<mx:DataGridColumn headerText="序号" dataField="sort_id" editable="false"
+											   labelFunction="lineNumColFunction" width="40" textAlign="center"/>
+							<mx:DataGridColumn headerText="客商名称" dataField="custcname" editable="false" />
+							<mx:DataGridColumn headerText="商机个数" dataField="oppNum" textAlign="center" editable="false" />
+							<mx:DataGridColumn headerText="合同个数" dataField="ordNum" textAlign="center" editable="false" />
+							<mx:DataGridColumn headerText="合同金额" dataField="fsum" textAlign="center" editable="false" />
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:HBox>
+
+			</mx:VBox>
+			<mx:ApplicationControlBar width="100%" height="32" styleName="centertop1">
+				<mx:HBox width="100%"/>
+				<mx:Label  text="展现活动开始日期 — 今天数据，注：如果一个客户在参加两次活动，取值到下一个活动前数据"/>
+				
+			</mx:ApplicationControlBar>
+			<mx:DataGrid id="childDG" width="100%" height="100%" doubleClickEnabled="true" >
+				<mx:columns>
+					<mx:DataGridColumn labelFunction="{doLineNum}" width="40"/>
+					<mx:DataGridColumn headerText="客商名称" dataField="custcname"  editable="false"/>
+					<mx:DataGridColumn headerText="商机个数" dataField="oppNum" textAlign="center" editable="false" />
+					<mx:DataGridColumn headerText="合同个数" dataField="ordNum" textAlign="center" editable="false" />
+					<mx:DataGridColumn headerText="合同金额" dataField="fsum" textAlign="center"  editable="false"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VDividedBox>
+	</mx:VBox>
+</mx:HDividedBox>

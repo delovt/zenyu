@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   width="224" height="23" styleName="boxStyle" borderVisible="false">
+    <fx:Metadata>
+        [Event(name="change", type="flash.events.Event")]
+        [Event(name="search", type="flash.events.Event")]
+        [Event(name="basicSearch", type="flash.events.Event")]
+        [Event(name="localSearch", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Style>
+        .boxStyle {
+            backgroundImage: Embed(source="/yssoft/assets/index/search/search_bg.png");
+        }
+
+        .focusBoxStyle {
+            backgroundImage: Embed(source="/yssoft/assets/index/search/search_1.png");
+        }
+    </fx:Style>
+    <s:layout>
+        <s:HorizontalLayout verticalAlign="middle" paddingLeft="10" paddingRight="10"/>
+    </s:layout>
+    <s:Image id="image" source="{sc}" buttonMode="true" click="image_clickHandler(event)"/>
+    <mx:TextInput id="ti" width="100%" height="100%" restrict="^'" focusAlpha="0" contentBackgroundAlpha="0"
+                  text="{basciSearchText}" color="#9fa4a8" keyDown="ti_keyDownHandler(event)"
+                  borderVisible="false" focusIn="isFocusIn=true" focusOut="isFocusIn=false"
+                  change="dispatchEvent(new Event('change'))"/>
+    <!-- To change this template use File | Settings | File Templates. -->
+    <fx:Script><![CDATA[
+        import mx.utils.StringUtil;
+
+        import yssoft.tools.CRMtool;
+
+        private var _isFocusIn:Boolean;
+
+        private var basciSearchText:String = "搜索...";
+
+        [Embed(source='/yssoft/assets/index/search/sc_1.png')]
+        public var sc_1:Class;
+        [Embed(source='/yssoft/assets/index/search/sc.png')]
+        public var sc:Class;
+
+        public function get text():String {
+            return ti.text == basciSearchText ? "" : ti.text;
+        }
+
+        public function set text(text:String):void {
+            ti.text = text;
+        }
+
+        override public function setFocus():void {
+            ti.setFocus();
+        }
+
+        public function get isFocusIn():Boolean {
+            return _isFocusIn;
+        }
+
+        public function set isFocusIn(value:Boolean):void {
+            _isFocusIn = value;
+            if (value) {
+                styleName = 'focusBoxStyle'
+                image.source = sc_1;
+                ti.setStyle("color", "#333333");
+                if (StringUtil.trim(ti.text) == basciSearchText)
+                    ti.text = "";
+            } else {
+                styleName = 'boxStyle'
+                image.source = sc;
+                ti.setStyle("color", "#9fa4a8");
+                if (CRMtool.isStringNull(ti.text))
+                    ti.text = basciSearchText;
+            }
+        }
+
+        private function ti_keyDownHandler(event:KeyboardEvent):void {
+            if (event.keyCode == 13) {//说明是回车按下
+                if (event.ctrlKey) {
+                    this.dispatchEvent(new Event("basicSearch"));
+                } else if (event.shiftKey) {
+                    this.dispatchEvent(new Event("localSearch"));
+                } else {
+                    this.dispatchEvent(new Event("search"));
+                }
+            }
+        }
+
+        private function image_clickHandler(event:MouseEvent):void {
+            dispatchEvent(new Event("search"));
+        }
+        ]]></fx:Script>
+</s:BorderContainer>

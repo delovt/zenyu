@@ -1,0 +1,841 @@
+<ReportSettings version="1.1">
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <Height>1.5</Height>
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>客商名称</BindingValue>
+          <Width>19</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <VerticalAlign>top</VerticalAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>统计时间:</Value>
+          <Width>2.5</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>开始时间</BindingValue>
+          <Width>3</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>到</Value>
+          <Width>1</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>结束时间</BindingValue>
+          <Width>3</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.3</Width>
+      <Dynamic>true</Dynamic>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.5</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.2</Width>
+      <Dynamic>true</Dynamic>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.9</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>单位</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务项目</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>统计次数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>金额合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>单位</BindingColumn>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <RowSpan>6</RowSpan>
+          <MergeSameContent>true</MergeSameContent>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Switch(Fields!服务项目.Value=="现场", "现场服务",Fields!服务项目.Value=="电话", "热线电话",Fields!服务项目.Value=="远程", "远程服务")</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>统计次数</BindingColumn>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Concat("全部解决（",Fields!全部解决.Value,"）;","部分解决（",Fields!部分解决.Value,"）;","未解决（",Fields!未解决.Value,"）")</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableFooterSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>总计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Sum(Fields!统计次数.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Concat("全部解决（",sum(Fields!全部解决.Value),"）;","部分解决（",sum(Fields!部分解决.Value),"）;","未解决（",sum(Fields!未解决.Value),"）")</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表1数据.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>现场工单明细</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>单位</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务时间</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务方式</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务人员</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务结果</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>确认人员</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>问题现象</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+      <TableDetailSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>单位</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <MergeSameContent>true</MergeSameContent>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务时间</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>yyyy-MM-dd</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务方式</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务人员</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务结果</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>确认人员</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>问题现象</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableDetailSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表2数据.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表2数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>远程工单明细</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>单位</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务时间</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务方式</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务人员</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务结果</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>确认人员</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>问题现象</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+      <TableDetailSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>单位</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <MergeSameContent>true</MergeSameContent>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务时间</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>yyyy-MM-dd</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务方式</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务人员</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务结果</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>确认人员</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>问题现象</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableDetailSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表3数据.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表3数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>电话工单明细</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>7</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>单位</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务时间</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务方式</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务人员</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>服务结果</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>确认人员</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>问题现象</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+      <TableDetailSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>单位</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <MergeSameContent>true</MergeSameContent>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务时间</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>yyyy-MM-dd</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务方式</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务人员</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>服务结果</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>确认人员</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>问题现象</BindingColumn>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableDetailSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <GroupColumn>单位</GroupColumn>
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+      <Enabled>true</Enabled>
+      <TableGroupFooterSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+              <MergeSameContent>true</MergeSameContent>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>小计</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!统计次数.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Concat("全部解决（",sum(Fields!全部解决.Value,GroupStartIndex(),GroupEndIndex()),"）;","部分解决（",sum(Fields!部分解决.Value,GroupStartIndex(),GroupEndIndex()),"）;","未解决（",sum(Fields!未解决.Value,GroupStartIndex(),GroupEndIndex()),"）")</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+              <ColSpan>4</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableGroupFooterSettings>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

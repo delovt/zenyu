@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+    <select id="MrCustomerDest.search" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        $sqlValue$
+    </select>
+
+    <insert id="MrCustomerDest.insert" parameterClass="java.util.HashMap">
+        $sqlValue$
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <insert id="MrCustomerDest.insertTable" parameterClass="java.util.HashMap">
+        insert into cs_customer
+        (ccode,cname,iindustry,iorganization,ivaluelevel,isalesstatus,iaddress,
+        cofficeaddress,cofficezipcode,isalesdepart,isalesperson,iservicesdepart,iservicesperson,cmemo,iproperty,
+        ddevelopment,imaker,dmaker,dscontdate,decontdate)
+        values
+        <!-- 	(#编码#,#名称#,#iid行业#,#iid组织形式#,#iid价值级别#,#iid销售状态#,#iid地理区域#,#单位地址#,#邮编#,#iid销售部门#,#iid销售人员#,#iid服务部门#,#iid服务人员#,#备注#,#imaker#,#dmaker#) -->
+        (#ccode#,#cname#,#iindustry#,#iorganization#,#ivaluelevel#,#isalesstatus#,#iaddress#,#cofficeaddress#,
+        #cofficezipcode#,#isalesdepart#,#isalesperson#,#iservicesdepart#,#iservicesperson#,#cmemo#,#iproperty#,
+        #ddevelopment#,#imaker#,#dmaker#,#dscontdate#,#decontdate#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <insert id="MrCustomerDest.insertTable1" parameterClass="java.util.HashMap">
+        insert into mr_customer
+        (cname,caddress,iaddress,czipcode,ccharge,cperson,cpost,cmobile,ctel,cfax,ctrade,cbusiness,cmemo,imaker,dmaker)
+        values
+        <!-- 	(#编码#,#名称#,#iid行业#,#iid组织形式#,#iid价值级别#,#iid销售状态#,#iid地理区域#,#单位地址#,#邮编#,#iid销售部门#,#iid销售人员#,#iid服务部门#,#iid服务人员#,#备注#,#imaker#,#dmaker#) -->
+        (#cname#,#caddress#,#iaddress#,#czipcode#,#ccharge#,#cperson#,#cpost#,#cmobile#,
+        #ctel#,#cfax#,#ctrade#,#cbusiness#,#cmemo#,#imaker#,#dmaker#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <insert id="MrCustomerDest.insertPerTable" parameterClass="java.util.HashMap" >
+        insert into cs_custperson
+        (icustomer,cname,isex,ctitle,cdepartment,cpost,bkeycontect,cmobile1,cmobile2,ctel,cfax,cqqmsn,cemail,istate,imaker,dmaker)
+        values
+        (#iid所属客户#,#姓名#,#iid性别#,#称谓#,#部门#,#职务#,#bkeycontect#,#手机1#,#手机2#,#固话#,#传真#,#QQ#,#电子邮件#,#istate#,#imaker#,#dmaker#)
+        <!-- 	(#icustomer#,#ccode#,#cname#,#isex#,#ctitle#,#cdepartment#,#cpost#,#bkeycontect#,#cmobile1#,#cmobile2#,#ctel#,#cfax#,#cqqmsn#,#cemail#,#imaker#,#dmaker#) -->
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+    <insert id="SrKnowledgeDest.insertPerTable" parameterClass="java.util.HashMap">
+        insert into sr_knowledge
+        (ccode,cname,cver,cproduct,cface,cbase,canswer,imaker,dmaker)
+        values
+        (#知识编号#,#知识名称#,#产品版本#,#适用产品#,#问题现象#,#问题原因#,#解决方案#,#imaker#,#dmaker#)
+        <!-- 	(#icustomer#,#ccode#,#cname#,#isex#,#ctitle#,#cdepartment#,#cpost#,#bkeycontect#,#cmobile1#,#cmobile2#,#ctel#,#cfax#,#cqqmsn#,#cemail#,#imaker#,#dmaker#) -->
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <insert id="importInOaWorkdiary" parameterClass="java.util.HashMap">
+        insert into oa_workdiary
+        (icustomer,cname,itype,istyle,cdetail,dbegin,dend,icustperson,imaker,dmaker,iifuncregedit)
+        values
+        (#iid所属客户#,#活动主题#,#iid活动类型#,#iid活动方式#,#活动内容#,#开始时间#,#结束时间#,#iid客户人员#,#iid制单人#,#制单时间#,46)
+        <!-- 	(#icustomer#,#ccode#,#cname#,#isex#,#ctitle#,#cdepartment#,#cpost#,#bkeycontect#,#cmobile1#,#cmobile2#,#ctel#,#cfax#,#cqqmsn#,#cemail#,#imaker#,#dmaker#) -->
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+    <!-- 查询资产表-->
+    <select id="selectCscustproduct" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        $sqlValue$
+    </select>
+    <!-- 查询方法2-->
+    <select id="selectWay2" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        $sqlValue$
+    </select>
+    <!-- 查询方法3-->
+    <select id="selectWay3" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        $sqlValue$
+    </select>
+<!--导入资产 -->
+    <insert id="importCscustproduct" parameterClass="java.util.HashMap">
+        insert into cs_custproduct
+        (icustomer,iproduct,csn,dcontract,dsend,iscstatus,cproductcdk,istatus,ichargestype,fservicecharge,icount,imaker,dmaker,ifuncregedit,forderfsum,cmemo)
+        values
+        (#iid客户名称#,#iid购买产品#,#加密盒号#,#最早购买时间#,#最近服务到期日#,#iid服务收费状态#,#产品CDK#,#iid产品使用状态#,#iid最近服务收费产品#,#最近服务收费金额#,#iid服务收费状况#,#iid制单人#,#制单时间#,216,#成交金额#,#备注#)
+        <!-- 	(#icustomer#,#ccode#,#cname#,#isex#,#ctitle#,#cdepartment#,#cpost#,#bkeycontect#,#cmobile1#,#cmobile2#,#ctel#,#cfax#,#cqqmsn#,#cemail#,#imaker#,#dmaker#) -->
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+
+    <!--导入资产子表 -->
+    <insert id="importCscustproducts" parameterClass="java.util.HashMap">
+        insert into cs_custproducts
+        (icustproduct,iproduct,fquantity)
+        values
+        (#icustproduct#,#id产品模块#,#许可数#)
+      <!--  &lt;!&ndash; 	(#icustomer#,#ccode#,#cname#,#isex#,#ctitle#,#cdepartment#,#cpost#,#bkeycontect#,#cmobile1#,#cmobile2#,#ctel#,#cfax#,#cqqmsn#,#cemail#,#imaker#,#dmaker#) &ndash;&gt;
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>-->
+    </insert>
+
+
+    <insert id="importInSrBill" parameterClass="java.util.HashMap">
+        insert into sr_bill
+        (isolution,ccode,icustomer,icustperson,ctel,cdetail,cdescription,cprocess,iresult,iengineer,dengineer,dmanager,imaker,dmaker,darrival,ddeparture,iifuncregedit)
+        values
+        (#iid服务类型#,#服务单号#,#iid服务客户#,#iid联系人员#,#联系电话#,#故障现象#,#问题描述#,#处理过程#,#iid处理结果#,#iid服务人员#,#服务时间#,#服务时间#,#imaker#,#dmaker#,#到达时间#,#离开时间#,150)
+        <!-- 	(#icustomer#,#ccode#,#cname#,#isex#,#ctitle#,#cdepartment#,#cpost#,#bkeycontect#,#cmobile1#,#cmobile2#,#ctel#,#cfax#,#cqqmsn#,#cemail#,#imaker#,#dmaker#) -->
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+    
+      <insert id="importInSrKnpwledge" parameterClass="java.util.HashMap">
+       insert into sr_knowledge
+       (ccode,cname,cVer,cModule,cface,cbase,cAnswer,iifuncregedit,imaker,dmaker)
+       values
+       (#知识编号#,#知识名称#,#iid产品版本#,#iid产品模块#,#问题现象#,#问题原因#,#解决方案#,226,#imaker#,#dmaker#)
+       <selectKey resultClass="int" keyProperty="iid">
+           SELECT @@IDENTITY AS iid
+       </selectKey>
+   </insert>
+    <!-- 导入服务回访 -->
+    <insert id="importInSrFeedBack" parameterClass="java.util.HashMap">
+        insert into sr_feedback
+        (ccode,ddate,icustomer,iperson,imaker,dmaker,iifuncregedit)
+        values
+        (#ccode#,#ddate#,#iid企业编码#,#iid回访人员#,#imaker#,#dmaker#,154)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+    <!-- 查询客户联系方式  -->
+	<select id="selectBnum"  parameterClass="java.util.HashMap" resultClass="int">
+		select count(bkeycontect)bnum from CS_custperson where bkeycontect=1 and icustomer =#icustomer#
+	</select>
+</sqlMap>

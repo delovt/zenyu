@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<input:BasicMxTextInput xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:input="yssoft.comps.frame.module.Basic.input.*"
+                      >
+    <fx:Script><![CDATA[
+        import mx.containers.HBox;
+        import mx.controls.DateField;
+        import mx.events.FlexEvent;
+
+        import yssoft.comps.frame.module.Basic.BasicDateField;
+        import yssoft.comps.frame.module.Basic.input.datefield.TimeBox;
+
+        override protected function createChildren():void {
+            super.createChildren();
+            this.addChild(createDateField());
+            this.addChild(createTime());
+
+
+        }
+
+        private function createDateField():DateField {
+            var df:BasicDateField = new BasicDateField();
+            df.setStyle("borderStyle", "none");
+            return df;
+        }
+
+        private function createTime(showSecond:Boolean = false):HBox {
+            var tb:TimeBox = new TimeBox();
+            tb.isShowSecond = showSecond;
+            return tb;
+        }
+
+        ]]></fx:Script>
+</input:BasicMxTextInput>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		   label="收费预测{size>0?'('+size+')':''}">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.comps.frame.CompositeReportVBox;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var _winParam:Object;
+			
+			[Bindable]
+			private var size:int=0;
+			
+			private var basicAC:ArrayCollection;
+			
+			private var _filterObj:Object;
+			
+			public function get filterObj():Object
+			{
+				return _filterObj;
+			}
+			
+			public function set filterObj(value:Object):void
+			{
+				_filterObj = value;
+				if(value&&value.idepartment&&basicAC){					
+					var filterAC:ArrayCollection = new ArrayCollection();
+					for each(var item:Object in basicAC){					
+						if(value.isCollect){
+							if(item.dccode&&(item.dccode as String).search("^"+value.ccode)>-1){
+								filterAC.addItem(item);
+							}								
+						}else if(item.dccode==value.ccode)
+							filterAC.addItem(item);
+					}	
+					mainDG.dataProvider = filterAC;
+					size = filterAC.length;
+				}
+			}
+
+			
+			private var _myParent:CompositeReportVBox;
+			
+			public function get myParent():CompositeReportVBox
+			{
+				return _myParent;
+			}
+			
+			public function set myParent(value:CompositeReportVBox):void
+			{
+				_myParent = value;
+			}
+			
+			private const sql:String = "select cs_custproduct.iid,cs_custproduct.icustomer,cs_customer.cname as icustomer_cname,hr_person2.cname as iservicesperson_cname,hr_person3.cname as isalesperson_cname," +
+				" aa_data2.cname as iscstatus_cname,cs_custproduct.iscstatus,cs_custproduct.dsend,cs_customer.isalesdepart,cs_custproduct.fservicecharge,cs_custproduct.iserviceperson,hr_department.ccode as dccode," +
+				" hr_person.cname as iserviceperson_cname,cs_custproduct.icustperson,cs_custperson.cname as icustperson_name,datediff(d,getdate(),dsend) as diffdate," +
+				" cs_custproduct.irefuse,aa_data.cname as irefuse_cname,cs_custproduct.fsum from cs_custproduct" +
+				" left join cs_customer on cs_custproduct.icustomer = cs_customer.iid" +
+				" left join hr_department on cs_customer.isalesdepart = hr_department.iid" +
+				" left join hr_person on cs_custproduct.iserviceperson = hr_person.iid" +
+				" left join cs_custperson on cs_custproduct.icustperson = cs_custperson.iid" +
+				" left join aa_data on cs_custproduct.irefuse = aa_data.iid" +
+				" left join aa_data aa_data2 on iscstatus = aa_data2.iid" +
+				" left join hr_person hr_person2 on cs_customer.iservicesperson = hr_person2.iid" +
+				" left join hr_person hr_person3 on cs_customer.isalesperson = hr_person3.iid"+
+				" where 1=1  and cs_custproduct.istatus=1 and isnull(cs_customer.blogout,0)=0 ";
+			
+			public function set winParam(value:Object):void
+			{
+				this._winParam=value;
+				if(this._winParam){
+					callRequest(this._winParam);
+				}
+				if(value==null){
+					mainDG.dataProvider = null;
+					size=0;
+				}
+			}
+			
+			public function get winParam():Object
+			{
+				return this._winParam;
+			}
+			
+			private function callRequest(param:Object):void
+			{	
+				var searchSql:String="";
+				searchSql = sql;
+				if(CRMtool.isStringNotNull(param.custproduct_sddate))
+					searchSql += (" and dsend >='"+param.custproduct_sddate+"'");
+				if(CRMtool.isStringNotNull(param.custproduct_eddate))
+					searchSql += (" and dsend <='"+param.custproduct_eddate+"'");
+				if(param.idepartment>0)
+					searchSql += (" and cs_customer.isalesdepart in(select iid from hr_department where ccode like (select ccode from hr_department where iid="+param.idepartment+")+'%')");		
+				if(param.iperson>0)
+					searchSql += (" and cs_customer.isalesperson ="+param.iperson);		
+				
+				if(!param.isOver)
+					searchSql += " and cs_custproduct.iscstatus != 512 ";
+				
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var eventAC:ArrayCollection =event.result as ArrayCollection;
+					if(eventAC)
+						searchBack(eventAC);					
+				},searchSql+param.custproductAuthSql+" order by dsend,cs_custproduct.icustomer ");	
+			}
+			
+			private function searchBack(ac:ArrayCollection):void{
+				mainDG.dataProvider = ac;
+				size = ac.length;
+				basicAC = ac;
+				for each(var ditem:Object in winParam.mainDGData){
+					ditem.fservicecharge =0;
+				}
+				
+				for each(var item:Object in ac){
+					for each(var ditem:Object in winParam.mainDGData){
+						if(item.isalesdepart==ditem.idepartment){
+							ditem.fservicecharge += item.fservicecharge;
+						}
+					}
+				}
+				
+				this.myParent.sum();
+			}
+						
+			private function doLineNum(item:Object, column:DataGridColumn):String{	
+				var lineNum:int = mainDG.dataProvider.getItemIndex(item)+1;
+				return lineNum+"";
+			}
+			
+			protected function mainDG_doubleClickHandler(event:MouseEvent):void
+			{
+				CRMtool.openbillonbrowse(216,mainDG.selectedItem.iid,"客商资产");
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:DataGrid width="100%" height="100%" id="mainDG" 
+				 lockedColumnCount="5"
+				 doubleClickEnabled="true" doubleClick="mainDG_doubleClickHandler(event)">
+		<mx:columns>
+			<mx:DataGridColumn labelFunction="{doLineNum}" width="40"/>
+			<mx:DataGridColumn id="iscstatus_cname" headerText="收费状态"  dataField="iscstatus_cname" width="80"/>
+			<mx:DataGridColumn id="icustomer_cname" headerText="客户" dataField="icustomer_cname"  width="140"/>		
+			<mx:DataGridColumn id="dsend" headerText="服务到期日" dataField="dsend" labelFunction="{CRMtool.formatDate}"/>
+			<mx:DataGridColumn id="fservicecharge" headerText="上次收费金额"  dataField="fservicecharge" textAlign="right" labelFunction="{CRMtool.formatFloat}"/>
+			<mx:DataGridColumn id="iserviceperson_cname" headerText="最近业务员"  dataField="iserviceperson_cname"/>
+			<mx:DataGridColumn id="icustperson_name" headerText="最近客户人员"  dataField="icustperson_name" />
+			<mx:DataGridColumn id="isalesperson_cname" headerText="销售人员"  dataField="isalesperson_cname" />
+			<mx:DataGridColumn id="iservicesperson_cname" headerText="服务人员"  dataField="iservicesperson_cname" />				
+			<mx:DataGridColumn id="irefuse_cname" headerText="超期未交原因"  dataField="irefuse_cname" />
+			<mx:DataGridColumn id="fsum" headerText="产品标准报价"  dataField="fsum" textAlign="right" labelFunction="{CRMtool.formatFloat}"/>
+			<mx:DataGridColumn id="diffdate" headerText="偏差天数"  dataField="diffdate" textAlign="right"/>		
+		</mx:columns>
+	</mx:DataGrid>
+</mx:Canvas>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+				   borderVisible="false" xmlns:module="yssoft.comps.frame.module.*"
+				  updateComplete="bordercontainer1_creationCompleteHandler(event)"
+				   
+				   >
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.module.CrmEapFusionCharts;
+			import yssoft.tools.AccessUtil;
+			
+			[Bindable]private var _fcType:int;
+			[Bindable]private var _itemObj:Object;
+			[Bindable]private var _cxfield:String;
+			[Bindable]private var _cyfield:String;
+			
+			//private var fusionChart:CrmEapFusionCharts;
+			//new ArrayCollection();
+			[Bindable]private var chartData =  new ArrayCollection();
+				
+/*  				new ArrayCollection([                      
+				{label: "Website Visits", value: "385634" },
+				{label: "Downloads", value: "175631" },
+				{label: "Interested to buy", value: "84564" },
+				{label: "Contract finalized", value: "35654" },
+				{label: "Purchased", value: "12342" }
+			]);  */
+			
+			public function get itemObj():Object
+			{
+				return _itemObj;
+			}
+
+			public function set itemObj(value:Object):void
+			{
+				_itemObj = value;
+				
+			}
+
+			public function get fcType():int
+			{
+				return _fcType;
+			}
+
+			public function set fcType(value:int):void
+			{
+				_fcType = value;
+			}
+
+			
+			private function setData(cd:ArrayCollection=null):void{
+				line.chartData = cd;				
+				column.chartData = cd; 
+				pie.chartData = cd;
+			}
+			
+			private function getChartData():void{
+				if(itemObj){
+					fcType = itemObj.idiagram;
+					_cxfield = itemObj.cxfield;
+					_cyfield = itemObj.cyfield;
+					var sql:String = itemObj.csql1;
+					
+/* 					if(itemObj.itype==4){
+						AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+							var queryac:ArrayCollection = event.result as ArrayCollection();
+							if(queryac){
+								for each(var item:Object in queryac){
+									if(item.bunnull==1){
+										
+									}
+								}
+							}
+						},"select * from ac_queryclm where ifuncregedit="+itemObj.ifuncregedit);
+					} */
+					
+					
+					
+					sql=sql.replace("@grade@",3);
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",getChartDataBack,sql);
+				}
+			}
+			
+			private function getChartDataBack(event:ResultEvent):void{
+				var ac:ArrayCollection = event.result as ArrayCollection;
+				for each(var item:Object in ac){
+					item.label = item[_cxfield];
+					item.value = item[_cyfield];
+				} 
+				setData(ac);
+			}
+			
+			private var flag:Boolean = true;
+			protected function bordercontainer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				if(flag){
+					getChartData();
+					flag = false;
+				}
+					
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+		<module:CrmEapFusionCharts id="line" visible="{_fcType==1}" FCChartType="Line"  width="100%" height="100%" />
+		<module:CrmEapFusionCharts id="pie" visible="{_fcType==2}"  FCChartType="Pie2D"  width="100%" height="100%" />
+		<module:CrmEapFusionCharts id="column" visible="{_fcType==3}" FCChartType="Column2D"  width="100%" height="100%" />
+</s:BorderContainer>

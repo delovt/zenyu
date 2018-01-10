@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        cornerRadius="8"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        width="650" height="450" styleName="contentHDividedBox"
+                        creationComplete="myinit()" close="titwindowClose()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+ 	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.core.Container;
+			import mx.events.ItemClickEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			public var unitObj:Object = {};
+			
+			[Bindable]
+			public var unitclassArr:Object = {};
+			
+			[Bindable]
+			public var method:String = "";
+			
+			private var tnp_unitclass:CrmEapTextInput;
+			
+			private function init():void{
+				
+				tnp_unitclass.text = unitObj.iunitclass;
+				tnp_unitclass.addEventListener("initialization",function(event:Event):void
+				{
+					tnp_unitclass.onDataChange();
+				});
+				tnp_unitclass.onDataChange();
+				
+				//回车替代TAB键
+				CRMtool.setTabIndex(tabVbox);
+				if(method == "onBrowse"){
+					CRMtool.containerChildsEnabled(tabVbox,false);
+					lbr_unit.enabled = false;
+				}
+				else
+				{
+					lbr_unit.enabled = true;
+				}				
+			}
+			
+			public function myinit():void
+			{
+				var obj:Object=new Object();
+				obj.cobjectname="tnp_unitclass";
+				obj.ifuncregedit="36";
+				obj.cfield="iunitclass";
+				
+				AccessUtil.remoteCallJava("CommonalityDest","queryFun",function(evt:ResultEvent):void{
+					
+					if(evt.result!=null){
+						var consultObj:Object = evt.result;
+						
+						
+						tnp_unitclass = new CrmEapTextInput();
+						tnp_unitclass.width=200;
+						tnp_unitclass.name			= "UI_C1";
+						consultObj.cobjectname	="UI_C1";
+						tnp_unitclass.singleType		=consultObj;
+						hb2.addChildAt(tnp_unitclass,1);
+						//iheadTextInput.editable = false;
+					
+					}
+					
+					init();
+				},obj);
+			}
+			
+			protected function lbr_click(event:ItemClickEvent):void
+			{
+				var type:String=event.item.name;
+				
+				if(type=="onSave"){
+					
+					if(!checkEmpty()) return;
+					
+					if(unitObj.iid == null){
+						AccessUtil.remoteCallJava("CalculateMaterielDest","addScUnit",callfunUnit,this.getParams());
+					}else{
+						AccessUtil.remoteCallJava("CalculateMaterielDest","updateScUnit",callfunUnit,this.getParams());
+					}
+					
+				}else if(type=="onGiveUp"){
+					PopUpManager.removePopUp(this);	
+				}	
+			}
+			
+			private function callfunUnit(e:ResultEvent):void{
+				var str:String = e.result as String;
+				if( str == "success" ){
+					CRMtool.showAlert("操作成功，请继续新增！");	
+					this.clear();
+					
+				}else{
+					CRMtool.showAlert("操作失败！");	
+				}
+			}
+			
+			private function getParams():Object{
+				var params:Object = {};
+				params.cname = this.tnp_unitCname.text;
+				params.ccode = this.tnp_unitCode.text;
+				
+				if(hb2.getChildByName("UI_C1")!=null){
+					var consult1:CrmEapTextInput = this.hb2.getChildByName("UI_C1") as CrmEapTextInput;
+					if(consult1.consultList.length>0){
+						params.iunitclass = consult1.consultList.getItemAt(0)[consult1.singleType.cconsultbkfld]+"";
+					}
+					
+				}
+				
+				//params.iunitclass = int( this.tnp_unitclass.cconsultbkfld.getItemAt(0));
+				params.fchangerate = this.tnp_unitExplain.text;
+				params.iid = unitObj.iid+"";
+				
+				params.oldCode =  unitObj.ccode +"";
+				
+				if (this.chb_iunitdefault.selected) 
+					params.bdefault = 1;
+				else
+					params.bdefault = 0;
+				
+				return params;
+			}
+			
+			private function clear():void{
+				this.tnp_unitCname.text ="";
+				this.tnp_unitCode.text = "";
+				this.tnp_unitExplain.text="";
+				if(hb2.getChildByName("UI_C1")!=null){
+					var consult1:CrmEapTextInput = this.hb2.getChildByName("UI_C1") as CrmEapTextInput;
+					consult1.text = "";
+				}
+				//this.tnp_unitclass.text = "";
+				this.chb_iunitdefault.selected = false;
+			}
+			
+			//验证不为空
+			private function checkEmpty():Boolean{
+				if(this.tnp_unitCode.text == "")   { CRMtool.tipAlert("单位编码不允许为空！"); return false;}
+				else if(tnp_unitCname.text == ""){ CRMtool.tipAlert("单位名称不允许为空！"); return false;}
+				//else if(tnp_unitclass.text == "")   { CRMtool.tipAlert("单位组不允许为空！"); 	    return false;}
+                else if(hb2.getChildByName("UI_C1")!=null){
+                    var consult1:CrmEapTextInput = this.hb2.getChildByName("UI_C1") as CrmEapTextInput;
+                    if(CRMtool.isStringNull(consult1.text)) {
+                        CRMtool.showAlert("单位分组为必输项！");
+                        return false;
+                    }else {
+                        return true;
+                    }
+                }
+				else return true;
+			}
+			
+			private function titwindowClose():void{
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	<basic:layout>
+		<s:VerticalLayout gap="0" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+	</basic:layout>
+	
+   <mx:VBox width="100%" height="100%" styleName="centerbg4" >
+		<mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+			<comps:LinkBarVboxComps id="lbr_unit" height="25" width="15%" buttonWidth="48"  dataProvider="{ConstsModel.LINKBAR_VBOX_BCF_1}" itemClick="lbr_click(event)" />
+			<s:Spacer width="80%"/>
+		    </mx:ApplicationControlBar>
+			<mx:VBox  width="100%" horizontalAlign="center" paddingLeft="10" paddingRight="10" paddingTop="10" id="tabVbox">
+				<mx:VBox width="100%"  styleName="content">
+				<mx:HBox width="100%" height="30" verticalAlign="middle" id="Vbox_Enabld" >
+					<mx:Label text="  单位编码" color="red"/> <mx:TextInput id="tnp_unitCode" width="200" text="{unitObj.ccode}"    styleName="contentTextInput"/>
+					<mx:Label text="  单位名称" color="red"/> <mx:TextInput id="tnp_unitCname" width="200" text="{unitObj.cname}" styleName="contentTextInput" />
+				</mx:HBox>
+				<mx:HRule width="100%"/>
+					
+				<mx:HBox id="hb2" width="100%" height="30" verticalAlign="middle">
+					<mx:Label text="  单位分组" color="red"/>
+					
+					<!--<comps:CRMReferTextInput id="tnp_unitclass" styleName="contentTextInput" width="200"  iid="92" te="{unitObj.iunitclass}" visibleIcon="{tnp_unitclass.editable}"/>-->
+					<mx:Label text="  是否主计量" />
+					<mx:CheckBox id="chb_iunitdefault" selected="{unitObj.bdefault2}"/>
+					
+				</mx:HBox>
+				<mx:HRule width="100%"/>
+					
+				<mx:HBox width="100%" height="30" verticalAlign="middle">
+					<mx:Label text="  主辅换算" /> <mx:TextInput  id="tnp_unitExplain"  text="{unitObj.fchangerate}" width="200" styleName="contentTextInput"  restrict="[0-9]" />
+				</mx:HBox>
+				</mx:VBox>
+			</mx:VBox>
+		
+	</mx:VBox>
+		
+</basic:BasicTitleWindow>

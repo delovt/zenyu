@@ -1,0 +1,372 @@
+<html>
+
+<head>
+  <title>2.2 、定义公共基础档案 - 综合业务管理软件_帮助手册</title>
+  <meta http-equiv=Content-Type content="text/html; charset=x-cp20936">
+  <meta name="GENERATOR" content="Macrobject Word-2-CHM">
+  <link rel="stylesheet" href="Word2Chm.css" type="text/css">
+  <link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+
+<body lang=ZH-CN link=blue vlink=purple style='text-justify-trim:punctuation'>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td class="moHeader">&nbsp;2.2 、定义公共基础档案</td>
+    </tr>
+  </table>
+  
+  <p></p>
+
+<div class=Section1 style='layout-grid:15.6pt'>
+
+
+
+<p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+line-height:125%;font-family:宋体;color:#F79646'>【功能概述】</span></b></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>公共基础档案是构成业务单据的核心参照来源，是查询与统计分析的依据与维度。好的基础档案构建将极大的方便业务管理，系统预置了软件行业常用的一套定义方法，在此基础上您可以再完善使用。</span></p>
+
+<p class=MsoNormal style='line-height:125%'><span lang=EN-US style='font-size:
+12.0pt;line-height:125%'>&nbsp;</span></p>
+
+<p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+line-height:125%;font-family:宋体;color:#F79646'>【重要提示】</span></b></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>前缀，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>单据编码规则除传统的按日期做为前缀流水外，有时也会根据录入参照项做为前缀流水，而流水的值一般会采用一套特殊的规定，这个规定就定义在基础档案的“前缀”字段上。如，服务工单要根据服务方式进行分别编号，</span><span
+lang=EN-US style='font-size:12.0pt;line-height:150%'>01</span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>现场对应的前缀为</span><span
+lang=EN-US style='font-size:12.0pt;line-height:150%'>XC</span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>，</span><span
+lang=EN-US style='font-size:12.0pt;line-height:150%'>02</span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>电话对应的前缀为</span><span
+lang=EN-US style='font-size:12.0pt;line-height:150%'>DH</span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>产品配置，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>在软件行业或一些装配工业中，一个商品是由若干个子模块组成的，在相关的出入库单中要指定这些配置，我们在软件设计时提供了产品配置来实现此应用需求。如，</span><span
+lang=EN-US style='font-size:12.0pt;line-height:150%'>U8</span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>是一个产品，总账、报表、工资等是其下面的模块产品，则在产品配置中配置其归属关系。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>共用配置，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>做为软件行业经常会进行产品版本的升级，系统中不同的版本定义成不同的产品档案，这些档案有共同的产品配置，如再一个个的定义的话，工作量会非常的大，我们在软件中设计了共用配置的功能，将一个产品的配置共用给其他相同配置的产品，完美的解决了此问题。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>进程管理，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>软件行业对于销售商机、实施项目、开发项目需进行过程的跟踪，为了便于表达项目的进度，往往将此过程定义成不同的阶段，形成标准，项目推进时，升迁不同的进程，记录进程备注，更新单据当前所属的阶段状态，针对以上管理模型我们设计了进程管理，以满足复杂的业务需求。</span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt;line-height:150%'><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>回访方案，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>服务完成、培训完成或实施完成，需要跟踪客户的认可反馈，以便找到工作的改进及对人员绩效进行量化评价，系统中设计了柔性的回访方案，一套回访方案由若干标准的回访要素组成，每个回访要素又提供了不同的答案评分标准，以供参照评分。</span></p>
+
+<p class=MsoNormal style='line-height:125%'><span lang=EN-US style='font-size:
+12.0pt;line-height:125%'>&nbsp;</span></p>
+
+<p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+line-height:125%;font-family:宋体;color:#F79646'>【操作步骤】</span></b><b><span
+lang=EN-US style='font-size:12.0pt;line-height:125%;color:#F79646'>&nbsp;&nbsp; </span></b></p>
+
+<div align=center>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=ListParagraph style='margin-left:18.0pt;text-indent:-18.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%'>1、<span
+  style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>基础档案</span></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>（统一定义常规的基础档案）</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border:solid #7F7F7F 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>基础档案</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>基础档案</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>编码体系，参见通用操作规范的说明</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>如档案参与单据前缀流水，则要定义相应的前缀</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>2</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、对手管理</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>基础档案</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>对手管理</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>3</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、讨论类型</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>基础档案</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>讨论类型</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>“热点设置”定义回复人数达到此值自动设为热点</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>“管理人员”设置管理员可以对此类的讨论进行屏蔽、删除处理</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>4</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、仓库档案</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>基础档案</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>仓库档案</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>5</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、收发类别</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>基础档案</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>收发类别</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>6</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、回访要素</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>基础档案</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>回访要素</span></p>
+  <p class=MsoNormal style='margin-left:0cm;text-indent:0cm;line-height:125%'><span
+  lang=EN-US style='font-size:12.0pt;line-height:125%;font-family:Wingdings'>l<span
+  style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>回访要素定义后，还需要到回访方案中定义。</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>7</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、回访方案</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>基础档案</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>回访方案</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>8</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、产品分类</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>产品管理</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>产品分类</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>9</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、计量单位</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>产品管理</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>计量单位</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>10</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、产品管理</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>产品管理</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>产品管理</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>“是否销售”销售产品需选中此项，否则销售合同中无法参照</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>“是否耗用”对于构成产品的模块档案需设置此属性，否则在产品配置中无法参照</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>“客户资产”对于需形成客户资产卡片记录的产品需勾选此项，否则在销售出库时无法生成客户资产记录</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>“配套耗材”对于耗材类产品如打印纸等需勾选此选项，否则配套耗材合同无法参照</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>“费用劳务”对于实施费、开发费、服务费等需设置此属性，否则在相关业务的合同中无法参照</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>&nbsp;</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%;color:#F79646'>&nbsp;</span></b></p>
+  </td>
+ </tr>
+</table>
+
+</div>
+
+<p class=MsoNormal style='line-height:125%'><span lang=EN-US style='font-size:
+12.0pt;line-height:125%'>&nbsp;</span></p>
+
+<p class=MsoNormal style='line-height:125%'><span lang=EN-US style='font-size:
+12.0pt;line-height:125%'>&nbsp;</span></p>
+
+<p class=MsoNormal style='line-height:125%'><span lang=EN-US style='font-size:
+12.0pt;line-height:125%'>&nbsp;</span></p>
+
+
+</div>
+  <p></p>
+
+</body>
+
+</html>

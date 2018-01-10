@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ButtonBar xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" itemClick="buttonbar1_itemClickHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			
+			private function buttonbar1_itemClickHandler(event:ItemClickEvent):void
+			{
+				this.dispatchEvent(new Event(event.item.name+"Event"));
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Metadata>
+		
+		/* 增加 */
+		[Event(name="onNewEvent", type="flash.events.Event")]
+		
+		/* 修改 */
+		[Event(name="onEditEvent", type="flash.events.Event")]
+		
+		/* 删除 */
+		[Event(name="onDeleteEvent", type="flash.events.Event")]
+
+		/* 保存 */
+		[Event(name="onSaveEvent", type="flash.events.Event")]
+		
+		/* 放弃 */
+		[Event(name="onGiveUpEvent", type="flash.events.Event")]
+		
+		/* 更新列 */
+		[Event(name="onRefreshEvent", type="flash.events.Event")]
+		
+		[Event(name="onResetEvent", type="flash.events.Event")]
+		
+		[Event(name="onTestEvent", type="flash.events.Event")]
+		
+		[Event(name="onPrintEvent", type="flash.events.Event")]
+		
+		[Event(name="onUpdateEvent", type="flash.events.Event")]
+	</fx:Metadata>
+</mx:ButtonBar>

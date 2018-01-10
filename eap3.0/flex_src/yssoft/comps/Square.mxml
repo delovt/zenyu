@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark">
+    <s:Rect width="{sideLength}" height="{sideLength}">
+        <s:fill>
+            <s:SolidColor color="{fillColor}"/>
+        </s:fill>
+    </s:Rect>
+
+    <fx:Script><![CDATA[
+        [Bindable]
+        [Inspectable(category="General", format="Color")]
+        public var fillColor:uint;
+
+        [Bindable]
+        public var sideLength:Number;
+
+        ]]></fx:Script>
+</s:Group>

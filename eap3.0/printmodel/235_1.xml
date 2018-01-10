@@ -1,0 +1,1226 @@
+<ReportSettings version="1.1">
+  <PageWidth>38</PageWidth>
+  <PageHeight>21</PageHeight>
+  <LeftMargin>0.5</LeftMargin>
+  <RightMargin>0.5</RightMargin>
+  <TableHeaderRepeat>true</TableHeaderRepeat>
+  <AdjustPrintDirection>true</AdjustPrintDirection>
+  <FitToPrintSize>true</FitToPrintSize>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>部门回款统计</Value>
+          <Width>37</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>18</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>统计年份：</Value>
+          <Width>2.5</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>=Parameters!年.Value</Value>
+          <Width>1.5</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.9</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>部门</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>产品类别</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>7月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>8月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>9月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>10月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>11月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>12月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>部门</BindingColumn>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+          <MergeSameContent>true</MergeSameContent>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>产品类别</BindingColumn>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月1.Value==0,"",Fields!月1.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月2.Value==0,"",Fields!月2.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月3.Value==0,"",Fields!月3.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月4.Value==0,"",Fields!月4.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月5.Value==0,"",Fields!月5.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月6.Value==0,"",Fields!月6.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月7.Value==0,"",Fields!月7.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月8.Value==0,"",Fields!月8.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月9.Value==0,"",Fields!月9.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月10.Value==0,"",Fields!月10.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月11.Value==0,"",Fields!月11.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月12.Value==0,"",Fields!月12.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>合计</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableFooterSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>总计</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>产品</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月1.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月1.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月2.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月2.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月3.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月3.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月4.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月4.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月5.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月5.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月6.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月6.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月7.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月7.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月8.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月8.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月9.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月9.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月10.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月10.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月11.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月11.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月12.Value, Fields!产品类别.Value=="产品")==0,"",SumIf(Fields!月12.Value, Fields!产品类别.Value=="产品"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="产品")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>总计</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>6</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务费</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月1.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月1.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月2.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月2.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月3.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月3.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月4.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月4.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月5.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月5.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月6.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月6.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月7.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月7.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月8.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月8.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月9.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月9.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月10.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月10.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月11.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月11.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月12.Value, Fields!产品类别.Value=="服务费")==0,"",SumIf(Fields!月12.Value, Fields!产品类别.Value=="服务费"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="服务费")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>总计</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>6</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>耗材</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月1.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月1.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月2.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月2.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月3.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月3.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月4.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月4.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月5.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月5.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月6.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月6.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月7.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月7.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月8.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月8.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月9.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月9.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月10.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月10.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月11.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月11.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月12.Value, Fields!产品类别.Value=="耗材")==0,"",SumIf(Fields!月12.Value, Fields!产品类别.Value=="耗材"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="耗材")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.7</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>总计</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>6</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>培训</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月1.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月1.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月2.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月2.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月3.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月3.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月4.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月4.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月5.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月5.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月6.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月6.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月7.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月7.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月8.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月8.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月9.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月9.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月10.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月10.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月11.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月11.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!月12.Value, Fields!产品类别.Value=="培训")==0,"",SumIf(Fields!月12.Value, Fields!产品类别.Value=="培训"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="培训")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>总计</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>6</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>开发</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月2.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月3.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月4.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月5.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月6.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月7.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月8.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月9.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月10.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月11.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月12.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="开发")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月2.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月3.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月4.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月5.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月6.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月7.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月8.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月9.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月10.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月11.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月12.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!功能内码.Value==0)+SumIf(Fields!月2.Value, Fields!功能内码.Value==0)+SumIf(Fields!月3.Value, Fields!功能内码.Value==0)+SumIf(Fields!月4.Value, Fields!功能内码.Value==0)+SumIf(Fields!月5.Value, Fields!功能内码.Value==0)+SumIf(Fields!月6.Value, Fields!功能内码.Value==0)+SumIf(Fields!月7.Value, Fields!功能内码.Value==0)+SumIf(Fields!月8.Value, Fields!功能内码.Value==0)+SumIf(Fields!月9.Value, Fields!功能内码.Value==0)+SumIf(Fields!月10.Value, Fields!功能内码.Value==0)+SumIf(Fields!月11.Value, Fields!功能内码.Value==0)+SumIf(Fields!月12.Value, Fields!功能内码.Value==0)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>总计</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>6</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>小计</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月1.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月1.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="开发")))SumIf(Fields!月1.Value, Fields!产品类别.Value=="")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月2.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月2.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月3.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月3.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月4.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月4.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月5.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月5.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月6.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月6.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月7.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月7.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月8.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月8.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月9.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月9.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!月10.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="开发"))==0,"",(SumIf(Fields!月10.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="开发")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月11.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月12.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!月1.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月1.Value, Fields!产品类别.Value=="")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月2.Value, Fields!产品类别.Value=="")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月3.Value, Fields!产品类别.Value=="")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月4.Value, Fields!产品类别.Value=="")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月5.Value, Fields!产品类别.Value=="")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月6.Value, Fields!产品类别.Value=="")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月7.Value, Fields!产品类别.Value=="")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月8.Value, Fields!产品类别.Value=="")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月9.Value, Fields!产品类别.Value=="")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月10.Value, Fields!产品类别.Value=="")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月11.Value, Fields!产品类别.Value=="")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="产品")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="服务费")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="耗材")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="培训")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="开发")+SumIf(Fields!月12.Value, Fields!产品类别.Value=="")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <GroupColumn>部门</GroupColumn>
+      <OrderColumn>排序</OrderColumn>
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+      <Enabled>true</Enabled>
+      <TableGroupFooterSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting">
+              <Value>小计</Value>
+              <Style>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月1.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月2.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月3.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月4.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月5.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月6.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月7.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月8.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月9.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月10.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月11.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!月12.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Sum(Fields!合计.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>11.5</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableGroupFooterSettings>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

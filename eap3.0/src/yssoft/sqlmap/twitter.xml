@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+	<!-- 获取类型列表 -->
+	<select id="getAllTwitterType" resultClass="java.util.HashMap" >
+		select t.iid, t.ipid, t.ccode, t.cname, t.ihot, t.cmemo, t.imaker, 
+		(select x.cname from hr_person x  where x.iid = t.imaker) as smaker , t.dmaker,
+			 ( select dbo.twitter_str(t.iid) ) person, ( select dbo.twitter_userName(t.iid)) personName
+		 from OA_twitterclass t
+		 order by t.ccode
+	</select>
+	
+	<!-- 添加类型 -->
+	<insert id="add_twitterType" parameterClass="yssoft.vos.twitter.TwitterTypeVo">
+		insert into OA_twitterclass( ipid, ccode, cname, ihot, cmemo, imaker, dmaker) 
+			values ( #ipid#, #ccode#, #cname#, #ihot#, #cmemo#, #imaker#, #dmaker#)
+	   <selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey>
+	</insert>
+	
+	<!-- 修改类型 -->
+	<update id="update_twitterType" parameterClass="yssoft.vos.twitter.TwitterTypeVo">
+		update OA_twitterclass set ipid=#ipid#, ccode=#ccode#, cname=#cname#, ihot=#ihot#, cmemo=#cmemo#, imaker=#imaker#, dmaker=#dmaker#
+			where iid=#iid#	
+	</update>
+	
+	<!-- 删除类型 -->
+	<delete id="delete_twitterType" parameterClass="int">
+		 delete OA_twitterclass where iid=#iid#
+	</delete>
+	
+	
+	<!-- 添加类型对应的管理员 -->
+	<insert id="add_twitterTypeAdmin" parameterClass="yssoft.vos.twitter.TwitterTypeAdminVo">
+		insert into OA_twitterclasss(itwitterclass, iperson) 
+			values (#itwitterclass#, #iperson#)
+	</insert>
+	
+	<!-- 修改类型 对应的管理员-->
+	<update id="update_twitterTypeAdmin" parameterClass="yssoft.vos.twitter.TwitterTypeVo">
+		update OA_twitterclasss set ipid=#ipid#, ccode=#ccode#, cname=#cname#, ihot=#ihot#, cmemo=#cmemo#, imaker=#imaker#, dmaker=#dmaker#
+			where iid=#iid#	
+	</update>
+	
+	<!-- 删除类型对应的管理员 -->
+	<delete id="delete_twitterTypeAdmin" parameterClass="int">
+		 delete OA_twitterclasss where itwitterclass=#iid#
+	</delete>
+	
+	<!-- 发帖 -->
+	<insert id="add_twitter" parameterClass="yssoft.vos.twitter.TwitterVo">
+		insert into OA_twitter( cname, cdetail, itype, bpopclassic, istatus, bhide, imaker, 
+		dmaker, iread, ibrowse, iwriteback, dwriteback, irecommend) 
+			values ( #cname#, #cdetail#, #itype#, #bpopclassic#, #istatus#, #bhide#, #imaker#, 
+		#dmaker#, #iread#, #ibrowse#, #iwriteback#, #dwriteback#, #irecommend#)
+		<selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	    </selectKey>
+	</insert>
+	
+	<!-- 修改帖子 -->
+	<update id="update_twitter" parameterClass="yssoft.vos.twitter.TwitterVo">
+		update OA_twitter set 1=1
+		  <isNotEmpty prepend="," property="cname"> 
+		  	cname=#cname#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="cdetail"> 
+		  	cdetail=#cdetail#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="itype"> 
+		  	itype=#itype#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="bpopclassic"> 
+		  	bpopclassic=#bpopclassic#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="istatus"> 
+		  	istatus=#istatus#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="bhide"> 
+		  	bhide=#bhide#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="imaker"> 
+		  	imaker=#imaker#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="dmaker"> 
+		  	dmaker=#dmaker#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="iread"> 
+		  	iread=#iread#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="ibrowse"> 
+		  	ibrowse=#ibrowse#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="iwriteback"> 
+		  	iwriteback=#iwriteback#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="dwriteback"> 
+		  	dwriteback=#dwriteback#
+		  </isNotEmpty>
+		  <isNotEmpty prepend="," property="irecommend"> 
+		  	irecommend=#irecommend#
+		  </isNotEmpty>
+			where iid=#iid#	
+	</update>
+	
+	<!-- 置精华帖 -->
+	<update id="addCream_twitter" parameterClass="int">
+		update OA_twitter set bpopclassic=1
+			where iid=#iid#	
+	</update>
+	
+	<!-- 重新发布帖子 -->
+	<update id="reIssue_twitter" parameterClass="int">
+		update OA_twitter set istatus=1
+			where iid=#iid#	
+	</update>
+	
+	<!-- 删帖 -->
+	<delete id="delete_twitter" parameterClass="int">
+		 delete OA_twitter where iid=#iid#
+	</delete>
+	
+	<!-- 累加帖子浏览计数 -->
+	<update id="addUpRead_twitter" parameterClass="int">
+		update OA_twitter set iread = (iread+1)
+			where iid=#iid#
+	</update>
+	
+	<!-- 累加帖子回复计数 -->
+	<update id="addUpBrowse_twitter" parameterClass="int">
+		update OA_twitter set ibrowse = (ibrowse+1)
+			where iid=#iid#
+	</update>
+	
+	
+	
+	<!-- 热帖 -->
+	<select id="getHotTwitterList" resultClass="java.util.HashMap" >
+		select top 6 t.*   from OA_twitter t, OA_twitterclass u
+			where t.itype = u.ccode
+			and t.ibrowse > u.ihot
+			order by t.dmaker desc
+
+	</select>
+	
+	<!-- 精华帖 -->
+	<select id="getCreamTwitterList" resultClass="java.util.HashMap" >
+		select top 6 * from OA_twitter where bpopclassic=1
+		 order by dmaker desc
+	</select>	
+	
+	<!-- 首页统计 -->
+	<select id="getStatForMainView" parameterClass="int" resultClass="java.util.HashMap" >
+		select a.todayTopic, b.totalTopic, c.totalReply, d.creamTopic, e.myIssuedTopic, f.mySavedTopic, g.hotTopic
+		
+		 from (  select count(iid) as todayTopic from OA_twitter where convert(varchar(10),dmaker,120)=convert(varchar(10),getdate(),120)  ) as a,
+		( select count(iid) as totalTopic from OA_twitter ) as b,
+		( select sum(ibrowse) as totalReply from OA_twitter  ) as c,
+		( select count(iid) as creamTopic from OA_twitter where bpopclassic=1 ) as d,
+		( select count(iid) as myIssuedTopic from OA_twitter where imaker = #imaker# and istatus =1 ) e,
+		( select count(iid) as mySavedTopic from OA_twitter where imaker = #imaker# and istatus =0 ) f,
+		( select count( t.iid ) as hotTopic  from OA_twitter t, OA_twitterclass u
+			where t.itype = u.ccode
+			and t.ibrowse > u.ihot ) g
+		
+
+	</select>
+	
+	
+	
+	<!-- 新增回复 -->
+	<insert id="add_twitterReply" parameterClass="yssoft.vos.twitter.TwitterReplyVo">
+		insert into OA_twitters ( itwitter, cdetail, bhide, imaker, dmaker )
+			values ( #itwitter#, #cdetail#, #bhide#, #imaker#, #dmaker# )
+		<selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	    </selectKey>
+	</insert>
+	
+	<!-- 修改回复 -->
+	<update id="update_twitterReply" parameterClass="yssoft.vos.twitter.TwitterReplyVo">
+		update OA_twitters set itwitter=#itwitter#, cdetail=#cdetail#, bhide=#bhide#, imaker=#imaker#, dmaker=#dmaker#
+			where iid=#iid#	
+	</update>
+	
+	<!-- 删除回复 -->
+	<delete id="delete_twitterReply" parameterClass="int">
+		 delete OA_twitters where itwitter=#itwitter#
+	</delete>
+	
+	<!-- 查询回复 -->
+	<select id="get_TwitterReply" parameterClass="int" resultClass="java.util.HashMap" >
+		select iid, itwitter, cdetail, bhide, imaker, dmaker 
+		from OA_twitters
+		where itwitter=#itwitter#
+	</select>
+	
+	
+	
+	<!-- 查询主界面所有类型 主题等 -->
+	<select id="getAllMainViewTwitterType" parameterClass="int" resultClass="java.util.HashMap" >
+
+		select l.ccode, l.cname, m.ibrowse, m.topic, m.todayTopic, m.dwriteback from OA_twitterclass l
+		
+		left join
+		
+		( select A.itype, A.topic, A.ibrowse, isnull(B.todayTopic,0) as todayTopic, C.dwriteback from 
+		(select itype, count(iid) as topic, sum(ibrowse) as ibrowse from OA_twitter group by itype) A
+		left join
+		<!--(select itype,count(iid) as todayTopic from OA_twitter where convert(varchar(10),dmaker,120)=convert(varchar(10),getdate(),120) group by itype) B  2015-06-03 SZC 注-->
+		(select itype,count(iid) as todayTopic from OA_twitter where convert(varchar(10),getdate(),120)>= convert(varchar(10),dmaker,120) group by itype) B
+		on A.itype=B.itype
+		left join
+		<!--(select itype,max(dwriteback) as dwriteback from OA_twitter  group by itype) C  2015-06-03 SZC 注-->
+		(select itype,max(dmaker) as dwriteback from OA_twitter  group by itype) C
+		on B.itype=C.itype ) m
+		
+		on l.ccode = m.itype
+		
+		order by l.ccode
+	</select>
+	
+	<parameterMap class="map" id="personwbParams"> 
+		<!-- 自定义sql -->  
+		<parameter property="sql" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />   
+		<!-- 每页的大小(行数) -->
+		<parameter property="pagesize" javaType="int" jdbcType="int" mode="IN" /> 
+		<!-- 要显示的页 -->
+		<parameter property="curpage" javaType="int" jdbcType="int" mode="IN" />
+		 <!-- 排序语句 -->  
+		<parameter property="orderSql" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+		<!-- 主键 -->
+		<parameter property="keyfield" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+	</parameterMap>  
+
+	<!-- 查询列表数据 -->
+<!--	<select id="getAllListViewTwitterTitle" parameterClass="int" resultClass="java.util.HashMap" >-->
+<!---->
+<!--		 select t.iid, t.cname, t.cdetail, t.itype, (select cname  from OA_twitterclass where   t.itype=ccode ) as typeName , t.bpopclassic, t.istatus, t.bhide, t.imaker, -->
+<!--		t.dmaker, t.iread, t.ibrowse, t.iwriteback, t.dwriteback, t.irecommend,-->
+<!--		l.departcname, l.postcname, l.cname iname-->
+<!--		-->
+<!--		from OA_twitter t,-->
+<!--		( select p.iid personiid, d.cname departcname,j1.cname ijob1cname,j2.cname ijob2cname,pt.cname postcname,r.iid roleiid,r.cname rolecname,r.buse rolebuse,p.* from hr_person p-->
+<!--		left join hr_department d on p.idepartment=d.iid-->
+<!--		left join hr_job j1 on p.ijob1 = j1.iid-->
+<!--		left join hr_job j2 on p.ijob2 = j2.iid-->
+<!--		left join hr_post pt on p.ipost = pt.iid-->
+<!--		-->
+<!--		left join as_roleuser ru on p.iid=ru.iperson-->
+<!--		left join as_role r on ru.irole=r.iid -->
+<!---->
+<!--		where r.buse=1 ) l-->
+<!---->
+<!--		where t.itype = #itype#-->
+<!--		and  t.imaker = l.personiid -->
+<!--		-->
+<!--	</select>	-->
+
+		
+	
+	
+	
+	
+	
+<!--	<select id="getAllListViewTwitterTitle_sum" parameterClass="java.util.HashMap" resultClass="int" >-->
+<!---->
+<!--		select count(*)-->
+<!--		-->
+<!--		from OA_twitter t,-->
+<!--		( select p.iid personiid, d.cname departcname,j1.cname ijob1cname,j2.cname ijob2cname,pt.cname postcname,r.iid roleiid,r.cname rolecname,r.buse rolebuse,p.* from hr_person p-->
+<!--		left join hr_department d on p.idepartment=d.iid-->
+<!--		left join hr_job j1 on p.ijob1 = j1.iid-->
+<!--		left join hr_job j2 on p.ijob2 = j2.iid-->
+<!--		left join hr_post pt on p.ipost = pt.iid-->
+<!--		-->
+<!--		left join as_roleuser ru on p.iid=ru.iperson-->
+<!--		left join as_role r on ru.irole=r.iid -->
+<!---->
+<!--		where r.buse=1 ) l-->
+<!---->
+<!--		where t.itype = #itype#-->
+<!--		and  t.imaker = l.personiid-->
+<!--		-->
+<!--	</select>	-->
+	
+
+	<!-- 查询detail主表 -->
+	<select id="getDetailViewOwner" parameterClass="int"  resultClass="java.util.HashMap" >		
+		select top 1 t.iid, t.cname,convert(nvarchar(4000),t.cdetail) cdetail,t.itype, (select cname  from OA_twitterclass where   t.itype=ccode ) as typeName, t.bpopclassic, t.istatus, t.bhide, t.imaker, t.dmaker, t.iread, t.ibrowse, t.iwriteback, t.dwriteback, t.irecommend,l.departcname, l.postcname, l.cname iname
+			
+		from OA_twitter t,
+					( select p.iid personiid, d.cname departcname,j1.cname ijob1cname,j2.cname ijob2cname,pt.cname postcname,r.iid roleiid,r.cname rolecname,r.buse rolebuse,p.* from hr_person p
+		left join hr_department d on p.idepartment=d.iid
+		left join hr_job j1 on p.ijob1 = j1.iid
+		left join hr_job j2 on p.ijob2 = j2.iid
+		left join hr_post pt on p.ipost = pt.iid
+		
+		left join as_roleuser ru on p.iid=ru.iperson
+		left join as_role r on ru.irole=r.iid 
+		where r.buse=1 ) l
+		where
+		 t.imaker = l.personiid
+		and bhide=0
+		and t.iid=#iid#
+	</select>	
+
+	<!-- 查询detail回复 -->
+<!--	<select id="getAllDetailViewReply" resultClass="java.util.HashMap" >-->
+<!--		select t.iid, t.itwitter, t.cdetail, t.bhide, t.imaker, t.dmaker,l.departcname, l.postcname, l.cname iname-->
+<!--			from OA_twitters t , -->
+<!---->
+<!--		( select p.iid personiid, d.cname departcname,j1.cname ijob1cname,j2.cname ijob2cname,pt.cname postcname,r.iid roleiid,r.cname rolecname,r.buse rolebuse,p.* from hr_person p-->
+<!--		left join hr_department d on p.idepartment=d.iid-->
+<!--		left join hr_job j1 on p.ijob1 = j1.iid-->
+<!--		left join hr_job j2 on p.ijob2 = j2.iid-->
+<!--		left join hr_post pt on p.ipost = pt.iid-->
+<!--		-->
+<!--		left join as_roleuser ru on p.iid=ru.iperson-->
+<!--		left join as_role r on ru.irole=r.iid -->
+<!--		where r.buse=1 ) l-->
+<!--		where itwitter=#twitterIid#-->
+<!--		and  t.imaker = l.personiid-->
+<!--	</select>	-->
+</sqlMap>

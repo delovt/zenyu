@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*"
+                width="100%" height="100%" creationComplete="CorpCmdPersonTreeXml();"
+                styleName="contentHDividedBox">
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+
+        import yssoft.models.ConstsModel;
+
+        [Bindable]
+        public static var br:ArrayCollection = new ArrayCollection([
+            {label:"分配公司", name:"assCorp"        },
+            {label:"密码重置", name:"neoPassWord"    }
+
+        ]);
+
+        public var currid:int;
+        ]]>
+	</fx:Script>
+    <fx:Script source="../../../yssoft/scripts/CorpCmdPersonViewScript.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <s:Label styleName="contentTitle" text="组织结构"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_corpCmdPerson" width="100%" height="100%"
+                                 click="onTreeClick(event)"/>
+        </mx:HBox>
+    </mx:VBox>
+
+
+    <mx:HBox width="80%" height="100%" styleName="centerbg4">
+        <mx:VBox width="100%" height="100%" verticalGap="0">
+            <mx:ApplicationControlBar width="100%" height="32" styleName="centertop">
+                <comps:LinkBarVboxComps id="lbr_corpCmdPerson" width="15%" height="25"
+                                        dataProvider="{ConstsModel.LBRITEM}"
+                                        onDeleteEvent="onDelete(event);" onEditEvent="onEdit(event)"
+                                        onGiveUpEvent="onGiveUp(event);" onNewEvent="onNew(event)"
+                                        onSaveEvent="onSave(event)" styleName="contentButtonBar"/>
+                <s:Spacer width="10"/>
+
+
+                <mx:ButtonBar id="myButtonBar" height="25" dataProvider="{br}"
+                              itemClick="myButtonbar_itemClickHandler(event)"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox width="100%" verticalGap="0" paddingLeft="10" paddingRight="10">
+                <mx:Canvas id="formShowArea" width="100%" height="100%"
+                           horizontalScrollPolicy="off">
+                </mx:Canvas>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:HBox>
+
+</mx:HDividedBox>

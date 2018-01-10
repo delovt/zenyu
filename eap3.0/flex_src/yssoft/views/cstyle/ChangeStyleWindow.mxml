@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window:CRMwindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:window="yssoft.comps.window.*" 
+				  width="278" height="300" title="切换皮肤" myClose="crmwindow1_myCloseHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			
+			import yssoft.tools.ChangeSkinUtil;
+			protected function onClickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var path:String="yssoft/styles/"+(event.currentTarget as Button).name+".swf";
+				var old:String=null;
+				if((event.currentTarget as Button).name=="CRMstyle"){
+					old="yssoft/styles/CRMstyle1.swf";
+				}else{
+					old="yssoft/styles/CRMstyle.swf";
+				}
+				//var c:ChangeSkinUtil;
+				ChangeSkinUtil.changeSkin(path,old);
+			}
+			
+			protected function crmwindow1_myCloseHandler(event:Event):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<window:layout>
+		<s:VerticalLayout horizontalAlign="center"/>
+	</window:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:Button label="银灰" name="CRMstyle" click="onClickHandler(event)"/>
+	<s:Button label="红色" name="CRMstyle1" click="onClickHandler(event)"/>
+</window:CRMwindow>

@@ -1,0 +1,39 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!-- 调试服务申请 - SDY                   -->
+
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_sa_opportunity" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,isourceregedit,isource,icustomer,iheadcust,cname,iperson,idepartment,isalearea,dforecast,cproduct,fforecast,fprobability,
+            cdetail,cdefine1,cdefine2,cdefine3,cdefine4,cdefine5,cdefine6,cdefine7,iphase,istatus,dfact,icompetitor,ffact,ccbidding,cbidding,ibidperson,cbidresult,cbidanalyze,imaker,dmaker,iverify,dverify,cmemo,iisource,ccompetitor
+            from sa_opportunity 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_sa_opportunity" parameterClass="java.util.HashMap">
+            insert into sa_opportunity(
+            	isourceregedit,isource,icustomer,iheadcust,cname,iperson,idepartment,isalearea,dforecast,cproduct,fforecast,fprobability,
+           		cdetail,cdefine1,cdefine2,cdefine3,cdefine4,cdefine5,cdefine6,cdefine7,iphase,istatus,dfact,icompetitor,ffact,ccbidding,cbidding,ibidperson,cbidresult,cbidanalyze,imaker,dmaker,iverify,dverify,cmemo,iisource,ccompetitor
+            ) 
+            values (
+           		#isourceregedit#,#isource#,#icustomer#,#iheadcust#,#cname#,#iperson#,#idepartment#,#isalearea#,#dforecast#,#cproduct#,#fforecast#,#fprobability#,
+				#cdetail#,#cdefine1#,#cdefine2#,#cdefine3#,#cdefine4#,#cdefine5#,#cdefine6#,#cdefine7#,#iphase#,#istatus#,#dfact#,#icompetitor#,#ffact#,#ccbidding#,#cbidding#,#ibidperson#,#cbidresult#,#cbidanalyze#,#imaker#,#dmaker#,#iverify#,#dverify#,#cmemo#,#iisource#,#ccompetitor#
+			)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_sa_opportunity" parameterClass="java.util.HashMap">
+            update sa_opportunity set 
+            isourceregedit=#isourceregedit#,isource=#isource#,icustomer=#icustomer#,iheadcust=#iheadcust#,cname=#cname#,iperson=#iperson#,idepartment=#idepartment#,isalearea=#isalearea#,dforecast=#dforecast#,cproduct=#cproduct#,fforecast=#fforecast#,fprobability=#fprobability#,
+			cdetail=#cdetail#,cdefine1=#cdefine1#,cdefine2=#cdefine2#,cdefine3=#cdefine3#,cdefine4=#cdefine4#,cdefine5=#cdefine5#,cdefine6=#cdefine6#,cdefine7=#cdefine7#,iphase=#iphase#,istatus=#istatus#,dfact=#dfact#,icompetitor=#icompetitor#,ffact=#ffact#,ccbidding=#ccbidding#,cbidding=#cbidding#,
+			ibidperson=#ibidperson#,cbidresult=#cbidresult#,cbidanalyze=#cbidanalyze#,imaker=#imaker#,dmaker=#dmaker#,iverify=#iverify#,dverify=#dverify#,cmemo=#cmemo#,iisource=#iisource#,ccompetitor=#ccompetitor#
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_sa_opportunity" parameterClass="String">
+            delete from sa_opportunity
+            where $condition$
+     </delete>
+</sqlMap>

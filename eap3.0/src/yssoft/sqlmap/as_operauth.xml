@@ -1,0 +1,74 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：
+ * SqlMap表名：as_operauth
+ * 创建人：刘磊
+ * 创建时间：2011-10-5 16:28:29
+ * 修改人：刘磊
+ * 修改时间：2011-10-5 16:28:29
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--记录存在1，0-->
+     <select id="get_exists_as_operauth" parameterClass="int" resultClass="int">
+            select count(1) from as_operauth
+			where iid=#iid#
+     </select>
+     <!--获得一条记录-->
+     <select id="get_bykey_as_operauth" parameterClass="int" resultClass="yssoft.vos.as_operauthVo">
+            select iid,irole,copercode from as_operauth 
+			where iid=#iid#
+     </select>
+     <!--获得记录列表-->
+     <select id="get_bywhere_as_operauth" parameterClass="String" resultClass="yssoft.vos.as_operauthVo">
+            select iid,irole,copercode from as_operauth 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_as_operauth" parameterClass="yssoft.vos.as_operauthVo">
+            insert into as_operauth(irole,copercode) 
+            values (#irole#,#copercode#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_as_operauth" parameterClass="yssoft.vos.as_operauthVo">
+            update as_operauth set irole=#irole#,copercode=#copercode# 
+            where iid=#iid#
+     </update>
+     <!--删除一条记录-->
+     <delete id="delete_bykey_as_operauth" parameterClass="int">
+            delete from as_operauth
+            where iid=#iid#
+     </delete>
+     <!--删除多条记录-->
+    <delete id="delete_bywhere_as_operauth" parameterClass="String">
+        delete from as_operauth
+        where $condition$
+    </delete>
+
+    <!--删除多条人员操作权限记录-->
+    <delete id="delete_bywhere_as_opersauths" parameterClass="String">
+        delete from as_opersauths
+        where $condition$
+    </delete>
+
+    <!--获得人员记录列表-->
+    <select id="get_bywhere_as_opersauths" parameterClass="String" resultClass="yssoft.vos.as_opersauthsVo">
+        select iid,iperson,copercode from as_opersauths
+        where $condition$
+    </select>
+
+    <!--增加一条人员权限记录-->
+    <insert id="add_as_opersauths" parameterClass="yssoft.vos.as_opersauthsVo">
+        insert into as_opersauths(iperson,copercode)
+        values (#iperson#,#copercode#)
+        <selectKey resultClass="int" keyProperty="iid" >
+            select @@identity as iid
+        </selectKey>
+    </insert>
+</sqlMap>

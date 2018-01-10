@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" 
+						  focusEnabled="true" xmlns:comps="yssoft.comps.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.utils.ObjectUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var _data_iconsult:String;
+			[Bindable]
+			public var iid:int=0;
+			public function get data_iconsult():String{
+				return csl_textinput.tnp_text_str;
+			}
+			public function set data_iconsult(val:String):void{
+				this._data_iconsult=val;
+			}
+			
+			private var _data_iconsult_str:String;
+			public function set data_iconsult_str(value:String):void{
+				this._data_iconsult_str=value;
+			}
+			public function get data_iconsult_str():String{
+				return this._data_iconsult_str;
+			}
+			
+			protected function csl_textinput_searchChangeHandler(event:Event):void
+			{
+				data.iconsult=csl_textinput.value;
+				data[dataGridListData.dataField]=csl_textinput.tnp_text_str;
+			}
+			
+			protected function csl_textinput_valueChangeHandler(event:Event):void
+			{
+				data.iconsult=0;
+				data[dataGridListData.dataField]="";
+
+				_data_iconsult="";
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<mx:HBox width="100%" horizontalAlign="center">
+		
+		<comps:ConsultTextInput valueChange="csl_textinput_valueChangeHandler(event)" editable="true" iid="15" value="{data.iconsult}" bindValueField="iid" bindLabelField="cname" tnp_text_str="{data[dataGridListData.dataField]}" 
+								id="csl_textinput" visibleIcon="true" 
+								searchChange="csl_textinput_searchChangeHandler(event)" top="0" left="0" right="0" bottom="0"/>
+		
+	</mx:HBox>
+	
+</s:MXDataGridItemRenderer>

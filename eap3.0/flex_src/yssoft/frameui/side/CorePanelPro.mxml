@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" currentState="basicState"
+         creationComplete="myinit(event)">
+    <fx:Metadata>
+        [Event(name="listItemClick", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.controls.Spacer;
+        import mx.events.CollectionEvent;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+
+        import yssoft.models.CRMmodel;
+
+        //是否收起
+        private var _close:Boolean = false;
+        //标题
+        [Bindable]
+        public var title:String;
+        //绑定按钮
+        private var _buttonList:ArrayCollection;
+        [Bindable]
+        private var _AllData:ArrayCollection;
+
+
+        public function get AllData():ArrayCollection {
+            return _AllData;
+        }
+
+        public function set AllData(value:ArrayCollection):void {
+            _AllData = value;
+        }
+
+
+        //list数据集合
+        //private var _listDatas:ArrayCollection = new ArrayCollection();
+        public var listDatas:ArrayCollection = new ArrayCollection();
+
+        protected function Title_clickHandler(event:MouseEvent):void {
+            if (close) {
+                close = false;
+            } else {
+                close = true;
+            }
+        }
+
+        public function get close():Boolean {
+            return _close;
+        }
+
+        public function set close(value:Boolean):void {
+            _close = value;
+            if (value) {
+                this.currentState = "closeState";
+                imageRotateClose.stop();
+                imageRotateClose.play();
+
+            } else {
+                this.currentState = "basicState";
+                imageRotateOpen.stop();
+                imageRotateOpen.play();
+            }
+        }
+
+        public function get buttonList():ArrayCollection {
+            return _buttonList;
+        }
+
+        public function set buttonList(value:ArrayCollection):void {
+            _buttonList = value;
+
+            var label:Label;
+            if (value.length == 0) {
+                return;
+            } else {
+                titleButtons.removeAllChildren();
+                var s:Spacer = new Spacer();
+                s.percentWidth = 100;
+                titleButtons.addChild(s);
+
+                var i:int = 0;
+
+                for each(var item:Object in value) {
+
+                    if (i == 0) {
+                        label = new Label();
+                        label.text = "[";
+                        titleButtons.addChild(label);
+                    } else {
+                        label = new Label();
+                        label.text = "|";
+                        titleButtons.addChild(label);
+                    }
+                    var titleButton:Label = new Label();
+                    titleButton.text = item.label;
+                    titleButton.buttonMode = true;
+                    titleButton.addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
+                        if (item.buttonEventListener)
+                            item.buttonEventListener(event);
+                        event.stopPropagation();
+                    });
+                    item.button = titleButton;
+                    titleButtons.addChild(titleButton);
+                    i++;
+                }
+
+            }
+            label = new Label();
+            label.text = "]";
+            titleButtons.addChild(label);
+        }
+
+        public function refreshListHeight():void {
+            listHegithResize.heightTo = this.myList.measureHeightOfItems();
+            listHegithResize.stop();
+            listHegithResize.play();
+        }
+
+        public function initListDatasEventListener():void {
+            listDatas.addEventListener(CollectionEvent.COLLECTION_CHANGE, function ():void {
+                refreshListHeight();
+                close = false;
+            });
+            barShow.addEventListener(MouseEvent.MOUSE_OVER, hbox1_mouseOverHandler);
+            barShow.addEventListener(MouseEvent.MOUSE_OUT, hbox1_mouseOutHandler);
+        }
+
+        private function myinit(event:FlexEvent):void {
+            initListDatasEventListener();
+        }
+
+        //条目内码
+        public function setListSelectItem(iid:int):void {
+            for each(var item:Object in listDatas) {
+                if (item.iid == iid) {
+                    myList.selectedItem = item;
+                }
+            }
+        }
+
+        private var _setListSelectItemiid:int;
+
+        public function get setListSelectItemiid():int {
+            return _setListSelectItemiid;
+        }
+
+        public function set setListSelectItemiid(value:int):void {
+            _setListSelectItemiid = value;
+            for each(var item:Object in listDatas) {
+                if (item.iid == value) {
+                    myList.selectedItem = item;
+                }
+            }
+        }
+
+
+        public function clearSelecte():void {
+            this.myList.selectedItem = null;
+        }
+
+        private function myList_itemClickHandler(event:ListEvent):void {
+            dispatchEvent(new Event("listItemClick"));
+        }
+
+        protected function hbox1_mouseOverHandler(event:MouseEvent):void {
+
+            titleButtonsFade.alphaTo = 1;
+            titleButtonsFade.stop();
+            titleButtonsFade.play();
+
+        }
+
+        protected function hbox1_mouseOutHandler(event:MouseEvent):void {
+
+            titleButtonsFade.alphaTo = 0;
+            titleButtonsFade.stop();
+            titleButtonsFade.play();
+        }
+        ]]>
+	</fx:Script>
+    <mx:states>
+        <s:State name="basicState"/>
+        <s:State name="closeState"/>
+    </mx:states>
+    <mx:transitions>
+        <s:Transition fromState="*" toState="*">
+            <s:Resize target="{panelContainer}" duration="200"/>
+        </s:Transition>
+    </mx:transitions>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="listHegithResize" target="{myList}" duration="200"/>
+        <s:Fade id="titleButtonsFade" target="{titleButtons}" duration="200"/>
+        <s:Resize id="listWidthResize" target="{myList}" duration="100"/>
+        <s:Rotate id="imageRotateOpen" target="{sideImage}" angleFrom="0" angleTo="90" applyChangesPostLayout="true"
+                  transformX="4" transformY="5" duration="200"/>
+        <s:Rotate id="imageRotateClose" target="{sideImage}" angleFrom="90" angleTo="0" applyChangesPostLayout="true"
+                  transformX="4" transformY="5" duration="200"/>
+    </fx:Declarations>
+    <mx:HBox width="100%" height="25" paddingLeft="7" styleName="frameListSideHbox" paddingTop="7" paddingRight="7"
+             id="barShow" horizontalGap="9"
+             click="Title_clickHandler(event)">
+        <mx:VBox height="100%" verticalAlign="top" paddingTop="2">
+            <s:Image id="sideImage" source="@Embed(source='/yssoft/assets/images/side_close.png')"/>
+        </mx:VBox>
+
+        <s:Label styleName="frameCoreSideLabel" text="{title}"/>
+        <mx:HBox id="titleButtons" width="100%" height="100%" alpha="0"/>
+    </mx:HBox>
+    <mx:VBox id="panelContainer" width="100%" height.basicState="100%" height.closeState="0" paddingTop="3"
+             verticalScrollPolicy="off" horizontalScrollPolicy="off">
+        <mx:List id="myList" borderVisible="false" paddingLeft="5" width="100%" dataProvider="{listDatas}" height="0"
+                 itemClick="myList_itemClickHandler(event)" selectionColor="{CRMmodel.listSelectionColor}"
+                 rollOverColor="{CRMmodel.listRollOverColor}"
+                 horizontalScrollPolicy="off" allowMultipleSelection="true"
+                 verticalScrollPolicy="off" variableRowHeight="true"
+                 itemRenderer="yssoft.frameui.side.CorePanelListRenderer"/>
+        <mx:HBox id="plusBox" horizontalAlign="right"/>
+    </mx:VBox>
+</mx:VBox>	

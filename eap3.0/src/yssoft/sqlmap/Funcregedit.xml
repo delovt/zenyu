@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 获取菜单列表 -->
+	<select id="get_all_funcregedits" resultClass="java.util.HashMap" >
+		Select  iid,ipid, ccode, cname, cprogram, ctable, iworkflow, iform, coperauth, cdataauth，bquery, blist,brepeat,ilistset,cparameter,boperauth,bdataauth,bdataauth1,bdataauth2,
+		brelation,bprint,iimage,bvouchform,buse,bbind,bworkflowmodify
+		 from as_funcregedit where 1=1  
+		order by ccode
+	</select>
+	
+	<!-- 通过数据字典获取表中必输项的字段 -->
+	<select id="get_notnull_fields" parameterClass="string" resultClass="java.util.HashMap" >		
+		select cfield,ccaption,idatatype from ac_datadictionary where ctable=#tablename#
+	</select>
+	  
+	<!-- 添加功能注册表信息 -->
+	<insert id="add_Funcregedit" parameterClass="yssoft.vos.AsFuncregeditVO">
+		Insert Into dbo.as_funcregedit(ipid,ccode , cname , cprogram , ctable , iworkflow , iform , coperauth , cdataauth,bdictionary,bnumber,bquery,blist,
+					brepeat,ifuncregedit,bworkflow,cparameter,boperauth,bdataauth,bdataauth1,bdataauth2,brelation,bprint,iimage,bvouchform,buse,bbind,ccaptionfield,bworkflowmodify) 
+ 								Values(#ipid#,#ccode# , #cname# , #cprogram# , #ctable# , #iworkflow# , #iform# , #coperauth# , #cdataauth#,#bdictionary#,#bnumber#,
+ 								#bquery#,#blist#,#brepeat#,#ifuncregedit#,#bworkflow#,#cparameter#,#boperauth#,#bdataauth#,#bdataauth1#,#bdataauth2#,#brelation#,
+ 								#bprint#,#iimage#,#bvouchform#,#buse#,#bbind#,#ccaptionfield#,#bworkflowmodify#)
+ 		<selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey>
+	</insert>
+	
+	<update id="update_Funcregedit" parameterClass="yssoft.vos.AsFuncregeditVO">
+		begin
+			Update as_funcregedit SET  ipid=#ipid# ,  ccode=#ccode# ,  cname=#cname# ,  cprogram=#cprogram# ,  ctable=#ctable# ,  
+			iworkflow=#iworkflow# ,  iform=#iform# ,  coperauth=#coperauth# ,  cdataauth=#cdataauth#, bdictionary=#bdictionary#,
+			bnumber=#bnumber#,bquery=#bquery#,blist=#blist#,brepeat=#brepeat#,ifuncregedit=#ifuncregedit#,bworkflow=#bworkflow#,
+			cparameter=#cparameter#,boperauth=#boperauth#,bdataauth=#bdataauth#,bdataauth1=#bdataauth1#,bdataauth2=#bdataauth2#,
+			brelation=#brelation#,bprint=#bprint#,iimage=#iimage#,bvouchform=#bvouchform#,buse=#buse#,bbind=#bbind#,ccaptionfield=#ccaptionfield#,bworkflowmodify=#bworkflowmodify# 
+			Where iid=#iid#		
+			Update as_funcregedit set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+		end;
+	</update>
+	
+	<delete id="delete_Funcregedit" parameterClass="int">
+		 Delete as_funcregedit   Where iid=#iid#
+	</delete>
+	<!--cody by liu lei begin-->
+	  <select id="get_cname_FuncregeditByID" parameterClass="int" resultClass="String">
+		    select cname from as_funcregedit Where iid=#iid#
+	  </select>
+	<!--cody by liu lei end-->
+	
+	<!--cody by liu lei begin-->
+	  <select id="get_cparameter_FuncregeditByID" parameterClass="int" resultClass="String">
+		    select cparameter from as_funcregedit Where iid=#iid#
+	  </select>
+	<!--cody by liu lei end-->
+	
+	<select id="get_single_funcregedit" resultClass="java.util.HashMap" parameterClass="int">
+Select top 1  f.iid,f.ipid, f.ccode, f.cname, f.cprogram, f.ctable, f.iworkflow, f.iform, f.coperauth, f.cdataauth,f.bquery,
+f.ifuncregedit,f.ifuncregedit outifuncregedit, case when f.ifuncregedit>0 then f2.cname end as outtitle,f.blist,f.brepeat,f.ilistset,f.boperauth,f.bdataauth,
+f.brelation,f.bnumber,f.cparameter,f.bprint,f.iimage,f.bvouchform,f.buse,f.bbind,f.bworkflowmodify from as_funcregedit f
+left join as_menu f2 on f.ifuncregedit=f2.ifuncregedit where f.iid=#iid#
+	</select>
+	
+	<!-- 查询注册表找到所有主表 -->
+	<select id="get_all_funcregedit_bdataauth1" resultClass="java.util.HashMap">
+		select iid,cname,ctable from AS_funcregedit where bdataauth1=1
+	</select>
+	
+</sqlMap>

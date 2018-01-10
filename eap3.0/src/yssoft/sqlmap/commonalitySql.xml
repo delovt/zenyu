@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 根据表名，字段断名查询字段类型 -->
+	<select id="commonality.itype" resultClass="java.util.HashMap"  parameterClass="java.util.HashMap">
+		select cfield,dt.ctype type from ac_consultclm c
+		left join as_datatype dt on c.ifieldtype=dt.iid 
+		where   iconsult   =#iconsult# and cfield in ($cfieldSql$)
+	</select>
+	
+	<!-- 动态拼装Sql -->
+	 <select id="assembly_query_sql" resultClass="java.util.HashMap" parameterClass="string" remapResults="true">
+	 	$sql$
+	 </select>
+	 
+	 <!-- 查询表单信息 -->
+	 <!--修改人：XZQWJ 修改：2012-12-29 增加：0 brelation 字段含义：是否关联 -->
+	 <select id="query_vouchForm_child" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select vf.iid,vf.bmain,vf.ctable,vf.ivouch,d.ifuncregedit,vf.idatadictionary,d.cfield,dt.ctype,d.ilength,d.bprefix,
+		vf.ccaption,vf.idecimal,vf.bunnull,vf.bread,vf.beditread,
+		case when vf.cnewdefaultfix is null then vf.cnewdefault 
+		when vf.cnewdefaultfix='' then vf.cnewdefault
+		else vf.cnewdefaultfix end cnewdefault,
+		case when vf.ceditdefault is null then vf.ceditdedefaultfix 
+		when vf.ceditdefault='' then vf.ceditdedefaultfix 
+		else vf.ceditdefault end ceditdefault,
+		vf.cobjectname,vf.iobjecttype,ct.ctype objecttype,
+		vf.igroupno,vf.igrouprow,vf2.cobjectname ipgroup,vf.ichildno,
+		vf.iwidth,vf.iheight,vf.bshow,
+		vf.idatetype,d.bwfentry,d.bwfcd,d.cregularfunction,
+		d.cregularmessage,d.cunique,REPLACE(d.cfunction,'`','''') cfunction,
+		REPLACE(d.cresfunction,'`','''') cresfunction,
+		d.cresmessage,d.binvoiceuser,cc.iconsult,cc.iid iconsultConfiguration,c.ifuncregedit consultifuncregedit,
+		case when c.itype=0 then c.ctreesql else REPLACE(c.cgridsql,'@join','') end consultSql,
+		c.itype,c.bdataauth,c.ifuncregedit as cifuncregedit,cc.cconsulttable,cc.cconsultbkfld,cc.cconsultswfld,
+		cc.cconsultipvf,cc.bconsultmtbk,cc.bconsultendbk,cc.bconsultcheck,
+		cc.cconsultconfld,d.cresfunctionread,cc.cconsultfunction,cc.cconsultcondition,cc.cconsultedit,vf.bshowAddButton,
+		vf.bshowDeleteButton,vf.bshowCleanButton,vf.brelation,d.bintitle,isnull(d.bunique,0) bunique  
+		 from AC_vouchform vf 
+		left join AC_datadictionary d on vf.idatadictionary=d.iid and vf.ctable=d.ctable
+		left join as_datatype dt on dt.iid = d.idatatype
+		left join Ac_consultConfiguration cc on cc.idatadictionary = d.iid 
+		left join ac_consultset c on c.iid=cc.iconsult
+		left join ac_vouchform vf2 on vf.ipgroup=vf2.iid
+		left join as_controltype ct on vf.iobjecttype=ct.iid
+		where vf.ivouch=#ivouch# and vf.ipgroup=#ipgroup# and ct.ctype!='VBox' order by vf.ichildno
+	 </select>
+	 
+	 <!-- 查询表体信息 -->
+	  <!-- 查询表单信息 -->
+	 <select id="query_vouchForm_table" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select vf.iid,vf.bmain,vf.ctable,vf.ivouch,d.ifuncregedit,vf.idatadictionary,d.cfield,dt.ctype,d.ilength,d.bprefix,
+		vf.ccaption,vf.idecimal,vf.bunnull,vf.bread,vf.beditread,
+		case when vf.cnewdefaultfix is null then vf.cnewdefault 
+		when vf.cnewdefaultfix='' then vf.cnewdefault
+		else vf.cnewdefaultfix end cnewdefault,
+		case when vf.ceditdefault is null then vf.ceditdedefaultfix 
+		when vf.ceditdefault='' then vf.ceditdedefaultfix 
+		else vf.ceditdefault end ceditdefault,
+		vf.cobjectname,vf.iobjecttype,ct.ctype objecttype,
+		vf.igroupno,vf.igrouprow,vf2.cobjectname ipgroup,vf.ichildno,
+		vf.iwidth,vf.iheight,vf.bshow,
+		vf.idatetype,d.bwfentry,d.bwfcd,d.cregularfunction,
+		d.cregularmessage,d.cunique,REPLACE(d.cfunction,'`','''') cfunction,
+		REPLACE(d.cresfunction,'`','''') cresfunction,
+		d.cresmessage,d.binvoiceuser,cc.iconsult,
+		case when c.itype=0 then c.ctreesql else REPLACE(c.cgridsql,'@join','') end consultSql,
+		c.itype,c.bdataauth,c.ifuncregedit as cifuncregedit,cc.cconsulttable,cc.cconsultbkfld,cc.cconsultswfld,
+		cc.cconsultipvf,cc.bconsultmtbk,cc.bconsultendbk,cc.bconsultcheck,
+		cc.cconsultconfld,d.cresfunctionread,cc.cconsultfunction,cc.cconsultcondition,d.bintitle,isnull(d.bunique,0) bunique  
+		 from AC_vouchform vf 
+		left join AC_datadictionary d on vf.idatadictionary=d.iid 
+		left join as_datatype dt on dt.iid = d.idatatype
+		left join Ac_consultConfiguration cc on cc.idatadictionary = d.iid 
+		left join ac_consultset c on c.iid=cc.iconsult
+		left join ac_vouchform vf2 on vf.ipgroup=vf2.iid
+		left join as_controltype ct on vf.iobjecttype=ct.iid
+		where vf.ivouch=#ivouch# and vf.ctable=#ctable# and ct.ctype='DataGrid'
+	 </select>
+	 
+	 <!-- 查询关系 -->
+	 <select id="query_relationship" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+	 	select * from ac_tableRelationship where ifuncregedit=#ifuncregedit# and ctable=#ctable#
+	 </select>
+	 
+	 <!-- 查询分组 -->
+	 <select id="query_vouchFormGroup" resultClass="java.util.HashMap" parameterClass="int">
+	 	select vf.iid,cobjectname,vf.iobjecttype,c.ctype objecttype,igroupno,igrouprow,bshow,vf.ccaption,
+	 	d.cresfunctionread from AC_vouchform vf
+	 	left join as_controltype c on vf.iobjecttype=c.iid 
+	 	left join AC_datadictionary d on vf.idatadictionary=d.iid 
+	 	 where vf.ivouch=#ivouch# and c.ctype='VBox'
+	 	order by igroupno
+	 </select>
+	 
+<!-- 	 YJ Modify 2012-04-24 用于单据编码 添加字段bnumber-->
+	 <select id="query_vouch" resultClass="java.util.HashMap" parameterClass="int">
+<!-- 	 	select * from AC_vouch where ifuncregedit=#ifuncregedit# -->
+
+		select AC_vouch.iid,ifuncregedit,ccode,cname,ifunconsult,as_funcregedit.bnumber,btools,isnull(itools,0) itools from AC_vouch
+		left join (select iid,bnumber from as_funcregedit) as_funcregedit on AC_vouch.ifuncregedit=as_funcregedit.iid
+		where AC_vouch.ifuncregedit=#ifuncregedit#
+		 
+	 </select>
+	 
+	 
+	 <!-- add by zhong_jng 公共单据走得公共方法 -->
+	<!-- 新增 -->
+	<insert id="add_pm" parameterClass="java.util.HashMap" >
+		$sql$
+		<selectKey resultClass="int" keyProperty="iid" > 
+			SELECT @@IDENTITY AS iid 
+	    </selectKey>
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update_pm" parameterClass="string">
+		$sql$
+	</update>
+	
+	<!--  删除 -->
+	<delete id="remove_pm" parameterClass="string">
+		$sal$
+	</delete>
+	
+	<!-- 查询表中的所有只读列 -->
+	<select id="query_cresfunctionread" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select cfield,cresfunctionread from AC_datadictionary where ifuncregedit=#ifuncregedit# and ctable=#ctable# 
+		and cresfunctionread is not null and cresfunctionread!=''
+	</select>
+	
+	<select id="query_AS_funcregedit" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select  d.cfield,dt.ctype,d.ilength,d.bprefix,d.ctable,
+		0 bread,
+		#cobjectname# cobjectname,
+		d.bwfentry,d.bwfcd,d.cregularfunction,
+		d.cregularmessage,d.cunique,REPLACE(d.cfunction,'`','''') cfunction,REPLACE(d.cresfunction,'`','''') cresfunction,
+		d.cresmessage,d.binvoiceuser,cc.iconsult,c.iid iconsultConfiguration,c.ifuncregedit consultifuncregedit,
+		case when c.itype=0 then c.ctreesql else REPLACE(c.cgridsql,'@join','') end consultSql,
+		c.itype,c.bdataauth,cc.cconsulttable,cc.cconsultbkfld,cc.cconsultswfld,
+		cc.cconsultipvf,cc.bconsultmtbk,cc.bconsultendbk,cc.bconsultcheck,
+		cc.cconsultconfld,
+		cc.cconsultcondition,
+		  d.cresfunctionread 
+		 from  AC_datadictionary d 
+		left join as_datatype dt on dt.iid = d.idatatype
+		left join Ac_consultConfiguration cc on cc.idatadictionary = d.iid 
+		left join ac_consultset c on c.iid=cc.iconsult
+		where d.ifuncregedit=#ifuncregedit#
+		and cfield=#cfield#
+		<isNotEmpty prepend="and" property="ctable">
+			ctable=#ctable#
+		</isNotEmpty>
+	</select>
+	
+	<!-- 自动生成表单 -->
+	<!--修改人：XZQWJ 修改：2012-12-29 增加：0 brelation 字段含义：是否关联 -->
+	<select id="automatically_generated" resultClass="java.util.HashMap" parameterClass="int">
+		  select t.ctable,t.ctable as ctable_Name,0 idatadictionary,
+		'' idatadictionary_Name,'' ccaption,t.bmain,8 iobjecttype,
+		'表格' iobjecttype_Name,0 idecimal,0 bunnull,0 bread,null cnewdefault,null cnewdefaultfix,
+		null ceditdefault,0 igroupno,0 igrouprow,0 ipgroup,0 ichildno,0 iwidth,0 iheight,1 bshow
+		,3 idatetype,0 ifreezecount,0 bmultirow,'UI_'+t.ctable cobjectname,'' ceditdedefaultfix,0 bshowaddbutton,0 bshowdeletebutton,0 brelation,
+		0 bshowcleanbutton,0 beditread from ac_tableRelationship t where t.ifuncregedit=#ifuncregedit# and t.bMain=0
+	UNION 
+		select d.ctable,d.ctable as ctable_Name,d.iid idatadictionary,
+		d.cfield idatadictionary_Name,d.ccaption,t.bmain,3 iobjecttype,
+		'文本录入' iobjecttype_Name,0 idecimal,0 bunnull,0 bread,null cnewdefault,null cnewdefaultfix,
+		null ceditdefault,0 igroupno,0 igrouprow,0 ipgroup,0 ichildno,0 iwidth,0 iheight,1 bshow
+		,3 idatetype,0 ifreezecount,0 bmultirow,'UI_'+d.ctable+'_'+d.cfield cobjectname,'' ceditdedefaultfix,0 bshowaddbutton,0 bshowdeletebutton,0 brelation,
+		0 bshowcleanbutton,0 beditread from AC_datadictionary d
+		left join ac_tableRelationship t on d.ifuncregedit=t.ifuncregedit and d.ctable = t.ctable
+		 where d.ifuncregedit=#ifuncregedit#
+	</select>
+	
+	<select id="query_tree" resultClass="java.util.HashMap">
+	 select convert(varchar(60),iid) iid, ipid,cname,null ifuncregedit2 from as_funcregedit where bbind=1
+		union 
+		select convert(varchar(60),ifuncregedit)+'_'+convert(varchar(60),iid) as iid,ifuncregedit ipid,cmemo cname,ifuncregedit2 from AC_relationship 
+	</select>
+	
+	<!-- 查询单据关系 -->
+	<select id="query_relationship_sing" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select * from AC_relationship r where ifuncregedit=#ifuncregedit# and ipull=#idatadictionary# 
+	</select>
+	
+	<!-- 查询单据关系 -->
+	<select id="query_relationship_ifuncregedit2" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select * from AC_relationship r where ifuncregedit2=#ifuncregedit# and ipull=#idatadictionary#
+	</select>
+	
+	<!-- 查询赋值字段 -->
+	<select id="query_cfieldrelationship" resultClass="java.util.HashMap" parameterClass="int">
+		select r.ifuncregedit,c.*,isnull(cc.iconsult,0) iconsult,
+		cc.cconsulttable,
+		cc.cconsultbkfld,
+		cc.cconsultswfld,
+		cc.cconsultipvf,
+		cc.bconsultmtbk,
+		cc.bconsultendbk,
+		cc.bconsultcheck,
+		cc.cconsultconfld,
+		cc.benabled,
+		cc.cconsultcondition,co.ifuncregedit consultifuncregedit,
+		case when co.itype=0 then co.ctreesql else REPLACE(co.cgridsql,'@join','') end consultSql,
+				co.itype,co.bdataauth from ac_Relationship r
+		left join Ac_cfieldRelationship c on r.iid=c.iRelationship 
+		left join AC_datadictionary d on r.ifuncregedit=d.ifuncregedit and c.ctable2=d.ctable and d.cfield=c.cfield2 
+		left join Ac_consultConfiguration cc on cc.idatadictionary=d.iid 
+		left join dbo.ac_consultset co on cc.iconsult=co.iid where c.irelationship=#irelationship# order by c.ctable2
+	</select>
+	<!-- 查询触发表体参照 -->
+	<select id="query_Ac_triggerbodyconsult" resultClass="java.util.HashMap" parameterClass="int">
+		select t.*,c.iid iconsultConfiguration,
+		c.ifuncregedit consultifuncregedit,c.itype,c.bdataauth,
+		case when c.itype=0 then c.ctreesql else REPLACE(c.cgridsql,'@join','') end consultSql
+		  from Ac_triggerbodyconsult t
+		left join ac_consultset c on c.iid=t.iconsult where iconsultConfiguration=#iconsultConfiguration#
+	</select>
+	
+	<!-- 查询回写 原来有 r.bpull=1限制，后来去掉了，为了保证推式生单可以回写 ，以后可以考虑单独做一套查询及实现 -->
+	<!--<select id="query_AC_Write" resultClass="java.util.HashMap" parameterClass="int">
+		select w.*,case when t.ctable=w.ctable2 then 1 else 0 end bMain,r.ifuncregedit2 from AC_relationship r
+		inner join AC_Write w on r.iid=w.irelationship 
+		inner join as_funcregedit t on r.ifuncregedit2=t.iid
+		where r.bpull=1 and r.ifuncregedit=#ifuncregedit# order by ifuncregedit2,ctable2
+	</select>-->
+    <select id="query_AC_Write" resultClass="java.util.HashMap" parameterClass="int">
+        select w.*,case when t.ctable=w.ctable2 then 1 else 0 end bMain,r.ifuncregedit2 from AC_relationship r
+        inner join AC_Write w on r.iid=w.irelationship
+        inner join as_funcregedit t on r.ifuncregedit2=t.iid
+        where r.ifuncregedit=#ifuncregedit# order by ifuncregedit2,ctable2
+    </select>
+	
+		<!-- 查询用户(查询条件) -->
+	<parameterMap class="map" id="statementsParams"> 
+		<!-- 自定义sql -->  
+		<parameter property="csql" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />   
+	</parameterMap> 
+	
+<!-- 	<procedure id="get_statements_sql" resultClass="java.util.HashMap" parameterMap="statementsParams" remapResults="true"> -->
+<!-- 		<![CDATA[    -->
+<!-- 			{call p_crosstable(?)} -->
+<!-- 		  ]]> -->
+<!-- 	</procedure> -->
+
+<!-- 知识管理增加公共档案配置项，自行添加左侧树节点     by ln 2014-04-21 -->
+
+	<select id="query_sr_knowledge" resultClass="java.util.HashMap">
+		<!-- select distinct cVer,cVer iid,cVer cname,-1 ipid,'' cModule from sr_knowledge -->
+		select distinct b.cname cVer,b.cname iid,b.cname,-1 ipid,'' cModule from sr_knowledge a,aa_dataclass b
+		where a.cVer = b.iid  
+
+	</select>
+	
+	<select id="query_sr_knowledgeByCModer" resultClass="java.util.HashMap">
+		<!-- select distinct cModule,cModule iid,cVer,cModule cname,cver ipid from sr_knowledge where cVer=#cVer# --> 
+		select * from (
+		select distinct c.cname cModule,c.iid,b.cname cVer,c.cname,b.cname ipid from sr_knowledge a,aa_dataclass b,aa_data c
+		where a.cVer = b.iid and a.cModule = c.iid ) A
+		where A.cVer=#cVer#
+	</select>
+</sqlMap>	

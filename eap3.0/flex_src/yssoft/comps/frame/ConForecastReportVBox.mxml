@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:callcenter="yssoft.views.callcenter.*" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                xmlns:frameui="yssoft.frameui.*"
+                width="100%" height="100%" horizontalGap="0"
+                creationComplete="myinit(event)"
+                implements="yssoft.interfaces.IMainViewStackSearch"
+        >
+
+    <fx:Declarations>
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.CheckBox;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+        import mx.rpc.events.ResultEvent;
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.views.listset.ListcdWindow;
+
+        private var ui_icustclass:CrmEapTextInput;
+        private var ui_iecstatus:CrmEapTextInput;
+        private var ui_iserviceperson:CrmEapTextInput;
+
+        public var winParam:Object = new Object();
+
+        //操作权限控制 add by zhongjing
+        private var auth3:OperDataAuth;
+
+        [Bindable]
+        private var panelTitle:String = "漏斗数据";
+
+        [Bindable]
+        private var numAndMoneyList:ArrayCollection = new ArrayCollection();
+
+        private var checkboxList:ArrayCollection = new ArrayCollection();
+        private var listsetList:ArrayCollection = new ArrayCollection();
+
+        private var searchOptionsList:ArrayCollection = new ArrayCollection([
+            {label: "收费预测查询", value: 0},
+        ]);
+
+        private const sql:String = " a.iid icustomer,b.istatus,c.cname conname,d.cname custclass,a.ctaxname,a.cname custname," +
+                "a.decontdate,a.cofficeaddress,e.cname addname,f.cname sname,g.cname servname,b.cmemo,datediff(d,getdate(),a.decontdate) as diffdate,isnull(b.money,0) money from CS_customer a " +
+                "left join (select t.iid,t.iecstatus,t.icustomer,t.istatus,t.cmemo,(isnull(t.finmoney,0)+isnull(t.frevenue,0)) money from tr_charge t,(select MAX(iid) iid,icustomer from tr_charge group by icustomer) tr where t.iid = tr.iid ) b on a.iid = b.icustomer " +
+                "left join (select ccode,cname from aa_data where iclass = 139) c on b.iecstatus = c.ccode " +
+                "left join (select iid,cname from aa_data where iclass = 4) d on a.icustclass = d.iid " +
+                "left join (select iid,cname from aa_data where iclass = 3) e on a.iaddress = e.iid " +
+                "left join hr_person f on a.iserviceperson = f.iid left join hr_person g on a.iservicesperson = g.iid  where a.blogout =0 and 1=1 ";
+
+
+        private function myinit(event:FlexEvent):void {
+            initConsultItem("icustclass",44);//客商分类参照
+            initConsultItem("iecstatus",390);//税控状态参照
+            initConsultItem("iserviceperson", 216);//服务人员参照
+            initSearchViewLists();//初始化查询方案
+            initAuth();//初始化操作权限
+        }
+        //初始化参照
+        private function initConsultItem(name:String, ifuncregedit:int):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = ifuncregedit;
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+        //匹配参照
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.width = 161;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+                consultTextInput.styleName = "contentTextInputOther";
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+        //初始化查询方案
+        public function initSearchViewLists():void {
+            if (CRMtool.getObject(winParam).ifuncregedit == null)
+                return;
+            searchItemBox.removeAllChildren();
+            numAndMoneyList = new ArrayCollection();
+            checkboxList = new ArrayCollection();
+            AccessUtil.remoteCallJava("ACListsetDest", "getListcdList", function (event:ResultEvent):void {
+                if (event.result) {
+                    listsetList = event.result as ArrayCollection;
+                    var i:int = 0;
+                    for each (var item:Object in listsetList) {
+                        numAndMoneyList.addItem({num: 0, money: 0, cdiid: item.iid, label: item.cname});
+
+                        var hbox:HBox = new HBox();
+                        hbox.percentWidth = 100;
+                        hbox.height = 28;
+                        hbox.setStyle("verticalAlign", "middle");
+                        hbox.name = item.cname;
+                        var checkBox:CheckBox = new CheckBox();
+                        checkBox.label = item.cname;
+                        checkBox.name = item.iid;
+                        checkBox.selected = true;
+                        checkboxList.addItem(checkBox);
+                        hbox.addChild(checkBox);
+                        searchItemBox.addChild(hbox);
+                        i++;
+                    }
+                }
+            }, {ifuncregedit: CRMtool.getObject(winParam).ifuncregedit});
+        }
+        //初始化操作权限
+        private function initAuth():void {
+            auth3 = new OperDataAuth();
+            auth3.get_funoperauth({iperson: CRMmodel.userId, ifuncregedit: 412});
+        }
+
+        //单击查询按钮
+        protected function searchButton_clickHandler(event:MouseEvent):void {
+            clearData();
+            custproductSearch();
+
+        }
+        //清空数据
+        private function clearData():void {
+            mainDG.dataProvider = new ArrayCollection();
+            tabHistoryPaid.winParam = {icustomer: 0};
+        }
+        //查询
+        private function custproductSearch():void {
+
+            if (checkboxList.length == 0) {
+                CRMtool.showAlert("请先定义查询方案。");
+                return;
+            }
+
+            //if(!checkData()) return;
+            for each(var labelItem:Object in numAndMoneyList) {
+                labelItem.num = 0;
+                labelItem.money = CRMtool.formatFloatString(0);
+            }
+
+            refreshCheckBoxList();
+
+            this.mainDG.dataProvider = null;
+
+            var searchSql:String = "";
+            var flag:Boolean = true;
+            var i:int = 0;
+            for each (var checkBox:CheckBox in this.checkboxList) {
+
+                var ccolor:String;
+                var csql:String;
+                for each(var cditem:Object in listsetList) {
+                    if (checkBox.name == cditem.iid) {
+                        ccolor = cditem.ccolor;
+                        csql = cditem.csql;
+                    }
+                }
+
+                if (checkBox.selected) {
+                    flag = false;
+                    if (i > 0)
+                        searchSql += "union select '" + ccolor + "' as ccolor," + checkBox.name + " as cdiid," + sql + csql;
+                    else
+                        searchSql += "select '" + ccolor + "' as ccolor," + checkBox.name + " as cdiid," + sql + csql;
+
+                    if (ui_icustclass.consultList.length > 0)
+                        searchSql += (" and a.icustclass = " + this.ui_icustclass.consultList[0].iid);
+                    if (ui_iecstatus.consultList.length > 0)
+                        searchSql += (" and b.iecstatus = " + this.ui_iecstatus.consultList[0].ccode);
+                    if (ui_iserviceperson.consultList.length > 0)
+                        searchSql += (" and a.iserviceperson =" + this.ui_iserviceperson.consultList[0].iid);
+                    if (CRMtool.isStringNotNull(this.ui_sddate.text))
+                        searchSql += (" and a.decontdate >='" + this.ui_sddate.text + "'");
+                    if (CRMtool.isStringNotNull(this.ui_eddate.text))
+                        searchSql += (" and a.decontdate <='" + this.ui_eddate.text + "'");
+                    i++;
+                }
+            }
+            //全部客商
+            if (flag || CRMtool.isStringNull(searchSql)) {
+                searchSql += "select "  + sql ;
+                if (ui_icustclass.consultList.length > 0)
+                    searchSql += (" and a.icustclass = " + this.ui_icustclass.consultList[0].iid);
+                if (ui_iecstatus.consultList.length > 0)
+                    searchSql += (" and b.iecstatus = " + this.ui_iecstatus.consultList[0].ccode);
+                if (ui_iserviceperson.consultList.length > 0)
+                    searchSql += (" and a.iserviceperson =" + this.ui_iserviceperson.consultList[0].iid);
+                if (CRMtool.isStringNotNull(this.ui_sddate.text))
+                    searchSql += (" and a.decontdate >='" + this.ui_sddate.text + "'");
+                if (CRMtool.isStringNotNull(this.ui_eddate.text))
+                    searchSql += (" and a.decontdate <='" + this.ui_eddate.text + "'");
+            }
+            var sql1:String = "select * from (" + searchSql + ")A where 1=1 " + " order by decontdate,icustomer ";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var eventAC:ArrayCollection = event.result as ArrayCollection;
+                if (eventAC)
+                    searchBack(eventAC);
+            }, sql1);
+        }
+
+        private function searchBack(ac:ArrayCollection):void {
+            mainDG.dataProvider = ac;
+
+            for each(var labelItem:Object in numAndMoneyList) {
+                var num:int = 0;
+                var money:Number = 0;
+                for each(var item:Object in ac) {
+                    if (labelItem.cdiid == item.cdiid) {
+                        num++;
+                        money += item.money;
+                    }
+                }
+                labelItem.num = num;
+                labelItem.money = CRMtool.formatFloatString(money);
+            }
+
+            refreshCheckBoxList();
+        }
+        //对应的数量和金额
+        private function refreshCheckBoxList():void {
+            for each(var checkbox:CheckBox in checkboxList) {
+                for each (var item:Object in numAndMoneyList) {
+                    if (item.cdiid == checkbox.name) {
+                        checkbox.label = item.label + "   " + "数量" + item.num + "，金额" + item.money;
+                    }
+                }
+            }
+        }
+
+        //单选主表信息，子表所显示信息
+        protected function mainDG_itemClickHandler(event:ListEvent):void {
+            if (mainDG.selectedItem == null)
+                return;
+            tabHistoryPaid.winParam = {icustomer: this.mainDG.selectedItem.icustomer};
+        }
+        //方案维护
+        protected function aclistset_clickHandler(event:MouseEvent):void {
+
+            /**************** add by zhong_jing 增加操作权限控制***********************/
+            var warning:String = auth3.reuturnwarning("51");
+            if (warning != null) {
+                CRMtool.showAlert(warning);
+                return;
+            }
+            /****************** add by zhong_jing 增加操作权限控制 ************************/
+            if (CRMtool.getObject(winParam).ifuncregedit == null)
+                return;
+
+            var ass:ListcdWindow = new ListcdWindow();
+            ass.width = 700;
+            ass.csql1 = "select " + sql;
+            ass.ifuncregedit = CRMtool.getObject(winParam).ifuncregedit;
+            ass.height = 500;
+            ass.owner = this;
+            CRMtool.openView(ass);
+        }
+        //序号
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            if (mainDG.dataProvider) {
+                for (var i:int = 1; i <= mainDG.dataProvider.length; i++) {
+                    if (mainDG.dataProvider[i - 1] == item) {
+                        item.sort_id = i;
+                        return i + "";
+                    }
+                }
+
+            }
+            return "0";
+        }
+
+        //数据导出
+        protected function button_clickHandler(event:MouseEvent):void {
+
+            /**************** add by zhong_jing 增加操作权限控制***********************/
+            var warning:String = auth3.reuturnwarning("06");
+            if (warning != null) {
+                CRMtool.showAlert(warning);
+                return;
+            }
+            /****************** add by zhong_jing 增加操作权限控制 ************************/
+            var title:String = "收费预测漏斗数据";
+            var objValue:Object = {};
+            objValue.flag = 0;        //是否生成序号
+            objValue.title = title;  //生成文件的标题
+            var columnArr:ArrayCollection = new ArrayCollection();//记录字段名称和标题的记录集
+            var count:int = 0;
+            for each (var column:Object in this.mainDG.columns) {
+                if (count != 0) {
+                    columnArr.addItem({"cfld": column.dataField, "cfldcaption": column.headerText, "width": column.width});
+                }
+                count = 1;
+
+            }
+            objValue.fieldsList = columnArr;  // 包含列信息的集合
+            for each (var data:Object in this.mainDG.dataProvider) {
+                var date:Date = new Date(data.decontdate);
+                data.dsend = CRMtool.getFormatDateString("YYYY-MM-DD ", date);
+                trace();
+            }
+
+            objValue.arr = this.mainDG.dataProvider; //数据集
+
+            if (this.mainDG.dataProvider && this.mainDG.dataProvider.length == 0) {
+                CRMtool.showAlert("没有数据无法导出！");
+                return;
+            }
+            AccessUtil.remoteCallJava("ExcelHadleDest", "writeExcel", onWriteExcelBack, objValue);//调用后台的导出方法
+        }
+
+        private function onWriteExcelBack(evt:ResultEvent):void {
+            var filename:String = "";
+            if (evt.result.hasOwnProperty("filename")) {
+                filename = evt.result.filename as String;
+            }
+            var requestUrl:String = "/" + ConstsModel.publishAppName + "/excelExportServlet?fn=" + filename;
+            var request:URLRequest = new URLRequest(requestUrl);
+            navigateToURL(request, "_blank");
+        }
+
+        /*private function checkData():Boolean {
+            var flag:Boolean = true;
+            if (!CRMtool.verificationItem(ui_eddate)) {
+                return false;
+            }
+            if (!CRMtool.verificationItem(ui_sddate)) {
+                return false;
+            }
+            return flag;
+        }
+        private function doMoney(item:Object, column:DataGridColumn):String {
+            var s:String = item[column.dataField] + "";
+            if (s.indexOf(".") > -1) {
+                return s.substr(0, s.indexOf(".") + 3);
+            } else {
+                return s;
+            }
+        }*/
+
+        public function searchFromMain(s:String):void {
+            var list:ArrayCollection = mainDG.dataProvider as ArrayCollection;
+            if (list && list.length > 0) {
+                for each(var item:Object in list) {
+                    if ((item.icustomer_cname + "").search(s) > -1) {
+                        mainDG.selectedItem = item;
+                        mainDG.scrollToIndex(list.getItemIndex(item));
+                        break;
+                    }
+                }
+            }
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="stretch" target="{boxLeftRoot}" duration="700" widthTo="257"/>
+        <s:Resize id="contract" target="{boxLeftRoot}" duration="700" widthTo="0"/>
+    </fx:Declarations>
+    <mx:VBox id="boxLeftRoot" width="257" height="100%" styleName="lefttree" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="frameSideAppBar">
+            <s:Label styleName="contentTitle" text="查询条件"/>
+        </mx:ApplicationControlBar>
+        <mx:VBox width="100%" height="100%" paddingTop="10" styleName="lefttree1" paddingBottom="1">
+            <mx:VBox width="100%" height="100%" verticalGap="5" paddingLeft="10" paddingRight="10">
+
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="查询选项："/>
+                    <s:DropDownList id="ui_searchOptions" width="100%" dataProvider="{searchOptionsList}"
+                                    selectedIndex="0"/>
+                </mx:HBox>
+                <mx:HBox width="100%" id="ui_icustclass_box">
+                    <mx:FormItemLabel text="客商分类："/>
+                    <!--<s:TextInput id="ui_department"/>-->
+                </mx:HBox>
+                <mx:HBox width="100%" id="ui_iecstatus_box">
+                    <mx:FormItemLabel text="税控状态："/>
+                    <!--<s:TextInput id="ui_department"/>-->
+                </mx:HBox>
+                <mx:HBox width="100%" id="ui_iserviceperson_box">
+                    <mx:FormItemLabel text="服务人员："/>
+                    <!--<s:TextInput id="ui_department"/>-->
+                </mx:HBox>
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="起始时间："/>
+                    <basic:BasicDateField id="ui_sddate" width="100%" editable="true" />
+                </mx:HBox>
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="截至时间："/>
+                    <basic:BasicDateField id="ui_eddate" width="100%" editable="true" />
+                </mx:HBox>
+            </mx:VBox>
+            <!--	<s:FormItem height="28">
+			<mx:HBox id="ui_customerstyle_box">
+			<mx:FormItemLabel text="客户类型："/>
+			<s:RadioButton label="全部" selected="true"/>
+			<s:RadioButton label="新到期"/>
+			<s:RadioButton label="老客户"/>
+			</mx:HBox>
+			</s:FormItem>-->
+            <s:Spacer height="15"/>
+            <mx:HRule id="hrule" width="100%"/>
+            <mx:VBox id="searchItemBox" width="100%" height="100%" paddingTop="10" paddingLeft="10" paddingRight="10"/>
+            <mx:HRule width="100%" height="1"/>
+            <mx:HBox width="100%" height="36" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+                <mx:Button id="aclistset" label="方案维护" click="aclistset_clickHandler(event)" width="75" height="25"/>
+                <s:Spacer width="100%"/>
+                <mx:Button label="查询" click="searchButton_clickHandler(event)" width="50" height="25"/>
+            </mx:HBox>
+        </mx:VBox>
+    </mx:VBox>
+
+    <frameui:FoldGapBox id="jiange" targetBox="{boxLeftRoot}"/>
+
+    <mx:VBox width="100%" height="100%" styleName="centerbg03">
+        <mx:ApplicationControlBar width="100%" height="32" styleName="centertop1">
+            <s:Label styleName="contentTitle" text="{panelTitle}"/>
+            <s:Spacer width="100%"/>
+        </mx:ApplicationControlBar>
+        <mx:VDividedBox width="100%" height="100%" paddingTop="-1">
+            <mx:DataGrid width="100%" height="50%" id="mainDG" itemClick="mainDG_itemClickHandler(event)"
+                        lockedColumnCount="5">
+                <mx:columns>
+                    <mx:DataGridColumn labelFunction="{doLineNum}" width="40"/>
+                    <mx:DataGridColumn id="ccolor" headerText="预测状态" width="100" dataField="ccolor">
+                        <mx:itemRenderer>
+                            <fx:Component>
+                                <mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+                                    <s:Label text="●" color="{new uint('0x'+data.ccolor)}"/>
+                                </mx:HBox>
+                            </fx:Component>
+                        </mx:itemRenderer>
+                    </mx:DataGridColumn>
+                    <mx:DataGridColumn id="conname" headerText="税控状态" dataField="conname" width="120"/>
+                    <mx:DataGridColumn id="custclass" headerText="客商分类" dataField="custclass" width="120"/>
+                    <mx:DataGridColumn id="ctaxname" headerText="客户税号" dataField="ctaxname" width="120"/>
+                    <mx:DataGridColumn id="custname" headerText="客户名称" dataField="custname" width="250">
+                        <mx:itemRenderer>
+                            <fx:Component>
+                                <mx:VBox width="100%" height="100%" verticalAlign="middle" paddingLeft="2"
+                                         horizontalScrollPolicy="off">
+                                    <fx:Script>
+										<![CDATA[
+                                        import yssoft.tools.CRMtool;
+
+                                        private function label1_clickHandler(event:MouseEvent):void {
+                                            event.stopPropagation();
+                                            CRMtool.openbillonbrowse(44, data.icustomer, "加载中");
+                                        }
+                                        ]]>
+									</fx:Script>
+                                    <mx:Label width="100%" text="{data.custname}" click="label1_clickHandler(event)"  buttonMode="true"
+                                              selectable="true" textDecoration="underline"/>
+                                </mx:VBox>
+                            </fx:Component>
+                        </mx:itemRenderer>
+                    </mx:DataGridColumn>
+                    <mx:DataGridColumn id="decontdate" headerText="金税合同结束日期" dataField="decontdate" labelFunction="{CRMtool.formatDate}" width="120"/>
+                    <mx:DataGridColumn id="cofficeaddress" headerText="客户地址" dataField="cofficeaddress" width="140"/>
+                    <mx:DataGridColumn id="addname" headerText="地理区域" dataField="addname" width="120"/>
+                    <mx:DataGridColumn id="sname" headerText="服务人员" dataField="sname" width="120"/>
+                    <mx:DataGridColumn id="servname" headerText="内勤助理" dataField="servname" width="120"/>
+                    <mx:DataGridColumn id="cmemo" headerText="超期未交原因" dataField="cmemo" width="140"/>
+                    <mx:DataGridColumn id="diffdate" headerText="偏差天数" dataField="diffdate" textAlign="right"/>
+                </mx:columns>
+            </mx:DataGrid>
+            <mx:HBox depth="10" width="{mytab.width}" includeInLayout="false" verticalAlign="middle" paddingRight="10">
+                <s:Spacer width="100%"/>
+				<s:Button id="ExcelImport" label="数据导出" height="25" click="button_clickHandler(event)"/>
+
+            </mx:HBox>
+            <mx:TabNavigator id="mytab" depth="9" width="100%" height="50%" creationPolicy="auto" paddingTop="-1"
+                             borderVisible="false">
+                <callcenter:HistoryPaidRecord id="tabHistoryPaid" width="100%" height="100%" label="历史收费记录">
+                </callcenter:HistoryPaidRecord>
+            </mx:TabNavigator>
+        </mx:VDividedBox>
+    </mx:VBox>
+</mx:HDividedBox>

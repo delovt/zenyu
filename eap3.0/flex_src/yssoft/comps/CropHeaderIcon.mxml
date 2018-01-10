@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow cornerRadius="8" xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark" title="修改头像"
+                        width="530"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        close="win_closeHandler(event)" creationComplete="init()"
+                        xmlns:oh="com.roguedevelopment.objecthandles.*" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+        import mx.controls.Image;
+        import mx.events.CloseEvent;
+        import mx.graphics.codec.JPEGEncoder;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        //图片 等比例 缩放
+
+        // 回调函数
+        public var callBack:Function;
+
+        private var fileReference:FileReference;
+        private var fileFilter:FileFilter = new FileFilter("选择图片", "*.png;*.jpg;*.jpeg;");
+
+        protected function selectbt_clickHandler(event:MouseEvent):void {
+            fileReference = new FileReference();
+            fileReference.addEventListener(Event.SELECT, onFileSelectHandler);
+            fileReference.addEventListener(Event.COMPLETE, onFileCompleteHandler);
+            fileReference.browse([fileFilter]);
+        }
+
+        private function onFileSelectHandler(event:Event):void {
+            fileReference.load();
+        }
+
+        private function onFileCompleteHandler(event:Event):void {
+            var loader:Loader = new Loader();
+            loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
+            loader.loadBytes(fileReference.data);
+            this.imgname.text = fileReference.name;
+        }
+
+        public function loader_complete(event:Event):void {
+            try {
+                var sourceBMP:Bitmap = event.currentTarget.loader.content as Bitmap;
+                this.sourceimg.source = sourceBMP;
+            } catch (e:Error) {
+            }
+        }
+
+        private function win_closeHandler(event:CloseEvent):void {
+            PopUpManager.removePopUp(this);
+        }
+
+        //img 长宽
+        private var img_width:int = 60;
+        private var img_height:int = 60;
+        //裁剪后的像素数据
+        private var bd:BitmapData;
+
+        private function init():void {
+
+        }
+
+        private function uploadbt_clickHandler(event:MouseEvent):void {
+            if (fileReference == null || this.imgname.text == "") {
+                return;
+            }
+            var param:Object = {};
+            param.fileName = "" + CRMmodel.userId;
+            param.fileType = "jpg";
+            param.uploadType = "0";
+            param.content = new JPEGEncoder(85).encode(bd);
+
+            AccessUtil.remoteCallJava("FileDest", "uploadFile", upload_callBack, param, "图片上传中...");
+        }
+
+        private function upload_callBack(event:ResultEvent):void {
+            if (event.result && (event.result as String) == "suc") {
+                CRMtool.addUserHeaderIcon(CRMmodel.userId, this.resultimg.source);
+                CRMmodel.headerIcon = this.resultimg.source;
+                PopUpManager.removePopUp(this);
+            }
+        }
+
+        // 缩放 图片
+        public function onZoom(tempImg:Image, intWidth:int, intHeight:int):void {
+            if ((tempImg.contentWidth / tempImg.contentHeight) >= (intWidth) / (intHeight)) {
+                //如果宽高比大于或等于场景的宽高比，按高的比例缩放
+                tempImg.height = intHeight;
+                tempImg.width = Math.round(tempImg.contentWidth * (intHeight) / tempImg.contentHeight);
+            } else {//如果宽高比小于场景的宽高比，按宽的比例缩放
+                tempImg.width = intWidth;
+                tempImg.height = Math.round(tempImg.contentHeight * (intWidth) / tempImg.contentWidth);
+            }
+        }
+
+        private function rectUI1_doubleClickHandler():void {
+            if (rectUI1.transform.pixelBounds.width != 0) {
+                if (sourceimg.source == null) {
+                    return;
+                }
+                bd = CRMtool.cutSuper(this.sourceimg, this.rectUI1);
+                //把裁剪结果表现在控件上
+                resultimg.source = new Bitmap(bd, "auto", true);
+                onZoom(resultimg, 60, 60);
+            }
+        }
+        ]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+
+	<s:HGroup width="100%" verticalAlign="middle" gap="0" paddingLeft="10" paddingRight="10">
+		<s:Label text="图片名称："/>
+		<s:TextInput id="imgname" width="150"/>
+		<s:Button id="selectbt" label="选择" click="selectbt_clickHandler(event)"/>
+		<s:Button id="uploadbt" label="确定" click="uploadbt_clickHandler(event)"/>
+		<s:Label width="183" text=" （png、jpg、jpge格式文件）"/>
+	</s:HGroup>
+	<s:HGroup width="100%" height="100%" paddingTop="25" paddingLeft="10" paddingRight="10" paddingBottom="10">
+		<s:VGroup>
+			<s:Label text="拖动“选择框”到相应的区域，双击进行获取"/>
+			<mx:Canvas id="imgbc" width="325" height="300" backgroundColor="#AEAEAE">
+				<mx:Image id="sourceimg" x="0" y="0" maxHeight="300" maxWidth="300"/>
+				<oh:ObjectHandles allowRotate="false" minHeight="60" minWidth="60" doubleClickEnabled="true" doubleClick="rectUI1_doubleClickHandler()">
+					<mx:Canvas id="rectUI1" width="100%" height="100%" backgroundAlpha="0.2" backgroundColor="red"/>
+				</oh:ObjectHandles>
+			</mx:Canvas>
+		</s:VGroup>
+		<s:VGroup>
+			<s:Label text="预览头像"/>
+			<s:BorderContainer borderColor="green" borderStyle="solid" width="60" height="60">
+				<mx:Image id="resultimg" maxHeight="60" maxWidth="60"/>
+			</s:BorderContainer>
+		</s:VGroup>
+	</s:HGroup>
+</basic:BasicTitleWindow>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 xmlns:comps="yssoft.comps.*" creationComplete="ini()"
+         implements="yssoft.impls.ICRMWindow" xmlns:module="yssoft.comps.frame.module.*">
+	
+	<fx:Script source="../../scripts/FuncregeditViewScript.as"/>
+	
+	
+	<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+		<mx:VBox width="20%" height="100%" styleName="lefttree" >
+			<mx:ApplicationControlBar id="menuBar1" width="100%" height="32" dock="true">
+				<mx:Label text="功能目录" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox id="tree" width="100%" height="100%" 
+								  dropShadowVisible="false" itemClick="tree_itemClickHandler(event)"/>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:Canvas width="80%" height="100%" styleName="centerbg4">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="32" dock="true">
+				<mx:ButtonBar id="btn_menubar" width="10%" height="80%" 
+							  creationComplete="CRMtool.toolButtonsEnabled(btn_menubar,null)"
+							  dataProvider="{arr_menubar}" styleName="contentButtonBar"
+							  itemClick="btn_menubar_itemClickHandler(event)"/>
+                <mx:Spacer width="100%"/>
+                <mx:Label text="{tree.selectedItem.@iid}" />
+                <mx:Spacer width="5"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox id="container"  width="100%" height="100%" top="42" left="10" right="10" verticalGap="10">
+				<mx:VBox width="100%" cornerRadius="8" styleName="content">
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="功能编码:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="ccode" width="50%" height="100%" text="{tree.selectedItem.@ccode}"
+									  borderVisible="false" styleName="contentTextInput" restrict="0-9\."/>
+						<mx:Label  text="功能名称:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="cname" width="50%" height="100%" text="{tree.selectedItem.@cname}"
+									  borderVisible="false" styleName="contentTextInput"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="程序路径:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="cprogram" width="100%" height="100%" text="{tree.selectedItem.@cprogram}"
+									  borderVisible="false" styleName="contentTextInput"/>
+						
+						<mx:Label  text="调用参数:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="cparameter" width="100%" height="100%" text="{tree.selectedItem.@cparameter}"
+									  borderVisible="false" styleName="contentTextInput"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="默认图标:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="iimage" width="100%" height="100%" text="{tree.selectedItem.@iimage}"
+									  borderVisible="false" styleName="contentTextInput"/>
+						
+						<mx:Label  text="是否生效:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="buse" width="100%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@buse}"/>
+					</mx:HBox>
+				
+				</mx:VBox>
+				
+				
+				
+				<mx:VBox left="20" right="20" width="100%" 
+						 borderStyle="inset" cornerRadius="8" styleName="content">
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="主数据表:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="ctable" width="50%" height="100%" text="{tree.selectedItem.@ctable}"
+									  borderVisible="false" styleName="contentTextInput"/>
+						<mx:Label  text="关联功能:" height="100%" styleName="contentLabel" id="lbl_sys"/>
+						<mx:HBox id="ifuncregeditHbox" width="50%">
+							
+						</mx:HBox>
+						
+						
+					</mx:HBox>
+					<mx:HRule width="100%"/>
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:HBox width="50%">
+						<mx:Label  text="标题字段:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="ccaptionfield" width="100%" height="100%" text="{tree.selectedItem.@ccaptionfield}"
+									  borderVisible="false" styleName="contentTextInput"/>
+						</mx:HBox>
+						<mx:HBox width="50%">
+						<mx:Label  text="发起工作流后允许修改:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="bworkflowmodify" width="100%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bworkflowmodify}"/>
+						</mx:HBox>	
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox left="20" right="20" width="100%" 
+						 borderStyle="inset" cornerRadius="8" styleName="content">
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label text="是否参与操作权限管理:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="boperauth" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@boperauth}"/>
+						<mx:Label  text="是否参与数据权限管理:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="bdataauth" width="50%" height="100%"
+									 selected="{tree.selectedItem.@bdataauth}"
+									 styleName="contentCheckBox"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="是否参与组织权限管理:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="bdataauth1" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bdataauth1}" change="controlbdataauth()"/>
+						<mx:Label  text="是否参与客户权限管理:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="bdataauth2" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bdataauth2}" change="controlbdataauth()"/>
+					</mx:HBox>
+
+				</mx:VBox>
+				
+				<mx:VBox left="20" right="20" width="100%" 
+						 borderStyle="inset" cornerRadius="8" styleName="content">
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="是否参与业务字典管理:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="bdictionary" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bdictionary}"/>
+						<mx:Label  text="是否参与表单设置管理:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="bvouchform" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bvouchform}"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  height="100%" 
+								   styleName="contentLabel" text="是否参与表单流程定制:"/>
+						<mx:CheckBox id="bworkflow" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{String(tree.selectedItem.@bworkflow)=='true'}"/>
+						<mx:Label height="100%" 
+								  styleName="contentLabel" text="是否参与打印设置管理:"/>
+						<mx:CheckBox id="bprint" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bprint}"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="是否参与单据编码管理:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="bnumber" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bnumber}"/>
+						<mx:Label height="100%" 
+								  styleName="contentLabel" text="是否参与相关对象管理:"/>
+						<mx:CheckBox id="brelation" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@brelation}"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label height="100%" 
+								  styleName="contentLabel" text="是否参与查询条件定制:"/>
+						<mx:CheckBox id="bquery" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bquery}"/>
+						<mx:Label  text="是否参与列表定制管理:" height="100%" styleName="contentLabel"/>
+						<mx:CheckBox id="blist" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@blist}"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label height="100%" 
+								  styleName="contentLabel" text="对象是否允许重复创建:"/>
+						<mx:CheckBox id="brepeat" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@brepeat}"/>
+						<mx:Label height="100%" 
+								  styleName="contentLabel" text="是否参与单据关系定制:"/>
+						<mx:CheckBox id="bbind" width="50%" height="100%" styleName="contentCheckBox"
+									 selected="{tree.selectedItem.@bbind}"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+			</mx:VBox>			
+		</mx:Canvas>
+	</mx:HDividedBox>
+</mx:HBox>

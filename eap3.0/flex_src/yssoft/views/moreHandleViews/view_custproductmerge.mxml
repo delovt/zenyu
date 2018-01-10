@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="600" height="240"
+                        title="资产并户" xmlns:comps="yssoft.comps.*"
+                        close="PopUpManager.removePopUp(this)" creationComplete="ini()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.RadianVbox;
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.models.CRMmodel;
+			import yssoft.models.DateHadle;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+
+			public var ecusiid:int;//并后资产内码
+            public var ecusname:String;//并后客户名称
+			[Bindable]
+			public var referSql:String = "";//参照过滤条件
+			
+			[Bindable]
+			private var _cusArr:ArrayCollection = new ArrayCollection();//资产记录集(包含资产内码、编码、名称)
+			
+			//以下是属性
+			public function set cusArr(value:ArrayCollection):void{
+			
+				this._cusArr = value;
+			}
+			public function get cusArr():ArrayCollection{
+				return _cusArr;
+			}
+			
+			
+			private function ini():void{
+				iniValues();
+				initCrmTextInput();
+			}
+			
+			private function initCrmTextInput():void{
+				var myCrmEaptextInput:CrmEapTextInput;
+				
+				
+				//此处 调用了 新建客户资产业务字典配置资产参照，切记
+				var obj1:Object=new Object();
+				obj1.cobjectname="myCrmEaptextInput";
+				obj1.ifuncregedit="150";
+				obj1.cfield="icustproduct";
+				
+				AccessUtil.remoteCallJava("CommonalityDest","queryFun",function(evt:ResultEvent):void{
+					
+					if(evt.result!=null){
+						var consultObj:Object = evt.result;						
+						myCrmEaptextInput = new CrmEapTextInput();
+						myCrmEaptextInput.percentWidth	=100;
+						myCrmEaptextInput.name			= "UI_C1";
+						consultObj.cobjectname	="UI_C1";
+                        consultObj.cconsultcondition = referSql;//取符合条件的sql
+						myCrmEaptextInput.singleType		=consultObj;
+						textBox.addChild(myCrmEaptextInput);
+						//myCrmEaptextInput.editable = false;						
+					}					
+				},obj1);
+			}
+			
+			//页面初始化数据，初始化并前资产信息
+			private function iniValues():void{
+                //当前客户
+                var cname = _cusArr[0]["c_cname"];//客户
+                referSql = " and cname = '" + cname +"'";//筛选参照数据
+
+				for(var i:int=0;i<_cusArr.length;i++){
+
+					this.txtbcus.text += _cusArr[i]["c_cname"]+"("+_cusArr[i]["p_cname"]+")"+"\n";
+				}
+				
+			}
+			
+/* 			//参照返回
+			private function onConsultClick():void{
+				
+				//获取并后资产的内码
+				ecusiid = ctecus.cconsultbkfld[0];
+				
+			} */
+			
+			//确定,执行存储过程
+			private function onClick():void{
+				
+				if(textBox.getChildByName("UI_C1")!=null){
+					var consult1:CrmEapTextInput = this.textBox.getChildByName("UI_C1") as CrmEapTextInput;
+					if(consult1.text!=null&&consult1.text!=null&&consult1.text!=""){
+						ecusiid = consult1.consultList.getItemAt(0)[consult1.singleType.cconsultbkfld];//赋值参照内码
+                        ecusname = consult1.consultList.getItemAt(0).cust_name;//客户名称
+					}else{
+						CRMtool.tipAlert("请选择并后资产！");return;
+					}
+					
+				}
+			
+				//if(ctecus.text == "") {CRMtool.tipAlert("请选择并后资产！");return;}
+				CRMtool.tipAlert("确定要执行资产合并操作？",null,"AFFIRM",this,"onProductMerge");
+				
+			}
+			
+			//执行资产合并功能
+			public function onProductMerge():void{
+				//循环调用存储过程，执行资产合并功能				
+				for(var i:int=0;i<_cusArr.length;i++){
+					if(_cusArr[i]["iid"] == ecusiid){
+						CRMtool.tipAlert("并前资产不能与并后资产相同！");
+						return;
+					}
+                    if(_cusArr[i]["c_cname"] != ecusname){
+                        CRMtool.tipAlert("必须相同客户才能合并资产！");
+                        return;
+                    }
+				}
+                for(var i:int=0;i<_cusArr.length;i++){
+                    var objParam:Object = {};
+                    objParam.bcustproduct = _cusArr[i]["iid"];
+                    objParam.ecustproduct = ecusiid;
+
+                    AccessUtil.remoteCallJava("MoreHandleDest","onProductMerge",onProductMergeBack,objParam);
+                }
+			}
+			
+			//执行资产并户后的返回操作
+			private function onProductMergeBack(evt:ResultEvent):void{
+				var result:String = evt.result+"";
+				if(result == "success"){
+					CRMtool.tipAlert("资产合并成功！请刷新列表！",null,"AFFIRM",this,"onCancle");
+				}
+				else{
+					CRMtool.tipAlert("资产合并失败！原因："+result);
+				}
+			}
+			
+			public function onCancle():void{
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox  verticalGap="20"  height="100%" width="100%" id="container" paddingLeft="10" paddingTop="10" paddingRight="10" right="20" top="20">
+		<mx:VBox verticalGap="0" width="100%" cornerRadius="8" styleName="content">
+			
+			<mx:HBox width="100%" styleName="contentSubHbox">
+				<mx:Label  text="并前资产：" height="100%" styleName="contentLabel"/>
+				<mx:TextArea id="txtbcus" editable="false" width="100%" height="80" styleName="contentTextInput" verticalScrollPolicy="auto"/>
+			</mx:HBox>
+			<mx:HRule width="100%"/>
+			<mx:HBox id="textBox" width="100%" styleName="contentSubHbox">
+				<mx:Label text="并后资产：" height="100%" styleName="contentLabel"/>
+				<!--<comps:CRMReferTextInput id="ctecus" width="100%" iid="1044" referSql="{referSql}" onClick="onConsultClick()"/>-->
+			</mx:HBox>
+		
+		</mx:VBox>
+	</mx:VBox>
+	
+	<mx:HBox width="100%" height="38" verticalAlign="middle" horizontalAlign="right" top="150" paddingRight="10">
+		<s:Button id="btnOK" label="确定" click="onClick()"/>
+		<s:Button id="btnCancle" label="放弃" click="onCancle()"/>
+	</mx:HBox>
+	
+</basic:BasicTitleWindow>

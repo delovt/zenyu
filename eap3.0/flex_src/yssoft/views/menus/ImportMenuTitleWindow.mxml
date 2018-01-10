@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:s="library://ns.adobe.com/flex/spark" title="引入方案配置"
+                        creationComplete="creationCompleteHandler(event)">
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.tools.AccessUtil;
+
+        private var _thisiid:int;
+        private var _list:ArrayCollection;
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            if(thisiid>0){
+                var sql:String = "select iid,cname from as_menup where iid!="+thisiid;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    list = ac;
+                }, sql, null, false);
+            }
+        }
+
+        private function button1_clickHandler(event:MouseEvent):void {
+
+        }
+
+        [Bindable]
+        public function get thisiid():int {
+            return _thisiid;
+        }
+
+        public function set thisiid(value:int):void {
+            _thisiid = value;
+        }
+
+        [Bindable]
+        public function get list():ArrayCollection {
+            return _list;
+        }
+
+        public function set list(value:ArrayCollection):void {
+            _list = value;
+        }
+        ]]></fx:Script>
+        <mx:HBox width="100%" height="27" paddingRight="5" paddingLeft="5" paddingTop="5">
+            <s:DropDownList height="23" dataProvider="{list}" labelField="cname"
+                            width="210" />
+            <s:Button height="23" label="确定" click="button1_clickHandler(event)"/>
+        </mx:HBox>
+</basic:BasicTitleWindow>

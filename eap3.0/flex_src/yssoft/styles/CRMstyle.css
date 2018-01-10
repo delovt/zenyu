@@ -1,0 +1,980 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace explorer "yssoft.views.explorer.*";
+@namespace dataGridClasses "mx.controls.dataGridClasses.*";
+@namespace module "yssoft.comps.frame.module.*";
+@namespace plan "yssoft.views.plan.*";
+
+
+/*----警告窗口样式----*/
+mx|Alert {
+    borderSkin: ClassReference("yssoft.comps.window.skins.SkinForAlert");
+    title-style-name: alertHeader;
+}
+
+.alertHeader {
+    font-size: 14;
+    color: #333333;
+    fontWeight: bold;
+}
+
+.loginStyle {
+    borderSkin: Embed(source="/yssoft/assets/login/login_bg.png", scaleGridLeft="22", scaleGridTop="1", scaleGridRight="55", scaleGridBottom="245");
+}
+
+/*----弹出窗口 个别用的直角灰色条背景----*/
+.consultTree {
+    borderSkin: Embed(source="/yssoft/assets/images/consult.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="26", scaleGridBottom="31");
+}
+
+/*----Accordion样式----*/
+mx|Accordion{
+    borderColor: #c4cccc;
+}
+mx|AccordionHeader {
+    fontWeight: bold;
+    paddingLeft: 10;
+    textRollOverColor: #FF8100;
+    textSelectedColor: #333333;
+    disabledSkin: Embed(source="/yssoft/assets/images/AccordionHeader_disabledSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="19", scaleGridBottom="21");
+    upSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="30");
+    overSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="30");
+    downSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="21");
+    selectedDisabledSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="2", scaleGridTop="3", scaleGridRight="14", scaleGridBottom="29");
+    selectedDownSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="2", scaleGridTop="3", scaleGridRight="14", scaleGridBottom="29");
+    selectedOverSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="2", scaleGridTop="3", scaleGridRight="14", scaleGridBottom="29");
+    selectedUpSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="2", scaleGridTop="3", scaleGridRight="14", scaleGridBottom="29");
+}
+
+/*-----TabBar样式-----*/
+mx|TabBar {
+    tabStyleName: "tabStyle";
+    selectedTabTextStyleName: selectedTabTextStyleName;
+}
+
+.selectedTabTextStyleName {
+    color: #333333;
+}
+
+.tabStyle {
+    textRollOverColor: #FF8100;
+    textSelectedColor: #333333;
+    fontWeight: bold;
+    paddingLeft: 10;
+    disabledSkin: Embed(source="/yssoft/assets/images/AccordionHeader_disabledSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="19", scaleGridBottom="21");
+    upSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="30");
+    overSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="30");
+
+    selectedDisabledSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="2", scaleGridTop="3", scaleGridRight="14", scaleGridBottom="29");
+    selectedDownSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="2", scaleGridTop="3", scaleGridRight="14", scaleGridBottom="29");
+    selectedOverSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="2", scaleGridTop="3", scaleGridRight="14", scaleGridBottom="29");
+    selectedUpSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="2", scaleGridTop="3", scaleGridRight="14", scaleGridBottom="29");
+}
+
+.frameSideAppBar {
+    color: #333333;
+    borderSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="3", scaleGridRight="17", scaleGridBottom="30");
+    verticalAlign: middle;
+    fontWeight: bold;
+    paddingLeft: 6;
+}
+
+.reportSideAppBar {
+    color: #333333;
+    borderSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="3", scaleGridRight="17", scaleGridBottom="30");
+    verticalAlign: middle;
+    fontWeight: bold;
+    paddingLeft: 15;
+}
+
+.barBackCanvas{
+    borderSkin: Embed(source="/yssoft/assets/index/barover4.png");
+}
+
+s|Application {
+    backgroundColor: #eaedf0;
+}
+
+global {
+    fontSize: 12;
+    borderAlpha: 0.5;
+    fontFamily: "宋体";
+    borderColor: gray;
+    color: #333333;
+    modalTransparencyBlur: 0;
+    modalTransparency: 0;
+    modalTransparencyColor: #333333;
+    modalTransparencyDuration: 100;
+}
+
+mx|ToolTip {
+    borderSkin: Embed(source="/yssoft/assets/images/ToolTip_borderSkin.png", scaleGridLeft="5", scaleGridTop="5", scaleGridRight="55", scaleGridBottom="20");
+    fontSize: 14;
+    dropShadowVisible: true;
+}
+
+/* @font-face{
+src: url("./fonts/base02.ttf");
+fontFamily: "Base02";
+} */
+/*-----表单Datagrid标题居中----*/
+.dgHeaderStyle {
+    textAlign: center;
+}
+
+.loginView {
+    backgroundColor: #f4f5f6;
+    cornerRadius: 5;
+    borderColor: #71C7D1;
+}
+
+.loginViewText {
+    fontSize: 12;
+    color: #7F7F7F;
+}
+
+.loginViewBQText {
+    fontSize: 12;
+    color: #000000;
+}
+
+.loginViewLogin {
+    backgroundColor: #EAEDF0;
+    cornerRadius: 3;
+}
+
+.loginViewLoginLb {
+    fontSize: 14;
+    color: #000000;
+}
+
+/*-----登录按钮----*/
+.loginbt {
+    textRollOverColor: #018ccf;
+    disabledSkin: Embed(source="/yssoft/assets/images/login.png", scaleGridLeft="5", scaleGridTop="5", scaleGridRight="74", scaleGridBottom="24");
+    downSkin: Embed(source="/yssoft/assets/images/loginover.png", scaleGridLeft="5", scaleGridTop="5", scaleGridRight="74", scaleGridBottom="24");
+    overSkin: Embed(source="/yssoft/assets/images//loginover.png", scaleGridLeft="5", scaleGridTop="5", scaleGridRight="74", scaleGridBottom="24");
+    upSkin: Embed(source="/yssoft/assets/images/login.png", scaleGridLeft="5", scaleGridTop="5", scaleGridRight="74", scaleGridBottom="24");
+}
+
+/*-----登录按钮----*/
+.loginbt2 {
+    disabledSkin: Embed(source="/yssoft/assets/login/login_button.png");
+    downSkin: Embed(source="/yssoft/assets/login/login_button_over.png");
+    overSkin: Embed(source="/yssoft/assets/login/login_button_over.png");
+    upSkin: Embed(source="/yssoft/assets/login/login_button.png");
+}
+
+/*-----工作流蓝-灰切换按钮----*/
+.radioButton {
+
+    /* Unselected icons */
+    upIcon: Embed(source="/yssoft/assets/images/radio_down.png");
+    overIcon: Embed(source="/yssoft/assets/images/radio_down.png");
+    downIcon: Embed(source="/yssoft/assets/images/radio_down.png");
+    disabledIcon: Embed(source="/yssoft/assets/images/radio_down.png");
+    /* Selected icons */
+    selectedUpIcon: Embed(source="/yssoft/assets/images/radio_up.png");
+    selectedOverIcon: Embed(source="/yssoft/assets/images/radio_up.png");
+    selectedDownIcon: Embed(source="/yssoft/assets/images/radio_up.png");
+    selectedDisabledIcon: Embed(source="/yssoft/assets/images/radio_up.png");
+
+    paddingBottom: 0;
+    paddingTop: 0;
+}
+
+/*-----主界面切图片使用----*/
+.radioButton2 {
+
+    /* Unselected icons */
+    upIcon: Embed(source="/yssoft/assets/login/radio_down.png");
+    overIcon: Embed(source="/yssoft/assets/login/radio_down.png");
+    downIcon: Embed(source="/yssoft/assets/login/radio_down.png");
+    disabledIcon: Embed(source="/yssoft/assets/login/radio_down.png");
+    /* Selected icons */
+    selectedUpIcon: Embed(source="/yssoft/assets/login/radio_up.png");
+    selectedOverIcon: Embed(source="/yssoft/assets/login/radio_up.png");
+    selectedDownIcon: Embed(source="/yssoft/assets/login/radio_up.png");
+    selectedDisabledIcon: Embed(source="/yssoft/assets/login/radio_up.png");
+
+    paddingBottom: 0;
+    paddingTop: 0;
+}
+
+/*主界面*/
+
+/*-----头部样式----*/
+.top_bg {
+    borderSkin: Embed(source="/yssoft/assets/index/top_bg.png", scaleGridLeft="1", scaleGridRight="185", scaleGridTop="1", scaleGridBottom="17");
+}
+
+.bottom {
+    borderSkin: Embed(source="/yssoft/assets/images/bottom.png", scaleGridLeft="2", scaleGridTop="2", scaleGridRight="33", scaleGridBottom="28");
+}
+
+.indexbottom {
+    borderSkin: Embed(source="/yssoft/assets/index/bottom.png");
+}
+
+.yinying {
+    borderSkin: Embed(source="/yssoft/assets/images/yinying.png", scaleGridLeft="2", scaleGridTop="1", scaleGridRight="39", scaleGridBottom="2");
+}
+
+/*----底部圆角----*/
+.bottom_bg {
+    borderSkin: Embed(source="/yssoft/assets/images/bottom_bg.png", scaleGridLeft="11", scaleGridRight="78", scaleGridTop="11", scaleGridBottom="21");
+
+}
+
+.yj_bg {
+    borderSkin: Embed(source="/yssoft/assets/images/yj_bg.png", scaleGridLeft="1", scaleGridRight="7", scaleGridTop="1", scaleGridBottom="7");
+
+}
+
+/*----标题字体样式----*/
+.shouyelabel {
+    fontSize: 12;
+    color: #333333;
+    fontWeight: bold;
+}
+
+.frameSideTitle {
+    fontSize: 12;
+    color: #FFFFFF;
+    fontWeight: bold;
+}
+
+.frameCoreSideLabel {
+    fontSize: 12;
+    color: #333333;
+    fontWeight: bold;
+}
+
+.frameListSideHbox {
+    borderSkin: Embed(source="/yssoft/assets/images/frameListSideHbox.png");
+
+}
+
+#navbb {
+    chromeColor: #cdcdcd;
+    color: #000000;
+    /*	focusColor:#3c3c3c;*/
+    /*	fontSize:12;*/
+    /*	fontWeight:bold;*/
+    /*	fontFamily:"宋体";*/
+}
+
+.yjmenu {
+    fontSize: 12;
+    textAlign: left;
+    fontWeight: bold;
+    color: #018ccf;
+
+}
+
+.ejmenu {
+    fontSize: 12;
+    textAlign: left;
+    textRollOverColor: #ffffff;
+    rollOverColor: #3a3a3a;
+    textIndent: 5; /*文字与图标的间隔*/
+}
+
+.menuLinkButton {
+    myBackgroundColor: #FFFFFF;
+    myBackgroundRollOverColor: #3a3a3a;
+
+    myTextColor:#333333;
+    myTextRollOverColor:#FFFFFF;
+
+    myIconColor:#3a3a3a;
+    myIconRollOverColor:#FFFFFF;
+}
+
+.buttonbarskin {
+    /*textRollOverColor: #ffffff;
+    rollOverColor: #3a3a3a;
+    disabledSkin: downBarButton;*/
+    cornerRadius: 0;
+    /*borderSkin: Embed(source="/yssoft/assets/index/menubar.png");*/
+}
+
+/*----二导航样式----*/
+.CRMLinkBar {
+    cornerRadius: 0;
+    linkButtonStyleName: buttonbarskin;
+
+    borderSkin: Embed(source="/yssoft/assets/index/null.png");
+    separatorSkin: Embed(source="/yssoft/assets/index/fenge.png");
+    separatorWidth: 2px;
+
+    disabledColor: #adadad;
+    textRollOverColor: #FFFFFF;
+
+    rollOverColor: #3a3a3a;
+    selectionColor: #3a3a3a;
+    textSelectedColor: #FFFFFF;
+    selectedItemColor: #e4e4e4;
+
+
+    selectedButtonTextStyleName: selectedBarItem;
+}
+
+.selectedBarItem {
+    color: #FFFFFF;
+}
+
+.unSelectedBarItem {
+    color: #adadad;
+    icon: null;
+}
+
+.remindsearchcomp {
+    backgroundColor: #00b0f0;
+}
+
+.tree {
+    borderStyle: none;
+    defaultLeafIcon: ClassReference(null);
+}
+
+.topcontent {
+    /*	borderColor:#BABABA;
+     borderStyle:solid;*/
+}
+
+.content {
+    backgroundColor: white;
+    borderColor: #c4cccc;
+    borderAlpha: 1;
+    borderStyle: inset;
+    cornerRadius: 8;
+    paddingBottom: 2;
+    paddingTop: 2;
+}
+
+.contentVBox {
+    backgroundColor: #ffffff;
+    cornerRadius: 8;
+    borderStyle: solid;
+    borderColor: #c4cccc;
+    borderAlpha: 1;
+    paddingLeft: -1;
+    paddingRight: -1;
+    paddingTop: -1;
+    horizontalGap: 10;
+
+}
+
+.contentHbox {
+    paddingTop: 10;
+    paddingLeft: 10;
+    paddingRight: 10;
+}
+
+.workflowcontentHbox {
+    paddingBottom: 20;
+}
+
+.rolecontentHbox {
+    paddingTop: 10;
+    paddingLeft: 10;
+    paddingRight: 10;
+    paddingBottom: 10;
+    verticalGap: 10;
+}
+
+/*----“更多”样式----*/
+
+.more {
+    disabledSkin: Embed(source="/yssoft/assets/images/more.png");
+    downSkin: Embed(source="/yssoft/assets/images/more_over.png");
+    overSkin: Embed(source="/yssoft/assets/images/more_over.png");
+    upSkin: Embed(source="/yssoft/assets/images/more.png");
+    skin: ClassReference(null);
+}
+
+.more2 {
+    disabledSkin: Embed(source="/yssoft/assets/images/more2.png");
+    downSkin: Embed(source="/yssoft/assets/images/more_over2.png");
+    overSkin: Embed(source="/yssoft/assets/images/more_over2.png");
+    upSkin: Embed(source="/yssoft/assets/images/more2.png");
+}
+
+/*----首页标题样式----*/
+.title_bg {
+    borderSkin: Embed(source="/yssoft/assets/images/center_bg.png", scaleGridLeft="11", scaleGridTop="11", scaleGridRight="110", scaleGridBottom="21");
+
+}
+
+.date_title {
+    headerColors: #ffffff, #ffffff;
+    todayColor: #F4F4F4;
+
+}
+
+/*-----首页linkbar----*/
+.linkBar1 {
+    borderSkin: Embed(source="/yssoft/assets/images/delete_04.png");
+    linkButtonStyleName: linkBarlinkButton;
+    skin: ClassReference(null);
+    color: #ADADAD;
+}
+
+.linkBarlinkButton {
+    skin: ClassReference(null);
+    textRollOverColor: #333333;
+}
+
+/*----首页二导航背景----*/
+.menubar_bg {
+    borderSkin: Embed(source="/yssoft/assets/index/menubar.png");
+}
+
+.contentTitle {
+    fontWeight: bold;
+}
+
+.contentLabel {
+    fontWeight: normal;
+}
+
+.contentTextInput {
+    borderStyle: none;
+    borderVisible: false;
+    borderColor: white;
+    color: #018ccf;
+    fontWeight: normal;
+}
+
+.contentTextInputOther {
+    color: #018ccf;
+    fontWeight: normal;
+}
+
+/*表单卡片横线*/
+module|CrmEapRadianVbox mx|HRule {
+    strokeColor: #c4cccc;
+}
+
+.contentRadioButton {
+    color: #018CCF;
+    fontWeight: normal;
+}
+
+.contentSubHbox {
+    paddingLeft: 15;
+    paddingRight: 15;
+    paddingTop: 2;
+    paddingBottom: 2;
+    verticalAlign: middle;
+}
+
+.contentComboBox {
+    borderStyle: none;
+    borderVisible: false;
+    borderColor: white;
+    color: #018CCF;
+    fontWeight: normal;
+}
+
+.contentButtonBar {
+    buttonWidth: 48;
+    fontSize: 12;
+    textAlign: center;
+    textIndent: 2;
+}
+
+.contentButtonBar2 {
+    buttonWidth: 55;
+    fontSize: 12;
+    textAlign: center;
+    textIndent: 2;
+}
+
+.freeCoVbox {
+    verticalGap: 0;
+    borderVisible: true;
+    borderStyle: solid;
+    borderColor: gray;
+    borderAlpha: 0.5;
+}
+
+.FrameHbox {
+    borderColor: #F4F4F4;
+    paddingTop: 20;
+    paddingLeft: 20;
+    paddingRight: 20;
+    paddingBottom: 20;
+    verticalGap: 20;
+}
+
+mx|ApplicationControlBar {
+    textIndent: 5;
+    dropShadowVisible: false;
+    borderVisible: false;
+    paddingLeft: 10;
+    paddingTop: 0;
+    paddingBottom: 0;
+    paddingRight: 10;
+    cornerRadius: 0;
+    /*borderSkin: Embed(source="/yssoft/assets/images/center_bg.png", scaleGridLeft="2", scaleGridTop="2", scaleGridRight="18", scaleGridBottom="30");
+    */verticalAlign: middle;
+
+    color: #333333;
+    borderSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="3", scaleGridRight="17", scaleGridBottom="30");
+}
+
+mx|Button {
+    borderStyle: solid;
+    borderColor: gray;
+    fontFamily: "宋体";
+    borderAlpha: 0.5;
+}
+
+mx|VBox {
+    verticalGap: 0;
+}
+
+mx|HDividedBox {
+    horizontalGap: 7;
+    dividerSkin: ClassReference(null);
+}
+
+mx|VDividedBox {
+    horizontalGap: 7;
+    dividerSkin: ClassReference(null);
+}
+
+mx|VScrollBar {
+    fillAlphas: 0.5, 0.5;
+    fillColors: #ff0000, #00ff00;
+}
+
+.CoPaintViewMainDraw {
+    backgroundAlpha: 1;
+    borderVisible: false;
+    /*	borderColor:#c4cccc;
+     borderStyle:solid;
+     borderAlpha:1;*/
+    backgroundColor: #f7f7f7;
+}
+
+.hboxV {
+    verticalAlign: middle;
+}
+
+.roleHbox {
+    paddingTop: 10;
+    paddingLeft: 10;
+    paddingRight: 10;
+    paddingBottom: 10;
+    verticalGap: 0;
+}
+
+mx|HRule {
+    defaultLeafIcon: ClassReference(null);
+    strokeWidth: 1;
+    strokeColor: #e1e1e1;
+}
+
+mx|VRule {
+    strokeColor: #e1e1e1;
+}
+
+.LcontentButtonBar {
+    buttonWidth: 80;
+    fontSize: 12;
+    textAlign: center;
+    textIndent: 2;
+}
+
+/*---- MainView ButtonBar Style---*/
+
+.multiPanel {
+    headerHeight: 17;
+    border-style: solid;
+    border-color: #D6D6D6;
+    headerTextAlign: "left";
+    openDuration: 200;
+    closeDuration: 200;
+    paddingTop: 0;
+    font-size: 12px;
+    letter-spacing: 0;
+    color: #2A2A2A;
+}
+
+.multiPanelHeader {
+    /*	upSkin:				ClassReference("yssoft.skins.MultiPanelHeaderSkin");
+     downSkin:			ClassReference("yssoft.skins.MultiPanelHeaderSkin");
+     overSkin:			ClassReference("yssoft.skins.MultiPanelHeaderSkin");
+     disabledSkin:		ClassReference("yssoft.skins.MultiPanelHeaderSkin");*/
+    fillAlphas: 1, 1;
+    fillColors: #c8c8c8, #b8b8b8;
+    borderAlpha: 1;
+    borderColor: #D6D6D6;
+    cornerRadius: 0;
+    padding-left: 3;
+    padding-top: 5px;
+    font-size: 11px;
+    letter-spacing: 0;
+    color: #262626;
+}
+
+/*----中间背景(背景灰色，底部无控制条背景)----*/
+.centerbg4 {
+    borderSkin: Embed(source="/yssoft/assets/images/centerbg4.png", scaleGridLeft="2", scaleGridTop="34", scaleGridRight="7", scaleGridBottom="35");
+}
+
+/*---交流讨论左侧----*/
+.bbg {
+    borderSkin: Embed(source="/yssoft/assets/images/bbg.png", scaleGridLeft="12", scaleGridTop="2", scaleGridRight="21", scaleGridBottom="10");
+}
+
+/*----中间头部ApplicationControlBar样式----*/
+.centertop {
+    borderSkin: Embed(source="/yssoft/assets/images/centertop1.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="15", scaleGridBottom="31");
+    paddingRight: 10;
+    verticalAlign: middle;
+}
+
+/*----首页角落按钮样式----*/
+.LinkButtonnew {
+    textRollOverColor: #018ccf;
+    skin: ClassReference(null);
+}
+
+/*----添加计划按钮样式----*/
+.LinkButtonnew1 {
+    textRollOverColor: #B5A577;
+    skin: ClassReference(null);
+}
+
+.CoreSideLabelButtons {
+    skin: ClassReference(null);
+    color: #018ccf;
+    fontSize: 12;
+}
+
+#titleButtons s|Label {
+    color: #018ccf;
+    fontSize: 12;
+}
+
+/*----菜单树、白色背景、无底部样式-----*/
+.lefttree {
+    borderSkin: Embed(source="/yssoft/assets/images/left_tree.png", scaleGridLeft="2", scaleGridTop="34", scaleGridRight="7", scaleGridBottom="35");
+
+}
+
+/*----左侧树的样式，为了显示背景的边框----*/
+.lefttree1 {
+    paddingLeft: 1;
+    paddingRight: 1;
+    paddingBottom: 1;
+}
+
+/*----datagrid样式----*/
+mx|DataGrid {
+    alternatingItemColors: #F4F4F4, #ffffff;
+    rollOverColor: #d3e9ff;
+    selectionColor: #fff3c1;
+    verticalGridLineColor: #E7E7E7;
+    borderColor: #e1e1e1;
+    borderAlpha: 1;
+    fontFamily: "宋体";
+    headerStyleName: "mydataGridHeaderStyle";
+}
+
+mx|AdvancedDataGrid{
+    alternatingItemColors: #F4F4F4, #ffffff;
+    rollOverColor: #d3e9ff;
+    selectionColor: #fff3c1;
+    verticalGridLineColor: #E7E7E7;
+    borderColor: #e1e1e1;
+    borderAlpha: 1;
+    fontFamily: "宋体";
+    headerStyleName: "mydataGridHeaderStyle";
+}
+
+mx|TabNavigator{
+    borderColor: #e1e1e1;
+    borderAlpha: 1;
+    borderStyle: solid;
+}
+.mydataGridHeaderStyle {
+    textAlign: center;
+}
+
+/*----List鼠标移过交替样式----*/
+mx|List {
+    rollOverColor: #d3e9ff;
+    selectionColor: #fff3c1;
+}
+
+/*----List鼠标移过交替样式----*/
+.jh {
+    rollOverColor: #d3e9ff;
+    selectionColor: #fff3c1;
+}
+
+.LinkButton1 {
+    rollOverColor: #d3e9ff;
+    selectionColor: #fff3c1;
+}
+
+/*----首页菜单弧度背景----*/
+/*.topbar
+{
+	borderSkin: Embed(source="/yssoft/assets/eap1.0/top_bar.png",scaleGridLeft="67", scaleGridTop="1", scaleGridRight="100",scaleGridBottom="31");
+}*/
+
+/*----tree样式，改变图片----*/
+mx|Tree {
+    disclosureClosedIcon: Embed(source="/yssoft/assets/images/Tree_disclosureClosedIcon.png");
+    disclosureOpenIcon: Embed(source="/yssoft/assets/images/Tree_disclosureOpenIcon.png");
+    defaultLeafIcon: Embed(source="/yssoft/assets/images/Tree_defaultLeafIcon.png");
+    folderClosedIcon: Embed(source="/yssoft/assets/images/Tree_folderClosedIcon.png");
+    folderOpenIcon: Embed(source="/yssoft/assets/images/Tree_folderOpenIcon.png");
+    rollOverColor: #d3e9ff;
+    selectionColor: #fff3c1;
+}
+
+/*---服务申请  更多 ----*/
+.popupbuttonskin1 {
+    disabledSkin: Embed(source="/yssoft/assets/images/PopUpButton_DisabledSkin.png", scaleGridLeft="4", scaleGridTop="4", scaleGridRight="40", scaleGridBottom="17");
+    downSkin: Embed(source="/yssoft/assets/images/PopUpButton_downLeftSkin.png", scaleGridLeft="4", scaleGridTop="4", scaleGridRight="40", scaleGridBottom="17");
+    overSkin: Embed(source="/yssoft/assets/images/PopUpButton_overLeftSkin.png", scaleGridLeft="4", scaleGridTop="4", scaleGridRight="40", scaleGridBottom="17");
+    popUpDownSkin: Embed(source="/yssoft/assets/images/PopUpButton_downRightSkin.png", scaleGridLeft="4", scaleGridTop="4", scaleGridRight="40", scaleGridBottom="17");
+    popUpOverSkin: Embed(source="/yssoft/assets/images/PopUpButton_overRightSkin.png", scaleGridLeft="4", scaleGridTop="4", scaleGridRight="40", scaleGridBottom="17");
+    upSkin: Embed(source="/yssoft/assets/images/PopUpButton_upSkin.png", scaleGridLeft="4", scaleGridTop="4", scaleGridRight="40", scaleGridBottom="17");
+}
+
+.popupbuttonskin2 {
+    disabledSkin: Embed(source="/yssoft/assets/images/PopUpButton_DisabledSkin2.png");
+    downSkin: Embed(source="/yssoft/assets/images/PopUpButton_downLeftSkin2.png");
+    overSkin: Embed(source="/yssoft/assets/images/PopUpButton_overLeftSkin2.png");
+    popUpDownSkin: Embed(source="/yssoft/assets/images/PopUpButton_downRightSkin2.png");
+    popUpOverSkin: Embed(source="/yssoft/assets/images/PopUpButton_overRightSkin2.png");
+    upSkin: Embed(source="/yssoft/assets/images/PopUpButton_upSkin2.png");
+}
+
+/*----我的桌面页面页签管理按钮----*/
+.popupbuttonskin_del {
+
+    disabledSkin: Embed(source="/yssoft/assets/index/list.png");
+    upSkin: Embed(source="/yssoft/assets/index/list.png");
+    downSkin: Embed(source="/yssoft/assets/index/list_over.png");
+    overSkin: Embed(source="/yssoft/assets/index/list_over.png");
+    popUpDownSkin: Embed(source="/yssoft/assets/index/list_over.png");
+    popUpOverSkin: Embed(source="/yssoft/assets/index/list_over.png");
+
+}
+
+.popupbuttonskin_home {
+
+    disabledSkin: Embed(source="/yssoft/assets/index/home.png");
+    upSkin: Embed(source="/yssoft/assets/index/home.png");
+    downSkin: Embed(source="/yssoft/assets/index/home_over.png");
+    overSkin: Embed(source="/yssoft/assets/index/home_over.png");
+    popUpDownSkin: Embed(source="/yssoft/assets/index/home_over.png");
+    popUpOverSkin: Embed(source="/yssoft/assets/index/home_over.png");
+
+}
+
+.popupbuttonskin_caidan {
+
+    disabledSkin: Embed(source="/yssoft/assets/images/caidan.png");
+    upSkin: Embed(source="/yssoft/assets/images/caidan.png");
+    downSkin: Embed(source="/yssoft/assets/images/caidan_over.png");
+    overSkin: Embed(source="/yssoft/assets/images/caidan_over.png");
+    popUpDownSkin: Embed(source="/yssoft/assets/images/caidan_over.png");
+    popUpOverSkin: Embed(source="/yssoft/assets/images/caidan_over.png");
+}
+
+.popupbuttonskin_query {
+
+    disabledSkin: Embed(source="/yssoft/assets/images/filter.png");
+    upSkin: Embed(source="/yssoft/assets/images/filter.png");
+
+    downSkin: Embed(source="/yssoft/assets/images/filter.png");
+    overSkin: Embed(source="/yssoft/assets/images/filter.png");
+    popUpDownSkin: Embed(source="/yssoft/assets/images/filter.png");
+    popUpOverSkin: Embed(source="/yssoft/assets/images/filter.png");
+}
+
+/*----我的桌面页签行右侧向前按钮，页签多于屏幕出现----*/
+.prebutton {
+    disabledSkin: Embed(source="/yssoft/assets/index/pre.png");
+    downSkin: Embed(source="/yssoft/assets/index/pre_over.png");
+    overSkin: Embed(source="/yssoft/assets/index/pre_over.png");
+    upSkin: Embed(source="/yssoft/assets/index/pre.png");
+}
+
+/*----我的桌面页签行右侧向后按钮，页签多于屏幕出现-----*/
+.nextbutton {
+    disabledSkin: Embed(source="/yssoft/assets/index/next.png");
+    downSkin: Embed(source="/yssoft/assets/index/next_over.png");
+    overSkin: Embed(source="/yssoft/assets/index/next_over.png");
+    upSkin: Embed(source="/yssoft/assets/index/next.png");
+}
+
+/*-----首页底部按钮（在线人数、系统消息等）样式-----*/
+.icon_over {
+    downSkin: Embed(source="/yssoft/assets/images/icon_over.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="24", scaleGridBottom="19");
+    overSkin: Embed(source="/yssoft/assets/images/icon_over.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="24", scaleGridBottom="19");
+}
+
+/*-----分页（跳转按钮）样式-----*/
+.jumpstyle {
+    textRollOverColor: #FF8100;
+    disabledSkin: Embed(source="/yssoft/assets/images/fanye/tiaozhuan.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="38", scaleGridBottom="17");
+    downSkin: Embed(source="/yssoft/assets/images/fanye/tiaozhuan_over.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="38", scaleGridBottom="17");
+    overSkin: Embed(source="/yssoft/assets/images/fanye/tiaozhuan_over.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="38", scaleGridBottom="17");
+    upSkin: Embed(source="/yssoft/assets/images/fanye/tiaozhuan.png", scaleGridLeft="5", scaleGridTop="4", scaleGridRight="38", scaleGridBottom="17");
+}
+
+/*----无效果样式----*/
+.noskin {
+    skin: ClassReference(null);
+}
+
+/*----我的桌面上部菜单栏鼠标移过效果-----*/
+.menu_hasskin {
+    color: #000000;
+    skin: Embed(source="/yssoft/assets/images/menu_over.png", scaleGridLeft="5", scaleGridTop="8", scaleGridRight="22", scaleGridBottom="44");
+}
+
+.menu_noskin {
+    skin: ClassReference(null)
+}
+
+.menu_skin {
+    skin: Embed(source="/yssoft/assets/images/menu_over.png", scaleGridLeft="4", scaleGridTop="2", scaleGridRight="22", scaleGridBottom="32");
+}
+
+/*----菜单弹出面板的背景-----*/
+.menulist {
+    backgroundImage: Embed(source="/yssoft/assets/images/menulist_bg.png");
+    /*	borderColor:#c4cccc;
+     borderAlpha:1;*/
+    borderVisible: false;
+    backgroundImageFillMode: scale;
+    dropShadowVisible: true;
+}
+
+/*----退出按钮样式-----*/
+.logout {
+    disabledSkin: Embed(source="/yssoft/assets/index/exit1.png");
+    downSkin: Embed(source="/yssoft/assets/index/exit_over1.png");
+    overSkin: Embed(source="/yssoft/assets/index/exit_over1.png");
+    upSkin: Embed(source="/yssoft/assets/index/exit1.png");
+    skin: ClassReference(null);
+}
+
+/*----呼叫中心左侧panel-----*/
+.panelnew {
+    titleBackgroundSkin: Embed(source="/yssoft/assets/images/rxgt.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="30");
+    borderSkin: Embed(source="/yssoft/assets/images/rxgt.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="30");
+}
+
+/*----直角 中间背景(背景白色，底部无控制条背景)-----*/
+.centerbg01 {
+    borderSkin: Embed(source="/yssoft/assets/images/centerbg01.png", scaleGridLeft="1", scaleGridTop="34", scaleGridRight="17", scaleGridBottom="39");
+
+}
+
+/*----直角 中间背景(背景灰色，底部有控制条背景)----*/
+.centerbg03 {
+    borderSkin: Embed(source="/yssoft/assets/images/centerbg03.png", scaleGridLeft="1", scaleGridTop="34", scaleGridRight="16", scaleGridBottom="38");
+}
+
+/*----直角 中间背景(背景灰色，底部无控制条背景)----*/
+.centerbg04 {
+    borderSkin: Embed(source="/yssoft/assets/images/centerbg04.png", scaleGridLeft="1", scaleGridTop="34", scaleGridRight="15", scaleGridBottom="39");
+}
+
+/*----中间头部ApplicationControlBar样式----*/
+.centertop1 {
+    borderSkin: Embed(source="/yssoft/assets/images/centertop1.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="15", scaleGridBottom="31");
+    paddingRight: 3;
+    verticalAlign: middle;
+}
+
+.coretop {
+    borderSkin: Embed(source="/yssoft/assets/core/coretop.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="15", scaleGridBottom="31");
+    paddingRight: 3;
+    verticalAlign: middle;
+}
+
+.centertop2 {
+    borderSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="31");
+    paddingRight: 10;
+    cornerRadius: 0;
+    verticalAlign: middle;
+}
+
+/*----在线通话背景----*/
+.zxthbg {
+    borderSkin: Embed(source="/yssoft/assets/images/AccordionHeader_selectedSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="15", scaleGridBottom="28");
+}
+
+/*----新建客商—相关人员按钮----*/
+.xgrybutton {
+    skin: ClassReference(null);
+    textRollOverColor: #018ccf;
+}
+
+.newbg {
+    borderSkin: Embed(source="/yssoft/assets/images/newbg.png", scaleGridLeft="13", scaleGridTop="42", scaleGridRight="91", scaleGridBottom="46");
+}
+
+.myPlanHeadBox {
+    borderSkin: Embed(source="/yssoft/assets/images/plan/datebg.png", scaleGridLeft="20", scaleGridTop="17", scaleGridRight="75", scaleGridBottom="25");
+}
+
+.myPlanHeadBox s|Label {
+    fontSize: 16;
+    fontWeight: bold;
+}
+
+.mainPlanLeft {
+    borderSkin: Embed(source="/yssoft/assets/images/plan/bg.png", scaleGridLeft="22", scaleGridTop="20", scaleGridRight="54", scaleGridBottom="41");
+}
+
+.mainPlanRight {
+    borderSkin: Embed(source="/yssoft/assets/images/plan/kapian.png", scaleGridLeft="22", scaleGridTop="20", scaleGridRight="154", scaleGridBottom="50");
+}
+
+.myPlanTitle {
+    borderSkin: Embed(source="/yssoft/assets/images/AccordionHeader_upSkin.png", scaleGridLeft="1", scaleGridTop="1", scaleGridRight="17", scaleGridBottom="30");
+}
+
+plan|MainPlanListItem mx|HBox {
+    verticalAlign: middle;
+}
+
+#hotLineViewRadioButtonBox mx|HBox {
+    paddingLeft: -15;
+}
+
+/*wxh add*/
+.popupbuttonskin_query_gray {
+
+    disabledSkin: Embed(source="/yssoft/assets/images/filterGray.png");
+    upSkin: Embed(source="/yssoft/assets/images/filterGray.png");
+
+    downSkin: Embed(source="/yssoft/assets/images/filterGray.png");
+    overSkin: Embed(source="/yssoft/assets/images/filterGray.png");
+    popUpDownSkin: Embed(source="/yssoft/assets/images/filterGray.png");
+    popUpOverSkin: Embed(source="/yssoft/assets/images/filterGray.png");
+}
+
+.coreBorder {
+    borderColor: #E1E1E1;
+    borderAlpha: 1;
+    borderVisible: true;
+    borderStyle: solid;
+}
+

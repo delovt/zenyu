@@ -1,0 +1,3920 @@
+<ReportSettings version="1.1">
+  <PageWidth>40</PageWidth>
+  <PageHeight>21</PageHeight>
+  <LeftMargin>0.5</LeftMargin>
+  <RightMargin>0.5</RightMargin>
+  <TopMargin>2</TopMargin>
+  <BottomMargin>2</BottomMargin>
+  <FitToPrintSize>true</FitToPrintSize>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.8</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务综合同比</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Concat("统计年份","：" ,Parameters!日期1.Value)</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>年度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>7月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>8月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>9月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>10月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>11月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>12月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!日期1.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!日期2.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>同比</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!年份.Value==Parameters!日期2.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>1.23</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>现场服务同比</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <VerticalAlign>bottom</VerticalAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>年度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>7月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>8月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>9月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>10月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>11月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>12月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!日期1.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!日期2.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>同比</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==370 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>1.23</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>远程服务同比</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <VerticalAlign>bottom</VerticalAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>年度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>7月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>8月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>9月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>10月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>11月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>12月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!日期1.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!日期2.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>同比</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==369 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>1.23</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>电话服务同比</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <VerticalAlign>bottom</VerticalAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>年度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>7月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>8月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>9月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>10月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>11月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>12月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!日期1.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!日期2.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>同比</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==368 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#0099ff</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+
+
+
+	<ItemSetting type="TableRowSetting">
+		  <Height>1.23</Height>
+		  <TableCellSettings>
+			<ItemSetting type="TableCellSetting">
+			  <Value>送修服务同比</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<VerticalAlign>bottom</VerticalAlign>
+				<FontSize>16</FontSize>
+				<FontBold>true</FontBold>
+				<Border>false</Border>
+			  </Style>
+			  <ColSpan>14</ColSpan>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Style>
+				<Border>false</Border>
+			  </Style>
+			</ItemSetting>
+		  </TableCellSettings>
+		</ItemSetting>
+		<ItemSetting type="TableRowSetting">
+		  <TableCellSettings>
+			<ItemSetting type="TableCellSetting">
+			  <Value>年度</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>1月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>2月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>3月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>4月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>5月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>6月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>7月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>8月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>9月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>10月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>11月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>12月</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>合计</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+		  </TableCellSettings>
+		</ItemSetting>
+		<ItemSetting type="TableRowSetting">
+		  <TableCellSettings>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=Parameters!日期1.Value</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+		  </TableCellSettings>
+		</ItemSetting>
+		<ItemSetting type="TableRowSetting">
+		  <TableCellSettings>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=Parameters!日期2.Value</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+			  </Style>
+			</ItemSetting>
+		  </TableCellSettings>
+		</ItemSetting>
+		<ItemSetting type="TableRowSetting">
+		  <TableCellSettings>
+			<ItemSetting type="TableCellSetting">
+			  <Value>同比</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==1)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==1))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==2)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==2))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==3)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==3))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==4)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==4))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==5)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==5))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==6)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==6))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==7)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==7))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==8)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==8))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==9)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==9))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==10)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==10))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==11)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==11))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value &amp;&amp; Fields!月份.Value==12)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value &amp;&amp; Fields!月份.Value==12))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+			<ItemSetting type="TableCellSetting">
+			  <Value>=If(SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value)==0,"",SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期1.Value)-SumIf(Fields!次数.Value,Fields!解决方式ID.Value==843 &amp;&amp; Fields!年份.Value==Parameters!日期2.Value))</Value>
+			  <Style>
+				<TextAlign>center</TextAlign>
+				<FontSize>12</FontSize>
+				<FontBold>true</FontBold>
+			  </Style>
+			  <ConditionStyleSettings>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&gt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#0099ff</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+				<ItemSetting type="ConditionStyleSetting">
+				  <Condition>=Val()&lt;0</Condition>
+				  <Style>
+					<TextAlign>center</TextAlign>
+					<TextColor>#ff8100</TextColor>
+					<FontSize>12</FontSize>
+					<FontBold>true</FontBold>
+				  </Style>
+				</ItemSetting>
+			  </ConditionStyleSettings>
+			</ItemSetting>
+		  </TableCellSettings>
+		</ItemSetting>
+
+
+
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*" xmlns:frameui="yssoft.frameui.*" horizontalGap="0"
+                width="100%" height="100%"
+                creationComplete="funnelReportVBox_creationCompleteHandler(event)"
+                updateComplete="funnelReportVBox_updateCompleteHandler(event)"
+                xmlns:module="yssoft.comps.frame.module.*"
+        >
+
+    <fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.ISort;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+        import mx.rpc.events.ResultEvent;
+        
+        import spark.collections.Sort;
+        import spark.collections.SortField;
+        import spark.events.IndexChangeEvent;
+        
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.DateHadle;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var ui_idepartment:CrmEapTextInput;
+        private var ui_iperson:CrmEapTextInput;
+        private var ui_isalesregion:CrmEapTextInput;
+
+        [Bindable]
+        private var sum:int = 0;
+        [Bindable]
+        private var castSum:Number = 0;
+        [Bindable]
+        private var castSumYuce:Number = 0;
+
+        //权限sql
+        private var authSql:String;
+        //权限类对象
+        public var auth:OperDataAuth;
+
+        [Bindable]
+        private var fcData:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var childDGsss:ArrayCollection = new ArrayCollection();
+        private var allList:ArrayCollection = new ArrayCollection();
+        private var jieduan:ArrayCollection = new ArrayCollection();
+
+        private var funnelShape:ArrayCollection = new ArrayCollection([
+            {label: "金额权重"},
+            {label: "数量权重"},
+        ]);
+
+        private var isjstatus:ArrayCollection = new ArrayCollection([
+            {label: ""},
+            {label: "未审核"},
+            {label: "已审核"},
+            {label: "已关闭"}
+        ]);
+		
+
+
+        private function funnelReportVBox_creationCompleteHandler(event:FlexEvent):void {
+            initConsultItem("idepartment");
+            initConsultItem("iperson");
+            initConsultItem2("isalesregion");//销售区域
+
+            AccessUtil.remoteCallJava("customerDest", "getJieduan", function (event:ResultEvent):void {
+                if (event.result as ArrayCollection) {
+                    jieduan = event.result as ArrayCollection;
+                    mainDG.rowCount = jieduan.length;
+                }
+            }, {});
+
+            auth = new OperDataAuth();
+
+            //---------------加载数据权限 ---------------//
+            auth.addEventListener("onGet_FundataauthSucess", function (evt:Event):void {
+                authSql = auth.getdataauthcondition("01", 80, CRMmodel.userId, CRMmodel.hrperson.idepartment, "sa_opportunity", 1);
+            });
+            auth.get_fundataauth({ifuncregedit: 80, iperson: CRMmodel.userId});
+        }
+
+
+        private function initConsultItem(name:String):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = "80";
+            obj1.ctable = "sa_opportunity";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+
+        private function initConsultItem2(name:String):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = "44";
+            obj1.ctable = "cs_customer";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.width = 161;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+                consultTextInput.styleName = "contentTextInputOther";
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+
+        protected function funnelReportVBox_updateCompleteHandler(event:FlexEvent):void {
+            //CRMtool.setTabIndex(this.searchBox);
+        }
+
+        private function checkData():Boolean {
+            var flag:Boolean = true;
+            if (!CRMtool.verificationItem(ui_eddate)) {
+                return false;
+            }
+            if (!CRMtool.verificationItem(ui_sddate)) {
+                return false;
+            }
+            return flag;
+        }
+
+        protected function searchButton_clickHandler(event:MouseEvent):void {
+
+            //if(!checkData()) return;
+
+
+            this.mainDG.dataProvider = null;
+            this.childDG.dataProvider = null;
+
+            var searchObj:Object = new Object();
+            searchObj.sddate = this.ui_sddate.text;
+            searchObj.eddate = this.ui_eddate.text;
+
+            if (ui_idepartment.consultList.length > 0)
+                searchObj.idepartment = this.ui_idepartment.consultList[0].iid;
+            if (ui_iperson.consultList.length > 0)
+                searchObj.iperson = this.ui_iperson.consultList[0].iid;
+            if (ui_isalesregion.consultList.length > 0)
+                searchObj.isalesregion = this.ui_isalesregion.consultList[0].iid;
+
+            if (this.ui_isPause.selected)
+                searchObj.isPause = this.ui_isPause.selected;
+            else
+                searchObj.isPauseNo = true;
+
+            if (this.ui_isSuccess.selected)
+                searchObj.isSuccess = this.ui_isSuccess.selected;
+            else
+                searchObj.isSuccessNo = true;
+            if(this.ui_isjstatus.selectedIndex != 0){
+                searchObj.isjstatus = this.ui_isjstatus.selectedIndex-1;
+            }
+            searchObj.funnelShape = this.ui_funnelShape.selectedIndex;
+
+            searchObj.authSql = authSql;
+            AccessUtil.remoteCallJava("customerDest", "getFunnelDate", searchBack, searchObj);
+        }
+
+        private function searchBack(event:ResultEvent):void {
+            //Alert.show((event.result as ArrayCollection).length+"");
+            if (event.result) {
+                allList = event.result as ArrayCollection;
+                makeMainDG(allList);
+                childDG.dataProvider = allList;
+            }
+        }
+
+        private function makeMainDG(ac:ArrayCollection):void {
+            sum = ac.length;//总条目
+
+            var mainDGList:ArrayCollection = new ArrayCollection();
+            //var iphaseList:ArrayCollection =  new ArrayCollection();
+
+            //计算总金额
+            castSum = 0;
+            castSumYuce = 0;
+            for each (var item:Object in ac) {
+                castSum = castSum + item.fforecast;
+            }
+
+            for each(var iphaseListObj:Object in jieduan) {
+                var iphaseListItem:String = iphaseListObj.cname;
+                var num:int = 0;
+                var fforecast_sum:Number = 0;
+                var fprobability_sum:Number = 0;
+                var ino:int = 0;
+
+                for each (var item:Object in ac) {
+                    if (iphaseListItem == item.iphase_cname) {
+                        num++;
+                        fforecast_sum = fforecast_sum + item.fforecast;
+                        fprobability_sum = fprobability_sum + item.fprobability;
+                        ino = item.ino;
+                    }
+                }
+
+                var addObj:Object = new Object();
+                addObj.iphase_cname = iphaseListItem;
+                addObj.fpercent = iphaseListObj.fpercent;
+                addObj.num = num;
+                addObj.fforecast_sum = fforecast_sum;
+                addObj.ino = iphaseListObj.ino;
+                if (num != 0) {
+                    addObj.fprobability_ave = (fforecast_sum as Number) * (iphaseListObj.fpercent as Number) / 100;
+                    castSumYuce = castSumYuce + addObj.fprobability_ave;
+                    addObj.num_scale = num / sum;
+                    addObj.cast_scale = fforecast_sum / castSum;
+                }
+
+                mainDGList.addItem(addObj);
+
+                /* var sort:ISort = new Sort();
+
+                 sort.fields = [new SortField("ino")];
+                 mainDGList.sort = sort;
+                 mainDGList.refresh(); */
+
+                mainDG.dataProvider = mainDGList;
+            }
+            doFunnel();
+        }
+
+        private function doFunnel():void {
+
+            if (!ui_funnelShape.selectedItem)
+                return;
+
+            fcData.removeAll();
+            var nowSum:int = 0;
+            var nowCastSum:int = 0;
+            var nowAC:ArrayCollection = mainDG.dataProvider as ArrayCollection;
+
+            for (var i:int = nowAC.length - 1; i >= 0; i--) {
+                var item:Object = nowAC.getItemAt(i);
+                var obj:Object = new Object();
+                obj.label = item.iphase_cname;
+
+                nowSum = nowSum + item.num;
+                nowCastSum = nowCastSum + item.fforecast_sum;
+
+                if (ui_funnelShape.selectedIndex == 0) {
+                    obj.value = item.fforecast_sum;
+                    //obj.value = nowCastSum;
+                } else if (ui_funnelShape.selectedIndex == 1) {
+                    obj.value = item.num;
+                    //obj.value = nowSum;
+                }
+
+                fcData.addItemAt(obj, 0);
+            }
+
+            fc.chartData = fcData;
+            //fc.FCData(fcData);
+            //	fc.FCParams(basicChartParam);
+
+            //fc.FCRender();
+        }
+
+        private var basicChartParam:ArrayCollection = new ArrayCollection([
+            {manageresize: "1"},
+
+            {showpercentvalues: "0"},
+            {showBorder: "0"},
+            {showAboutMenuItem: "0"},
+
+            {decimals: '2'},
+            {baseFontSize: '11'},
+            {bgColor: '#FFFFFF'},
+
+            /*是否切片  */
+            {issliced: "0"},
+
+            /*是否启用相同视角  */
+            {usesameslantangle: "1"},
+
+            /*是否空心  */
+            {ishollow: "1"},
+
+            /*标签距离 */
+            /*  {labeldistance: "5"},  */
+
+            {is2d: "0"},
+
+            {showplotborder: "1"},
+            {plotborderthickness: "1"},
+            {plotbordercolor: "000000"},
+            {streamlineddata: "0"}
+        ]);
+
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = childDG.dataProvider.getItemIndex(item) + 1;
+            return lineNum + "";
+        }
+			
+			private function doLineNum1(item:Object, column:DataGridColumn):String {
+				var lineNum:int = childDGss.dataProvider.getItemIndex(item) + 1;
+				return lineNum + "";
+			}
+
+        private function doMoney(item:Object, column:DataGridColumn):String {
+            var s:String = item[column.dataField] + "";
+            if (s.indexOf(".") > -1) {
+                return s.substr(0, s.indexOf(".") + 3);
+            } else {
+                return s;
+            }
+        }
+
+        private function doScale(item:Object, column:DataGridColumn):String {
+            var itemNum:Number = item[column.dataField] as Number;
+            var n:Number = itemNum * 100 + 0.005;
+            var s:String = n.toString();
+            if (s.indexOf(".") > -1) {
+                return s.substr(0, s.indexOf(".") + 3) + " %";
+            } else {
+                return s + " %";
+            }
+        }
+
+        protected function ui_funnelShape_changeHandler(event:IndexChangeEvent):void {
+            doFunnel();
+        }
+
+        protected function mainDG_itemClickHandler(event:ListEvent):void {
+            var selectItem:Object = event.itemRenderer.data;
+            var childDGAC:ArrayCollection = new ArrayCollection();
+            for each(var item:Object in allList) {
+                if (item.iphase_cname == selectItem.iphase_cname)
+                    childDGAC.addItem(item);
+            }
+
+            var sort:ISort = new Sort();
+
+            sort.fields = [new SortField("iperson_name"), new SortField("dforecast")];
+            childDGAC.sort = sort;
+            childDGAC.refresh();
+
+            childDG.dataProvider = childDGAC;
+        }
+
+        protected function childDG_doubleClickHandler(event:MouseEvent):void {
+            CRMtool.openbillonbrowse(80, childDG.selectedItem.iid, "新增销售商机");
+			var selSql:String ="select OA_workdiary.iid,ffee,convert(varchar(50),OA_workdiary.dbegin,23)dbegin,OA_workdiary.icustomer,cs_customer.cname customer_name,hr_person.cname imaker,OA_workdiary.icustperson, "+
+                                        "cs_custperson.cname custperson,cs_custperson.cdepartment,cs_custperson.cpost,cs_custperson.cmobile1,cs_custperson.ctel, "+
+                                        "OA_workdiary.cname,aa_data.cname istyle,aa_data2.cname itype,OA_workdiary.cdetail,OA_workdiary.dmaker,OA_workdiary.ifuncregedit,OA_workdiary.iinvoice "+
+                                        "from OA_workdiary left join (select iid,cname from cs_customer) cs_customer on OA_workdiary.icustomer=cs_customer.iid "+
+                                        "left join (select * from vi_cs_custperson) cs_custperson on OA_workdiary.icustperson=cs_custperson.iid "+
+                                        "left join (select iid,cname from hr_person) hr_person on OA_workdiary.imaker = hr_person.iid "+
+                                        "left join (select iid,cname from aa_data) aa_data on OA_workdiary.istyle=aa_data.iid "+
+                                        "left join (select iid,cname from aa_data  where iclass=23) aa_data2 on OA_workdiary.itype=aa_data2.iid "+
+                                        "where 1=1 and OA_workdiary.iifuncregedit=46 and OA_workdiary.ifuncregedit=80 and OA_workdiary.iinvoice="+childDG.selectedItem.iid;
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var ac:ArrayCollection=event.result as ArrayCollection;
+				if(ac.length==0)
+					return;
+				childDGss.dataProvider=ac;
+			}, selSql);
+        }
+			
+		protected function childDGss_doubleClickHandler(event:MouseEvent):void {
+			CRMtool.openbillonbrowse(46, childDGss.selectedItem.iid, "新建活动");
+		}
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="stretch" target="{boxLeftRoot}" duration="700" widthTo="257"/>
+        <s:Resize id="contract" target="{boxLeftRoot}" duration="700" widthTo="0"/>
+    </fx:Declarations>
+	<mx:VBox id="boxLeftRoot" width="257"  height="100%" styleName="lefttree" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="frameSideAppBar">
+				<s:Label styleName="contentTitle" text="查询条件"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox paddingLeft="10" paddingTop="10" paddingRight="10" id="searchBox" width="100%" height="270"  styleName="funnelReportForm"
+					 verticalGap="5">	
+				
+					<mx:HBox width="100%">
+						<mx:FormItemLabel text="预测起始："/>
+						<!--<mx:DateField id="ui_sddate" width="100%" editable="true" 
+									  formatString="YYYY-MM-DD" yearNavigationEnabled="true" 
+									  dayNames="['日','一','二','三','四','五','六']"
+									  monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]"/>-->
+						<comps:DateControl id="ui_sddate" width="100%" editable="true" isStyle="false" showShape="0"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:FormItemLabel text="预测结束："/>
+						<!--<mx:DateField id="ui_eddate" width="100%" editable="true" text="{DateHadle.getEndOfYear()}"
+									  formatString="YYYY-MM-DD" yearNavigationEnabled="true" 
+									  dayNames="['日','一','二','三','四','五','六']"
+									  monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]"/>-->
+						<comps:DateControl id="ui_eddate" width="100%" editable="true" isStyle="false" showShape="0"
+										   text="{DateHadle.getEndOfYear()}"/>
+					</mx:HBox>
+				
+					<mx:HBox id="ui_idepartment_box" width="100%">
+						<mx:FormItemLabel text="负责部门："/>
+						<!--<s:TextInput width="100%" id="ui_department"/>-->
+					</mx:HBox>
+					<mx:HBox id="ui_iperson_box" width="100%">
+						<mx:FormItemLabel text="负责人员："/>
+						<!--<s:TextInput width="100%" id="ui_person"/>-->
+					</mx:HBox>
+                    <mx:HBox id="ui_isalesregion_box" width="100%">
+                        <mx:FormItemLabel text="销售区域："/>
+                    </mx:HBox>
+
+					<mx:HBox width="100%">
+						<mx:FormItemLabel text="成单项目："  click="{ui_isSuccess.selected=ui_isSuccess.selected?false:true}"/>
+						<s:CheckBox id="ui_isSuccess" />
+						
+						<s:Spacer width="100%"/>
+						<mx:FormItemLabel text="停废丢单：" click="{ui_isPause.selected=ui_isPause.selected?false:true}"/>
+						<s:CheckBox id="ui_isPause"/>
+					</mx:HBox>
+                    <mx:HBox width="100%">
+                        <mx:FormItemLabel text="审核状态："/>
+                        <s:ComboBox id="ui_isjstatus"  width="100%" dataProvider="{isjstatus}" selectedIndex="0"/>
+                    </mx:HBox>
+					<mx:HBox width="100%">
+						<mx:FormItemLabel text="漏斗形式："/>
+						<s:ComboBox id="ui_funnelShape"  width="100%" dataProvider="{funnelShape}" selectedIndex="0" change="ui_funnelShape_changeHandler(event)"/>
+					</mx:HBox>
+				
+					<mx:HBox width="100%" paddingTop="10" horizontalAlign="right">
+						<mx:Button label="查询" width="50" height="20"  click="searchButton_clickHandler(event)"/>
+					</mx:HBox>	
+				
+			</mx:VBox>
+			<!--<chart:FusionCharts id="fc" FCChartType="Funnel" width="257" height="300"/>-->
+			<mx:HBox width="100%" height="100%" paddingLeft="1" paddingRight="1" paddingBottom="1">
+				<module:CrmEapFusionCharts id="fc"  FCChartType="Funnel" width="100%" height="100%" />	
+			</mx:HBox>
+	</mx:VBox>
+
+    <frameui:FoldGapBox id="jiange" targetBox="{boxLeftRoot}"/>
+	
+	<mx:VBox width="100%" height="100%" styleName="centerbg03">
+		<mx:ApplicationControlBar width="100%" height="32" styleName="centertop1">
+			<s:Label styleName="contentTitle" text="漏斗数据:"/>
+			<s:Spacer width="100%"/>
+			<s:Label text="商机预测：{CRMtool.formatFloatString(castSum)}  漏斗预测：{CRMtool.formatFloatString(castSumYuce)}"/>
+			<s:Spacer width="10"/>
+		</mx:ApplicationControlBar>
+		
+		<mx:VDividedBox width="100%" height="100%">
+			<mx:VBox width="100%" height="32%">
+				<mx:HBox  width="100%" height="100%" paddingTop="-1">
+					<mx:DataGrid  width="100%"  height="100%" id="mainDG" itemClick="mainDG_itemClickHandler(event)" sortableColumns="false">
+						<mx:columns>
+							<mx:DataGridColumn headerText="商机阶段" dataField="iphase_cname" />
+							<mx:DataGridColumn headerText="商机个数{sum==0?'':' ['+sum+']'}" dataField="num" textAlign="right" />
+							<mx:DataGridColumn headerText="商机预测金额" dataField="fforecast_sum" textAlign="right" labelFunction="{CRMtool.formatFloat}"/>
+							<mx:DataGridColumn headerText="预设成功率" dataField="fpercent" textAlign="center" />
+							<mx:DataGridColumn headerText="漏斗预测金额" dataField="fprobability_ave" textAlign="right"  labelFunction="{CRMtool.formatFloat}"/>
+							<mx:DataGridColumn headerText="金额比例"  dataField="cast_scale" labelFunction="{doScale}" textAlign="right"/>
+							<mx:DataGridColumn headerText="数量比例"  dataField="num_scale" labelFunction="{doScale}" textAlign="right"/>			
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:HBox>
+
+			</mx:VBox>
+			<mx:VBox width="100%" height="45%">
+				<mx:HBox  width="100%" height="100%" paddingTop="-1">
+			<mx:DataGrid id="childDG" width="100%" height="100%" doubleClickEnabled="true" doubleClick="childDG_doubleClickHandler(event)">
+				<mx:columns>
+					<mx:DataGridColumn id="ck" editable="false" width="30" headerText=" " dataField="chicks"
+									   sortable="false">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:HBox horizontalAlign="center" verticalAlign="middle" width="100%">
+									<mx:CheckBox id="selectBox" textAlign="center" click="selectBox_clickHandler(event)"
+												 selected="{(data.chicks==1)?true:false}">
+										<fx:Script><![CDATA[
+											import mx.collections.ArrayCollection;
+											import mx.rpc.events.ResultEvent;
+											
+											import yssoft.tools.AccessUtil;
+											private function selectBox_clickHandler(event:MouseEvent):void {
+												data.chicks = !data.chicks;
+												for each(var item:Object in outerDocument.childDG.dataProvider){
+												if(item.iid!=data.iid)
+													item.chicks=false;
+												}
+												outerDocument.childDGsss.removeAll();
+												outerDocument.childDG.dataProvider.refresh();
+												outerDocument.childDGss.dataProvider.refresh();
+												if(data.chicks==1||data.chicks=="true"){
+													var selSql:String ="select OA_workdiary.iid,ffee,convert(varchar(50),OA_workdiary.dbegin,23)dbegin,OA_workdiary.icustomer,cs_customer.cname customer_name,hr_person.cname imaker,OA_workdiary.icustperson, "+
+														"cs_custperson.cname custperson,cs_custperson.cdepartment,cs_custperson.cpost,cs_custperson.cmobile1,cs_custperson.ctel, "+
+														"OA_workdiary.cname,aa_data.cname istyle,aa_data2.cname itype,OA_workdiary.cdetail,OA_workdiary.dmaker,OA_workdiary.ifuncregedit,OA_workdiary.iinvoice "+
+														"from OA_workdiary left join (select iid,cname from cs_customer) cs_customer on OA_workdiary.icustomer=cs_customer.iid "+
+														"left join (select * from vi_cs_custperson) cs_custperson on OA_workdiary.icustperson=cs_custperson.iid "+
+														"left join (select iid,cname from hr_person) hr_person on OA_workdiary.imaker = hr_person.iid "+
+														"left join (select iid,cname from aa_data) aa_data on OA_workdiary.istyle=aa_data.iid "+
+														"left join (select iid,cname from aa_data  where iclass=23) aa_data2 on OA_workdiary.itype=aa_data2.iid "+
+														"where 1=1 and OA_workdiary.iifuncregedit=46 and OA_workdiary.ifuncregedit=80 and OA_workdiary.iinvoice="+data.iid;
+													AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+														var ac:ArrayCollection=event.result as ArrayCollection;
+														if(ac.length==0)
+															return;
+														outerDocument.childDGsss=ac;
+													}, selSql);
+												}
+											}
+										]]></fx:Script>
+									</mx:CheckBox>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="序号" labelFunction="{doLineNum}" width="30"/>
+					<mx:DataGridColumn headerText="项目状态" dataField="istatus_cname" width="70"/>
+					<mx:DataGridColumn headerText="商机阶段" dataField="iphase_cname" width="70"/>
+                    <mx:DataGridColumn headerText="审核状态" dataField="cstatus_cname" width="70"/>
+					<mx:DataGridColumn headerText="部门" dataField="idepartment_cname" width="90"/>
+					<mx:DataGridColumn headerText="业务员" dataField="iperson_name" width="70"/>
+					<mx:DataGridColumn headerText="客户" dataField="customer_cname" width="190"/>
+                    <mx:DataGridColumn headerText="销售区域" dataField="sregion_cname" width="70"/>
+					<mx:DataGridColumn headerText="项目" dataField="opportunity_cname" width="190"/>
+					<mx:DataGridColumn headerText="预测金额" dataField="fforecast" width="70" textAlign="right"  labelFunction="{CRMtool.formatFloat}"/>
+					<mx:DataGridColumn headerText="预设成功率" dataField="fprobability" width="70" textAlign="center"/>
+					<mx:DataGridColumn headerText="预计成交时间" dataField="dforecast" width="120" labelFunction="{CRMtool.formatDate}"  textAlign="center" />
+				</mx:columns>
+			</mx:DataGrid>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:VBox width="100%" height="23%">
+				<mx:HBox  width="100%" height="100%" paddingTop="-1">
+					<mx:DataGrid id="childDGss" width="100%" height="100%" dataProvider="{childDGsss}" doubleClickEnabled="true" doubleClick="childDGss_doubleClickHandler(event)">
+						<mx:columns>
+							<mx:DataGridColumn headerText="序号" labelFunction="{doLineNum1}" width="20"/>
+							<mx:DataGridColumn headerText="开始时间" dataField="dbegin" width="60"/>
+							<mx:DataGridColumn headerText="客户" dataField="customer_name" width="150"/>
+							<mx:DataGridColumn headerText="客户人员" dataField="custperson" width="40"/>
+							<mx:DataGridColumn headerText="活动人员" dataField="imaker" width="40"/>
+							<mx:DataGridColumn headerText="主题" dataField="cname" width="90"/>
+							<mx:DataGridColumn headerText="方式" dataField="istyle" width="40"/>
+							<mx:DataGridColumn headerText="类型" dataField="itype" width="40"/>
+							<mx:DataGridColumn headerText="活动内容" dataField="cdetail" width="200"/>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VDividedBox>
+	</mx:VBox>
+</mx:HDividedBox>

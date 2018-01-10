@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				width="100%" height="100%" creationComplete="init();" xmlns:comps="yssoft.comps.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.comps.RadianVbox;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.ElementVo;
+			import yssoft.vos.SubElementsVo;
+			
+			//菜单传入参数
+			[Bindable]
+			public var winParam:Object=new Object();
+			
+			private var itemObj:Object;
+			
+			//按钮选择
+			private var item:String="";
+			
+			//所有结果集
+			private var framObj:Object;
+			
+			[Bindable]
+			public var frameworkArr:ArrayCollection = new ArrayCollection();
+			
+			private var _frameArr:ArrayCollection = new ArrayCollection();
+			
+			private var defaultParametersObj:Object = new Object();
+			
+			private var _csql1:String = null;
+			
+			public function set csql1(value:String):void
+			{
+				_csql1 = value;
+			}
+			
+			//页面初始化
+			public function init():void
+			{
+				itemObj = CRMtool.getObject(winParam);
+				frameworkArr = ConstsModel[itemObj.LinkButtonArr] ;
+				if(itemObj.hasOwnProperty("defaultParameters"))
+				{
+					defaultParametersObj = CRMtool.getObject(itemObj.defaultParameters,"~","*");
+					AccessUtil.remoteCallJava(itemObj.dest,itemObj.onGet,getEpartmencallBackHandler,defaultParametersObj);
+				}
+				else
+				{
+					AccessUtil.remoteCallJava(itemObj.dest,itemObj.onGet,getEpartmencallBackHandler);
+				}
+			}
+			
+			private function getEpartmencallBackHandler(event:ResultEvent):void
+			{
+				if(event.result!=null)
+				{
+					var result:String = event.result as String;
+					this.tre_framework.treeCompsXml = new XML(result);
+					CRMtool.toolButtonsEnabled(this.lbr_Department,null,this.tre_framework.treeCompsXml.length());
+				}
+				else
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_Department,null,0);
+				}
+				
+				_frameArr = new ArrayCollection();
+				
+				var framArr:ArrayCollection = ConstsModel[itemObj.fileds] as ArrayCollection;
+				for(var i:int=0;i<framArr.length;i++)
+				{
+					var frameArr:ArrayCollection = framArr.getItemAt(i) as ArrayCollection;
+					for(var j:int=0;j<frameArr.length;j++)
+					{
+						var fra:ElementVo = frameArr.getItemAt(j) as ElementVo;
+						if(fra.isLine)
+						{
+							var lbe_ccaption:Label = new Label;
+							lbe_ccaption.text = fra.ccaption;
+							lbe_ccaption.styleName ="contentLabel";
+							lbe_ccaption.percentWidth=20;
+							lbe_ccaption.setStyle("paddingLeft",15);
+							myBorder.addChild(lbe_ccaption);
+							break;
+						}
+					}
+					var customerVbox:RadianVbox = new RadianVbox();
+					customerVbox.cou =int(itemObj.count);
+					customerVbox.elementArr = frameArr;
+					customerVbox.percentWidth=100;
+					customerVbox.percentHeight =10; 
+					myBorder.addChild(customerVbox);
+					
+					customerVbox.parametersObj = defaultParametersObj;
+					customerVbox.reset();
+					
+					var cfields:ArrayCollection = new ArrayCollection();
+					//获得字段名称
+					for(var j:int=0;j<frameArr.length;j++)
+					{
+						var elementVo:ElementVo = frameArr.getItemAt(j) as ElementVo;
+						var subElement:ArrayCollection =elementVo.subElement;
+						for(var k:int=0;k<subElement.length;k++)
+						{
+							var subElementsVo:SubElementsVo = subElement.getItemAt(k) as SubElementsVo;
+							cfields.addItem(subElementsVo.cfield);
+						}
+					}
+					
+					//获得VBox和字段名
+					var frameObject:Object = new Object();
+					frameObject.cfields = cfields;
+					frameObject.customerVbox = customerVbox;
+					_frameArr.addItem(frameObject);
+				}
+								
+				CRMtool.containerChildsEnabled(this.myBorder,false);
+				//回车替代TAB键
+				CRMtool.setTabIndex(this.myBorder);
+			}
+			
+			
+			
+			//新增
+			private function onNew(event:Event):void
+			{
+				CRMtool.containerChildsEnabled(this.myBorder,true);
+				//清空所有
+				for(var i:int=0;i<_frameArr.length;i++)
+				{
+					var obj:Object = _frameArr.getItemAt(i);
+					var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+					customerVbox.clean();
+					customerVbox.endi();
+					customerVbox.parametersObj = defaultParametersObj;
+					customerVbox.reset();
+				}
+				
+				item = "onNew";
+				CRMtool.toolButtonsEnabled(this.lbr_Department,"onNew");
+			}	
+			
+			
+			private function onClick():void
+			{
+				if(this.tre_framework.selectedItem&&this.tre_framework.selectedItem!=null)
+				{
+					for(var i:int=0;i<_frameArr.length;i++)
+					{
+						var obj:Object = _frameArr.getItemAt(i);
+						var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+						var result:Object = customerVbox.getResult();
+						var cfides:ArrayCollection = obj.cfields as ArrayCollection;
+						var newobj:Object = new Object();
+						for(var j:int=0;j<cfides.length;j++)
+						{
+							var cfied:String = cfides.getItemAt(j) as String;
+							var myPattern:RegExp = /\"/g;
+							newobj[cfied] =this.tre_framework.selectedItem["@"+cfied].replace(myPattern,"'");
+						}
+						customerVbox.parametersObj = newobj;
+						customerVbox.reset();
+					}
+				}
+			}
+			
+			//获得参数值
+			private function getItem():Object
+			{
+				var parmObj:Object = new Object();
+				//获取文本框的值
+				for(var i:int=0;i<_frameArr.length;i++)
+				{
+					var obj:Object = _frameArr.getItemAt(i);
+					var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+					var result:Object = customerVbox.getResult();
+					var cfides:ArrayCollection = obj.cfields as ArrayCollection;
+					for(var j:int=0;j<cfides.length;j++)
+					{
+						var cfied:String = cfides.getItemAt(j) as String;
+						if(cfied=="ccode")
+						{
+							parmObj.ipid=this.tre_framework.getIpid(result[cfied].toString());
+						}
+						parmObj[cfied] = result[cfied];
+					}
+				}
+				if(item == "onEdit")
+				{
+					parmObj.iid = int(this.tre_framework.selectedItem.@iid);
+					parmObj.oldCcode = String(this.tre_framework.selectedItem.@ccode);
+				}
+				
+				var objInfo:Object = ObjectUtil.getClassInfo(defaultParametersObj); 
+				var fieldName:Array = objInfo["properties"] as Array; 
+				for each(var q:QName in fieldName){ 
+					//q.localName 属性名称，value对应的值 
+					parmObj[q.localName] = defaultParametersObj[q.localName] as String; 
+				}
+				return parmObj;
+			}
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 保存节点
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			public function onSave(event:Event):void
+			{
+				framObj = new Object();
+				framObj = getItem();
+				if(_csql1!=null)
+				{
+					if(!this.isFail)
+					{
+						CRMtool.tipAlert("请验证条件语句，在保存!!");
+						return;
+					}
+				}
+				if(item=="onNew")
+				{
+					AccessUtil.remoteCallJava(itemObj.dest,itemObj.onNewMethod,onSaveCallBack,framObj);
+				}
+				else 
+				{
+					AccessUtil.remoteCallJava(itemObj.dest,String(itemObj.onEditMethod),onSaveCallBack,framObj);
+				}
+			}
+			
+			private function onSaveCallBack(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				if(result!="fail")
+				{
+					if(item =="onNew")
+					{
+						framObj.iid =int(Number(result));
+						this.tre_framework.AddTreeNode(framObj);
+						CRMtool.tipAlert("新增成功");
+					}
+					else if(item=="onDelete")
+					{
+						this.tre_framework.DeleteTreeNode();
+						CRMtool.tipAlert("删除成功");
+					}
+					else if(item=="onEdit")
+					{
+						this.tre_framework.EditTreeNode(framObj);
+						CRMtool.tipAlert("修改成功");
+					}
+					onGiveUp(event);
+					
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.FAIL);
+				}
+				this.tre_framework.enabled = true;
+			}
+			
+			//放弃
+			private function onGiveUp(event:Event):void
+			{
+				//恢复所有值
+				for(var i:int=0;i<_frameArr.length;i++)
+				{
+					var obj:Object = _frameArr.getItemAt(i);
+					var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+					onClick();
+				}
+				this.tre_framework.enabled = true;
+				CRMtool.toolButtonsEnabled(this.lbr_Department,null);
+				CRMtool.containerChildsEnabled(this.myBorder,false);
+			}
+			
+			//删除
+			private function onDelete(event:Event):void
+			{
+				if(!this.tre_framework.selectedItem)
+				{
+					CRMtool.tipAlert("请选择后，再操作！！");
+					return;
+				}
+				CRMtool.tipAlert("确定要删除这些记录吗？？",null,"AFFIRM",this,"onDeleteFrame");
+			}
+			
+			//删除方法 onDeleteDest代表类名，onDeleteMethod代表方法名
+			public function onDeleteFrame():void
+			{
+				item="onDelete";
+				AccessUtil.remoteCallJava(itemObj.dest,itemObj.onDeleteMethod,onSaveCallBack,int(this.tre_framework.selectedItem.@iid));
+			}
+			
+			//修改
+			private function onEdit(event:Event):void
+			{
+				item = "onEdit";
+				if(!this.tre_framework.selectedItem)
+				{
+					CRMtool.tipAlert("请选择后，再操作！！");
+					return;
+				}
+				CRMtool.containerChildsEnabled(this.myBorder,true);
+				this.tre_framework.enabled = false;
+				//清空所有
+				for(var i:int=0;i<_frameArr.length;i++)
+				{
+					var obj:Object = _frameArr.getItemAt(i);
+					var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+					customerVbox.endi();
+				}
+				CRMtool.toolButtonsEnabled(this.lbr_Department,"onEdit");
+			}
+			
+			private function onTest(event:Event):void
+			{
+				var csql:String="";
+				//获取文本框的值
+				for(var i:int=0;i<_frameArr.length;i++)
+				{
+					var obj:Object = _frameArr.getItemAt(i);
+					var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+					var result:Object = customerVbox.getResult();
+					var cfides:ArrayCollection = obj.cfields as ArrayCollection;
+					for(var j:int=0;j<cfides.length;j++)
+					{
+						var cfied:String = cfides.getItemAt(j) as String;
+						if(cfied=="csql")
+						{
+							csql= result[cfied];
+						}
+					}
+				}
+				if(CRMtool.isStringNotNull(csql))
+				{
+					var sql:String = _csql1+csql;
+					AccessUtil.remoteCallJava(itemObj.dest,itemObj.onTest,verificationSqlBack,sql);
+				}
+				
+			}
+			
+			private var isFail:Boolean=false;
+			private function verificationSqlBack(event:ResultEvent):void
+			{
+				
+				if(event.result=="fail")
+				{
+					isFail = false;
+					CRMtool.tipAlert("SQL语法错误！！");
+				}
+				else
+				{
+					isFail = true;
+					CRMtool.tipAlert("验证成功！！");
+				}
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<!-- 角色树 -->
+	<mx:VBox width="30%" height="100%">
+		<mx:VBox width="100%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<s:Label text="列表目录" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+				<comps:TreeCompsVbox id="tre_framework" width="100%" height="100%" 
+									 click="onClick()" />
+			</mx:HBox>
+		</mx:VBox>
+	</mx:VBox>
+	<!-- 右边 -->
+	<mx:VBox width="70%" height="100%" styleName="contentVBox">
+		<mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+			<comps:LinkBarVboxComps   id="lbr_Department" width="15%"  height="25" 
+									  dataProvider="{frameworkArr}" onNewEvent="onNew(event)" onEditEvent="onEdit(event)"
+									  onGiveUpEvent="onGiveUp(event)" onSaveEvent="onSave(event)" onDeleteEvent="onDelete(event)"
+									  onTestEvent="onTest(event)"/>
+			<s:Spacer width="95%"/>
+		</mx:ApplicationControlBar>
+		<mx:VBox width="100%" height="100%" styleName="roleHbox">
+			<mx:VBox width="100%" height="100%"  id="myBorder">
+			</mx:VBox>
+		</mx:VBox>
+	</mx:VBox>
+</mx:HDividedBox>

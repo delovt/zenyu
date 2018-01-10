@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        width="100%"
+                        height="100%"
+                        creationComplete="creationCompleteHandler(event)"
+                        enterFrame="enterFrameHandler(event)"
+
+        >
+    <mx:VBox width="100%" height="100%" paddingLeft="10" paddingRight="10" horizontalAlign="center">
+        <mx:HBox width="100%" height="100%" horizontalGap="20">
+            <mx:VBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="right" verticalGap="5">
+                <mx:HBox width="100%">
+                    <s:Label text="进度：" width="45"/>
+                    <s:HSlider id="hslider1" width="100%" maximum="100" changeEnd="hslider1_changeEndHandler(event)"
+                               showDataTip="false"/>
+                </mx:HBox>
+                <s:Label id="timeLabel" text="00:00 / 00:00"/>
+                <mx:HBox width="100%">
+                    <s:Label text="音量：" width="45"/>
+                    <s:HSlider id="hslider2" width="100%" value="5" maximum="10" changeEnd="hslider2_changeEndHandler(event)"
+                               showDataTip="false"/>
+                </mx:HBox>
+            </mx:VBox>
+            <mx:VBox height="100%" verticalAlign="middle" verticalGap="10">
+                <mx:Button label="播放" id="starts" click="starts_clickHandler(event)"/>
+                <mx:Button label="停止" id="stops" click="stops_clickHandler(event)"/>
+            </mx:VBox>
+        </mx:HBox>
+    </mx:VBox>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.events.FlexEvent;
+        import mx.managers.PopUpManager;
+
+        import yssoft.tools.CRMtool;
+
+        public var _snd:Sound;
+        private var channel:SoundChannel;
+        private var trans:SoundTransform;
+        private var playPosition:Number = 0;
+        private var _playStatus:Number = 0; // 标示当前播放状态，0是未加载，1是播放，2是暂停
+        private var _tmpStatus:Number = 0;
+        private var _info:String = "";  //消息
+
+
+        [Bindable]
+        private var _panTitle:String = "";
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            if (_snd) {
+                trans = new SoundTransform();
+                trans.volume = hslider2.value / hslider2.maximum;
+                playStatus = 2;
+            }
+
+        }
+
+        public function set snd(value:Sound):void {
+            _snd = value;
+
+            if (_snd) {
+                trans = new SoundTransform();
+                trans.volume = hslider2.value / hslider2.maximum;
+                playStatus = tmpStatus;
+            }
+        }
+
+        public function get snd():Sound {
+            return _snd;
+        }
+
+        public function set info(value:String):void {
+            _info = value;
+        }
+
+        public function get info():String {
+            return _info;
+        }
+
+        private function starts_clickHandler(event:MouseEvent):void {
+            if (playStatus == 1) {
+                playStatus = 2;
+            } else if (playStatus == 2) {
+                playStatus = 1;
+            }
+        }
+
+        [Bindable]
+        public function get panTitle():String {
+            return _panTitle;
+        }
+
+        public function set panTitle(value:String):void {
+            if (CRMtool.isStringNotNull(value))
+                _panTitle = value;
+        }
+
+        public function get playStatus():Number {
+            return _playStatus;
+        }
+
+        public function set playStatus(value:Number):void {
+            _playStatus = value;
+
+            if (value == 2) {
+                if(CRMtool.isStringNotNull(_info)) {
+                    CRMtool.showAlert(_info);
+                    return;
+                }
+                starts.label = "暂停";
+                channel = _snd.play(playPosition);
+            } else if (value == 1) {
+                starts.label = "播放";
+                if(channel != null) {
+                    channel.stop();
+                }
+
+            }
+        }
+
+        protected function hslider1_changeEndHandler(event:FlexEvent):void {
+            channel.stop();
+            if(CRMtool.isStringNotNull(_info)) {
+                CRMtool.showAlert(_info);
+                return;
+            }
+            channel = _snd.play(hslider1.value / hslider1.maximum * _snd.length);
+            _playStatus = 2;
+        }
+
+        protected function hslider2_changeEndHandler(event:FlexEvent):void {
+            trans.volume = hslider2.value / hslider2.maximum;
+            channel.soundTransform = trans;
+        }
+
+        // 把毫秒格式化为时间
+        protected function formatDate(num:Number):String {
+            var total:int = int(num / 1000);
+            var second:int = total % 60;
+            total = (total - second) / 60;
+            var minute:int = total % 60;
+            total = (total - minute) / 60;
+            var hour:int = total;
+
+            var returnValue:String = "";
+            if (hour != 0) returnValue = String(hour) + ":";
+            if (minute < 10) returnValue += "0";
+            returnValue += String(minute) + ":";
+            if (second < 10) returnValue += "0";
+            returnValue += String(second);
+            return returnValue;
+        }
+
+        private function enterFrameHandler(event:Event):void {
+            if (timeLabel && channel && hslider1 && playStatus == 2) {
+                timeLabel.text = formatDate(channel.position) + " / " + formatDate(_snd.length);
+                playPosition = channel.position;
+                hslider1.value = channel.position / _snd.length * hslider1.maximum;
+
+                if (_snd.length > 0 && _snd.length - channel.position < 0.1) {
+                    playPosition = 0;
+                    playStatus = 1;
+                }
+            }
+        }
+
+        private function stops_clickHandler(event:MouseEvent):void {
+            playStatus = 1;
+            playPosition = 0;
+            timeLabel.text = formatDate(0) + " / " + formatDate(_snd.length);
+            hslider1.value = 0 / _snd.length * hslider1.maximum;
+        }
+
+
+        public function get tmpStatus():Number {
+            return _tmpStatus;
+        }
+
+        public function set tmpStatus(value:Number):void {
+            _tmpStatus = value;
+        }
+        ]]>
+	</fx:Script>
+</mx:Box>

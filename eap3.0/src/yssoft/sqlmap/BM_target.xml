@@ -1,0 +1,44 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：bm_target
+ * 创建人：lzx
+ * 创建时间：2012-09-24 11:48:29
+ * 
+ -->
+<sqlMap>
+<!--      获得记录列表 -->
+     <select id="get_all_bm_target" parameterClass="yssoft.vos.BmTargetVO" resultClass="java.util.HashMap">
+            Select  iid,ipid,ccode,cname,cvaluetable,cvaluefield,ivaluetype,csqlcd,cdepartmentfield,cpersonfield,cdatefield,cmemo, imaker,dmaker,imodify,dmodify,iifuncregedit
+            from bm_target
+            where 1=1	
+            order by ccode
+     </select>
+<!--      增加一条记录 -->
+     <insert id="add_bm_target" parameterClass="yssoft.vos.BmTargetVO">
+            insert into bm_target (ipid,ccode,cname,cvaluetable,	cvaluefield, ivaluetype,csqlcd,cdepartmentfield,cpersonfield,cdatefield,cmemo,imaker,dmaker) 
+            values( #ipid#, #ccode#, #cname#,#cvaluetable#, #cvaluefield#,#ivaluetype#,#csqlcd#,#cdepartmentfield#,
+            #cpersonfield#,#cdatefield#,#cmemo#,#imaker#,getdate())
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+<!--      更新一条记录 -->
+     <update id="update_bm_target" parameterClass="yssoft.vos.BmTargetVO">
+            begin  
+            	update bm_target set ipid = #ipid#,ccode = #ccode#,cname = #cname#,cvaluefield = #cvaluefield#,ivaluetype = #ivaluetype#,csqlcd = #csqlcd#,cdepartmentfield = #cdepartmentfield#,
+            	cpersonfield = #cpersonfield#,cdatefield = #cdatefield#,cmemo = #cmemo#,imodify = #imodify#,dmodify = #dmodify#,cvaluetable=#cvaluetable#
+            	where iid = #iid# ; 
+            	Update bm_target set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)), #oldCcode#, #ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+            	update bm_target set dmodify = getdate() where iid = #iid# ; 
+            end;
+     </update>
+<!--      删除记录列表 -->
+     <delete id="delete_bm_target_byiid" parameterClass="int">
+     		begin
+     			delete from bm_target where ipid = #iid#
+            	delete from bm_target where iid = #iid#
+            end;	
+     </delete>
+</sqlMap>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" horizontalGap="0">
+	<fx:Script>
+		<![CDATA[
+			private var _hoursvalue:Number;
+			public function get hoursvalue():Number
+			{
+				return hours.value;
+			}
+			public function set hoursvalue(value:Number):void
+			{
+				hours.value=value;
+			}
+			private var _minutesvalue:Number;
+			public function get minutesvalue():Number
+			{
+				return minutes.value;
+			}
+			public function set minutesvalue(value:Number):void
+			{
+				minutes.value=value;
+			}
+			[Bindable]
+			public var minuteIncrement:int = 1;
+			
+			
+			// sdy add
+			private var dday:String;
+			/**
+			 *获取 Hours : minutes 字符串
+			 */
+			private var _text:String;
+			public function set text(value:String):void{
+				
+				if(value.length > 14 && value.indexOf(" ")!=-1){
+					dday = value.split(' ')[0];
+					value = value.split(' ')[1];
+				}
+				
+				if(value.indexOf(":") != -1){
+					var arr_0:Array = value.split(":");
+					this.hours.value = arr_0[0];
+					this.minutes.value = arr_0[1];
+				}
+			}
+			public function get text():String{
+				var h:String=this.hours.value.toString();
+				var m:String=this.minutes.value.toString();
+				if (h.length==1)
+				{
+					h="0"+h;
+				}
+				if (m.length==1)
+				{
+					m="0"+m;
+				}
+				return " "+h+":"+m;
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:NumericStepper id="hours" width="45" maximum="23" minimum="0" stepSize="1" textAlign="center"/>
+	<mx:Label text=":" textAlign="center" width="10"/>
+	<mx:NumericStepper id="minutes" minimum="0"  maximum="59" stepSize="{minuteIncrement}" textAlign="center" width="45"/>
+</mx:HBox>

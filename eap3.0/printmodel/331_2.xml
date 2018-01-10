@@ -1,0 +1,631 @@
+<ReportSettings version="1.1">
+  <PageWidth>31.7</PageWidth>
+  <PageHeight>21</PageHeight>
+  <LeftMargin>0.5</LeftMargin>
+  <RightMargin>0.5</RightMargin>
+  <TableHeaderRepeat>true</TableHeaderRepeat>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <Height>0.8</Height>
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>个人工作综合统计报告</Value>
+          <Width>28.7</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>13</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>起始日期：</Value>
+          <BindingValue>起始日期</BindingValue>
+          <Width>5.6</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>截止日期：</Value>
+          <BindingValue>截止日期</BindingValue>
+          <Width>13.3</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>金额单位：元</Value>
+          <Width>9.8</Width>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.9</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.5</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.2</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.5</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.2</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.2</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>部门</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务员</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>行动</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>7</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>建立</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>达成</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>部门</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务员</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>有效客户数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>活动客户数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>上门活动</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>电话其他活动</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>现场服务</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>远程电话服务</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实施日志</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>线索数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>新增客户数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>商机数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>商机金额</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合同数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合同额</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>回款数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>回款额</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>部门</BindingColumn>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>人员</BindingColumn>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!有效客户数.Value==0,"",Fields!有效客户数.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!活动客户数.Value==0,"",Fields!活动客户数.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!上门活动.Value==0,"",Fields!上门活动.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!电话其他活动.Value==0,"",Fields!电话其他活动.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!现场服务.Value==0,"",Fields!现场服务.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!远程电话服务.Value==0,"",Fields!远程电话服务.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!实施日志.Value==0,"",Fields!实施日志.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!线索数.Value==0,"",Fields!线索数.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!新增客户数.Value==0,"",Fields!新增客户数.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!商机数.Value==0,"",Fields!商机数.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!商机金额.Value==0,"",Fields!商机金额.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!合同数.Value==0,"",Fields!合同数.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!合同额.Value==0,"",Fields!合同额.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!回款数.Value==0,"",Fields!回款数.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!回款额.Value==0,"",Fields!回款额.Value)</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableFooterSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!有效客户数.Value)==0,"",Sum(Fields!有效客户数.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!活动客户数.Value)==0,"",Sum(Fields!活动客户数.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!上门活动.Value)==0,"",Sum(Fields!上门活动.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!电话其他活动.Value)==0,"",Sum(Fields!电话其他活动.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!现场服务.Value)==0,"",Sum(Fields!现场服务.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!远程电话服务.Value)==0,"",Sum(Fields!远程电话服务.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!实施日志.Value)==0,"",Sum(Fields!实施日志.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!线索数.Value)==0,"",Sum(Fields!线索数.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!新增客户数.Value)==0,"",Sum(Fields!新增客户数.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!商机数.Value)==0,"",Sum(Fields!商机数.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!商机金额.Value)==0,"",Sum(Fields!商机金额.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!合同数.Value)==0,"",Sum(Fields!合同数.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!合同额.Value)==0,"",Sum(Fields!合同额.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!回款数.Value)==0,"",Sum(Fields!回款数.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!回款额.Value)==0,"",Sum(Fields!回款额.Value))</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <GroupColumn>部门</GroupColumn>
+      <OrderColumn>人员</OrderColumn>
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+      <Enabled>true</Enabled>
+      <TableGroupFooterSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting">
+              <Value>小计</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!有效客户数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!有效客户数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!活动客户数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!活动客户数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!上门活动.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!上门活动.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!电话其他活动.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!电话其他活动.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!电话其他活动.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!电话其他活动.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!远程电话服务.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!远程电话服务.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!实施日志.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!实施日志.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!线索数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!线索数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!新增客户数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!新增客户数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!商机数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!商机数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!商机金额.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!商机金额.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!合同数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!合同数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!合同额.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!合同额.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!回款数.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!回款数.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!回款额.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!回款额.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableGroupFooterSettings>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

@@ -1,0 +1,888 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:comps="yssoft.comps.*"
+		 width="100%" height="100%"
+		  creationComplete="getRoleTree();setToolButtonsEnabled(null)" implements="yssoft.impls.ICRMWindow">	
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.controls.Menu;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.events.FlexEvent;
+        import mx.events.IndexChangedEvent;
+        import mx.events.ItemClickEvent;
+		import mx.events.ListEvent;
+		import mx.events.MenuEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		import yssoft.models.ConstsModel;
+		import yssoft.tools.AccessUtil;
+		import yssoft.tools.CRMtool;
+		[Bindable]
+		public var title1:String="角色";
+		[Bindable]
+		public var title2:String="用户";
+        [Bindable]
+        public var title3:String = "人员";
+		[Bindable]
+		public var groupArr:ArrayCollection =new ArrayCollection([
+			{value:0,label:""},
+			{value:1,label:"无权限"},
+			{value:2,label:"负责人员"},
+			{value:3,label:"相关人员"},
+			{value:4,label:"本部门"},
+			{value:5,label:"本部门及下级部门"},
+			{value:6,label:"全部人员"}
+		]);
+		[Bindable]
+		public var linkArr:ArrayCollection =new ArrayCollection([
+			{value:0,label:""},
+			{value:1,label:"并且"},
+			{value:2,label:"或者"}
+		]);
+		[Bindable]
+		public 	var arr_menuBar:ArrayCollection = new ArrayCollection(
+			[{label:"修改",name:"onEdit"},
+			 {label:"保存",name:"onSave"},
+			 {label:"放弃",name:"onGiveUp"}]
+		);
+		
+		[Bindable]
+		private var menuData:ArrayCollection = new ArrayCollection([
+			{label:"数据导出",		name:"onExcelExport"	}
+		]);
+		
+		[Bindable]
+		private var resultArr:ArrayCollection=new ArrayCollection();
+		[Bindable]
+		private var roleUserArr:ArrayCollection=new ArrayCollection();
+		[Bindable]
+		private var roleRightArr:ArrayCollection=new ArrayCollection();
+		
+		
+		[Bindable] public var menu:Menu = new Menu();
+		/**
+		 * 
+		 * 作者：liulei
+		 * 日期：2011-10-05 
+		 * 功能：树初始化操作
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 * 
+		 */ 
+		public  function getRoleTree():void
+		{
+			AccessUtil.remoteCallJava("RoleDest","getRolesByIpid",callBackHandler); 
+		}
+		
+		/**
+		 * 
+		 * 作者：liulei
+		 * 日期：2011-10-05 
+		 * 功能：封装查询后的结果集
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 * 
+		 */ 
+		private  function callBackHandler(event:ResultEvent):void
+		{
+			if(event.result!=null)
+			{
+				var treexml:XML = new XML(event.result as String);
+				treeMenu.treeCompsXml = treexml;
+			}
+			
+			//add by zhong_jing 加入导出功能
+			menu.dataProvider = this.menuData;
+			menu.variableRowHeight = true;
+			menu.addEventListener(MenuEvent.CHANGE,onClick);
+			this.ppb.popUp = menu;
+		}
+		
+		//加入导出功能
+		private function onClick(event:MenuEvent):void
+		{
+			if(event.item.name=="onExcelExport"){
+				//YJ Add 
+				/*
+				YJ Add 列表数据导出至Excel
+				前台传入参数说明：arr(数据集)，
+				columnArr(列数据集，包括字段、字段标题)
+				title(Excel标题)，
+				flag(Excel是否显示序号,0--显示，1--不显示)
+				
+				*/
+				
+				if(this.resultArr.length ==0){CRMtool.tipAlert("请选择要导出的记录！！");return;}
+				var objvalue:Object = {};
+				var title:String = "数据权限";
+				var columnArr:ArrayCollection=new ArrayCollection();//记录字段名称和标题的记录集
+			
+				
+				var newresultArr:ArrayCollection=new ArrayCollection();
+				for each(var resultObj:Object in this.resultArr)
+				{
+					switch(resultObj.bdataauth1)
+					{
+						case "0":
+						{
+							resultObj.bdataauth1="否";
+							break;
+						}
+						case "1":
+						{
+							resultObj.bdataauth1="是";
+							break;
+						}	
+					}
+					
+					switch(resultObj.ifind)
+					{
+						case "0":
+						{
+							resultObj.ifind="";
+							break;
+						}
+						case "1":
+						{
+							resultObj.ifind="无权限";
+							break;
+						}
+						case "2":
+						{
+							resultObj.ifind="负责人员";
+							break;
+						}
+						case "3":
+						{
+							resultObj.ifind="相关人员";
+							break;
+						}
+						case "4":
+						{
+							resultObj.ifind="本部门";
+							break;
+						}
+						case "5":
+						{
+							resultObj.ifind="本部门及下级部门";
+							break;
+						}
+						case "6":
+						{
+							resultObj.ifind="全部人员";
+							break;
+						}
+					}
+					
+					switch(resultObj.iedit)
+					{
+						case "0":
+						{
+							resultObj.iedit="";
+							break;
+						}
+						case "1":
+						{
+							resultObj.iedit="无权限";
+							break;
+						}
+						case "2":
+						{
+							resultObj.iedit="负责人员";
+							break;
+						}
+						case "3":
+						{
+							resultObj.iedit="相关人员";
+							break;
+						}
+						case "4":
+						{
+							resultObj.iedit="本部门";
+							break;
+						}
+						case "5":
+						{
+							resultObj.iedit="本部门及下级部门";
+							break;
+						}
+						case "6":
+						{
+							resultObj.iedit="全部人员";
+							break;
+						}
+					}
+					
+					switch(resultObj.idelete)
+					{
+						case "0":
+						{
+							resultObj.idelete="";
+							break;
+						}
+						case "1":
+						{
+							resultObj.idelete="无权限";
+							break;
+						}
+						case "2":
+						{
+							resultObj.idelete="负责人员";
+							break;
+						}
+						case "3":
+						{
+							resultObj.idelete="相关人员";
+							break;
+						}
+						case "4":
+						{
+							resultObj.idelete="本部门";
+							break;
+						}
+						case "5":
+						{
+							resultObj.idelete="本部门及下级部门";
+							break;
+						}
+						case "6":
+						{
+							resultObj.idelete="全部人员";
+							break;
+						}
+					}
+					
+					switch(resultObj.bdataauth2)
+					{
+						case "0":
+						{
+							resultObj.bdataauth2="否";
+							break;
+						}
+						case "1":
+						{
+							resultObj.bdataauth2="是";
+							break;
+						}	
+					}
+					
+					switch(String(resultObj.ilink))
+					{
+						case "0":
+						{
+							resultObj.ilink="";
+							break;
+						}
+						case "1":
+						{
+							resultObj.ilink="并且";
+							break;
+						}
+						case "2":
+						{
+							resultObj.ilink="或者";
+							break;
+						}
+					}
+					newresultArr.addItem(resultObj);
+				}
+				objvalue.arr =newresultArr;//数据集
+				
+				objvalue.title = "数据权限";//标题
+				objvalue.flag = 0;//是否显示序号
+				
+				columnArr.addItem({"cfld":"ccode","cfldcaption":"功能节点编码","width":200});
+				columnArr.addItem({"cfld":"cname","cfldcaption":"功能节点名称","width":200});
+				columnArr.addItem({"cfld":"bdataauth1","cfldcaption":"启用组织权限","width":200});
+				columnArr.addItem({"cfld":"ifind","cfldcaption":"组织查询权限","width":200});
+				columnArr.addItem({"cfld":"iedit","cfldcaption":"组织修改权限","width":200});
+				columnArr.addItem({"cfld":"idelete","cfldcaption":"组织删除权限","width":200});
+				columnArr.addItem({"cfld":"bdataauth2","cfldcaption":"启用客户权限","width":200});
+				columnArr.addItem({"cfld":"ilink","cfldcaption":"与客户权限关系","width":200});
+				objvalue.fieldsList=columnArr;
+				
+				AccessUtil.remoteCallJava("ExcelHadleDest","writeExcel",onWriteExcelBack,objvalue);//调用后台的导出方法
+			}
+		}
+		
+		//YJ Add 数据导出后的操作
+		private function onWriteExcelBack(evt:ResultEvent):void{
+			var filename:String = "";			
+			if(evt.result.hasOwnProperty("filename")){
+				filename = evt.result.filename as String;
+			}
+			var requestUrl:String = "/eap1.0/excelExportServlet?fn="+filename;
+			var request: URLRequest = new URLRequest(requestUrl);
+			navigateToURL(request, "_blank");
+		}
+		/**
+		 * 
+		 * 作者：liulei
+		 * 日期：2011-10-05 
+		 * 功能 获得角色人员列表
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 * 
+		 */ 
+		public function getRoleUser():void
+		{
+			AccessUtil.remoteCallJava("RoleDest","getRoleuserVo",getRoleUsercallBackHandler,int(Number(treeMenu.selectedItem.@iid)),null,false);
+		}
+		
+		private function getRoleUsercallBackHandler(event:ResultEvent):void
+		{
+			roleUserArr = event.result as ArrayCollection;
+			this.title2="用户："+roleUserArr.length;
+		}
+		
+		protected function treeMenu_itemClickHandler():void
+		{
+			if(treeMenu.selectedItem)
+			{
+				this.title1="角色："+treeMenu.selectedItem.@cname;
+				getRoleUser();
+				add_initdata();
+				dgRight.editable=false;
+			}
+		}
+				
+		/**
+		 * 
+		 * 作者：liulei
+		 * 日期：2011-10-05 
+		 * 功能：按钮互斥
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 * 
+		 */
+		private function setToolButtonsEnabled(selectedName:String):void
+		{
+			CRMtool.toolButtonsEnabled(menuBar,selectedName,1);
+			var enabled:Boolean=(selectedName=="onSave"||selectedName=="onGiveUp"||selectedName==null);
+			onCopy.enabled=!enabled;
+		}
+		
+		protected function menuBar_itemClickHandler(event:ItemClickEvent):void {
+			switch(event.item.name) {
+				case "onEdit":{		
+					dgRight.editable=true;
+					onMak.enabled = true;
+					break;
+                }
+				case "onSave":{
+                    if (myTab.selectedIndex == 0) {
+                        for each (var item:Object in this.resultArr) {
+                            item.cdatavalue = String(item.bdataauth1)+String(item.ifind)+String(item.iedit)+String(item.idelete)
+                            +String(item.bdataauth2)+String(item.ilink);
+                        }
+                        AccessUtil.remoteCallJava("as_dataauthViewDest","update_all",getSaveCallBackHandler,this.resultArr,"正在保存请稍候……");
+                    }
+                    if (myTab.selectedIndex == 1) {
+                        for each (var item:Object in this.resultArr) {
+                            item.cdatavalue = String(item.bdataauth1)+String(item.ifind)+String(item.iedit)+String(item.idelete)
+                            +String(item.bdataauth2)+String(item.ilink);
+                        }
+                        AccessUtil.remoteCallJava("as_dataauthViewDest","update_alls",getSaveCallBackHandler,this.resultArr,"正在保存请稍候……");
+                    }
+
+ 					break;
+				}
+				case "onGiveUp":{
+                    if (myTab.selectedIndex == 0) {
+                        get_bywhere_as_dataauth();
+                    }
+                    if (myTab.selectedIndex == 1) {
+                        get_bywhere_as_dataauth1();
+                    }
+                    dgRight.editable=false;
+                    onMak.enabled = false;break;
+                }
+			}
+			this.setToolButtonsEnabled(event.item.name);
+		}
+
+		private function getSaveCallBackHandler(evt:ResultEvent):void {
+			onMak.enabled =false;
+			dgRight.editable=false;
+			if (evt.result.toString()!="sucess") {
+                if (myTab.selectedIndex == 0) {
+                    get_bywhere_as_dataauth();
+                }
+                if (myTab.selectedIndex == 1) {
+                    get_bywhere_as_dataauth1();
+                }
+				dgRight.editable=true;
+				CRMtool.showAlert("保存失败！！");
+			}
+		}
+		
+		/**
+		 * 
+		 * 作者：liulei
+		 * 日期：2011-10-12
+		 * 功能 按角色初始化数据权限分配
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 * 
+		 */ 
+		public function add_initdata():void
+		{
+			AccessUtil.remoteCallJava("as_dataauthViewDest","add_Initdata",getAdd_initdataCallBackHandler,int(Number(treeMenu.selectedItem.@iid)),null,false);
+		}
+		public function getAdd_initdataCallBackHandler(evt:ResultEvent):void
+		{
+			    if (evt.result.toString()=="sucess")
+				{
+					get_bywhere_as_dataauth();
+				}
+		}
+		//查询数据权限
+		public function get_bywhere_as_dataauth():void
+		{
+			var condition:String="and as_dataauth.irole="+treeMenu.selectedItem.@iid;
+			AccessUtil.remoteCallJava("as_dataauthViewDest","get_bywhere_as_dataauth",get_bywhere_as_dataauthCallBackHandler,condition,null,false);	
+		}
+		
+		public function get_bywhere_as_dataauthCallBackHandler(evt:ResultEvent):void
+		{
+			if (evt.result!=null)
+			{
+				this.resultArr=evt.result as ArrayCollection;
+			}
+		}
+		
+		/**
+		 * 
+		 * 作者：liu_lei
+		 * 日期：2011-10-12
+		 * 功能：权限关系
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 * 
+		 */
+		public function getLinkLabel(item:Object,icol:int):String
+		{
+			var lbltext:String;
+			switch(String(item.ilink))
+			{
+				case "0":
+				{
+					lbltext="";
+					break;
+				}
+				case "1":
+				{
+					lbltext="并且";
+					break;
+				}
+				case "2":
+				{
+					lbltext="或者";
+					break;
+				}
+			}
+			return lbltext;
+		}
+		
+		/**
+		 * 
+		 * 作者：liu_lei
+		 * 日期：2011-10-12
+		 * 功能：组织权限
+		 * 参数：无
+		 * 返回值：无
+		 * 修改人：
+		 * 修改时间：
+		 * 修改记录：
+		 * 
+		 */
+		public function getGroupifind(item:Object,icol:int):String
+		{
+            return getGrouplabel(String(item.ifind));
+		}
+		public function getGroupiedit(item:Object,icol:int):String
+		{
+			return getGrouplabel(String(item.iedit));
+		}
+		public function getGroupidelete(item:Object,icol:int):String
+		{
+			return getGrouplabel(String(item.idelete));
+		}
+		private function getGrouplabel(str:String):String
+		{
+			var lbltext:String;
+			switch(str)
+			{
+				case "0":
+				{
+					lbltext="";
+					break;
+				}
+				case "1":
+				{
+					lbltext="无权限";
+					break;
+				}
+				case "2":
+				{
+					lbltext="负责人员";
+					break;
+				}
+				case "3":
+				{
+					lbltext="相关人员";
+					break;
+				}
+				case "4":
+				{
+					lbltext="本部门";
+					break;
+				}
+				case "5":
+				{
+					lbltext="本部门及下级部门";
+					break;
+				}
+				case "6":
+				{
+					lbltext="全部人员";
+					break;
+				}
+			}
+			return lbltext;
+		}
+		
+		//窗体初始化
+		public function onWindowInit():void{}
+		//窗体打开
+		public function onWindowOpen():void{
+			setToolButtonsEnabled(null);
+			treeMenu.selectedIndex=-1;
+			this.resultArr.removeAll();
+		}
+
+		//窗体关闭,完成窗体的清理工作
+		public function onWindowClose():void{}
+		
+		//
+		public function clearWindow():void{}
+		
+		public function mark():void {
+			var ass:DataRightWindow = new DataRightWindow();
+			ass.clinkFun = onMaker;
+			ass.width=300;
+			ass.height = 200;
+			ass.owner = this;
+			CRMtool.openView(ass);
+		}
+		
+		public function onMaker(rowObj:Object,groupObj:Object):void {
+			for each (var o:Object in resultArr) {
+				if(o.bdataauth1==1)
+					o[rowObj.value]=groupObj.value;
+			}
+			dgRight.dataProvider = resultArr;
+		}
+
+
+        protected function myTab_changeHandler(event:IndexChangedEvent):void {
+            dgRight.dataProvider = null;
+            if (myTab.selectedIndex == 0) {
+                getRoleTree();//加载角色列表
+            }
+            if (myTab.selectedIndex == 1) {
+                initClassViewLists();//加载用户列表
+            }
+        }
+        //加载用户列表
+        public function initClassViewLists():void {
+            AccessUtil.remoteCallJava("RoleDest", "getAllUsers", callBackHandler2);
+        }
+
+        private function callBackHandler2(event:ResultEvent):void {
+            if (event.result != null) {
+                var treexml:XML = new XML(event.result as String);
+                this.treeMenu2.treeCompsXml = treexml;
+            }
+        }
+
+        protected function treeMenu_itemClickHandler2():void {
+            if (this.treeMenu2.selectedItem) {
+                this.title3 = "人员：" + this.treeMenu2.selectedItem.@cname;
+                initClassViewLists();
+                add_initdata1();//按人员初始化数据权限分配
+                dgRight.editable=false;
+            }
+        }
+
+        public function add_initdata1():void {
+            AccessUtil.remoteCallJava("as_dataauthViewDest","add_Initdata1",getAdd_initdataCallBackHandler1,int(Number(treeMenu2.selectedItem.@iid)),null,false);
+        }
+
+        public function getAdd_initdataCallBackHandler1(evt:ResultEvent):void {
+            if (evt.result.toString()=="sucess") {
+                get_bywhere_as_dataauth1();
+            }
+        }
+        //查询数据权限
+        public function get_bywhere_as_dataauth1():void {
+            var condition:String=" and as_dataauths.iperson="+treeMenu2.selectedItem.@iid;
+            AccessUtil.remoteCallJava("as_dataauthViewDest","get_bywhere_as_dataauths",get_bywhere_as_dataauthCallBackHandler1,condition,null,false);
+        }
+
+        public function get_bywhere_as_dataauthCallBackHandler1(evt:ResultEvent):void {
+            if (evt.result != null) {
+                this.resultArr=evt.result as ArrayCollection;
+            }
+        }
+
+	]]>
+</fx:Script>
+		
+	<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox" >
+		<mx:VBox width="14%" height="100%" verticalGap="10">
+            <mx:TabNavigator id="myTab" borderStyle="solid" tabWidth="90" tabHeight="32" height="100%" width="100%"
+                             change="myTab_changeHandler(event)" paddingTop="0" paddingRight="0">
+                <mx:VBox id="panelContainer" paddingTop="-1" width="100%" borderStyle="none" height="100%"
+                         horizontalScrollPolicy="off" verticalScrollPolicy="off" label="角色">
+                    <mx:VBox width="100%" height="100%" styleName="lefttree">
+                        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                            <mx:Label id="lblDataName" styleName="contentTitle" text="{this.title1}"/>
+                        </mx:ApplicationControlBar>
+                        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                            <comps:TreeCompsVbox id="treeMenu" width="100%" height="100%"
+                                         change="setToolButtonsEnabled(null);"
+                                         borderVisible="false" itemClick="treeMenu_itemClickHandler()"/>
+                        </mx:HBox>
+                    </mx:VBox>
+                    <mx:VBox width="100%" height="100%" styleName="lefttree">
+                        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                            <mx:Label text="{this.title2}" styleName="contentTitle"/>
+                        </mx:ApplicationControlBar>
+                        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                            <mx:List id="roleUser" width="100%" height="100%"
+                                         borderVisible="false" dataProvider="{this.roleUserArr}">
+                            <mx:itemRenderer>
+                            <fx:Component>
+                                <mx:HBox>
+                                    <mx:Label text="{data.cname}" />
+                                    <mx:Label text="{'('+data.departmentName+')'}"/>
+                                </mx:HBox>
+                            </fx:Component>
+                            </mx:itemRenderer>
+                            </mx:List>
+                        </mx:HBox>
+                    </mx:VBox>
+                </mx:VBox>
+
+                <mx:VBox paddingTop="-1" paddingLeft="-1" paddingRight="0" width="100%" borderStyle="none" height="100%"
+                         horizontalScrollPolicy="off" verticalScrollPolicy="off" label="人员">
+                    <mx:VBox width="100%" height="100%" styleName="lefttree">
+                        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                            <mx:Label id="lblDataName2" styleName="contentTitle" text="{this.title3}"/>
+                        </mx:ApplicationControlBar>
+                        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                            <comps:TreeCompsVbox id="treeMenu2" width="100%" height="100%"
+                                                 change="setToolButtonsEnabled(null);"
+                                                 borderVisible="false" itemClick="treeMenu_itemClickHandler2()"/>
+                        </mx:HBox>
+                    </mx:VBox>
+
+                </mx:VBox>
+            </mx:TabNavigator>
+		</mx:VBox>
+		
+		<mx:VBox width="86%" height="100%" styleName="centerbg4">
+			<mx:ApplicationControlBar width="100%" height="32" styleName="centertop"  dock="true">
+				<mx:ButtonBar id="menuBar" styleName="contentButtonBar" height="80%" dataProvider="{this.arr_menuBar}" itemClick="menuBar_itemClickHandler(event)"/>
+				<mx:Button id="onMak" label="批改" click="mark()" height="25" width="48" styleName="contentButtonBar" enabled="false"/>
+				<mx:Button id="onCopy" width="48" height="25" label="复制" styleName="contentButtonBar" visible="false" includeInLayout="false"/>
+				<mx:PopUpButton id="ppb" height="25" label="更多操作" openAlways="true"/>
+			</mx:ApplicationControlBar>
+			<mx:HDividedBox  width="100%" height="100%" styleName="contentHDividedBox" horizontalGap="0">
+				<mx:VBox width="73%" height="100%" styleName="lefttree1">
+					<mx:DataGrid  id="dgRight" width="100%" height="100%"
+								 borderVisible="false"  dataProvider="{resultArr}"
+								 editable="false">
+						<mx:columns>
+							<mx:DataGridColumn dataField="ccode" editable="false"
+											   headerText="功能节点编码" sortable="false"
+											   textAlign="center" width="100"></mx:DataGridColumn>
+							<mx:DataGridColumn dataField="cname" headerText="功能节点名称"
+											   sortable="false" width="160" editable="false"></mx:DataGridColumn>
+							<mx:DataGridColumn dataField="bdataauth1" headerText="启用组织权限"
+											   sortable="false" width="100" editable="false">
+								<mx:itemRenderer>
+									<fx:Component>
+										<mx:HBox width="100%" horizontalAlign="center">
+											<mx:CheckBox selected="{data.bdataauth1==1}" enabled="false"/>
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn dataField="ifind" headerText="组织查询权限"
+											   sortable="false" labelFunction="getGroupifind" editorDataField="value" width="240">
+								<mx:itemEditor>
+									<fx:Component>
+										<mx:HBox width="100%">
+											<fx:Script>
+												<![CDATA[
+													import mx.events.ListEvent;
+													public function get value(): Object
+													{
+														var obj:Object=cmb_ifind.selectedItem;
+														return obj.value;
+													}
+													
+													protected function cmb_ifind_changeHandler(event:ListEvent):void
+													{
+														if (data.ifind>0 && event.currentTarget.selectedLabel=="")
+														{
+															event.currentTarget.selectedIndex=data.ifind;
+														}
+													}
+												]]>
+											</fx:Script>
+											<mx:ComboBox id="cmb_ifind" width="100%"
+														 dataProvider="{outerDocument.groupArr}"
+														 selectedIndex="{data.ifind}" visible="{cmb_ifind.text.length>0}" change="cmb_ifind_changeHandler(event)" rowCount="10">
+											</mx:ComboBox>
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemEditor>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn dataField="iedit" headerText="组织修改权限"
+											   sortable="false" labelFunction="getGroupiedit" editorDataField="value" width="240">
+								<mx:itemEditor>
+									<fx:Component>
+										<mx:HBox width="100%">
+											<fx:Script>
+												<![CDATA[
+													import mx.events.ListEvent;
+													public function get value(): Object
+													{
+														var obj:Object=cmb_iedit.selectedItem;
+														return obj.value;
+													}													
+													
+													protected function cmb_iedit_changeHandler(event:ListEvent):void
+													{
+														if (data.iedit>0 && event.currentTarget.selectedLabel=="")
+														{
+															event.currentTarget.selectedIndex=data.iedit;
+														}	
+													}
+													
+												]]>
+											</fx:Script>
+											<mx:ComboBox id="cmb_iedit" width="100%"
+														 dataProvider="{outerDocument.groupArr}"
+														 selectedIndex="{data.iedit}" visible="{cmb_iedit.text.length>0}" change="cmb_iedit_changeHandler(event)" rowCount="10">
+											</mx:ComboBox>
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemEditor>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn dataField="idelete" headerText="组织删除权限"
+											   sortable="false" labelFunction="getGroupidelete" editorDataField="value" width="240">
+								<mx:itemEditor>
+									<fx:Component>
+										<mx:HBox width="100%">
+											<fx:Script>
+												<![CDATA[
+													import mx.events.ListEvent;
+													public function get value(): Object
+													{
+														var obj:Object=cmb_idelete.selectedItem;
+														return obj.value;
+													}
+													
+													protected function cmb_idelete_changeHandler(event:ListEvent):void
+													{
+														if (data.idelete>0 && event.currentTarget.selectedLabel=="")
+														{
+															event.currentTarget.selectedIndex=data.idelete;
+														}	
+													}
+													
+												]]>
+											</fx:Script>
+											<mx:ComboBox id="cmb_idelete" width="100%"
+														 dataProvider="{outerDocument.groupArr}"
+														 selectedIndex="{data.idelete}" visible="{cmb_idelete.text.length>0}" change="cmb_idelete_changeHandler(event)" rowCount="10">
+											</mx:ComboBox>
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemEditor>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn dataField="bdataauth2" headerText="启用客户权限"
+											   sortable="false" width="100" editable="false">
+								<mx:itemRenderer>
+									<fx:Component>
+										<mx:HBox width="100%" horizontalAlign="center">
+											<mx:CheckBox selected="{data.bdataauth2==1}" enabled="false"/>
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn dataField="ilink" headerText="与客户权限关系"
+											   sortable="false" labelFunction="getLinkLabel" editorDataField="value" width="100">
+								<mx:itemEditor>
+									<fx:Component>
+										<mx:HBox horizontalAlign="center">
+											<fx:Script>
+												<![CDATA[
+													import mx.events.ListEvent;
+													private var oldindex:int;
+													public function get value(): Object
+													{
+														var obj:Object=cmb_ilink.selectedItem;
+														return obj.value;
+													}
+													
+													protected function cmb_ilink_changeHandler(event:ListEvent):void
+													{
+														if (data.ilink>0 && event.currentTarget.selectedLabel=="")
+														{
+															event.currentTarget.selectedIndex=data.ilink;
+														}
+													}
+												]]>
+											</fx:Script>
+											<mx:ComboBox id="cmb_ilink" width="100%"
+														 dataProvider="{outerDocument.linkArr}"
+														 selectedIndex="{data.ilink}" visible="{cmb_ilink.text.length>0}" change="cmb_ilink_changeHandler(event)">
+											</mx:ComboBox>
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemEditor>
+							</mx:DataGridColumn>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
+			</mx:HDividedBox>
+		</mx:VBox>
+	</mx:HDividedBox>
+</mx:HBox>

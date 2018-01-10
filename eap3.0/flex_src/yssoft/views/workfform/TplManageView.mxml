@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" styleName="topcontent"
+		 xmlns:comps="yssoft.comps.*"
+		 width="100%" height="100%" implements="yssoft.impls.ICRMWindow" creationComplete="onWindowInit()">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.ItemClickEvent;
+			import mx.events.ListEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			
+			private var optType:String="getTpl";
+			private var optLabel:String="获取模板";
+			
+			[Bindable]
+			private var tplXml:XML=new XML();
+			[Bindable]
+			private var items:ArrayCollection=new ArrayCollection();
+			
+			//窗体初始化
+			public function onWindowInit():void{
+				getWorkFlowTpl();
+			}
+			//窗体打开
+			public function onWindowOpen():void{
+				onWindowInit();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void{
+				
+			}
+			
+			//获取模板信息
+			private function getWorkFlowTpl():void{
+				AccessUtil.remoteCallJava("FormWorkFlowDest","getWorkFlowTpl",callBack,null,"正在获取模板信息...");
+			}
+			
+			/**
+			 * buttonbar 条目单击事件
+			 */
+			private function onItemClickHandler(event:ItemClickEvent):void{
+				
+				optType=event.item.opt;
+				optLabel=event.label;
+				this[optType]();
+			}
+			
+			private function onNew():void{
+				if( ! tplTree.selectedItem ){
+					CRMtool.tipAlert("请选择单据，再处理!");
+					return;
+				}
+				
+				if((tplTree.selectedItem as XML).hasComplexContent()){
+					CRMtool.tipAlert("请选择单据，再处理!");
+					return;
+				}
+				
+				var param:Object={};
+				param.ifuncregedit=tplTree.selectedItem.@iid;
+				param.ifuncname=tplTree.selectedItem.@cname;
+				param.optType=this.optType;
+				param.wfname="";
+				param.iid=0;
+				CRMtool.openMenuItemFormOther("yssoft.views.workfform.FWFPaintView",param,"新建模板","");
+			}
+			
+			private function onDelete():void{
+				if(!checkParam()){
+					return;
+				}
+				CRMtool.tipAlert1("确定删除模板["+tpldg.selectedItem.cname+"] ?",null,"AFFIRM",onDelete1);
+			}
+			
+			private function onDelete1():void{
+				AccessUtil.remoteCallJava("FormWorkFlowDest","delete_wf_invoset",callBack,tpldg.selectedItem.iid,"正在删除模板信息...");
+			}
+			
+			private function onEdit(type:String=""):void{
+				
+				if(!checkParam()){
+					return;
+				}
+				var param:Object={};
+				param.ifuncregedit=tplTree.selectedItem.@iid;
+				param.ifuncname=tplTree.selectedItem.@cname;
+				param.optType=this.optType;
+				param.wfname=tpldg.selectedItem.cname;
+				param.iid=tpldg.selectedItem.iid;
+				param.brepeat="1";
+				param.auth=type;
+				CRMtool.openMenuItemFormOther("yssoft.views.workfform.FWFPaintView",param,"修改模板["+this.tpldg.selectedItem.cname+"]",""+this.tpldg.selectedItem.iid);
+			}
+			
+			private function onStart():void{
+				if(!checkParam()){
+					return;
+				}
+				if(this.tpldg.selectedItem.brelease){
+					CRMtool.tipAlert("该模板已经启动！");
+					return;
+				}
+				var param:Object={};
+				param.ifuncregedit=int(tplTree.selectedItem.@iid);
+				param.iid=tpldg.selectedItem.iid;
+				AccessUtil.remoteCallJava("FormWorkFlowDest","startFormWorkFlow",callBack,param,"正在启动模板...");
+			}
+			
+			private function onStop():void{
+				if(!checkParam()){
+					return;
+				}
+				
+				if(this.tpldg.selectedItem.brelease==false){
+					CRMtool.tipAlert("该模板已经停止！");
+					return;
+				}
+				var param:Object={};
+				param.brelease=0;
+				param.iid=tpldg.selectedItem.iid;
+				AccessUtil.remoteCallJava("FormWorkFlowDest","stopFormWorkFlow",callBack,param,"正在启动模板...");
+			}
+			
+			private function checkParam():Boolean{
+				if(! tpldg.selectedItem ){
+					CRMtool.tipAlert("请选择模板，再处理!");
+					return false;
+				}
+				
+				return true;
+			}
+			
+			private function callBack(event:ResultEvent):void{
+				if(this.optType=="getTpl"){
+					this.tplXml=new XML(event.result);
+				}else if(this.optType=="tree"){
+					this.items=event.result as ArrayCollection;
+				}else{
+					var ret:String=event.result as String;
+					if(ret == "suc"){
+						
+						if(this.optType=="onDelete"){
+							CRMtool.tipAlert("删除成功!");
+							this.items.removeItemAt(this.tpldg.selectedIndex);
+						}
+						
+						if(this.optType=="onStart"){
+							CRMtool.tipAlert("启动成功!");
+							editBrelease("start");
+						}
+						
+						if(this.optType=="onStop"){
+							CRMtool.tipAlert("停止成功!");
+							editBrelease("stop");
+						}
+						
+						
+					}else{
+						//CRMtool.tipAlert("操作失败，请重试!");
+					}
+					
+				}
+			}
+			//修改 模板的 发布状态
+			private function editBrelease(opt:String):void{
+				var iid:String=this.tpldg.selectedItem.iid;
+				if(opt=="start"){
+					for each(var item:Object in this.items){
+						if(item.iid==iid){
+							item.brelease=true;
+						}else{
+							item.brelease=false;
+						}
+					}
+				}else{
+					for each(var item:Object in this.items){
+						if(item.iid==iid){
+							item.brelease=false;
+						}
+					}
+				}
+				this.items.refresh();
+				
+			}
+			private function tplTree_itemClickHandler():void{
+				if((tplTree.selectedItem as XML).hasComplexContent()){
+					//CRMtool.tipAlert("请选择单据，再处理!");
+					return;
+				}
+				optType="tree";
+				AccessUtil.remoteCallJava("FormWorkFlowDest","get_wf_invoset",callBack,int(tplTree.selectedItem.@iid),"正在表单模板列表...");
+			}
+			//序号
+			private function lbfun(item:Object,column:DataGridColumn):String{
+				return ""+(this.items.getItemIndex(item)+1);
+			}
+			
+			private function tpldg_itemDoubleClickHandler():void{
+				this.optType="onEdit";
+				this.onEdit();				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+		<mx:VBox width="20%" height="100%" styleName="lefttree">
+			<!-- 菜单树 -->
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<mx:Label id="lbTitle" text="单据类型" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox variableRowHeight="true" id="tplTree" itemClick="tplTree_itemClickHandler()" dataProvider="{tplXml}" labelField="@cname" borderVisible="false" width="100%" height="100%" />
+			</mx:HBox>
+		</mx:VBox>
+		<!-- 菜单信息维护 -->
+		<mx:VBox width="80%" height="100%" styleName="centerbg4">
+			<!-- 标签 -->
+			<mx:ApplicationControlBar width="100%" height="32" styleName="centertop" dock="true" >
+				<mx:ButtonBar styleName="contentButtonBar" height="25" itemClick="onItemClickHandler(event)">
+					<s:ArrayCollection>
+						<fx:Object label="增加" opt="onNew"/>
+						<fx:Object label="删除" opt="onDelete"/>
+						<fx:Object label="修改" opt="onEdit"/>
+					</s:ArrayCollection>
+				</mx:ButtonBar>
+				<mx:ButtonBar styleName="contentButtonBar" height="25" itemClick="onItemClickHandler(event)">
+					<s:ArrayCollection>
+						<fx:Object label="启动" opt="onStart"/>
+						<fx:Object label="停止" opt="onStop"/>
+					</s:ArrayCollection>
+				</mx:ButtonBar>
+			</mx:ApplicationControlBar>
+			<mx:Canvas width="100%" height="100%" >
+				<mx:DataGrid left="1" right="1" top="0" bottom="1" borderStyle="solid" borderColor="#c4cccc" borderAlpha="1" id="tpldg" dataProvider="{items}" doubleClickEnabled="true" itemDoubleClick="tpldg_itemDoubleClickHandler()" borderVisible="false" width="100%" headerStyleName="dgHeaderStyle" resizableColumns="false" height="100%" alternatingItemColors="[#ffffff,#f4f4f4]" rowHeight="25">
+					<mx:columns>
+						<mx:DataGridColumn labelFunction="lbfun" headerText="序号" width="40" textAlign="center"></mx:DataGridColumn>
+						<mx:DataGridColumn dataField="cname" headerText="流程名称" textAlign="center"></mx:DataGridColumn>
+						<mx:DataGridColumn dataField="hrname" headerText="创建人名" textAlign="center"></mx:DataGridColumn>
+						<mx:DataGridColumn dataField="fdate" headerText="创建时间" textAlign="center"></mx:DataGridColumn>
+						<mx:DataGridColumn dataField="brelease" headerText="发布状态" itemRenderer="yssoft.renders.BreleaseRender" width="100" />
+						<mx:DataGridColumn dataField="funcname" headerText="关联单据" textAlign="center"></mx:DataGridColumn>
+						<!--<mx:DataGridColumn dataField="" headerText="进入流程单据量" textAlign="center"></mx:DataGridColumn>-->
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:Canvas>
+		</mx:VBox>
+	</mx:HDividedBox>
+</mx:HBox>

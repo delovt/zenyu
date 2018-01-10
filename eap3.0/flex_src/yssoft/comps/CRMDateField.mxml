@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:DateField xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			  xmlns:s="library://ns.adobe.com/flex/spark" 
+			  xmlns:mx="library://ns.adobe.com/flex/mx" 
+			  yearNavigationEnabled="true"
+			  formatString="YYYY-MM-DD" 
+			  dayNames="['日','一','二','三','四','五','六']" 
+			  monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']" 
+			  creationComplete="datefield1_creationCompleteHandler(event)" 
+			  keyDown="datefield1_keyDownHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			import yssoft.tools.CRMtool;
+			[Bindable]
+			private var _isShowToday:Boolean=false;
+			public function set isShowToday(value:Boolean):void{
+				this._isShowToday=value;
+			}
+			public function get isShowToday():Boolean{
+				return this._isShowToday;
+			}
+			
+			//是否启用样式
+			private var _isStyle:Boolean=true;
+			public function set isStyle(value:Boolean):void{
+				this._isStyle=value;
+			}
+			public function get isStyle():Boolean{
+				return this._isStyle;
+			}
+			
+			protected function datefield1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(_isStyle){
+					this.textInput.styleName="contentTextInput";
+				}
+//				if(_isShowToday){
+//					if(this.text==""){
+//						var datestr:String=CRMtool.getFormatDateString(this.formatString);
+//						this.textInput.text=datestr
+//						this.text=datestr;
+//					}
+//				}
+//				if(null == this.text || this.text==""){
+//					var datestr:String=CRMtool.getFormatDateString(this.formatString);
+//					this.textInput.text=datestr
+//					this.text=datestr;
+//				}
+					//mx.controls.Alert.show(""+this.text);
+					//this.selectedDate=new Date();
+				//}
+				this.text=="";
+			}
+			
+			public function returnDate():Date{
+				if(this.text!=""){
+					return stringToDate(this.text,"YYYY-MM-DD");
+				}else
+					return null;
+			}
+			
+			protected function datefield1_keyDownHandler(event:KeyboardEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(event.keyCode==Keyboard.ENTER){
+					this.dispatchEvent(new Event("enter"));
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="enter",type="flash.events.Event")]
+	</fx:Metadata>
+</mx:DateField>

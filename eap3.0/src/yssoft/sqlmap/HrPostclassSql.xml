@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 新增职位类型 -->
+	<insert id="add_postclass" parameterClass="yssoft.vos.HrPostclassVo">
+		insert into HR_postclass(ipid,ccode,cname,cmemo) 
+		values(#ipid#,#ccode#,#cname#,#cmemo#)
+	   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 修改职位类型-->
+	<update id="update_postclass" parameterClass="yssoft.vos.HrPostclassVo">
+		begin 
+			update HR_postclass set ipid=#ipid#,cname=#cname#,cmemo=#cmemo#
+			where iid=#iid#;
+			update HR_postclass set  ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+	 	end;
+	</update>
+	
+	<!-- 删除职位类型 -->
+	<delete id="remove_postclass" parameterClass="int">
+		delete from HR_postclass where iid=#iid#
+	</delete>
+	
+	<!-- lzx删除所有职位 当删除职位类型时删除对应职位  -->
+	<delete id="remove_all_post" parameterClass="int">
+		delete from HR_post where ipostclass=#ipostclass#
+	</delete>
+	
+	<!-- 新增职位 -->
+	<insert id="add_post" parameterClass="yssoft.vos.HrPostVo">
+		insert into HR_post(ipostclass,ccode,cname,ilevel,cwork,cmemo) 
+		values(#ipostclass#,#ccode#,#cname#,#ilevel#,#cwork#,#cmemo#)
+	   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 修改职位 -->
+	<update id="update_post" parameterClass="yssoft.vos.HrPostVo">
+		update HR_post set ccode=#ccode#,cname=#cname#,cwork=#cwork#,ilevel=#ilevel#,cmemo=#cmemo#
+		where iid=#iid#
+	</update>
+	
+	<!-- 删除职位  -->
+	<delete id="remove_post" parameterClass="string">
+		delete from HR_post where $sql$
+	</delete>
+
+	<!-- 查询职位 -->
+	<select id="getpost_by_ipostclass" parameterClass="int" resultClass="yssoft.vos.HrPostVo">
+		select hpo.iid,hpo.ipostclass,hpo.ccode,hpo.cname,hpo.ilevel,hpo.cwork,hpo.cmemo,count(hp.iid) as irealperson from HR_post hpo
+		left join hr_person hp on(hp.ipost = hpo.iid)	
+		 where ipostclass=#ipostclass#
+		 group by hpo.iid,hpo.ipostclass,hpo.ccode,hpo.cname,hpo.ilevel,hpo.cwork,hpo.cmemo
+	</select>
+	
+	<!-- 查询职位类型 -->
+	<select id="get_all_postclass" resultClass="java.util.HashMap" >	
+		select iid,ipid,ccode,cname,cmemo from HR_postclass order by ccode
+	</select>
+</sqlMap>

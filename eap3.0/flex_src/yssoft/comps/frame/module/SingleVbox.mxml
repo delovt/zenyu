@@ -1,0 +1,2114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%"
+         verticalScrollPolicy="off"
+         backgroundColor="White"
+         backgroundAlpha="0">
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.containers.HBox;
+        import mx.controls.HRule;
+
+        import spark.components.Label;
+
+        //import mx.controls.Label;
+        import mx.controls.LinkButton;
+        import mx.controls.Spacer;
+        import mx.core.UIComponent;
+        import mx.events.ListEvent;
+        import mx.utils.ObjectUtil;
+
+        import yssoft.comps.frame.module.form.MaxButtonForGrid;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.CRMtool;
+
+        //一组所有信息
+        private var _singleType:Object = new Object();
+
+        public function set singleType(value:Object):void {
+            this._singleType = value;
+        }
+
+        public function get singleType():Object {
+            return this._singleType;
+        }
+
+        private var _formStatus:String = "new";
+
+        public function set formStatus(value:String):void {
+            this._formStatus = value;
+        }
+
+        public function get formStatus():String {
+            return this._formStatus;
+        }
+
+
+        private var _curButtonStatus:String = "onNew";
+
+        public function set curButtonStatus(value:String):void {
+            this._curButtonStatus = value;
+        }
+
+        public function get curButtonStatus():String {
+            return this._curButtonStatus;
+        }
+
+        //结果集
+        public var getValueFun:Function;
+
+        //结果集
+        public var setValueFun:Function;
+
+        //计算公式
+        public var subTableAssignment:Function;
+
+        public var constraintFormula:Function;
+
+        private var valueObj:Object;
+
+        public var paramForm:CrmEapRadianVbox;
+
+        public var relation:RelationCheckBox = new RelationCheckBox();
+
+        public var _bool:Boolean = false;
+
+        public var grid:CrmEapDataGrid;
+
+        public function init():void {
+            paramForm = this.owner as CrmEapRadianVbox;
+            if (!Boolean(_singleType.bshow)) {
+                this.visible = false;
+            }
+            createPage();
+        }
+
+        private var childList:ArrayCollection;
+
+
+        private function createPage():void {
+
+            var objecttype:String = _singleType.objecttype;
+
+            //判断是否存在信息
+            var singleLable:Label = null;
+            if (CRMtool.isStringNotNull(_singleType.ccaption)) {
+                singleLable = new Label();
+                singleLable.styleName = "contentLabel";
+                singleLable.text = _singleType.ccaption;
+
+                if (Boolean(this._singleType.bunnull)) {
+                    singleLable.setStyle("color", "red");
+                }
+                if (objecttype == "VBox") {
+                    singleLable.setStyle("color", "#A9B2B2");
+                    var box:VBox = new VBox();
+                    box.setStyle("paddingLeft", "18");
+                    box.setStyle("verticalAlign", "middle");
+                    box.percentWidth = 100;
+                    box.height = 25;
+                    box.addChild(singleLable);
+                    this.addChild(box);
+                }
+            }
+
+
+            switch (objecttype) {
+                case "VBox"://组
+                {
+                    var group:CrmEapVBox = new CrmEapVBox();
+                    group.name = this._singleType.cobjectname;
+                    group.singleType = _singleType;
+                    group.setStyle("paddingTop", 0);
+                    group.setStyle("paddingBottom", 0);
+                    this.addChild(group);
+                    _singleType.hidenum = 0;//隐藏元素个数
+                    if (_singleType.childMap is ArrayCollection) {
+                        var childList:ArrayCollection = _singleType.childMap as ArrayCollection;//组里面的所有元素
+                        for each(var item:Object in childList) {
+                            this._formStatus = this._singleType.curButtonStatus;
+                            item.curButtonStatus = this._singleType.curButtonStatus;
+                            if (null == valueObj) {
+                                valueObj = this._singleType.value;
+                            }
+                            item.valueMap = this._singleType.value;
+                            if (item.objecttype == "TextArea" || item.objecttype == "RichTextEditor") {
+                                var singleVbox:SingleVbox = new SingleVbox();
+                                singleVbox.singleType = item;
+                                singleVbox.init();
+                                singleVbox.setStyle("paddingLeft", 15);
+                                singleVbox.setStyle("paddingRight", 10);
+                                singleVbox.setStyle("paddingTop", 10);
+                                singleVbox.setStyle("paddingBottom", 10);
+                                singleVbox.getValueFun = getValueFun;
+                                if (item.bshow == "false" || !Boolean(item.bshow)) {
+                                    singleVbox.visible = false;
+                                    _singleType.hidenum++;
+                                }
+                                group.addCrmChild(singleVbox);
+                                group.validateNow();
+                            }
+                            else {
+                                var singVouch:SingleVouch = new SingleVouch();
+                                singVouch.paramForm = this.paramForm as CrmEapRadianVbox;
+                                singVouch.singleType = item;
+                                singVouch.getValue = getValueFun;
+                                singVouch.setValue = setValueFun;
+                                singVouch.subTableAssignment = this.subTableAssignment;
+                                singVouch.constraintFormula = constraintFormula;
+                                singVouch.setStyle("paddingTop", 0);
+                                singVouch.setStyle("paddingBottom", 0);
+                                if (item.bshow == "false" || !Boolean(item.bshow)) {
+                                    singVouch.visible = false;
+                                    _singleType.hidenum++;
+                                }
+                                group.addCrmChild(singVouch);
+                                singVouch.init();
+                            }
+                        }
+                        if (this._formStatus == "browser") {
+                            setValue(valueObj);
+                        }
+                    }
+                    else {
+                        var childMap:Object = _singleType.childMap;
+                        var childMapVbox:SingleVbox = new SingleVbox();
+                        childMapVbox.owner = this.owner as CrmEapRadianVbox;
+                        childMapVbox.singleType = childMap;
+                        childMapVbox.getValueFun = getValueFun;
+                        childMapVbox.setValueFun = setValueFun;
+                        childMapVbox.subTableAssignment = subTableAssignment;
+                        childMapVbox.constraintFormula = constraintFormula;
+                        childMapVbox.init();
+                        childMapVbox.minHeight = childMap.iheight;
+                        group.addCrmChild(childMapVbox);
+                    }
+                    break;
+                }
+                case "TextArea":
+                {
+                    if(singleLable!=null){
+                        this.addChild(singleLable);
+                        var s:Spacer = new Spacer();
+                        s.height = 5 ;
+                        this.addChild(s);
+                    }
+                    var com_cfield:CrmEapTextArea = new CrmEapTextArea();
+                    com_cfield.singleType = _singleType;
+                    com_cfield.name = this._singleType.cobjectname;
+                    com_cfield.percentHeight = 100;
+                    com_cfield.percentWidth = 100;
+                    this.addChild(com_cfield);
+                    break;
+                }
+                case "RichTextEditor":
+                {
+                    if(singleLable!=null){
+                        this.addChild(singleLable);
+                        var s:Spacer = new Spacer();
+                        s.height = 5 ;
+                        this.addChild(s);
+                    }
+                    var cb_cfield:CrmEapRichTextEditor = new CrmEapRichTextEditor();
+                    cb_cfield.singleType = _singleType;
+                    cb_cfield.name = this._singleType.cobjectname;
+                    cb_cfield.percentHeight = 100;
+                    cb_cfield.percentWidth = 100;
+                    this.addChild(cb_cfield);
+                    break;
+                }
+                case "DataGrid":
+                {
+                    var hbo:HBox = new HBox();
+                    hbo.percentWidth = 100;
+                    hbo.height = CRMmodel.basicFormGroupHeight;
+                    hbo.verticalScrollPolicy = "off";
+                    hbo.horizontalScrollPolicy = "off";
+                    hbo.setStyle("verticalAlign", "middle");
+                    hbo.setStyle("paddingRight", "5");
+
+                    var additionicon:LinkButton = new LinkButton();
+                    additionicon.setStyle("icon", ConstsModel._ADDITIONICON);
+                    additionicon.toolTip = "增行";
+                    if (_singleType.bshowAddButton == "false" || !Boolean(_singleType.bshowAddButton)) {
+                        additionicon.visible = false;
+                    }
+                    additionicon.addEventListener(MouseEvent.CLICK, addNewItem);
+                    hbo.addChild(additionicon);
+
+                    var subtractionicon:LinkButton = new LinkButton();
+                    subtractionicon.setStyle("icon", ConstsModel._SUBTRACTIONICON);
+                    subtractionicon.toolTip = "删行";
+                    if (_singleType.bshowDeleteButton == "false" || !Boolean(_singleType.bshowDeleteButton)) {
+                        subtractionicon.visible = false;
+                    }
+                    subtractionicon.addEventListener(MouseEvent.CLICK, deleteItem);
+                    hbo.addChild(subtractionicon);
+
+                    var clearicon:LinkButton = new LinkButton();
+                    clearicon.setStyle("icon", ConstsModel._CLEARICON);
+                    clearicon.toolTip = "清空";
+                    if (_singleType.bshowCleanButton == "false" || !Boolean(_singleType.bshowCleanButton)) {
+                        clearicon.visible = false;
+                    }
+                    clearicon.addEventListener(MouseEvent.CLICK, removeAll);
+                    hbo.addChild(clearicon);
+
+//*************************开始：修改人：XZQWJ 修改时间：2012-12-29  功能：增加是否关联功能****************************************************
+                    if (_singleType.brelation == "true" || Boolean(_singleType.brelation)) {
+                        relation.label = "是否关联";
+                        relation.name = "relation";
+                        relation.selected = false;
+                        relation.addEventListener(Event.CHANGE, valuechange);
+                        this.paramForm.relation = relation;
+                        hbo.addChild(relation);
+                    }
+//************************结束：************************************************************************************************************
+                    //如果有按钮，label在右边，没有按钮，label在左边
+                    var spacer:Label = new Label();
+                    spacer.percentWidth = 100;
+                    spacer.percentWidth = 100;
+                    spacer.text = " ";
+                    spacer.doubleClickEnabled = true;
+                    spacer.addEventListener(MouseEvent.DOUBLE_CLICK, function (e:MouseEvent):void {
+                        if (maxButton == null)
+                            return;
+                        maxButton.isMax = !maxButton.isMax;
+                    });
+
+                    var isSpacerAdd:Boolean = false;
+                    if (clearicon.visible == true || subtractionicon.visible == true || additionicon.visible == true || relation.visible == true) {
+                        isSpacerAdd = true;
+                        hbo.addChild(spacer);
+                    }
+
+                    if (clearicon.visible == false) {
+                        hbo.removeChild(clearicon);
+                    }
+                    if (subtractionicon.visible == false) {
+                        hbo.removeChild(subtractionicon);
+                    }
+                    if (additionicon.visible == false) {
+                        hbo.removeChild(additionicon);
+                    }
+                    if (relation.visible == false) {
+                        hbo.removeChild(relation);
+                    }
+
+                    if (singleLable != null) {
+                        hbo.addChild(singleLable);
+                    }
+
+                    if (!isSpacerAdd) {
+                        hbo.addChild(spacer);
+                    }
+
+                    var maxButton:MaxButtonForGrid = new MaxButtonForGrid();
+                    hbo.addChild(maxButton);
+
+                    this.addChild(hbo);
+
+                    var hrule:HRule = new HRule();
+                    hrule.percentWidth = 100;
+                    hrule.setStyle("strokeColor", "0xc4cccc");
+                    this.addChild(hrule);
+                    var dag_cfield:CrmEapDataGrid = new CrmEapDataGrid();
+                    dag_cfield.lockedColumnCount = 5;  //wxh add
+                    dag_cfield.owner = this.paramForm as CrmEapRadianVbox;
+                    dag_cfield.ctableName = _singleType.ctable;
+                    dag_cfield.percentHeight = 100;
+                    dag_cfield.percentWidth = 100;
+                    dag_cfield.name = this._singleType.cobjectname;
+                    dag_cfield.getValue = getValueFun;
+                    dag_cfield.setValue = setValueFun;
+                    dag_cfield.singleType = _singleType;
+                    dag_cfield.subTableAssignment = subTableAssignment;
+                    dag_cfield.constraintFormula = constraintFormula;
+                    dag_cfield.rowCount = 1;
+                    dag_cfield.addEventListener(KeyboardEvent.KEY_DOWN, CRMtool.doKeyDown);//增加回车事件
+                    dag_cfield.addEventListener(ListEvent.ITEM_CLICK, relationQuery);
+                    (this.owner as CrmEapRadianVbox).gridList.addItem(dag_cfield);
+                    dag_cfield.InitColumns();
+                    this.addChild(dag_cfield);
+
+                    grid = dag_cfield;
+                    maxButton.meBox = this;
+                    maxButton.ownerBox = (owner as CrmEapRadianVbox).paramForm["formShowArea"];
+                    break;
+                }
+            }
+        }
+
+        public function addNewItem(event:MouseEvent):void {
+            var dag_cfield:CrmEapDataGrid = this.getChildByName(this._singleType.cobjectname) as CrmEapDataGrid;
+            dag_cfield.addNewItem(event);
+
+        }
+
+        public function deleteItem(event:MouseEvent):void {
+            var dag_cfield:CrmEapDataGrid = this.getChildByName(this._singleType.cobjectname) as CrmEapDataGrid;
+            dag_cfield.deleteItem(event);
+        }
+
+        public function removeAll(event:MouseEvent):void {
+            var dag_cfield:CrmEapDataGrid = this.getChildByName(this._singleType.cobjectname) as CrmEapDataGrid;
+            dag_cfield.removeAll(event);
+        }
+
+        //***********开始：      作者：XZQWJ 增加日期：2012-12-29  功能：根据'是否关联'的选中状态判断子表是否关联显示*****************************
+        public function valuechange(e:Event):void {
+            var dag_cfield:CrmEapDataGrid = this.getChildByName(this._singleType.cobjectname) as CrmEapDataGrid;
+//				dag_cfield.tableList;
+            if (e.target.selected) {
+//					dag_cfield.all_tableList=dag_cfield.dataProvider as ArrayCollection;
+                dag_cfield.all_tableList = dag_cfield["tableList"];
+
+            } else {
+                dag_cfield.dataProvider = dag_cfield.all_tableList;
+//					dag_cfield.dataProvider=dag_cfield["tableList"];
+//					dag_cfield.all_tableList=new ArrayCollection();
+            }
+        }
+
+        //***********结束****************************************************************************************************************
+        //***********开始：      作者：XZQWJ 增加日期：2012-12-29  功能：在选中”是否关联“后母子表联动********************************************
+        public function relationQuery(event:ListEvent):void {
+            var relation = paramForm.relation;
+            var dag_cfield:CrmEapDataGrid = this.getChildByName(this._singleType.cobjectname) as CrmEapDataGrid;
+            if (relation != null && relation.selected) {
+                if ((dag_cfield.dataProvider as ArrayCollection).length > 0) {
+//						dag_cfield.all_tableList=dag_cfield.dataProvider as ArrayCollection;
+//						dag_cfield.all_tableList=dag_cfield["tableList"];
+                    dag_cfield.onRowChange();
+                } else {
+                    dag_cfield.all_tableList = new ArrayCollection();
+                }
+            } else {
+//					CRMtool.showAlert("不关联显示");
+                trace("不关联显示");
+            }
+        }
+
+        //***********结束****************************************************************************************************************
+        public function addCrmChild(child:UIComponent):void {
+            if (this.getChildByName(_singleType.cobjectname) is CrmEapVBox) {
+                var crmEap:CrmEapVBox = this.getChildByName(_singleType.cobjectname) as CrmEapVBox;
+                crmEap.addCrmChild(child);
+            }
+        }
+
+        //根据对象名找到该字段的信息。
+        public function setChidValue(cobjectname:String, dataObj:Object = null, number:int = 0, count:int = 0):void {
+            var param:Object = null;
+            var crmEapVBox:CrmEapVBox = this.getChildAt(this.numChildren - 1) as CrmEapVBox;
+            for (var i:int = 0; i < crmEapVBox.numChildren; i++) {
+                if (crmEapVBox.getChildAt(i) is HBox) {
+                    var hBox:HBox = crmEapVBox.getChildAt(i) as HBox;
+                    for (var j:int = 0; j < hBox.numChildren; j++) {
+                        if (hBox.getChildAt(j) is SingleVbox) {
+                            var singleVbox:SingleVbox = hBox.getChildAt(j) as SingleVbox;
+                            var ui:UIComponent = singleVbox.getChildByName(singleVbox.singleType.cobjectname) as UIComponent;
+                            if (singleVbox.singleType.cobjectname == cobjectname) {
+                                setChildSingleValue(ui, singleVbox.singleType.objecttype, cobjectname, number);
+                            }
+                        }
+                        else if (hBox.getChildAt(j) is SingleVouch) {
+                            var singleVouch:SingleVouch = hBox.getChildAt(j) as SingleVouch;
+                            var ui:UIComponent = singleVouch.getChildByName(singleVouch.singleType.cobjectname) as UIComponent;
+                            if (singleVouch.singleType.cobjectname == cobjectname) {
+                                setChildSingleValue(ui, singleVouch.singleType.objecttype, dataObj, number, count);
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        private function setChildSingleValue(ui:UIComponent, ctype:String, dataObj:Object = null, number:int = 0, count:int = 0):void {
+            switch (ctype) {
+                case "TextArea":
+                {
+                    var ta_cfield:CrmEapTextArea = ui as CrmEapTextArea;
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            if (dataObj.mainValue[ta_cfield.singleType.cfield] != null) {
+                                //ta_cfield.text="";
+                                if (CRMtool.isStringNull(ta_cfield.text) && CRMtool.isStringNotNull(ta_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(ta_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != ta_cfield.singleType.cfield) {
+                                        ta_cfield.text = dataObj.mainValue[ta_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        ta_cfield.text = dataObj.mainValue[ta_cfield.singleType.cobjectname];
+                                    }
+                                }
+                            }
+                            else {
+                                //ta_cfield.text="";
+                                if (CRMtool.isStringNull(ta_cfield.text) && CRMtool.isStringNotNull(ta_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(ta_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.ceditdefault);
+                                }
+                            }
+                        }
+                        else {
+                            //ta_cfield.text="";
+                            if (CRMtool.isStringNull(ta_cfield.text) && CRMtool.isStringNotNull(ta_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(ta_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.ceditdefault);
+                            }
+                            else {
+                                if (null != ta_cfield.singleType.cfield) {
+                                    ta_cfield.text = dataObj.mainValue[ta_cfield.singleType.cfield];
+                                }
+                                else {
+                                    ta_cfield.text = dataObj.mainValue[ta_cfield.singleType.cobjectname];
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        ta_cfield.text = "";
+                    }
+                    break;
+                }
+                case "RichTextEditor":
+                {
+                    var rte_cfield:CrmEapRichTextEditor = ui as CrmEapRichTextEditor;
+
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            if (null != dataObj.mainValue[rte_cfield.singleType.cfield]) {
+                                //rte_cfield.htmlText="";
+                                if (CRMtool.isStringNull(rte_cfield.htmlText) && CRMtool.isStringNotNull(rte_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    rte_cfield.htmlText = CRMtool.defaultValue(rte_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(rte_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    rte_cfield.htmlText = CRMtool.defaultValue(rte_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != rte_cfield.singleType.cfield) {
+                                        rte_cfield.htmlText = dataObj.mainValue[rte_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        rte_cfield.htmlText = dataObj.mainValue[rte_cfield.singleType.cobjectname];
+                                    }
+                                }
+                            }
+                            else {
+                                rte_cfield.htmlText = "";
+                            }
+                        }
+                        else {
+                            //rte_cfield.htmlText="";
+                            if (CRMtool.isStringNull(rte_cfield.htmlText) && CRMtool.isStringNotNull(rte_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                rte_cfield.htmlText = CRMtool.defaultValue(rte_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(rte_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                rte_cfield.htmlText = CRMtool.defaultValue(rte_cfield.singleType.ceditdefault);
+                            }
+                            else {
+                                if (null != rte_cfield.singleType.cfield) {
+                                    rte_cfield.htmlText = dataObj.mainValue[rte_cfield.singleType.cfield];
+                                }
+                                else {
+                                    rte_cfield.htmlText = dataObj.mainValue[rte_cfield.singleType.cobjectname];
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        rte_cfield.htmlText = "";
+                    }
+                    break;
+                }
+                case "Label":
+                {
+                    var lable_cfield:CrmEapLable = ui as CrmEapLable;
+                    if (null != dataObj && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            if (null != dataObj.mainValue[lable_cfield.singleType.cfield]) {
+                                //lable_cfield.text="";
+                                if (CRMtool.isStringNull(lable_cfield.text) && CRMtool.isStringNotNull(lable_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                    lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(lable_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != lable_cfield.singleType.cfield) {
+                                        lable_cfield.text = dataObj.mainValue[lable_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        lable_cfield.text = dataObj.mainValue[lable_cfield.singleType.cobjectname];
+                                    }
+                                }
+                            }
+                            else {
+                                //lable_cfield.text="";
+                                if (CRMtool.isStringNull(lable_cfield.text) && CRMtool.isStringNotNull(lable_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                    lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(lable_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.ceditdefault);
+                                }
+                            }
+                        }
+                        else {
+                            //lable_cfield.text="";
+                            if (CRMtool.isStringNull(lable_cfield.text) && CRMtool.isStringNotNull(lable_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(lable_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.ceditdefault);
+                            }
+                        }
+                    }
+                    else {
+                        lable_cfield.text = "";
+                    }
+                    break;
+                }
+                case "TextInput":
+                {
+                    var tnp_cfield:CrmEapTextInput = ui as CrmEapTextInput;
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if ((dataObj.mainValue[tnp_cfield.singleType.cfield] != ""
+                                && dataObj.mainValue[tnp_cfield.singleType.cfield] != null
+                                && dataObj.mainValue[tnp_cfield.singleType.cfield] == tnp_cfield.oldText)
+                                || (tnp_cfield.consultList.length > 0 &&
+                                tnp_cfield.consultList.getItemAt(0)[tnp_cfield.singleType.cconsultbkfld] == dataObj.mainValue[tnp_cfield.singleType.cfield])
+                                || (dataObj.mainValue[tnp_cfield.singleType.cobjectname] != ""
+                                && dataObj.mainValue[tnp_cfield.singleType.cobjectname] != null
+                                && dataObj.mainValue[tnp_cfield.singleType.cobjectname] == tnp_cfield.oldText)) {
+                            if (CRMtool.isStringNull(tnp_cfield.text) && CRMtool.isStringNotNull(tnp_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.cnewdefault);
+                                if (number == 0) {
+                                    tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                        tnp_cfield.onDataChange();
+                                    });
+                                }
+                                else {
+                                    tnp_cfield.onDataChange();
+                                }
+                            }
+                            else if (CRMtool.isStringNotNull(tnp_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.ceditdefault);
+                                if (number == 0) {
+                                    tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                        tnp_cfield.onDataChange();
+                                    });
+                                }
+                                else {
+                                    tnp_cfield.onDataChange();
+                                }
+                            }
+                            else {
+                                tnp_cfield.text = tnp_cfield.oldText;
+                            }
+                            return;
+                        }
+                        if (count == 0) {
+                            if (null != dataObj.mainValue) {
+                                //tnp_cfield.text="";
+                                tnp_cfield.oldText = "";
+                                tnp_cfield.consultList.removeAll();
+                                tnp_cfield.consultList2.removeAll();
+                                tnp_cfield.clean();
+
+                                if (CRMtool.isStringNull(tnp_cfield.text) && CRMtool.isStringNotNull(tnp_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(tnp_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != tnp_cfield.singleType.cfield) {
+                                        tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cobjectname];
+                                    }
+                                }
+                                if (null != tnp_cfield.singleType.cfield) {
+                                    if (number == 0) {
+                                        tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                            tnp_cfield.onDataChange();
+                                        });
+                                    }
+                                    else {
+                                        if (tnp_cfield.text == tnp_cfield.oldText) {
+                                            return;
+                                        }
+                                        tnp_cfield.onDataChange();
+                                    }
+                                }
+                            }
+                            else {
+                                tnp_cfield.text = "";
+                                tnp_cfield.oldText = "";
+                                tnp_cfield.consultList.removeAll();
+                                tnp_cfield.consultList2.removeAll();
+                                if (CRMtool.isStringNotNull(tnp_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(tnp_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != tnp_cfield.singleType.cfield) {
+                                        tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cobjectname];
+                                    }
+                                }
+                                if (number == 0) {
+                                    tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                        tnp_cfield.onDataChange();
+                                    });
+                                }
+                                else {
+                                    tnp_cfield.onDataChange();
+                                }
+                            }
+                        }
+                        else {
+                            tnp_cfield.text = "";
+                            tnp_cfield.consultList.removeAll();
+                            tnp_cfield.consultList2.removeAll();
+                            tnp_cfield.clean();
+                            if (null != tnp_cfield.singleType.cfield) {
+                                tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cfield];
+                            }
+                            else {
+                                tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cobjectname];
+                            }
+                            if (tnp_cfield.oldText == dataObj.mainValue[tnp_cfield.singleType.cobjectname]) {
+                                return;
+                            }
+                            if (number == 0) {
+                                tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                    tnp_cfield.onDataChange();
+                                });
+                            }
+                            else {
+                                tnp_cfield.onDataChange();
+                            }
+                        }
+                    }
+                    else {
+                        if (count == 0) {
+                            if (CRMtool.isStringNotNull(tnp_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(tnp_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.ceditdefault);
+                            }
+                            else {
+                                tnp_cfield.text = "";
+                                tnp_cfield.oldText = "";
+                                tnp_cfield.consultList.removeAll();
+                                tnp_cfield.consultList2.removeAll();
+                                tnp_cfield.clean();
+                                paramForm.onGetNumber();
+                            }
+                            if (number == 0) {
+                                tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                    tnp_cfield.onDataChange();
+                                });
+                            }
+                            else {
+                                tnp_cfield.onDataChange();
+                            }
+                        }
+                        else {
+                            tnp_cfield.text = "";
+                            tnp_cfield.oldText = "";
+                            tnp_cfield.consultList.removeAll();
+                            tnp_cfield.consultList2.removeAll();
+                            tnp_cfield.clean();
+                        }
+                    }
+
+                    break;
+                }
+                case "ComboBox":
+                {
+                    var com_cfield:CrmEapComboBox = ui as CrmEapComboBox;
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            com_cfield.selectedIndex = -1;
+                            if (CRMtool.isStringNotNull(com_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("initialization", function (event:Event):void {
+                                        commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                                }
+                            }
+                            else if (CRMtool.isStringNotNull(com_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("initialization", function (event:Event):void {
+                                        commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                                }
+                            }
+                            else {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("initialization", function (event:Event):void {
+                                        commSelectedValue(com_cfield, dataObj.mainValue[com_cfield.singleType.cfield]);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, dataObj.mainValue[com_cfield.singleType.cfield]);
+                                }
+                            }
+                        }
+                        else {
+                            com_cfield.selectedIndex = -1;
+                            if (CRMtool.isStringNotNull(com_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(com_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                            }
+                            else {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("initialization", function (event:Event):void {
+                                        commSelectedValue(com_cfield, dataObj.mainValue[com_cfield.singleType.cfield]);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, dataObj.mainValue[com_cfield.singleType.cfield]);
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        com_cfield.selectedIndex = -1;
+                        if (count == 0) {
+                            com_cfield.selectedIndex = -1;
+                            if (CRMtool.isStringNotNull(com_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("complete", function (event:Event):void {
+                                        commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                                }
+                            }
+                            else if (CRMtool.isStringNotNull(com_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("complete", function (event:Event):void {
+                                        commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+                case "CheckBox":
+                {
+                    /*
+                     lzx 修改 2013-1-29
+                     个人感觉 case "CheckBox"这段代码没有用，可以全部删掉，考虑到可能有更深层的意义 ，
+                     只注释掉一部分，改善新增和修改设置默认值的时候，修改CheckBox时，显示不正常的问题
+                     */
+                    var cb_cfield:CrmEapCheckBox = ui as CrmEapCheckBox;
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            cb_cfield.selected = false;
+                            if (CRMtool.isStringNotNull(cb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                cb_cfield.selected = (cb_cfield.singleType.cnewdefault == "1" ? true : false);
+                            }
+                            else if (CRMtool.isStringNotNull(cb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                cb_cfield.selected = (cb_cfield.singleType.ceditdefault == "1" ? true : false);
+                            }
+                            else {
+                                if (null != cb_cfield.singleType.cfield) {
+                                    if (dataObj.mainValue[cb_cfield.singleType.cfield] == "1") {
+                                        cb_cfield.selected = true;
+                                    } else if (dataObj.mainValue[cb_cfield.singleType.cfield] == "0") {
+                                        cb_cfield.selected = false;
+
+                                    } else {
+                                        cb_cfield.selected = Boolean(dataObj.mainValue[cb_cfield.singleType.cfield]);
+                                    }
+                                }
+                                else {
+                                    if (dataObj.mainValue[cb_cfield.singleType.cobjectname] == "1") {
+                                        cb_cfield.selected = true;
+                                    } else if (dataObj.mainValue[cb_cfield.singleType.cobjectname] == "0") {
+                                        cb_cfield.selected = false;
+                                    } else {
+                                        cb_cfield.selected = Boolean(dataObj.mainValue[cb_cfield.singleType.cobjectname]);
+                                    }
+
+                                }
+                            }
+                        }
+                        else {
+                            cb_cfield.selected = false;
+                            if (CRMtool.isStringNotNull(cb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                cb_cfield.selected = (cb_cfield.singleType.cnewdefault == "1" ? true : false);
+                            }
+                            else if (CRMtool.isStringNotNull(cb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                cb_cfield.selected = (cb_cfield.singleType.ceditdefault == "1" ? true : false);
+                            }
+                            else {
+                                if (null != cb_cfield.singleType.cfield) {
+                                    if (dataObj.mainValue[cb_cfield.singleType.cfield] == "1") {
+                                        cb_cfield.selected = true;
+                                    } else if (dataObj.mainValue[cb_cfield.singleType.cfield] == "0") {
+                                        cb_cfield.selected = false;
+
+                                    } else {
+                                        cb_cfield.selected = Boolean(dataObj.mainValue[cb_cfield.singleType.cfield]);
+                                    }
+                                }
+                                else {
+                                    if (dataObj.mainValue[cb_cfield.singleType.cobjectname] == "1") {
+                                        cb_cfield.selected = true;
+                                    } else if (dataObj.mainValue[cb_cfield.singleType.cobjectname] == "0") {
+                                        cb_cfield.selected = false;
+                                    } else {
+                                        cb_cfield.selected = Boolean(dataObj.mainValue[cb_cfield.singleType.cobjectname]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        cb_cfield.selected = false;
+                        if (count == 0) {
+                            cb_cfield.selected = false;
+                            if (CRMtool.isStringNotNull(cb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                cb_cfield.selected = (cb_cfield.singleType.cnewdefault == "1" ? true : false);
+                            }
+                            else if (CRMtool.isStringNotNull(cb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                cb_cfield.selected = (cb_cfield.singleType.ceditdefault == "1" ? true : false);
+                            }
+                        }
+                    }
+                    break;
+                }
+                case "RadioButtonGroup":
+                {
+                    var rb_cfield:CrmEapRadioButtonGroup = ui as CrmEapRadioButtonGroup;
+
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            rb_cfield.cvalue = "";
+                            if (CRMtool.isStringNotNull(rb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                rb_cfield.cvalue = rb_cfield.singleType.cnewdefault;
+                            }
+                            else if (CRMtool.isStringNotNull(rb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                rb_cfield.cvalue = rb_cfield.singleType.ceditdefault;
+                            }
+                            else {
+                                rb_cfield.cvalue = (dataObj.mainValue[rb_cfield.singleType.cfield]);
+                            }
+                        }
+                        else {
+                            rb_cfield.cvalue = "";
+
+                            if (CRMtool.isStringNotNull(rb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                rb_cfield.cvalue = rb_cfield.singleType.cnewdefault;
+                            }
+                            else if (CRMtool.isStringNotNull(rb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                rb_cfield.cvalue = rb_cfield.singleType.ceditdefault;
+                            }
+                        }
+                    }
+                    else {
+                        if (CRMtool.isStringNotNull(rb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                            rb_cfield.cvalue = rb_cfield.singleType.cnewdefault;
+                        }
+                        else if (CRMtool.isStringNotNull(rb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                            rb_cfield.cvalue = rb_cfield.singleType.ceditdefault;
+                        }
+                        else {
+                            rb_cfield.cvalue = "";
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        //赋值
+        public function setValue(dataObj:Object = null, number:int = 0, count:int = 0):void {
+            var valueObj:Object = this._singleType.value;
+            var crmEapVBox:CrmEapVBox = this.getChildAt(this.numChildren - 1) as CrmEapVBox;
+            for (var i:int = 0; i < crmEapVBox.numChildren; i++) {
+                if (crmEapVBox.getChildAt(i) is HBox) {
+                    var hBox:HBox = crmEapVBox.getChildAt(i) as HBox;
+                    for (var j:int = 0; j < hBox.numChildren; j++) {
+                        if (hBox.getChildAt(j) is SingleVbox) {
+                            var singleVbox:SingleVbox = hBox.getChildAt(j) as SingleVbox;
+                            var ui:UIComponent = singleVbox.getChildByName(singleVbox.singleType.cobjectname) as UIComponent;
+                            if (Boolean(singleVbox.singleType.bmain || singleVbox.singleType.objecttype == "DataGrid") 
+								|| singleVbox.singleType.cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                                setSingleValue(ui, singleVbox.singleType.objecttype, dataObj, number, count);
+                            }
+                        }
+                        else if (hBox.getChildAt(j) is SingleVouch) {
+                            var singleVouch:SingleVouch = hBox.getChildAt(j) as SingleVouch;
+                            if (Boolean(singleVouch.singleType.bmain) || singleVouch.singleType.cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                                var ui:UIComponent = singleVouch.getChildByName(singleVouch.singleType.cobjectname) as UIComponent;
+                                setSingleValue(ui, singleVouch.singleType.objecttype, dataObj, number, count);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //往每个记录集中塞值
+        private function setSingleValue(ui:UIComponent, ctype:String, dataObj:Object = null, number:int = 0, count:int = 0):void {
+            switch (ctype) {
+                case "TextArea":
+                {
+                    var ta_cfield:CrmEapTextArea = ui as CrmEapTextArea;
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            if (dataObj.mainValue[ta_cfield.singleType.cfield] != null) {
+                                //ta_cfield.text="";
+                                if (CRMtool.isStringNull(ta_cfield.text) && CRMtool.isStringNotNull(ta_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(ta_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != ta_cfield.singleType.cfield) {
+                                        ta_cfield.text = dataObj.mainValue[ta_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        ta_cfield.text = dataObj.mainValue[ta_cfield.singleType.cobjectname];
+                                    }
+                                }
+                            }
+                            else {
+								//20141223 SZC 清除TextArea中旧的数据
+								ta_cfield.text="";
+								//end
+                                if (CRMtool.isStringNull(ta_cfield.text) && CRMtool.isStringNotNull(ta_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(ta_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.ceditdefault);
+                                }
+                            }
+                        }
+                        else {
+                            //ta_cfield.text="";
+                            if (CRMtool.isStringNull(ta_cfield.text) && CRMtool.isStringNotNull(ta_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(ta_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                ta_cfield.text = CRMtool.defaultValue(ta_cfield.singleType.ceditdefault);
+                            }
+                            else {
+                                if (null != ta_cfield.singleType.cfield) {
+                                    ta_cfield.text = dataObj.mainValue[ta_cfield.singleType.cfield];
+                                }
+                                else {
+                                    ta_cfield.text = dataObj.mainValue[ta_cfield.singleType.cobjectname];
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        ta_cfield.text = "";
+                    }
+                    break;
+                }
+                case "RichTextEditor":
+                {
+                    var rte_cfield:CrmEapRichTextEditor = ui as CrmEapRichTextEditor;
+
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            if (null != dataObj.mainValue[rte_cfield.singleType.cfield]) {
+                                //rte_cfield.htmlText="";
+                                if (CRMtool.isStringNull(rte_cfield.htmlText) && CRMtool.isStringNotNull(rte_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    rte_cfield.htmlText = CRMtool.defaultValue(rte_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(rte_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    rte_cfield.htmlText = CRMtool.defaultValue(rte_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != rte_cfield.singleType.cfield) {
+                                        rte_cfield.htmlText = dataObj.mainValue[rte_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        rte_cfield.htmlText = dataObj.mainValue[rte_cfield.singleType.cobjectname];
+                                    }
+                                }
+                            }
+                            else {
+                                rte_cfield.htmlText = "";
+                            }
+                        }
+                        else {
+                            //rte_cfield.htmlText="";
+                            if (CRMtool.isStringNull(rte_cfield.htmlText) && CRMtool.isStringNotNull(rte_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                rte_cfield.htmlText = CRMtool.defaultValue(rte_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(rte_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                rte_cfield.htmlText = CRMtool.defaultValue(rte_cfield.singleType.ceditdefault);
+                            }
+                            else {
+                                if (null != rte_cfield.singleType.cfield) {
+                                    rte_cfield.htmlText = dataObj.mainValue[rte_cfield.singleType.cfield];
+                                }
+                                else {
+                                    rte_cfield.htmlText = dataObj.mainValue[rte_cfield.singleType.cobjectname];
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        rte_cfield.htmlText = "";
+                    }
+                    break;
+                }
+                case "DataGrid":
+                {
+                    var dag_cfield:CrmEapDataGrid = ui as CrmEapDataGrid;
+                    if (this._curButtonStatus != "onNew"|| dataObj != null) {
+                        if (dataObj != null) {
+                            var dagArr:ArrayCollection = dataObj[dag_cfield.singleType.ctable] as ArrayCollection;
+                            for each (var item:Object in dagArr) {
+                                var objInfo:Object = ObjectUtil.getClassInfo(item);
+                                var fieldName:Array = objInfo["properties"] as Array;
+                                for each(var q:QName in fieldName) {
+                                    if (item[q.localName] == null) {
+                                        item[q.localName] = "";
+                                    }
+                                }
+                            }
+                            dag_cfield.all_tableList = dagArr;
+                            dag_cfield.tableList = dagArr;
+                        }
+                        else {
+                            dag_cfield.all_tableList = new ArrayCollection();
+                            dag_cfield.tableList = new ArrayCollection();
+                        }
+                    }
+                    else {
+                        dag_cfield.all_tableList = new ArrayCollection();
+                        dag_cfield.tableList = new ArrayCollection();
+                    }
+                    break;
+                }
+                case "Label":
+                {
+                    var lable_cfield:CrmEapLable = ui as CrmEapLable;
+                    if (null != dataObj && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            if (null != dataObj.mainValue[lable_cfield.singleType.cfield]) {
+                                //lable_cfield.text="";
+                                if (CRMtool.isStringNull(lable_cfield.text) && CRMtool.isStringNotNull(lable_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                    lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(lable_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != lable_cfield.singleType.cfield) {
+                                        lable_cfield.text = dataObj.mainValue[lable_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        lable_cfield.text = dataObj.mainValue[lable_cfield.singleType.cobjectname];
+                                    }
+                                }
+                            }
+                            else {
+                                //lable_cfield.text="";
+                                if (CRMtool.isStringNull(lable_cfield.text) && CRMtool.isStringNotNull(lable_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                    lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(lable_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.ceditdefault);
+                                }
+                            }
+                        }
+                        else {
+                            //lable_cfield.text="";
+                            if (CRMtool.isStringNull(lable_cfield.text) && CRMtool.isStringNotNull(lable_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(lable_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                lable_cfield.text = CRMtool.defaultValue(lable_cfield.singleType.ceditdefault);
+                            }
+                        }
+                    }
+                    else {
+                        lable_cfield.text = "";
+                    }
+                    break;
+                }
+                case "TextInput":
+                {
+                    var tnp_cfield:CrmEapTextInput = ui as CrmEapTextInput;
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if ((dataObj.mainValue[tnp_cfield.singleType.cfield] != ""
+                                && dataObj.mainValue[tnp_cfield.singleType.cfield] != null
+                                && dataObj.mainValue[tnp_cfield.singleType.cfield] == tnp_cfield.oldText)
+                                || (tnp_cfield.consultList.length > 0 &&
+                                tnp_cfield.consultList.getItemAt(0)[tnp_cfield.singleType.cconsultbkfld] == dataObj.mainValue[tnp_cfield.singleType.cfield])
+                                || (dataObj.mainValue[tnp_cfield.singleType.cobjectname] != ""
+                                && dataObj.mainValue[tnp_cfield.singleType.cobjectname] != null
+                                && dataObj.mainValue[tnp_cfield.singleType.cobjectname] == tnp_cfield.oldText)) {
+                            if (CRMtool.isStringNull(tnp_cfield.text) && CRMtool.isStringNotNull(tnp_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.cnewdefault);
+                                if (number == 0) {
+                                    tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                        tnp_cfield.onDataChange();
+                                    });
+                                }
+                                else {
+                                    tnp_cfield.onDataChange();
+                                }
+                            }
+                            else if (CRMtool.isStringNotNull(tnp_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.ceditdefault);
+                                if (number == 0) {
+                                    tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                        tnp_cfield.onDataChange();
+                                    });
+                                }
+                                else {
+                                    tnp_cfield.onDataChange();
+                                }
+                            }
+                            else {
+                                tnp_cfield.text = tnp_cfield.oldText;
+                            }
+                            return;
+                        }
+                        if (count == 0) {
+                            if (null != dataObj.mainValue) {
+                                //tnp_cfield.text="";
+                                tnp_cfield.oldText = "";
+                                tnp_cfield.consultList.removeAll();
+                                tnp_cfield.consultList2.removeAll();
+                                tnp_cfield.clean();
+
+                                if (CRMtool.isStringNull(tnp_cfield.text) && CRMtool.isStringNotNull(tnp_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(tnp_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != tnp_cfield.singleType.cfield) {
+                                        tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cobjectname];
+                                    }
+                                }
+                                if (null != tnp_cfield.singleType.cfield) {
+                                    if (number == 0) {
+                                        tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                            tnp_cfield.onDataChange();
+                                        });
+                                    }
+                                    else {
+                                        if (tnp_cfield.text == tnp_cfield.oldText) {
+                                            return;
+                                        }
+                                        if((tnp_cfield.singleType.cconsultfunction + "").search("iconsult=@ifunconsult@|consultSql=dbo.getSql(@ifunconsult@)") > -1){
+                                            tnp_cfield.onDataChange2(dataObj);//表单关系参照翻译
+                                        }else{
+                                            tnp_cfield.onDataChange();//业务字典参照翻译
+                                        }
+
+                                    }
+                                }
+                            }
+                            else {
+                                tnp_cfield.text = "";
+                                tnp_cfield.oldText = "";
+                                tnp_cfield.consultList.removeAll();
+                                tnp_cfield.consultList2.removeAll();
+                                if (CRMtool.isStringNotNull(tnp_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                    tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.cnewdefault);
+                                }
+                                else if (CRMtool.isStringNotNull(tnp_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                    tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.ceditdefault);
+                                }
+                                else {
+                                    if (null != tnp_cfield.singleType.cfield) {
+                                        tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cfield];
+                                    }
+                                    else {
+                                        tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cobjectname];
+                                    }
+                                }
+                                if (number == 0) {
+                                    tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                        tnp_cfield.onDataChange();
+                                    });
+                                }
+                                else {
+                                    tnp_cfield.onDataChange();
+                                }
+                            }
+                        }
+                        else {
+                            tnp_cfield.text = "";
+                            tnp_cfield.consultList.removeAll();
+                            tnp_cfield.consultList2.removeAll();
+                            tnp_cfield.clean();
+                            if (null != tnp_cfield.singleType.cfield) {
+                                tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cfield];
+                            }
+                            else {
+                                tnp_cfield.text = dataObj.mainValue[tnp_cfield.singleType.cobjectname];
+                            }
+                            if (tnp_cfield.oldText == dataObj.mainValue[tnp_cfield.singleType.cobjectname]) {
+                                return;
+                            }
+                            if (number == 0) {
+                                tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                    tnp_cfield.onDataChange();
+                                });
+                            }
+                            else {
+                                tnp_cfield.onDataChange();
+                            }
+                        }
+                    }
+                    else {
+                        tnp_cfield.text = "";
+                        tnp_cfield.consultList.removeAll();
+                        tnp_cfield.consultList2.removeAll();
+                        tnp_cfield.clean();
+                        if (count == 0) {
+                            if (CRMtool.isStringNotNull(tnp_cfield.singleType.cnewdefault) && ((this._curButtonStatus == "onNew"))) {
+                                tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(tnp_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                tnp_cfield.text = CRMtool.defaultValue(tnp_cfield.singleType.ceditdefault);
+                            }
+                            else {
+                                tnp_cfield.text = "";
+                                tnp_cfield.oldText = "";
+                                tnp_cfield.consultList.removeAll();
+                                tnp_cfield.consultList2.removeAll();
+                                tnp_cfield.clean();
+                                paramForm.onGetNumber();
+                            }
+                            if (number == 0) {
+                                tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                    tnp_cfield.onDataChange();
+                                });
+                            }
+                            else {
+                                tnp_cfield.onDataChange();
+                            }
+                        }
+                        else {
+                            tnp_cfield.text = "";
+                            tnp_cfield.oldText = "";
+                            tnp_cfield.consultList.removeAll();
+                            tnp_cfield.consultList2.removeAll();
+                            tnp_cfield.clean();
+                        }
+                    }
+                    break;
+                }
+                case "ComboBox":
+                {
+                    var com_cfield:CrmEapComboBox = ui as CrmEapComboBox;
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue && Boolean(com_cfield.singleType.bmain)) {
+                        if (count == 0) {
+                            com_cfield.selectedIndex = -1;
+                            if (CRMtool.isStringNotNull(com_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("initialization", function (event:Event):void {
+                                        commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                                }
+                            }
+                            else if (CRMtool.isStringNotNull(com_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("initialization", function (event:Event):void {
+                                        commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                                }
+                            }
+                            else {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("initialization", function (event:Event):void {
+                                        commSelectedValue(com_cfield, dataObj.mainValue[com_cfield.singleType.cfield]);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, dataObj.mainValue[com_cfield.singleType.cfield]);
+                                }
+                            }
+                        }
+                        else {
+                            com_cfield.selectedIndex = -1;
+                            if (CRMtool.isStringNotNull(com_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                            }
+                            else if (CRMtool.isStringNotNull(com_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                            }
+                            else {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("initialization", function (event:Event):void {
+                                        commSelectedValue(com_cfield, dataObj.mainValue[com_cfield.singleType.cfield]);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, dataObj.mainValue[com_cfield.singleType.cfield]);
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        com_cfield.selectedIndex = -1;
+                        if (count == 0) {
+                            com_cfield.selectedIndex = -1;
+                            if (CRMtool.isStringNotNull(com_cfield.singleType.cnewdefault) && (this._curButtonStatus == "onNew")) {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("complete", function (event:Event):void {
+                                        commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, com_cfield.singleType.cnewdefault);
+                                }
+                            }
+                            else if (CRMtool.isStringNotNull(com_cfield.singleType.ceditdefault) && (this._curButtonStatus == "onEdit")) {
+                                if (number == 0) {
+                                    com_cfield.addEventListener("complete", function (event:Event):void {
+                                        commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                                    });
+                                }
+                                else {
+                                    commSelectedValue(com_cfield, com_cfield.singleType.ceditdefault);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+                case "CheckBox":
+                {
+                    /*
+                     lzx 修改 2013-1-29
+                     个人感觉 case "CheckBox"这段代码没有用，可以全部删掉，考虑到可能有更深层的意义 ，
+                     只注释掉一部分，改善新增和修改设置默认值的时候，修改CheckBox时，显示不正常的问题
+                     */
+                    var cb_cfield:CrmEapCheckBox = ui as CrmEapCheckBox;
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue) {
+                        if (count == 0) {
+                            cb_cfield.selected = false;
+                            if (CRMtool.isStringNotNull(cb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                cb_cfield.selected = (cb_cfield.singleType.cnewdefault == "1" ? true : false);
+                            }
+                            else if (CRMtool.isStringNotNull(cb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                cb_cfield.selected = (cb_cfield.singleType.ceditdefault == "1" ? true : false);
+                            }
+                            else {
+                                if (null != cb_cfield.singleType.cfield) {
+                                    if (dataObj.mainValue[cb_cfield.singleType.cfield] == "1") {
+                                        cb_cfield.selected = true;
+                                    } else if (dataObj.mainValue[cb_cfield.singleType.cfield] == "0") {
+                                        cb_cfield.selected = false;
+
+                                    } else {
+                                        cb_cfield.selected = Boolean(dataObj.mainValue[cb_cfield.singleType.cfield]);
+                                    }
+                                }
+                                else {
+                                    if (dataObj.mainValue[cb_cfield.singleType.cobjectname] == "1") {
+                                        cb_cfield.selected = true;
+                                    } else if (dataObj.mainValue[cb_cfield.singleType.cobjectname] == "0") {
+                                        cb_cfield.selected = false;
+                                    } else {
+                                        cb_cfield.selected = Boolean(dataObj.mainValue[cb_cfield.singleType.cobjectname]);
+                                    }
+
+                                }
+                            }
+                        }
+                        else {
+                            cb_cfield.selected = false;
+                            if (CRMtool.isStringNotNull(cb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                cb_cfield.selected = (cb_cfield.singleType.cnewdefault == "1" ? true : false);
+                            }
+                            else if (CRMtool.isStringNotNull(cb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                cb_cfield.selected = (cb_cfield.singleType.ceditdefault == "1" ? true : false);
+                            }
+                            else {
+                                if (null != cb_cfield.singleType.cfield) {
+                                    if (dataObj.mainValue[cb_cfield.singleType.cfield] == "1") {
+                                        cb_cfield.selected = true;
+                                    } else if (dataObj.mainValue[cb_cfield.singleType.cfield] == "0") {
+                                        cb_cfield.selected = false;
+
+                                    } else {
+                                        cb_cfield.selected = Boolean(dataObj.mainValue[cb_cfield.singleType.cfield]);
+                                    }
+                                }
+                                else {
+                                    if (dataObj.mainValue[cb_cfield.singleType.cobjectname] == "1") {
+                                        cb_cfield.selected = true;
+                                    } else if (dataObj.mainValue[cb_cfield.singleType.cobjectname] == "0") {
+                                        cb_cfield.selected = false;
+                                    } else {
+                                        cb_cfield.selected = Boolean(dataObj.mainValue[cb_cfield.singleType.cobjectname]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        cb_cfield.selected = false;
+                        if (count == 0) {
+                            cb_cfield.selected = false;
+                            if (CRMtool.isStringNotNull(cb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                cb_cfield.selected = (cb_cfield.singleType.cnewdefault == "1" ? true : false);
+                            }
+                            else if (CRMtool.isStringNotNull(cb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                cb_cfield.selected = (cb_cfield.singleType.ceditdefault == "1" ? true : false);
+                            }
+                        }
+                    }
+                    break;
+                }
+                case "RadioButtonGroup":
+                {
+                    var rb_cfield:CrmEapRadioButtonGroup = ui as CrmEapRadioButtonGroup;
+
+                    if (null != dataObj && dataObj.hasOwnProperty("mainValue") && null != dataObj.mainValue && Boolean(rb_cfield.singleType.bmain)) {
+                        if (count == 0) {
+                            rb_cfield.cvalue = "";
+                            if (CRMtool.isStringNotNull(rb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                rb_cfield.cvalue = rb_cfield.singleType.cnewdefault;
+                            }
+                            else if (CRMtool.isStringNotNull(rb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                rb_cfield.cvalue = rb_cfield.singleType.ceditdefault;
+                            }
+                            else {
+                                rb_cfield.cvalue = (dataObj.mainValue[rb_cfield.singleType.cfield]);
+                            }
+                        }
+                        else {
+                            //rb_cfield.cvalue = "";
+
+                            if (CRMtool.isStringNotNull(rb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                                rb_cfield.cvalue = rb_cfield.singleType.cnewdefault;
+                            }
+                            else if (CRMtool.isStringNotNull(rb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                                rb_cfield.cvalue = rb_cfield.singleType.ceditdefault;
+                            }
+                        }
+                    }
+                    else {
+                        if (CRMtool.isStringNotNull(rb_cfield.singleType.cnewdefault) && (this.formStatus == "new" || this._curButtonStatus == "onNew")) {
+                            rb_cfield.cvalue = rb_cfield.singleType.cnewdefault;
+                        }
+                        else if (CRMtool.isStringNotNull(rb_cfield.singleType.ceditdefault) && (this.formStatus == "edit" || this._curButtonStatus == "onEdit")) {
+                            rb_cfield.cvalue = rb_cfield.singleType.ceditdefault;
+                        }
+                        else {
+                            rb_cfield.cvalue = "";
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        private function commSelectedValue(com_cfield:CrmEapComboBox, value:String):void {
+            if (null == com_cfield.dataProvider) {
+                return;
+            }
+            for (var k:int = 0; k < com_cfield.dataProvider.length; k++) {
+                if (null != com_cfield.singleType.iconsult && int(com_cfield.singleType.iconsult) > 0) {
+                    var cconsultbkfld:String = com_cfield.dataProvider.getItemAt(k)[com_cfield.singleType.cconsultbkfld];
+                    if (cconsultbkfld == value) {
+                        com_cfield.selectedIndex = k;
+                    }
+                }
+            }
+        }
+
+        //根据对象名找到该字段的信息。
+        public function getChidValue(cobjectname:String, number:int = 0):Object {
+            var param:Object = null;
+            var crmEapVBox:CrmEapVBox = this.getChildAt(this.numChildren - 1) as CrmEapVBox;
+            for (var i:int = 0; i < crmEapVBox.numChildren; i++) {
+                if (crmEapVBox.getChildAt(i) is HBox) {
+                    var hBox:HBox = crmEapVBox.getChildAt(i) as HBox;
+                    for (var j:int = 0; j < hBox.numChildren; j++) {
+                        if (hBox.getChildAt(j) is SingleVbox) {
+                            var singleVbox:SingleVbox = hBox.getChildAt(j) as SingleVbox;
+                            var ui:UIComponent = singleVbox.getChildByName(singleVbox.singleType.cobjectname) as UIComponent;
+                            if (singleVbox.singleType.cobjectname == cobjectname) {
+                                param = getChildSingleValue(ui, singleVbox.singleType.objecttype, cobjectname, number);
+                            }
+                        }
+                        else if (hBox.getChildAt(j) is SingleVouch) {
+                            var singleVouch:SingleVouch = hBox.getChildAt(j) as SingleVouch;
+                            var ui:UIComponent = singleVouch.getChildByName(singleVouch.singleType.cobjectname) as UIComponent;
+                            if (singleVouch.singleType.cobjectname == cobjectname) {
+                                param = getChildSingleValue(ui, singleVouch.singleType.objecttype, cobjectname, number);
+                            }
+                        }
+
+                    }
+                }
+            }
+            return param;
+        }
+
+        private function getChildSingleValue(ui:UIComponent, ctype:String, newcobjectname:String, number:int = 0):Object {
+            var param:Object;
+            switch (ctype) {
+                case "TextArea":
+                {
+                    var ta_cfield:CrmEapTextArea = ui as CrmEapTextArea;
+                    var cobjectname:String = ta_cfield.singleType.cobjectname as String;
+                    param = ta_cfield.text;
+                    break;
+                }
+                case "RichTextEditor":
+                {
+                    var rte_cfield:CrmEapRichTextEditor = ui as CrmEapRichTextEditor;
+                    var cobjectname:String = rte_cfield.singleType.cobjectname as String;
+                    param = rte_cfield.htmlText;
+                    break;
+                }
+                case "Label":
+                {
+                    var lable_cfield:CrmEapLable = ui as CrmEapLable;
+                    var cobjectname:String = lable_cfield.singleType.cobjectname as String;
+                    param = lable_cfield.text;
+                    break;
+                }
+                case "TextInput":
+                {
+                    var tnp_cfield:CrmEapTextInput = ui as CrmEapTextInput;
+                    var cobjectname:String = tnp_cfield.singleType.cobjectname as String;
+                    if (CRMtool.isStringNotNull(tnp_cfield.text)) {
+                        if (number == 1) {
+                            tnp_cfield.addEventListener("initialization", function (event:Event):void {
+
+                                if (null != tnp_cfield.singleType.iconsult && int(tnp_cfield.singleType.iconsult) > 0) {
+                                    if (null != tnp_cfield.consultList && tnp_cfield.consultList.length > 0) {
+                                        param = tnp_cfield.consultList.getItemAt(0)[tnp_cfield.singleType.cconsultbkfld];
+                                        onSetnFieldsValueArr(tnp_cfield.singleType.cfield + "", tnp_cfield.consultList.getItemAt(0).cabbreviation + "");
+                                    }
+                                    else {
+                                        param = tnp_cfield.text;
+                                    }
+                                }
+                                else {
+                                    param = tnp_cfield.text;
+                                }
+                            });
+                        }
+                        else {
+                            if (null != tnp_cfield.singleType.iconsult && int(tnp_cfield.singleType.iconsult) > 0) {
+                                if (null != tnp_cfield.consultList && tnp_cfield.consultList.length > 0) {
+                                    var cconsultbkfld:String = tnp_cfield.singleType.cconsultbkfld;
+                                    param = tnp_cfield.consultList.getItemAt(0)[cconsultbkfld];
+                                }
+                                else {
+                                    param = tnp_cfield.text;
+                                }
+
+                            }
+                            else {
+                                param = tnp_cfield.text;
+                            }
+                        }
+                    }
+                    else {
+                        param = tnp_cfield.text;
+                    }
+                    break;
+                }
+                case "ComboBox":
+                {
+                    var com_cfield:CrmEapComboBox = ui as CrmEapComboBox;
+                    var cobjectname:String = com_cfield.singleType.cobjectname as String;
+                    if (null != com_cfield.singleType.iconsult && int(com_cfield.singleType.iconsult) > 0 && com_cfield.selectedItem != null) {
+                        param = com_cfield.selectedItem[com_cfield.singleType.cconsultbkfld];
+
+                    }
+                    else {
+                        param = null;
+                    }
+                    break;
+                }
+                case "CheckBox":
+                {
+                    var cb_cfield:CrmEapCheckBox = ui as CrmEapCheckBox;
+                    var cobjectname:String = cb_cfield.singleType.cobjectname as String;
+                    param = (cb_cfield.selected == true ? 1 : 0);
+                    break;
+                }
+                case "RadioButtonGroup":
+                {
+                    var rb_cfield:CrmEapRadioButtonGroup = ui as CrmEapRadioButtonGroup;
+                    var cobjectname:String = rb_cfield.singleType.cobjectname as String;
+                    param = rb_cfield.cvalue;
+                    break;
+                }
+            }
+            return param;
+        }
+
+        //获得记录集
+        public function getValue(number:int = 0):Object {
+            var param:Object = new Object();
+            var valueObj:Object = this._singleType.value;
+            var crmEapVBox:CrmEapVBox = this.getChildAt(this.numChildren - 1) as CrmEapVBox;
+
+
+            for (var i:int = 0; i < crmEapVBox.numChildren; i++) {
+                if (crmEapVBox.getChildAt(i) is HBox) {
+                    var hBox:HBox = crmEapVBox.getChildAt(i) as HBox;
+                    for (var j:int = 0; j < hBox.numChildren; j++) {
+                        if (hBox.getChildAt(j) is SingleVbox) {
+                            var singleVbox:SingleVbox = hBox.getChildAt(j) as SingleVbox;
+                            var ui:UIComponent = singleVbox.getChildByName(singleVbox.singleType.cobjectname) as UIComponent;
+                            var a:Object = getSingleValue(ui, singleVbox.singleType.objecttype, number);
+                            if (singleVbox.singleType.objecttype == "DataGrid") {
+                                if (null != a) {
+                                    param[String(singleVbox.singleType.ctable).toLocaleLowerCase()] = a as ArrayCollection;
+                                }
+                                else {
+                                    param[String(singleVbox.singleType.ctable).toLocaleLowerCase()] = null;
+                                }
+                            }
+                            else if (Boolean(singleVbox.singleType.bmain) || singleVbox.singleType.cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                                if (null != a && a.toString() != "") {
+                                    if (null != singleVbox.singleType.cfield) {
+                                        param[singleVbox.singleType.cfield] = a.toString();
+                                    }
+                                    else {
+                                        param[singleVbox.singleType.cobjectname] = a.toString();
+                                    }
+                                }
+                                else {
+                                    if (null != singleVbox.singleType.cfield) {
+                                        param[singleVbox.singleType.cfield] = null;
+                                    }
+                                    else {
+                                        param[singleVbox.singleType.cobjectname] = null;
+                                    }
+                                }
+                            }
+                        }
+                        else if (hBox.getChildAt(j) is SingleVouch) {
+                            var singleVouch:SingleVouch = hBox.getChildAt(j) as SingleVouch;
+                            var ui:UIComponent = singleVouch.getChildByName(singleVouch.singleType.cobjectname) as UIComponent;
+                            if (Boolean(singleVouch.singleType.bmain) || singleVouch.singleType.cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                                var a:Object = getSingleValue(ui, singleVouch.singleType.objecttype, number);
+                                if (null != a && a.toString() != "") {
+                                    if (null != singleVouch.singleType.cfield) {
+                                        param[singleVouch.singleType.cfield] = a.toString();
+                                    }
+                                    else {
+                                        param[singleVouch.singleType.cobjectname] = a.toString();
+                                    }
+                                }
+                                else {
+                                    if (null != singleVouch.singleType.cfield) {
+                                        param[singleVouch.singleType.cfield] = null;
+                                    }
+                                    else {
+                                        param[singleVouch.singleType.cobjectname] = null;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return param;
+        }
+
+        //获得参照的值
+        public function getconsultsetResult(cfield:String, number:int = 0):String {
+            var result:String = "";
+
+            var crmEapVBox:CrmEapVBox = this.getChildAt(this.numChildren - 1) as CrmEapVBox;
+
+
+            for (var i:int = 0; i < crmEapVBox.numChildren; i++) {
+                if (crmEapVBox.getChildAt(i) is HBox) {
+                    var hBox:HBox = crmEapVBox.getChildAt(i) as HBox;
+                    for (var j:int = 0; j < hBox.numChildren; j++) {
+                        if (hBox.getChildAt(j) is SingleVouch) {
+                            var singleVouch:SingleVouch = hBox.getChildAt(j) as SingleVouch;
+                            var ui:UIComponent = singleVouch.getChildByName(singleVouch.singleType.cobjectname) as UIComponent;
+
+                            switch (singleVouch.singleType.objecttype) {
+                                case "TextInput":
+                                {
+                                    var tnp_cfield:CrmEapTextInput = ui as CrmEapTextInput;
+                                    if (Boolean(tnp_cfield.singleType.bmain) || tnp_cfield.singleType.bmain == "true") {
+                                        if (null != tnp_cfield.singleType.iconsult && int(tnp_cfield.singleType.iconsult) > 0 && cfield == singleVouch.singleType.cfield) {
+                                            if (CRMtool.isStringNotNull(tnp_cfield.text)) {
+                                                if (number == 1) {
+                                                    tnp_cfield.addEventListener("initialization", function (event:Event):void {
+                                                        if (null != tnp_cfield.consultList && tnp_cfield.consultList.length > 0) {
+                                                            if (cfield == singleVouch.singleType.cfield) {
+                                                                result = tnp_cfield.consultList.getItemAt(0)[tnp_cfield.singleType.cconsultswfld + ""];
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    if (null != tnp_cfield.singleType.iconsult && int(tnp_cfield.singleType.iconsult) > 0) {
+                                                        if (null != tnp_cfield.consultList && tnp_cfield.consultList.length > 0) {
+                                                            var cconsultbkfld:String = tnp_cfield.singleType.cconsultbkfld;
+                                                            result = tnp_cfield.consultList.getItemAt(0)[tnp_cfield.singleType.cconsultswfld + ""];
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        //获得记录集
+        private function getSingleValue(ui:UIComponent, ctype:String, number:int = 0):Object {
+            var param:Object;
+            switch (ctype) {
+                case "TextArea":
+                {
+                    var ta_cfield:CrmEapTextArea = ui as CrmEapTextArea;
+                    var cobjectname:String = ta_cfield.singleType.cobjectname as String;
+                    if (Boolean(ta_cfield.singleType.bmain) || ta_cfield.singleType.bmain == "true") {
+                        param = ta_cfield.text;
+                    }
+                    else if (cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                        param = ta_cfield.text;
+                    }
+                    break;
+                }
+                case "RichTextEditor":
+                {
+                    var rte_cfield:CrmEapRichTextEditor = ui as CrmEapRichTextEditor;
+                    var cobjectname:String = rte_cfield.singleType.cobjectname as String;
+                    if (Boolean(rte_cfield.singleType.bmain) || rte_cfield.singleType.bmain == "true") {
+                        param = rte_cfield.htmlText;
+
+                    }
+                    else if (cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                        param = rte_cfield.htmlText;
+                    }
+                    break;
+                }
+                case "DataGrid":
+                {
+                    var dag_cfield:CrmEapDataGrid = ui as CrmEapDataGrid;
+//*********************XZQWJ 2013-01-17	修改前代码*****************************************************					
+//						var dgac:ArrayCollection = dag_cfield.dataProvider as ArrayCollection;
+//**********************XZQWJ **************************************************************************
+                    var dgac:ArrayCollection = dag_cfield.tableList as ArrayCollection;
+                    if (dgac == null) {
+                        dgac = dag_cfield.dataProvider as ArrayCollection;
+                    }
+//						dag_cfield.dataProvider = dgac;
+
+                    //lr  修改 取数时，保证日期对象 会翻译为字符串
+                    for each(var item:Object in dgac) {
+                        var objInfo:Object = ObjectUtil.getClassInfo(item);
+                        var fieldName:Array = objInfo["properties"] as Array;
+                        for each (var q:QName in fieldName) {
+                            if (item[q.localName] is Date) {
+                                item[q.localName] = CRMtool.formatDateWithHNS(item[q.localName] as Date);
+                            }
+                        }
+                    }
+                    param = dgac;
+                    break;
+                }
+                case "Label":
+                {
+                    var lable_cfield:CrmEapLable = ui as CrmEapLable;
+                    var cobjectname:String = lable_cfield.singleType.cobjectname as String;
+                    if (Boolean(lable_cfield.singleType.bmain) || lable_cfield.singleType.bmain == "true") {
+                        param = lable_cfield.text;
+                    }
+                    else if (cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                        param = lable_cfield.text;
+                    }
+                    break;
+                }
+                case "TextInput":
+                {
+                    var tnp_cfield:CrmEapTextInput = ui as CrmEapTextInput;
+                    var cobjectname:String = tnp_cfield.singleType.cobjectname as String;
+                    if (Boolean(tnp_cfield.singleType.bmain) || tnp_cfield.singleType.bmain == "true") {
+                        if (CRMtool.isStringNotNull(tnp_cfield.text)) {
+                            if (number == 1) {
+                                tnp_cfield.addEventListener("initialization", function (event:Event):void {
+
+                                    if (null != tnp_cfield.singleType.iconsult && int(tnp_cfield.singleType.iconsult) > 0) {
+                                        if (null != tnp_cfield.consultList && tnp_cfield.consultList.length > 0) {
+                                            param = tnp_cfield.consultList.getItemAt(0)[tnp_cfield.singleType.cconsultbkfld];
+                                            onSetnFieldsValueArr(tnp_cfield.singleType.cfield + "", tnp_cfield.consultList.getItemAt(0).cabbreviation + "");
+                                        }
+                                        else {
+                                            param = tnp_cfield.text;
+                                        }
+                                    }
+                                    else {
+                                        param = tnp_cfield.text;
+                                    }
+                                });
+                            }
+                            else {
+                                if (null != tnp_cfield.singleType.iconsult && int(tnp_cfield.singleType.iconsult) > 0) {
+                                    if (null != tnp_cfield.consultList && tnp_cfield.consultList.length > 0) {
+                                        var cconsultbkfld:String = tnp_cfield.singleType.cconsultbkfld;
+                                        param = tnp_cfield.consultList.getItemAt(0)[cconsultbkfld];
+                                    }
+                                    else {
+                                        param = tnp_cfield.text;
+                                    }
+
+                                }
+                                else {
+                                    param = tnp_cfield.text;
+                                }
+                            }
+                        }
+                        else {
+                            param = tnp_cfield.text;
+                            /*if(tnp_cfield.consultList&&tnp_cfield.consultList.length>0)
+                             {
+                             param=tnp_cfield.consultList.getItemAt(0)[tnp_cfield.singleType.cconsultbkfld];
+                             }*/
+                        }
+                    }
+                    else if (cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                        param = tnp_cfield.text;
+                    }
+                    break;
+                }
+                case "ComboBox":
+                {
+                    var com_cfield:CrmEapComboBox = ui as CrmEapComboBox;
+                    var cobjectname:String = com_cfield.singleType.cobjectname as String;
+                    if (Boolean(com_cfield.singleType.bmain) || com_cfield.singleType.bmain == "true") {
+                        if (null != com_cfield.singleType.iconsult && int(com_cfield.singleType.iconsult) > 0 && com_cfield.selectedItem != null) {
+                            param = com_cfield.selectedItem[com_cfield.singleType.cconsultbkfld];
+
+                        }
+                        else {
+                            param = null;
+                        }
+                    }
+                    else if (cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                        if (null != com_cfield.singleType.iconsult && int(com_cfield.singleType.iconsult) > 0 && com_cfield.selectedItem != null) {
+                            param = com_cfield.selectedItem[com_cfield.singleType.cconsultbkfld];
+                        }
+                        else {
+                            param = null;
+                        }
+                    }
+                    break;
+                }
+                case "CheckBox":
+                {
+                    var cb_cfield:CrmEapCheckBox = ui as CrmEapCheckBox;
+                    var cobjectname:String = cb_cfield.singleType.cobjectname as String;
+                    if (Boolean(cb_cfield.singleType.bmain)) {
+                        param = (cb_cfield.selected == true ? 1 : 0);
+                    }
+                    else if (cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                        param = (cb_cfield.selected == true ? 1 : 0);
+                    }
+                    break;
+                }
+                case "RadioButtonGroup":
+                {
+                    var rb_cfield:CrmEapRadioButtonGroup = ui as CrmEapRadioButtonGroup;
+                    var cobjectname:String = rb_cfield.singleType.cobjectname as String;
+                    if (Boolean(rb_cfield.singleType.bmain)) {
+                        param = rb_cfield.cvalue;
+                    }
+                    else if (cobjectname.toLocaleLowerCase().indexOf("vi") != -1) {
+                        param = rb_cfield.cvalue;
+                    }
+                    break;
+                }
+            }
+            return param;
+        }
+
+
+        public function setCurButtonStatus(curButtonStatus:String):void {
+            var valueObj:Object = this._singleType.value;
+            var crmEapVBox:CrmEapVBox = this.getChildAt(this.numChildren - 1) as CrmEapVBox;
+            for (var i:int = 0; i < crmEapVBox.numChildren; i++) {
+                if (crmEapVBox.getChildAt(i) is HBox) {
+                    var hBox:HBox = crmEapVBox.getChildAt(i) as HBox;
+                    for (var j:int = 0; j < hBox.numChildren; j++) {
+                        if (hBox.getChildAt(j) is SingleVbox) {
+                            var singleVbox:SingleVbox = hBox.getChildAt(j) as SingleVbox;
+                            singleVbox.singleType.curButtonStatus = curButtonStatus;
+                            var ui:UIComponent = singleVbox.getChildByName(singleVbox.singleType.cobjectname) as UIComponent;
+                            setSingleCurButtonStatus(ui, singleVbox.singleType.objecttype, curButtonStatus);
+                        }
+                        else if (hBox.getChildAt(j) is SingleVouch) {
+                            var singleVouch:SingleVouch = hBox.getChildAt(j) as SingleVouch;
+                            singleVouch.singleType.curButtonStatus = curButtonStatus;
+                            var ui:UIComponent = singleVouch.getChildByName(singleVouch.singleType.cobjectname) as UIComponent;
+                            setSingleCurButtonStatus(ui, singleVouch.singleType.objecttype, curButtonStatus);
+                        }
+                    }
+                }
+            }
+        }
+
+        //往每个记录集中塞值
+        private function setSingleCurButtonStatus(ui:UIComponent, ctype:String, curButtonStatus:String):void {
+            switch (ctype) {
+                case "TextArea":
+                {
+                    var ta_cfield:CrmEapTextArea = ui as CrmEapTextArea;
+                    ta_cfield.singleType.curButtonStatus = curButtonStatus;
+                    break;
+                }
+                case "RichTextEditor":
+                {
+                    var rte_cfield:CrmEapRichTextEditor = ui as CrmEapRichTextEditor;
+                    rte_cfield.singleType.curButtonStatus = curButtonStatus;
+                    break;
+                }
+                case "DataGrid":
+                {
+                    var dag_cfield:CrmEapDataGrid = ui as CrmEapDataGrid;
+                    dag_cfield.singleType.curButtonStatus = curButtonStatus;
+                    if (dag_cfield.tableList != null && dag_cfield.tableList.length > 0) {
+                        var obj:Object = dag_cfield.tableList.getItemAt(0);
+                        var paramobj:Object = new Object();
+                        var objInfo:Object = ObjectUtil.getClassInfo(obj);
+                        var fieldName:Array = objInfo["properties"] as Array;
+                        for each(var q:QName in fieldName) {
+                            var cfieldName:String = q.localName;
+                            if (cfieldName.indexOf("_enabled") != -1) {
+                                for (var i:int = 0; i < dag_cfield.tableList.length; i++) {
+                                    if (curButtonStatus == "onNew" || curButtonStatus == "onEdit") {
+                                        if (dag_cfield.tableList.getItemAt(i)[cfieldName] == 0) {
+                                            dag_cfield.tableList.getItemAt(i)[cfieldName] = 1;
+                                        }
+                                    }
+                                    else {
+                                        if (dag_cfield.tableList.getItemAt(i)[cfieldName] == 1) {
+                                            dag_cfield.tableList.getItemAt(i)[cfieldName] = 0;
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    dag_cfield.invalidateList();
+                    break;
+                }
+                case "Label":
+                {
+                    var lable_cfield:CrmEapLable = ui as CrmEapLable;
+                    lable_cfield.singleType.curButtonStatus = curButtonStatus;
+                    break;
+                }
+                case "TextInput":
+                {
+                    var tnp_cfield:CrmEapTextInput = ui as CrmEapTextInput;
+                    tnp_cfield.singleType.curButtonStatus = curButtonStatus;
+                    break;
+                }
+                case "ComboBox":
+                {
+                    var com_cfield:CrmEapComboBox = ui as CrmEapComboBox;
+                    com_cfield.singleType.curButtonStatus = curButtonStatus;
+                    break;
+                }
+                case "CheckBox":
+                {
+                    var cb_cfield:CrmEapCheckBox = ui as CrmEapCheckBox;
+                    cb_cfield.singleType.curButtonStatus = curButtonStatus;
+                    break;
+                }
+                case "RadioButtonGroup":
+                {
+                    var rb_cfield:CrmEapRadioButtonGroup = ui as CrmEapRadioButtonGroup;
+                    rb_cfield.singleType.curButtonStatus = curButtonStatus;
+                    break;
+                }
+            }
+        }
+
+        //YJ Add 获取参与编码字段的值，并赋值
+        public function onSetnFieldsValueArr(field:String, value:String):void {
+
+            var obj:Object = {};
+            obj.nfield = field;
+            obj.nvalue = value;
+            (this.paramForm.nFieldsValueArr as ArrayCollection).addItem(obj);
+
+        }
+        ]]>
+	</fx:Script>
+</mx:VBox>

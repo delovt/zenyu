@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	
+	<!-- 查询计量单位组 -->
+	<select id="sc_unitclass_select"  parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+		select * from sc_unitclass
+	</select>
+	
+	<!-- 查询计量单位 -->
+	<select id="sc_unit_select" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		  select * from sc_unit where iunitclass =#iunitclass#
+<!--		  select top $pagesize$ *  from sc_unit  where iid not in (  select top $curpage$ iid  from sc_unit  where iunitclass = #iid# ) -->
+	</select>
+	
+	<select id="sc_unit_select_sum" resultClass="int" parameterClass="java.util.HashMap">
+		select  count(*)  from  sc_unit  where  iunitclass = #iid#
+	</select>
+	
+	<!-- 修改计量单位 -->
+	<update id="sc_unit_update"  parameterClass="java.util.HashMap" >
+		<!-- update sc_unitclass set iunitdefault=#iunitdefault# where iid = ## --> 
+		update sc_unit set ccode =#ccode#,cname=#cname#,iunitclass=#iunitclass#,fchangerate=#fchangerate#,bdefault=#bdefault# where iid=#iid#
+	</update>
+	
+	<!-- 修改计量单位组 -->
+	<update id="sc_unitclass_update"  parameterClass="java.util.HashMap" >
+		begin
+		update sc_unitclass set ccode =#ccode#,cname=#cname#,ipid=#ipid#,cmemo=#cmemo# where iid=#iid#;
+		update sc_unitclass set  ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCode#)),#oldCode#,#ccode#)+SUBSTRING(ccode,len(#oldCode#)+1,len(ccode)) where ccode like #oldCode#+'%';
+		end;
+	</update>
+	
+	<!-- 新增计量单位 -->
+	<insert id="sc_unit_add"   parameterClass="java.util.HashMap" >
+		insert into sc_unit (ccode , cname , iunitclass , fchangerate , bdefault ) values(#ccode# , #cname# , #iunitclass# ,#fchangerate# , #bdefault#)
+	</insert>
+	
+	<!-- 新增计量单位组 -->
+	<insert id="sc_unitclass_add"   parameterClass="java.util.HashMap" >
+		insert into sc_unitclass (ccode , cname , ipid , iunitdefault , cmemo ) values(#ccode# , #cname# , #ipid# , #iunitdefault# , #cmemo#);
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 删除计量单位 -->
+	<delete id="sc_unit_del"  parameterClass="java.lang.String" >
+		delete from sc_unit where 1=1 $condition$
+	</delete>
+	
+	<!-- 删除计量单位组 -->
+	<delete id="sc_unitclass_del"  parameterClass="java.util.HashMap" >
+		<isNotEmpty property="delSonNode">
+			delete from sc_unitclass where ipid = #iid#;
+		</isNotEmpty>
+		delete from sc_unitclass where iid in (#iid#)
+	</delete>
+	
+	
+	
+	
+	<!--  =========== 物料分类 ============== -->
+	
+	<!-- 查询物料分类 -->
+	<select id="sc_productclass_select" resultClass="java.util.HashMap">
+        select distinct ss.*,st.iproductclass from sc_productclass ss
+        left join sc_product st on ss.iid = st.iproductclass order by ss.ccode
+	</select>
+	
+	<!-- 查询物料分类组 -->
+	<select id="sc_productgroup_select"  resultClass="java.util.HashMap" >
+		select * from sc_productgroup 
+	</select>
+	
+	<!-- 修改物料分类 -->
+	<update id="sc_productclass_update"  parameterClass="java.util.HashMap" >
+		begin
+		update sc_productclass  set ccode =#ccode#,cname=#cname#,ipid=#ipid#,cmemo=#cmemo# where iid=#iid#
+		update sc_productclass set  ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCode#)),#oldCode#,#ccode#)+SUBSTRING(ccode,len(#oldCode#)+1,len(ccode)) where ccode like #oldCode#+'%';
+		end;
+	</update>
+	
+	<!-- 修改物料分类组 -->
+	<update id="sc_productgroup_update"  parameterClass="java.util.HashMap" >
+		begin
+		update sc_productgroup set ccode =#ccode#,cname=#cname#,ipid=#ipid#,cmemo=#cmemo# where iid=#iid#
+		update sc_productgroup set  ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCode#)),#oldCode#,#ccode#)+SUBSTRING(ccode,len(#oldCode#)+1,len(ccode)) where ccode like #oldCode#+'%';
+		
+		end;
+	</update>
+	
+	<!-- 新增物料分类 -->
+	<insert id="sc_productclass_add"   parameterClass="java.util.HashMap" >
+		insert into sc_productclass (ccode , cname , ipid , cmemo  ) values(#ccode# , #cname# , #ipid# , #cmemo#)
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 新增物料分类组 -->
+	<insert id="sc_productgroup_add"   parameterClass="java.util.HashMap" >
+		insert into sc_productgroup (ccode , cname , ipid , cmemo ) values(#ccode# , #cname# , #ipid# , #cmemo#)
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 删除物料分类 -->
+	<delete id="sc_productclass_del"  parameterClass="java.util.HashMap" >
+		begin
+		delete from sc_productclass where ipid = #iid#;
+		delete from sc_productclass where iid in (#iid#);
+		end;
+	</delete>
+	
+	<!-- 删除物料分类组 -->
+	<delete id="sc_productgroup_del"  parameterClass="java.util.HashMap" >
+		begin
+		delete from sc_productgroup where ipid = #iid#;
+		delete from sc_productgroup where iid in (#iid#)
+		end;
+	</delete>
+	
+	
+	
+   <!-- ============ 存货档案  ============ -->
+	<select id="sc_product_select"  parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+		select c.* from 
+		(
+			  select top $pagesize$ b.* from
+			  (
+			     select top $topsize$ a.* from
+			     (
+			     	select * from sc_product where iproductclass = #iproductclass#
+			      ) a
+			  ) b 
+		 ) c
+	</select>
+	
+	<!--  查询专用  -->	
+	<select id="get_product_sql"  parameterClass="java.util.HashMap"  resultClass="java.util.HashMap"  remapResults="true">
+		select c.* from 
+		(
+			  SELECT TOP $pagesize$ b.* FROM
+			  (
+			     SELECT TOP $topsize$ a.* FROM
+			     (
+			     	$sql$
+			      ) a
+			  ) b 
+		 ) c 
+		 <isNotEmpty property="orderSql">
+		 	$orderSql$
+		 </isNotEmpty>
+	</select>
+	<select id="get_product_sql_sum"  parameterClass="java.util.HashMap"  resultClass="int" >
+			select count(*) from ($sql$) b
+	</select>
+	
+	
+	
+	
+	<select id="sc_product_select_sum"  parameterClass="java.util.HashMap"  resultClass="int" >
+			select count(*) from sc_product where iproductclass = #iproductclass#
+	</select>
+	
+	<insert id="sc_product_add" parameterClass="yssoft.vos.ScProduct" >
+		insert into sc_product
+		( 
+			iproductclass,iproductgroup,ccode,cname,cpdstv,cmnemonic,iunitclass,iunitdefault,iunit,
+			itaxtype,ftaxquotedprice,freferencecost,fsafequantity,bassets,bservice,bfittings,
+			bsn,bfree1,bfree2,bfree3,bpurchase,bsale,bconsume,bselfmake,istatus
+		)values(
+			#iproductclass#,#iproductgroup#,#ccode#,#cname#,#cpdstv#,#cmnemonic#,#iunitclass#,#iunitdefault#,
+			#iunit#,#itaxtype#,#ftaxquotedprice#,#freferencecost#,#fsafequantity#,#bassets#,#bservice#,#bfittings#,
+			#bsn#,#bfree1#,#bfree2#,#bfree3#,#bpurchase#,#bsale#,#bconsume#,#bselfmake#,#istatus#
+		)
+	</insert>
+	
+	<update id="sc_product_update"  parameterClass="yssoft.vos.ScProduct" >
+		update sc_product set 
+			iproductclass = #iproductclass# , iproductgroup = #iproductgroup# , ccode = #ccode# , cname = #cname# , cpdstv = #cpdstv# , cmnemonic =#cmnemonic# , iunitclass = #iunitclass# , iunitdefault = #iunitdefault# , iunit = #iunit#,
+			itaxtype = #itaxtype#,ftaxquotedprice =#ftaxquotedprice# ,freferencecost = #freferencecost# ,fsafequantity =#fsafequantity#,bassets =#bassets# ,bservice = #bservice# , bfittings = #bfittings#,
+			bsn =#bsn# , bfree1 =#bfree1# , bfree2 =#bfree2# , bfree3=#bfree3# , bpurchase =#bpurchase# , bsale = #bsale# , bconsume = #bconsume# , bselfmake = #bselfmake# , istatus =#istatus#
+		where iid = #iid#
+	</update>
+	
+	<delete id="sc_product_del"  parameterClass="java.lang.String"> 
+		delete from  sc_product where 1=1 $condition$
+	</delete>
+	
+</sqlMap>

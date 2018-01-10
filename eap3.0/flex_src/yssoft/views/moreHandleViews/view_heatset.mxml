@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="650" height="400"
+                        title="热度设置" close="onCloseHandler()" creationComplete="onIni()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Label;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.components.Label;
+			import spark.components.RadioButton;
+			
+			import yssoft.comps.ItemRendererNumber;
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.ListclmVo;
+			
+			
+			private var _dgDataSet:ArrayCollection;//数据集
+			
+			public function set dgDataSet(value:ArrayCollection):void{
+				
+				this._dgDataSet = value;
+				
+			}
+			
+			private var _dgColumnsArr:ArrayCollection;//字段信息
+			
+			public function set dgColumnsArr(value:ArrayCollection):void{
+				
+				this._dgColumnsArr = value;
+				
+			}
+			
+			private var _heatDataSet:ArrayCollection;//热度级别数据集
+			
+			public function set heatDataSetArr(value:ArrayCollection):void{
+				
+				this._heatDataSet = value;
+				
+			}
+			
+			protected function onIni():void{
+				
+				onIniDataGrid();
+				onIniHeat();//初始化热度级别
+			}
+			
+			//初始化DataGrid的相关信息
+			private function onIniDataGrid():void{
+				
+				iniDefineColumn();
+				
+				var count:int = 0;
+				for each(var acli:ListclmVo in _dgColumnsArr)
+				{
+					if(acli.bshow == false) continue;
+					if(count == 5) break;
+					
+					var dgcolumn:DataGridColumn = new DataGridColumn();
+					dgcolumn.dataField = acli.cfield;
+					dgcolumn.headerText = acli.cnewcaption;
+					dgcolumn.width =acli.icolwidth;
+					dglist.columns =dglist.columns.concat(dgcolumn);
+					
+					count++;
+					
+				}
+				
+				dglist.dataProvider = this._dgDataSet;
+				
+			}
+			
+			//初始化其他相关列 内码、序号
+			private function iniDefineColumn():void{
+				
+				var columnxh:DataGridColumn = new DataGridColumn();
+				columnxh.headerText = "序号";
+				columnxh.setStyle("textAlign","center");
+				columnxh.width = 50;
+				columnxh.editable = false;
+				columnxh.itemRenderer = new ClassFactory(yssoft.comps.ItemRendererNumber);
+				dglist.columns =dglist.columns.concat(columnxh);
+				
+				var dgcolumn:DataGridColumn = new DataGridColumn();
+				dgcolumn.dataField = "iid";
+				dgcolumn.headerText = "内码";
+				dgcolumn.visible = false;				
+				dglist.columns =dglist.columns.concat(dgcolumn);
+			}
+			
+			//初始化热度级别
+			private function onIniHeat():void{
+				
+				//this.hbHeat.removeAllChildren();
+				
+/* 				var lbl:spark.components.Label = new spark.components.Label();
+				lbl.height = 28;
+				lbl.text = "热度级别";
+				this.hbHeat.addChild(lbl); */
+				
+				for(var i:int=0;i<this._heatDataSet.length;i++){
+					
+					var heatitem:Object = {};
+					heatitem = _heatDataSet.getItemAt(i);
+					
+					var rb:RadioButton = new RadioButton();
+					rb.label = heatitem.cname;
+					rb.value = heatitem.iid;
+					rb.group = this.rbgHeat;
+					
+					this.hbHeat.addChild(rb);
+					if(i==0) rb.selected = true;
+				}
+				
+			}
+
+			
+			//删除事件
+			protected function onDel():void{
+				
+				if(this.dglist.selectedIndex == -1){CRMtool.tipAlert("请选择删除的数据!");return;}
+				
+				this._dgDataSet.removeItemAt(this.dglist.selectedIndex);
+				
+			}
+			
+			private function onConfirm():void
+			{
+				CRMtool.tipAlert("确定要批量热度设置？",null,"AFFIRM",this,"onOK");
+				
+			}
+			
+			//确定之前的业务分析
+			private function onConfirmBefore():Boolean{
+				
+				if(_dgDataSet.length == 0){CRMtool.tipAlert("无数据操作！");return false;}
+				
+				return true;
+			}
+			
+			//确定批量授权
+			public function onOK():void
+			{
+				if(onConfirmBefore() == false) return;
+				
+				var objvalue:Object = {};
+				
+				//后台参数赋值
+				objvalue.ifiery			=	this.rbgHeat.selectedValue;
+				objvalue.cusiids		=	onGetCinvoices();
+				
+				AccessUtil.remoteCallJava("BatchAccreditDest","onUpdateIfieryForCustomer",onBatchAccreditBack,objvalue);//调用后台的导出方法
+			}
+			
+			private function onGetCinvoices():String
+			{
+				var iids:String = "";
+				
+				for(var i:int=0;i<this._dgDataSet.length;i++){
+					
+					var item:Object = _dgDataSet.getItemAt(i);
+					var iid:int		= item.iid;
+					iids += iid+",";
+				}
+				iids = iids.substring(0,iids.lastIndexOf(","));
+				
+				return iids;
+				
+			}
+			
+			private function onBatchAccreditBack(evt:ResultEvent):void{
+				
+				var rstr:String = evt.result as String;
+				if(rstr == "suc")
+					CRMtool.tipAlert("批量设置成功！");
+				else
+					CRMtool.tipAlert("批量设置失败！");
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="rbgHeat"/>
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<mx:DataGrid id="dglist" width="100%" height="100%" horizontalScrollPolicy="auto" allowMultipleSelection="true"/>
+		
+		<mx:HBox width="100%" height="38" paddingLeft="10" paddingRight="10" verticalAlign="middle" >
+			
+			<mx:HBox width="70%" id="hbHeat">
+					<s:Label height="18" text="热度级别" verticalAlign="bottom"/>
+				<s:Spacer width="20"/>
+			</mx:HBox>
+			
+		</mx:HBox>
+		
+		<mx:HRule width="100%"/>
+		
+		<mx:HBox width="100%" height="38" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+			
+			<mx:HBox width="10%">
+				<mx:Button id="btnDel" label="删除" click="onDel()"/>
+			</mx:HBox>
+			
+			<s:HGroup width="90%" horizontalAlign="right">
+				<mx:Button id="btnConfirm" label="确定" click="onConfirm()"/>
+				<mx:Button id="btnGiveUp" label="放弃" click="onCloseHandler()"/>
+			</s:HGroup>
+			
+		</mx:HBox>
+		
+	</mx:VBox>
+</basic:BasicTitleWindow>

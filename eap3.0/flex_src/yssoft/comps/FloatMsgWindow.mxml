@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" isMove="false"
+                        width="450" height="350" minWidth="350" minHeight="450" maxWidth="350"
+                        isAllowMax="true" isShowMinButton="true" myClose="tw_closeHandler()" myMin="closeWin()"
+                        maxHeight="450" creationComplete="tw_creationCompleteHandler(event)" show="showHandler(event)"
+                        mouseOut="tw_mouseOutHandler(event)" mouseOver="tw_mouseOverHandler(event)"
+                        title="消息提示 [{items.length}]" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+    <fx:Metadata>
+        [Event(name="msgcountChange", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.views.msg.FastReply;
+        import yssoft.views.plan.SubmitPlanTitleWindow;
+
+        protected function tw_closeHandler():void {
+            djtjcheck();
+            closeWin();
+
+            CRMmodel.msg_count = 0;
+        }
+
+        private function closeWin():void {
+            this.visible = false;
+            stopTimer();
+        }
+
+        //fwf.djtjcheck消息浮动窗口，收到点击关闭时，把所有登录人 已被处理 的消息 置成已阅的
+        private function djtjcheck():void {
+            AccessUtil.remoteCallJava("WorkFlowDest", "msgreaded", msgreadedCallBack, "" + CRMmodel.userId, null, false);
+        }
+
+        private function msgreadedCallBack(event:ResultEvent):void {
+            if (event.result) {
+                //Alert.show(""+(event.result as String));
+            }
+        }
+
+
+        [Bindable]
+        private var items:ArrayCollection = new ArrayCollection();
+
+        private var nomsgisshow:Boolean = false; // 当没有消息时，是否显示
+        public function getMsgItems(flag:Boolean = false):void {
+            this.nomsglb.visible = false;
+            nomsgisshow = flag;
+            this.items.removeAll();
+            var param:Object = {};
+            param.irperson = CRMmodel.userId;
+            param.isread = 0;
+            param.itype = 1; //业务消息
+            AccessUtil.remoteCallJava("MsgDest", "select_msg_items", msgCallBack, param, null, false);
+        }
+
+        private function msgCallBack(event:ResultEvent):void {
+            if (event.result) {
+                items = event.result as ArrayCollection;
+
+                if (CRMmodel.msg_count != items.length) {
+                    CRMmodel.msg_count = items.length;
+                    this.dispatchEvent(new Event("msgcountChange"));
+                }
+                if (nomsgisshow == false) {
+                    if (items.length == 0) {
+                        this.visible = false;
+                    } else {
+                        this.visible = true;
+                    }
+                } else {
+                    this.nomsglb.visible = true;
+                    this.visible = true;
+                }
+            } else {
+                this.visible = false;
+            }
+        }
+
+        private var _msgTimer:Timer = null;
+        private var _msgTimerDelay:Number = 50000;  // 3 分钟 lr 50秒
+        public function msgTimer():void {
+            if (_msgTimer == null) {
+                _msgTimer = new Timer(0);
+            }
+            _msgTimer.stop();
+            //_msgTimer.delay=_msgTimerDelay;
+            if (_msgTimer.hasEventListener(TimerEvent.TIMER) == false) {
+                _msgTimer.addEventListener(TimerEvent.TIMER, onMsgTimerHandler);
+            }
+            _msgTimer.start();
+        }
+
+        private function onMsgTimerHandler(event:TimerEvent):void {
+            (event.currentTarget as Timer).delay = _msgTimerDelay;
+            getMsgItems();
+        }
+
+
+        private var _timer:Timer = null;
+        private var _timerDelay:Number = 10000;
+
+        private function startTimer():void {
+
+            if ((items == null || items.length == 0) && this.nomsgisshow) {
+                this.nomsglb.visible = true;
+            } else {
+                this.nomsglb.visible = false;
+            }
+
+            if (_timer == null) {
+                _timer = new Timer(_timerDelay);
+            } else {
+                _timer.stop();
+                _timer.delay = _timerDelay;
+            }
+            if (_timer.hasEventListener(TimerEvent.TIMER) == false) {
+                _timer.addEventListener(TimerEvent.TIMER, onTimerHandler);
+            }
+            _timer.start();
+        }
+
+        private function onTimerHandler(event:TimerEvent):void {
+            this.visible = false;
+        }
+
+        private function stopTimer():void {
+            if (_timer) {
+                _timer.stop();
+            }
+        }
+
+        protected function tw_mouseOutHandler(event:MouseEvent):void {
+            // TODO Auto-generated method stub
+            startTimer();
+        }
+
+        protected function tw_mouseOverHandler(event:MouseEvent):void {
+            // TODO Auto-generated method stub
+            stopTimer();
+        }
+
+        protected function tw_creationCompleteHandler(event:FlexEvent):void {
+            //showEffect="{showResize}"
+            //hideEffect="{hideResize}"
+            if (showResize && hideResize) {
+                this.setStyle("showEffect", showResize);
+                this.setStyle("hideEffect", hideResize);
+            }
+            msgTimer();
+        }
+
+
+        private var curriid:int = 0;
+
+        protected function msglist_itemClickHandler():void {
+            // TODO Auto-generated method stub
+            var item:Object = this.msglist.selectedItem;
+            if (!item) {
+                return;
+            }
+
+            // 点击完 ，就删除当前
+            if (this.items) {
+                if (msglist.selectedIndex < items.length) {
+                    this.items.removeItemAt(msglist.selectedIndex);
+                }
+            }
+
+            var param:Object = {};
+
+            if (item.itype == "0") {//离线消息
+                param.ispersonname = item.pcname;
+                param.isperson = item.isperson;
+                param.itype = 0;
+                param.cdetail = item.cdetail;
+                param.isonline = "0";
+                var fastReply:FastReply = new FastReply();
+                fastReply.msgBody = param;
+                CRMtool.openView(fastReply);
+            } else if (item.ifuncregedit == "10") {//自由协同
+                param.oaiid = item.iinvoice;
+                param.wfDrawType = "open";
+                if (item.cdetail == "发起" || item.cdetail == "回退") { //要处理的,待办事项
+                    param.optType = "dbsx";
+                    CRMtool.openMenuItemFormOther("yssoft.views.workflow.FreeCoView", param, "[待办]" + item.cdetail, item.iinvoice + ":dbsx" + new Date());
+                } else { //其他都是浏览，已办事项
+                    param.optType = "ybsx";
+                    CRMtool.openMenuItemFormOther("yssoft.views.workflow.FreeCoView", param, "[已办]" + item.cdetail, item.iinvoice + ":ybsx" + new Date());
+                }
+            } else if (item.itype == "11") {//我的计划
+                var subWin:SubmitPlanTitleWindow = new SubmitPlanTitleWindow();
+                subWin.iplans = item.iinvoice;
+                CRMtool.openView(subWin);
+                //CRMtool.openMenuItemFormOther("yssoft.views.plan.PlanMainView", {iplans_iid:item.iinvoice});
+            }  else if(item.ifuncregedit=="461"){
+                param.ccontent = "调查统计";
+                param.iid = item.iinvoice;
+                param.ifuncregedit = "468";
+                param.injectObj = param;
+
+                CRMtool.openMenuItemFormOther("yssoft.views.QuestionNaire", param, "调查问卷");
+
+            } else {
+                if (curriid != int(item.iinvoice)) {
+                    curriid = int(item.iinvoice);
+                    param.operId = "onListDouble";
+                    param.outifuncregedit = item.ifuncregedit;
+                    param.ifuncregedit = item.ifuncregedit;
+                    var iid:ArrayCollection = new ArrayCollection();
+                    iid.addItem({iid: item.iinvoice});
+                    param.personArr = iid;
+
+                    param.itemType = "onBrowse";
+                    param.formTriggerType = "fromOther";
+
+                    CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, item.cdetail, item.ifuncregedit + "" + param.iinvoice + new Date());
+                }
+            }
+            if (CRMmodel.hrperson.iconfirmtype == 0) { // 0 是浏览时，修改
+                update_msg_item(item.iid);
+            }
+            CRMmodel.msg_count = items.length;
+            //消息长度是0时，立即关闭
+            if (CRMmodel.msg_count == 0) {
+                this.closeWin();
+            }
+        }
+
+        public function update_msg_item(iid:String, isread:Boolean = true):void {
+            var param:Object = {};
+            param.iid = iid;
+            param.isread = (isread ? 1 : 0);
+            //mx.controls.Alert.show("iid["+param.iid+"],isread["+param.isread+"]");
+            AccessUtil.remoteCallJava("MsgDest", "update_msg_item", updataCallBack, param, null, false);
+        }
+
+        private function updataCallBack(event:ResultEvent):void {
+            if (event.result && (event.result as String) == "suc") {
+                /* 					this.items.removeItemAt(this.msglist.selectedIndex);
+                 if(this.items.length==0){
+                 this.visible=false;
+                 } */
+            }
+        }
+
+        private function showHandler(event:FlexEvent):void {
+            btnMax.visible = true;
+            btnRestore.visible = false;
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="showResize" heightTo="350" widthTo="450" effectEnd="{msgscroller.visible=true;startTimer()}"/>
+        <s:Resize id="hideResize" heightTo="0" widthTo="0" effectStart="{msgscroller.visible=false;stopTimer()}"/>
+        <fx:Component id="listrender">
+            <mx:HBox width="100%" horizontalGap="0" horizontalScrollPolicy="off">
+                <fx:Script>
+					<![CDATA[
+                    import yssoft.models.CRMmodel;
+
+                    override public function set data(value:Object):void {
+                        super.data = value;
+                        if (value == null) {
+                            return;
+                        }
+                        var tptxt:String = "";
+                        if (data && data.hasOwnProperty("cdetail")) {
+                            if (data.itype == "1") {
+                                if (data.cdetail == "发起") {
+                                    //tptxt=data.pcname+"于"+data.fsdate+"发起协同["+data.funcname+"("+data.iinvoice+")"+"]";
+                                    tptxt = data.pcname + "于" + data.fsdate + "发起协同[" + data.csubject + "]";
+                                    lb.setStyle("color", "red");
+                                } else if (data.cdetail == "回退") {
+                                    //tptxt= "协同["+data.funcname+"("+data.iinvoice+")"+"]已被"+data.pcname+"于"+data.fsdate+"退回，请你重新处理";
+                                    tptxt = "协同[" + data.csubject + "]已被" + data.pcname + "于" + data.fsdate + "退回，请您重新处理";
+                                    lb.setStyle("color", 0x4F9CD4);
+                                } else if (data.cdetail == "处理") {
+                                    //tptxt="协同["+data.funcname+"("+data.iinvoice+")"+"]已被"+data.pcname+"于"+data.fsdate+"处理";
+                                    tptxt = "协同[" + data.csubject + "]已被" + data.pcname + "于" + data.fsdate + "处理";
+                                    lb.setStyle("color", "red");
+                                } else if (data.cdetail == "已被处理") {
+                                    //tptxt="协同["+data.funcname+"("+data.iinvoice+")]"+"已被"+data.pcname+"于"+data.fsdate+"处理反馈";
+                                    tptxt = "协同[" + data.csubject + "]" + "已被" + data.pcname + "于" + data.fsdate + "处理反馈";
+                                    lb.setStyle("color", 0x4F9CD4);
+                                } else if (data.cdetail == "暂存待办") {
+                                    //tptxt="协同["+data.funcname+"("+data.iinvoice+")]"+"已被"+data.pcname+"于"+data.fsdate+"暂存待办";
+                                    tptxt = "协同[" + data.csubject + "]" + "已被" + data.pcname + "于" + data.fsdate + "暂存待办";
+                                    lb.setStyle("color", 0x4F9CD4);
+                                }
+                            } else if (data.itype == "2") {
+                                tptxt = data.pcname + "于" + data.fsdate + "发起公告[" + data.cdetail + "(" + data.iinvoice + ")" + "]";
+                                lb.setStyle("color", 0x0C7E21);
+                            } else if (data.itype == "0") {
+                                tptxt = data.pcname + "于" + data.fsdate + "发送离线消息[" + data.cdetail + "]";
+                                lb.setStyle("color", 0x0C7E21);
+                            } else if (data.itype == "4") {
+                                //tptxt=data.pcname+"于"+data.fsdate+"对协同["+data.funcname+"("+data.iinvoice+")]"+"推送了消息震荡["+data.cdetail+"]";
+                                tptxt = data.pcname + "于" + data.fsdate + "对协同[" + data.csubject + "]" + "推送了消息震荡[" + data.cdetail + "]";
+                                lb.setStyle("color", "red");
+                            }
+                        }
+                        if (tptxt.length > 50) {
+                            this.lb.text = tptxt.substr(0, 50) + "...";
+                        } else {
+                            this.lb.text = tptxt;
+                        }
+                        this.lb.toolTip = tptxt;
+
+                        this.lb1.selected = false;
+
+                    }
+                    ]]>
+				</fx:Script>
+                <mx:CheckBox id="lb1" change="outerDocument.update_msg_item(data.iid,this.lb1.selected)"
+                             visible="{CRMmodel.hrperson.iconfirmtype==1?true:false}"
+                             includeInLayout="{CRMmodel.hrperson.iconfirmtype==1?true:false}"/>
+                <!--<mx:label id="lb" width="100%" creationComplete="label1_creationCompleteHandler(event)"/>-->
+                <mx:Text id="lb" width="100%" height="18"/>
+            </mx:HBox>
+        </fx:Component>
+    </fx:Declarations>
+    <mx:Canvas id="msgscroller" width="100%" height="100%" borderStyle="solid" borderColor="#c4cccc" borderAlpha="1"
+               horizontalScrollPolicy="off">
+        <mx:List id="msglist" right="8" left="8" dataProvider="{items}"
+                 doubleClickEnabled="true"
+                 doubleClick="msglist_itemClickHandler()"
+                 labelField="cdetail" width="100%" height="100%" borderVisible="false"
+                 itemRenderer="yssoft.renders.MsgListRender"
+                />
+        <s:Label id="nomsglb" text="暂时没有新消息" verticalCenter="0" horizontalCenter="0" fontSize="16" visible="false"/>
+    </mx:Canvas>
+</basic:BasicTitleWindow>
+
+
+
+
+
+
+
+
+
+
+

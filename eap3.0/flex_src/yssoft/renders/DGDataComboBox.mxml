@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx"
+						  focusEnabled="false" >	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var removeBodyArr:ArrayCollection= new ArrayCollection();
+			
+			override public function set data(value:Object):void{
+				super.data=value;
+				cb_removeBody.dataProvider=removeBodyArr;
+			}
+			
+			public function get ccode():String
+			{
+				if(null==cb_removeBody.selectedItem)
+				{
+					return "";
+				}
+				return cb_removeBody.selectedItem.ccode;
+			}
+		]]>
+	</fx:Script>
+	<s:ComboBox width="100%" id="cb_removeBody" labelField="cname"/>
+</s:MXDataGridItemRenderer>

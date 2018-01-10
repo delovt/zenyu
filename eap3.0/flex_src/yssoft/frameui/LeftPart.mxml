@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Accordion xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			  xmlns:s="library://ns.adobe.com/flex/spark" 
+			  xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="accordion1_creationCompleteHandler(event)" xmlns:workfform="yssoft.views.workfform.*" xmlns:sysmanage="yssoft.views.sysmanage.*" >
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			[Bindable]
+			private var ifuniid:int=0;	//单据对应的功能注册码
+			[Bindable]
+			private var outifuniid:int=0;
+			[Bindable]
+			private var curiid:int=0;	//单据iid
+			[Bindable]
+			private var wfiid:int=0		//单据对应的工作流的 iid;
+				
+			public var parentForm:Object;
+			
+			//统一调用
+			/**
+			 * ifuniid  单据功能注册码
+			 * djiid	单据内码
+			 * wfiid	单据对应的 工作流内码
+			 */
+			public function refreshData(ifuniid:int,djiid:int,wfiid:int=0):void
+			{
+/* 				if(ifuniid<=0 || djiid<=0){
+					return;
+				} */
+				
+				this.ifuniid=ifuniid;
+				this.curiid=djiid;
+				this.wfiid=wfiid;
+				this.outifuniid=outifuniid;
+				
+				//协同回复
+				replyHandler();
+				
+				//附件
+				fjHandler();
+				
+				//业务注释
+				ywzsHandler();
+				
+				//相关人员
+				xgryHanlder();
+				
+				//相关功能
+				xggnHandler();
+				
+			}
+			
+			//相关功能
+			public function xggnHandler():void
+			{
+				view.ifcrelation=this.ifuniid;
+				view.iinvoice=this.curiid;
+			}
+			// 相关人员
+			public function xgryHanlder():void
+			{
+				this.xgry.ifuncregedit=ifuniid;
+				this.xgry.iinvoice=curiid;
+				this.xgry.xgrySelectItems();
+			}
+			//业务注释
+			public function ywzsHandler():void
+			{
+				this.ywzs.ifuncregedit=ifuniid;
+				this.ywzs.iinvoice=curiid;
+				this.ywzs.ywzs_selete_items();
+			}
+			//附件
+			public function fjHandler():void
+			{
+				this.fwfatt.clearParam();
+				this.fwfatt.iinvoices=this.curiid;
+				this.fwfatt.ifuncregedit=this.ifuniid;
+				this.fwfatt.isImmediate=true;
+				this.fwfatt.getCoFileList(this.wfiid,this.curiid);
+			}
+			//回复
+			public function replyHandler():void
+			{
+				this.fwfreply.entrance(this.ifuniid,this.wfiid,this.curiid);;
+			}
+				
+			protected function accordion1_creationCompleteHandler(event:FlexEvent):void
+			{
+				parentForm=this.owner;
+				view.owner= this.owner;
+				fwfreply.owner= this.owner;
+				view.ifcrelation=ifuniid;
+				view.iinvoice=curiid;
+			}
+			
+			public function getRelatedObjectsView():RelatedObjectsView{
+				return view;
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<workfform:FWFReplyView id="fwfreply" width="100%" height="100%" isNew="true" owner="{this.owner}"/>
+	<workfform:FWFAttachment id="fwfatt" width="100%" height="100%" ifuncregedit="{ifuniid}"
+							 iid="{wfiid}" iinvoices="{curiid}"/>
+	<workfform:YWZS id="ywzs" width="100%" height="100%" ifuncregedit="{ifuniid}"
+					iinvoice="{curiid}"/>
+	<workfform:XGRY id="xgry" width="100%" height="100%" ifuncregedit="{ifuniid}"
+					iinvoice="{curiid}"/>
+	<sysmanage:RelatedObjectsView id="view" label="相关功能" />
+</mx:Accordion>

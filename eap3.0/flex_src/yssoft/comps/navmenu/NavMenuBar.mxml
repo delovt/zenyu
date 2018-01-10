@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         verticalAlign="middle" horizontalGap="0">
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.XMLListCollection;
+        import mx.controls.Image;
+        import mx.controls.LinkButton;
+
+        import yssoft.evts.NavEvent;
+
+        [Embed(source="top_barline.png")]
+        public static var barline:Class;
+
+
+        // 动态绘制
+
+        private function createNavMenu(xml:XML):void {
+            if (xml == null) {
+                return;
+            }
+            var xmllc:XMLListCollection = new XMLListCollection(xml.child("node"));
+            if (xmllc.length == 0) {
+                return;
+            }
+
+            for (var i:int = 0; i < xmllc.length; i++) {
+
+                if (String(xml.child("node")[i].@bshow) == "false") { //菜单目录 bshow=0 为不显示
+                    continue;
+                }
+                createLinkbutton(xml.child("node")[i].@cname, i);
+            }
+
+        }
+
+        private function createLinkbutton(label:String, index:int):void {
+            var lb:LinkButton = new LinkButton();
+            lb.label = label;
+            lb.name = "" + index;
+            lb.setStyle("textAlign", "center");
+            lb.setStyle("textIndent", 0);
+            //lb.styleName="menu_noskin";
+            this.addChild(lb);
+            var seq:Image = new Image();
+            seq.source = barline;
+            this.addChild(seq);
+            lb.addEventListener(MouseEvent.MOUSE_OVER, onOverChange);
+            lb.addEventListener(MouseEvent.MOUSE_OUT, onOutChange);
+            lb.addEventListener(MouseEvent.CLICK, onOverChange);
+        }
+
+        private var _dataXml:XML;
+
+        public function get dataXml():XML {
+            return _dataXml;
+        }
+
+        [Bindable]
+        public function set dataXml(value:XML):void {
+            _dataXml = value;
+            createNavMenu(value);
+        }
+
+        private function onOverChange(event:MouseEvent):void {
+            if (event.type == MouseEvent.CLICK) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
+            for each(var child:Object in this.getChildren()) {
+                if (child is LinkButton) {
+                    (child as LinkButton).styleName = "menu_noskin";
+                }
+            }
+            (event.currentTarget as LinkButton).styleName = "menu_hasskin";
+            //(event.currentTarget as LinkButton).height=33;
+            //(event.currentTarget as LinkButton).styleName="menu_hasskin";
+            //(event.currentTarget as LinkButton).setStyle("fontWeight","bold");
+            //(event.currentTarget as LinkButton).setStyle("color","blue");
+            var itemIndex:int = parseInt((event.target as LinkButton).name);
+            this.dispatchEvent(new NavEvent(NavEvent.OVERCHANGE, itemIndex, this.getChildIndex(event.currentTarget as LinkButton)));
+        }
+
+        private function onOutChange(event:MouseEvent):void {
+            var itemIndex:int = parseInt((event.target as LinkButton).name);
+            this.dispatchEvent(new NavEvent(NavEvent.OUTCHANGE, itemIndex, this.getChildIndex(event.currentTarget as LinkButton)));
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <!--<fx:XML id="xml" source="menu.xml"/>-->
+        <!--<s:HTTPService id="hsxml" resultFormat="e4x" url="menu.xml" result="hsxml_resultHandler(event)" fault="hsxml_faultHandler(event)"/>-->
+    </fx:Declarations>
+    <fx:Metadata>
+        [Event(name="overchange", type="yssoft.evts.NavEvent")]
+        [Event(name="outchange", type="yssoft.evts.NavEvent")]
+    </fx:Metadata>
+</mx:HBox>

@@ -1,0 +1,78 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：ab_invoiceuser
+ * 创建人：刘磊
+ * 创建时间：2011-10-13 9:41:12
+ * 修改人：刘磊
+ * 修改时间：2011-10-13 9:41:12
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_ab_invoiceuser" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,ifuncregedit,iinvoice,iperson,idepartment,irole from ab_invoiceuser 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_ab_invoiceuser" parameterClass="java.util.HashMap">
+            insert into ab_invoiceuser(ifuncregedit,iinvoice,iperson,idepartment,irole) 
+				select #ifuncregedit#,#iinvoice#,#iperson#,idepartment,1 from hr_person where iid=#iperson#
+	 </insert>
+	 
+	  <!--删除记录列表-->
+     <delete id="delete_ab_invoiceuser"  parameterClass="java.util.HashMap">
+            delete from ab_invoiceuser
+            where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice#
+     </delete>
+	 
+	   <insert id="add_ab_invoiceuser2" parameterClass="java.util.HashMap">
+            insert into ab_invoiceuser(ifuncregedit,iinvoice,iperson,idepartment,irole) 
+				select #ifuncregedit#,#iinvoice#,#iperson#,idepartment,#irole# from hr_person where iid=#iperson#
+	 </insert>
+	 
+     <!--更新一条记录-->
+     <update id="update_ab_invoiceuser" parameterClass="java.util.HashMap">
+            update ab_invoiceuser set iinvoice=#iinvoice#,iperson=#iperson#,idepartment=#idepartment#,irole=#irole# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_ab_invoiceuser" parameterClass="String">
+            delete from ab_invoiceuser
+            where $condition$
+     </delete>
+     <!-- 工作日志验证是否已插入过 -->
+     <select id="select_isexist_invoice"  parameterClass="java.util.HashMap"  resultClass="int">
+     		select count(*) from ab_invoiceuser where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice#
+     </select>
+     
+    <!--调用删除相关表记录-->   
+    <parameterMap class="map" id="pr_execdellinktableParams"> 
+		<!-- 自定义sql -->  
+		<parameter property="iinvoice" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+		<parameter property="ifuncregedit" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />   
+	</parameterMap> 
+	
+	<procedure id="pr_execdellinktable" parameterMap="pr_execdellinktableParams" remapResults="true">
+		<![CDATA[   
+			{call pr_execdellinktable(?,?)}
+		  ]]>
+	</procedure>
+	
+	<!--在客商档案保存后插入客商人员权限-->   
+    <parameterMap class="map" id="pr_invoiceuser_custpersonParams"> 
+		<!-- 自定义sql -->  
+		<parameter property="icustomer" javaType="int" jdbcType="int" mode="IN" />
+		<parameter property="iperson" javaType="int" jdbcType="int" mode="IN" />
+	</parameterMap> 
+	
+	<procedure id="pr_invoiceuser_custperson" parameterMap="pr_invoiceuser_custpersonParams" remapResults="true">
+		<![CDATA[   
+			{call pr_invoiceuser_custperson(?,?)}
+		  ]]>
+	</procedure>
+     
+</sqlMap>

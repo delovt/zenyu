@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*" xmlns:frameui="yssoft.frameui.*" horizontalGap="0"
+                xmlns:callcenter="yssoft.views.callcenter.*" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                width="100%" height="100%"
+                creationComplete="myinit(event)">
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:Resize id="stretch" target="{leftBox}" duration="700" widthTo="257"/>
+        <s:Resize id="contract" target="{leftBox}" duration="700" widthTo="0"/>
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.ISort;
+        import mx.collections.Sort;
+        import mx.collections.SortField;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.DateHadle;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var ui_idepartment:CrmEapTextInput;
+        private var ui_iperson:CrmEapTextInput;
+
+        [Bindable]
+        private var sumMoney:Number = 0;
+
+        [Bindable]
+        public var mainDGData:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        private var dname:String = "";
+        [Bindable]
+        private var pname:String = "";
+
+        //回款
+        private var rpinvoiceAuthSql:String;
+
+        //合同中心
+        private var orderAuthSql:String = " and sc_order.icustomer in (select iinvoice from ab_invoiceuser where ifuncregedit=44)";
+
+        //资产
+        private var custproductAuthSql:String;
+
+        //商机
+        private var opportunityAuthSql:String;
+
+        private function myinit(event:FlexEvent):void {
+            initConsultItem("idepartment");
+            initConsultItem("iperson");
+
+            onRefreshState();
+
+            var auth:OperDataAuth = new OperDataAuth();
+            auth.addEventListener("onGet_FundataauthSucess", function (evt:Event):void {
+                custproductAuthSql = auth.getdataauthcondition("01", 216, CRMmodel.userId, CRMmodel.hrperson.idepartment, "cs_custproduct", 1);
+            });
+            auth.get_fundataauth({ifuncregedit:216, iperson:CRMmodel.userId});
+
+            var auth3:OperDataAuth = new OperDataAuth();
+            auth3.addEventListener("onGet_FundataauthSucess", function (evt:Event):void {
+                opportunityAuthSql = auth.getdataauthcondition("01", 80, CRMmodel.userId, CRMmodel.hrperson.idepartment, "sa_opportunity", 1);
+            });
+            auth3.get_fundataauth({ifuncregedit:80, iperson:CRMmodel.userId});
+
+            var auth4:OperDataAuth = new OperDataAuth();
+            auth4.addEventListener("onGet_FundataauthSucess", function (evt:Event):void {
+                rpinvoiceAuthSql = auth.getdataauthcondition("01", 163, CRMmodel.userId, CRMmodel.hrperson.idepartment, "sc_rpinvoice", 1);
+            });
+            auth4.get_fundataauth({ifuncregedit:163, iperson:CRMmodel.userId});
+
+        }
+
+        //刷新 客户资产，将服务到期日小于今天的，且服务收费状态为“赠送期内、正常交费”的状 态改为“拖期未交”
+        private function onRefreshState():void {
+            AccessUtil.remoteCallJava("ForListHandleDest", "onRefreshState", null);
+        }
+
+        private function initConsultItem(name:String, ifuncregedit:int = 162):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = ifuncregedit;
+            if (ifuncregedit == 162)
+                obj1.ctable = "sc_order";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.width = 161;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+                consultTextInput.styleName = "contentTextInputOther";
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+
+        private function cleanChildData():void {
+            rpinvoice.winParam = null;
+            order.winParam = null;
+            opportunity.winParam = null;
+            custproduct.winParam = null;
+        }
+
+        protected function searchButton_clickHandler(event:MouseEvent):void {
+            i = 0;
+            tb.selected = false;
+            mainDGData = new ArrayCollection();
+            cleanChildData();
+            if (ui_idepartment.consultList.length > 0)
+                dname = ui_idepartment.text;
+            else
+                dname = "";
+
+            if (ui_iperson.consultList.length > 0)
+                pname = ui_iperson.text;
+            else
+                pname = "";
+
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var eventAC:ArrayCollection = event.result as ArrayCollection;
+                if (eventAC) {
+                    mainDGData = eventAC;
+                    basicDepartmentAC = new ArrayCollection(CRMtool.ObjectCopy(eventAC.toArray()));
+
+                    var obj:Object = new Object();
+                    obj.rpinvoiceAuthSql = rpinvoiceAuthSql;
+                    obj.orderAuthSql = orderAuthSql;
+                    obj.custproductAuthSql = custproductAuthSql;
+                    obj.opportunityAuthSql = opportunityAuthSql;
+
+                    obj.rpinvoice_sddate = ui_sddate_rp.text;
+                    obj.rpinvoice_eddate = ui_eddate_rp.text;
+
+                    obj.opportunity_sddate = ui_sddate_opportunity.text;
+                    obj.opportunity_eddate = ui_eddate_opportunity.text;
+
+                    obj.custproduct_sddate = ui_sddate_cp.text;
+                    obj.custproduct_eddate = ui_eddate_cp.text;
+
+                    if (ui_isPause.selected)
+                        obj.isPause = ui_isPause.selected;
+                    else
+                        obj.isPauseNo = true;
+
+                    obj.isOver = ui_isOver.selected;
+
+
+                    if (ui_idepartment.consultList.length > 0)
+                        obj.idepartment = ui_idepartment.consultList[0].iid;
+
+                    if (ui_iperson.consultList.length > 0)
+                        obj.iperson = ui_iperson.consultList[0].iid;
+
+                    obj.mainDGData = mainDGData;
+
+                    rpinvoice.winParam = obj;
+                    order.winParam = obj;
+                    opportunity.winParam = obj;
+                    custproduct.winParam = obj;
+                }
+
+            }, "select iid,ipid,ccode,iid as idepartment,cname as idepartment_cname from hr_department where cname != '离退人员' ");
+
+        }
+
+        private function doMoney(item:Object, column:DataGridColumn):String {
+            var s:String = item[column.dataField] + "";
+            if (s.indexOf(".") > -1) {
+                return s.substr(0, s.indexOf(".") + 3);
+            } else {
+                return s;
+            }
+        }
+
+        protected function mainDG_itemClickHandler(event:ListEvent):void {
+            var obj:Object = mainDG.selectedItem;
+            obj.isCollect = tb.selected;
+
+            rpinvoice.filterObj = obj;
+            order.filterObj = obj;
+            opportunity.filterObj = obj;
+            custproduct.filterObj = obj;
+        }
+
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = mainDG.dataProvider.getItemIndex(item) + 1;
+            return lineNum + "";
+        }
+
+
+        private var i:int = 0;
+
+        public function sum():void {
+            sumMoney = 0;
+            i++;
+
+            if (i == 4) {
+
+                var needRemoveAC:ArrayCollection = new ArrayCollection();
+
+                for each(var item:Object in mainDGData) {
+                    item.sum1 = item.fsum + item.fforecast + item.fservicecharge;
+                    item.sum2 = item.sum1 + item.frpsum;
+                    sumMoney += item.sum2;
+                }
+
+                removeZeroData();
+
+                mainDGData.refresh();
+                basicAC = new ArrayCollection(CRMtool.ObjectCopy(mainDGData.toArray()));
+            }
+        }
+
+        private function removeZeroData():void {
+            var needRemoveAC:ArrayCollection = new ArrayCollection();
+
+            for each(var item:Object in mainDGData) {
+                if (item.sum2 > 0) {
+
+                } else {
+                    needRemoveAC.addItem(item);
+                }
+            }
+
+            for each(var ritem:Object in needRemoveAC) {
+                mainDGData.removeItemAt(mainDGData.getItemIndex(ritem));
+            }
+        }
+
+        var basicAC:ArrayCollection;
+        var basicDepartmentAC:ArrayCollection;
+
+        protected function togglebutton1_clickHandler(event:MouseEvent):void {
+            cleanChildData();
+            mainDG.selectedItem = null;
+
+            var selected:Boolean = (event.currentTarget as ToggleButton).selected;
+            if (selected) {
+                //添加现在未显示的部门 （行）
+                for each(var ditem:Object in basicDepartmentAC) {
+                    var flag:Boolean = true;
+                    for each(var item:Object in mainDGData) {
+                        if (ditem.idepartment == item.idepartment)
+                            flag = false;
+                    }
+                    if (flag)
+                        mainDGData.addItem(ditem);
+                }
+
+                //递归金额求和
+                for each(var item:Object in mainDGData) {
+                    var flag:Boolean = true;
+                    for each(var item2:Object in mainDGData) {
+                        //如果 当前节点 是某个节点的父级节点，则当前节点不是末级节点
+                        if (item.iid == item2.ipid)
+                            flag = false;
+                    }
+                    if (flag)//此节点为末级节点
+                        addMoney(item, mainDGData);
+                }
+
+                //删除无金额数据的行
+                removeZeroData();
+
+                //实现标题缩进
+                filterAllName();
+
+                //排序
+                var sort:ISort = new Sort();
+
+                sort.fields = [new SortField("ccode")];
+                mainDGData.sort = sort;
+
+                mainDGData.refresh();
+            } else if (basicAC) {
+                mainDGData = new ArrayCollection(CRMtool.ObjectCopy(basicAC.toArray()));
+                mainDGData.refresh();
+            }
+        }
+
+
+        //递归，将自己父级节点数据 包含自己节点
+        private function addMoney(obj:Object, ac:ArrayCollection):void {
+            for each(var item:Object in ac) {
+                if (obj.ipid == item.iid) {
+                    item.frpsum += obj.frpsum;
+                    item.fsum += obj.fsum;
+                    item.fforecast += obj.fforecast;
+                    item.fservicecharge += obj.fservicecharge;
+                    item.sum1 += obj.sum1;
+                    item.sum2 += obj.sum2;
+
+                    addMoney(item, ac);
+                }
+            }
+        }
+
+        private function filterAllName():void {
+
+            for each(var item:Object in mainDGData) {
+                var flag:Boolean = true;
+                for each(var item2:Object in mainDGData) {
+                    if (item.ipid == item2.iid)
+                        flag = false;
+                }
+                if (flag)//此节点为根节点
+                    filterName(item, mainDGData, 0);//递归实现标题缩进
+            }
+
+
+        }
+
+        private function filterName(obj:Object, ac:ArrayCollection, level:int):void {
+            for each(var item:Object in ac) {
+                if (obj.iid == item.ipid) {
+                    var tabs:String = "";
+                    for (var i:int = 0; i <= level; i++) {
+                        tabs = "      " + tabs;
+                    }
+
+                    item.idepartment_cname = tabs + item.idepartment_cname;
+                    filterName(item, ac, level + 1);
+                }
+            }
+        }
+
+        protected function vbox1_updateCompleteHandler(event:FlexEvent):void {
+            // TODO Auto-generated method stub
+            CRMtool.setTabIndex(event.currentTarget as VBox);
+        }
+        ]]>
+	</fx:Script>
+    <mx:VBox id="leftBox" width="257" height="100%" styleName="lefttree" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="frameSideAppBar">
+            <s:Label styleName="contentTitle" text="查询条件"/>
+        </mx:ApplicationControlBar>
+        <mx:VBox width="100%" height="100%" styleName="lefttree1" paddingBottom="1"
+                 updateComplete="vbox1_updateCompleteHandler(event)">
+            <mx:VBox width="100%" height="100%" verticalGap="5" paddingTop="15" paddingLeft="10" paddingRight="10">
+
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="回款起始："/>
+                    <!--<basic:BasicDateField id="ui_sddate_rp" width="100%" editable="true"
+                                          text="{DateHadle.getFirstOfYear()}"/>-->
+					<comps:DateControl id="ui_sddate_rp" width="100%" editable="true" isStyle="false" showShape="0"
+									   text="{DateHadle.getFirstOfYear()}"/>
+                </mx:HBox>
+
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="回款截止："/>
+                    <!--<basic:BasicDateField id="ui_eddate_rp" width="100%" editable="true"
+                                          text="{DateHadle.getToday()}"/>-->
+					<comps:DateControl id="ui_eddate_rp" width="100%" editable="true" isStyle="false" showShape="0"
+									   text="{DateHadle.getToday()}"/>
+                </mx:HBox>
+
+            </mx:VBox>
+            <s:Spacer height="15"/>
+            <mx:HRule width="100%" height="1"/>
+            <mx:VBox width="100%" height="100%" verticalGap="5" paddingTop="15" paddingLeft="10" paddingRight="10">
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="漏斗起始："/>
+                    <!--<basic:BasicDateField id="ui_sddate_opportunity" width="100%" editable="true"/>-->
+					<comps:DateControl id="ui_sddate_opportunity" width="100%" editable="true" isStyle="false" showShape="0"/>
+                </mx:HBox>
+
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="漏斗截止："/>
+                    <!--<basic:BasicDateField id="ui_eddate_opportunity" width="100%" editable="true"
+                                          text="{DateHadle.getEndOfYear()}"/>-->
+					<comps:DateControl id="ui_eddate_opportunity" width="100%" editable="true" isStyle="false" showShape="0"
+									   text="{DateHadle.getEndOfYear()}"/>
+                </mx:HBox>
+
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="停废丢单：" click="{ui_isPause.selected=ui_isPause.selected?false:true}"/>
+                    <s:CheckBox id="ui_isPause"/>
+                </mx:HBox>
+            </mx:VBox>
+            <s:Spacer height="15"/>
+            <mx:HRule width="100%" height="1"/>
+            <mx:VBox width="100%" height="100%" verticalGap="5" paddingTop="15" paddingLeft="10" paddingRight="10">
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="收费起始："/>
+                    <!--<basic:BasicDateField id="ui_sddate_cp" width="100%" editable="true"/>-->
+					<comps:DateControl id="ui_sddate_cp" width="100%" editable="true" isStyle="false" showShape="0"/>
+                </mx:HBox>
+
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="收费截止："/>
+                    <!--<basic:BasicDateField id="ui_eddate_cp" width="100%" editable="true"
+                                          text="{DateHadle.getEndOfYear()}"/>-->
+					<comps:DateControl id="ui_eddate_cp" width="100%" editable="true" isStyle="false" showShape="0"
+									   text="{DateHadle.getEndOfYear()}"/>
+                </mx:HBox>
+
+                <mx:HBox width="100%">
+                    <mx:FormItemLabel text="不愿交费：" click="{ui_isOver.selected=ui_isOver.selected?false:true}"/>
+                    <s:CheckBox id="ui_isOver"/>
+                </mx:HBox>
+            </mx:VBox>
+            <s:Spacer height="15"/>
+            <mx:HRule width="100%" height="1"/>
+            <mx:VBox width="100%" height="100%" verticalGap="5" paddingTop="15" paddingLeft="10" paddingRight="10">
+                <mx:HBox width="100%" id="ui_idepartment_box">
+                    <mx:FormItemLabel text="业务部门："/>
+                    <!--<s:TextInput id="ui_department"/>-->
+                </mx:HBox>
+
+                <mx:HBox width="100%" id="ui_iperson_box">
+                    <mx:FormItemLabel text="业务人员："/>
+                    <!--<s:TextInput id="ui_person"/>-->
+                </mx:HBox>
+            </mx:VBox>
+
+
+            <s:Spacer height="100%"/>
+            <mx:HRule width="100%" height="1"/>
+            <mx:HBox width="100%" height="36" horizontalAlign="center" verticalAlign="middle" paddingLeft="10"
+                     paddingRight="11">
+                <s:Spacer width="100%"/>
+                <mx:Button label="查询" click="searchButton_clickHandler(event)" width="50" height="25"/>
+            </mx:HBox>
+        </mx:VBox>
+    </mx:VBox>
+
+    <frameui:FoldGapBox id="jiange" targetBox="{leftBox}"/>
+
+    <mx:VBox width="100%" height="100%" styleName="centerbg03">
+        <mx:ApplicationControlBar width="100%" height="32" styleName="centertop1">
+            <!--			<mx:Label styleName="contentTitle"/>-->
+            <s:Label text="关注部门：{dname}" includeInLayout="{dname.length>0}" visible="{dname.length>0}"/>
+            <s:Label text="关注人员：{pname}" includeInLayout="{pname.length>0}" visible="{pname.length>0}"/>
+            <s:Spacer width="100%"/>
+            <s:Label text="预测合计：{CRMtool.formatFloatString(sumMoney)}"/>
+            <s:Spacer width="5"/>
+            <s:ToggleButton id="tb" label="汇总模式" click="togglebutton1_clickHandler(event)"
+                            enabled="{mainDGData.length>0}"/>
+            <s:Spacer width="5"/>
+        </mx:ApplicationControlBar>
+        <mx:VDividedBox width="100%" height="100%" paddingTop="-1">
+            <mx:DataGrid width="100%" height="45%" id="mainDG"  horizontalScrollPolicy="auto" itemClick="mainDG_itemClickHandler(event)"
+                         dataProvider="{mainDGData}">
+                <mx:columns>
+                    <mx:DataGridColumn labelFunction="{doLineNum}" width="40"/>
+                    <mx:DataGridColumn headerText="部门" dataField="idepartment_cname" width="100"/>
+                    <mx:DataGridColumn headerText="累计回款" dataField="frpsum" textAlign="right"
+                                       labelFunction="{CRMtool.formatFloat}"/>
+                    <mx:DataGridColumn headerText="应收账款" dataField="fsum" textAlign="right"
+                                       labelFunction="{CRMtool.formatFloat}"/>
+                    <mx:DataGridColumn headerText="商机预测额" dataField="fforecast" textAlign="right"
+                                       labelFunction="{CRMtool.formatFloat}"/>
+                    <mx:DataGridColumn headerText="服务费预测额" dataField="fservicecharge" textAlign="right"
+                                       labelFunction="{CRMtool.formatFloat}"/>
+                    <mx:DataGridColumn headerText="预测合计" dataField="sum1" textAlign="right"
+                                       labelFunction="{CRMtool.formatFloat}"/>
+                    <mx:DataGridColumn headerText="目标达成预测" dataField="sum2" textAlign="right"
+                                       labelFunction="{CRMtool.formatFloat}"/>
+                </mx:columns>
+            </mx:DataGrid>
+            <mx:TabNavigator id="mytab" width="100%" height="55%" creationPolicy="all" paddingTop="-1" paddingLeft="-1" paddingRight="-1" paddingBottom="-1"
+                             borderColor="#e1e1e1">
+                <callcenter:rpinvoice id="rpinvoice" myParent="{this}"/>
+                <callcenter:order id="order" myParent="{this}"/>
+                <callcenter:opportunity id="opportunity" myParent="{this}"/>
+                <callcenter:custproduct id="custproduct" myParent="{this}"/>
+            </mx:TabNavigator>
+        </mx:VDividedBox>
+    </mx:VBox>
+</mx:HDividedBox>

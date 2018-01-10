@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="批注"
+                        width="550" height="250"
+                        xmlns:module="yssoft.comps.frame.module.*"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]public var ownerBox:PlanMainView;
+			[Bindable]public var cinstruction:String;
+			
+			
+			private var _iplans:int;//处理时 传入计划内码
+			
+			
+			public function get iplans():int	
+			{
+				return _iplans;
+			}
+			
+			public function set iplans(value:int):void
+			{
+				_iplans = value;
+			}
+
+			
+			protected function submit():void
+			{				
+				if(CRMtool.isStringNotNull(ui_cinstruction.text)){
+					var sql:String="update oa_plans set cinstruction='"+ StringUtil.trim(ui_cinstruction.text)+"',iinstruction="+CRMmodel.userId+",dinstruction='"+CRMtool.getNowDateHNS()+"' where iid="+iplans;
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+						if(ownerBox)
+							ownerBox.refData();
+						onCloseHandler();
+					},sql);
+				}else{
+					ui_cinstruction.setFocus();
+				}
+			}
+			
+			protected function ui_cinstruction_keyDownHandler(event:KeyboardEvent):void
+			{
+				if(event.ctrlKey&&event.keyCode==Keyboard.ENTER){
+					submit();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<s:FormItem width="100%" height="100%">
+		<mx:HBox width="100%" height="150">
+			<mx:FormItemLabel text="批注信息" color="red" />
+			<s:TextArea id="ui_cinstruction" width="100%" height="100%" text="{cinstruction}" keyDown="ui_cinstruction_keyDownHandler(event)" restrict="^'"/>
+		</mx:HBox>		
+		<s:Spacer height="5"/>
+		<mx:HBox width="100%"  verticalAlign="middle" paddingRight="10" paddingLeft="10" >
+			<s:Spacer width="100%"/>
+			<s:Button label="确定" click="submit()"/>
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</s:FormItem>
+</basic:BasicTitleWindow>

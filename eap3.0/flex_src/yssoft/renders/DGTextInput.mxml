@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" focusEnabled="true" xmlns:comps="yssoft.comps.*" >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import yssoft.comps.CRMDataGridForCheckBox;
+			import yssoft.tools.CRMtool;
+			
+			private var _data_iconsult:String;
+			public function get data_iconsult():String{
+				return csl_textinput.tnp_text_str;
+			}
+			public function set data_iconsult(val:String):void{
+				this._data_iconsult=val;
+			}
+			
+			private var _data_iconsult_str:String;
+			public function set data_iconsult_str(value:String):void{
+				this._data_iconsult_str=value;
+			}
+			public function get data_iconsult_str():String{
+				return this._data_iconsult_str;
+			}
+			
+			protected function csl_textinput_searchChangeHandler(event:Event):void
+			{
+				data.iconsult=csl_textinput.value;
+				data.iconsultname=csl_textinput.tnp_text_str;
+			}
+			
+			protected function csl_textinput_valueChangeHandler(event:Event):void
+			{
+				data.iconsult=0;
+				data.iconsultname="";
+				/* 	csl_textinput.value=0;
+				csl_textinput.tnp_text_str=""; */
+				_data_iconsult="";
+				CRMDataGridForCheckBox(dataGridListData.owner).dataProvider.getItemAt(CRMDataGridForCheckBox(dataGridListData.owner).selectedIndex).iconsult=0;
+				CRMDataGridForCheckBox(dataGridListData.owner).dataProvider.getItemAt(CRMDataGridForCheckBox(dataGridListData.owner).selectedIndex).iconsultname="";
+		/* 		outerDocument.dglist.dataProvider.getItemAt(outerDocument.dglist.selectedIndex).iconsult=0;
+				outerDocument.dglist.dataProvider.getItemAt(outerDocument.dglist.selectedIndex).iconsultname=""; */
+				
+			}
+		]]>
+	</fx:Script>
+	<comps:ConsultTextInput valueChange="csl_textinput_valueChangeHandler(event)" editable="true" iid="15" value="{data.iconsult}" bindValueField="iid" bindLabelField="cname" tnp_text_str="{data.iconsultname}" 
+							id="csl_textinput" visibleIcon="true" 
+							searchChange="csl_textinput_searchChangeHandler(event)" top="0" left="0" right="0" bottom="0">
+	</comps:ConsultTextInput>
+</s:MXDataGridItemRenderer>

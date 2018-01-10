@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="服务记录"
+                        width="650" height="500"
+                        close="onCloseHandler()" updateComplete="setTabIndex()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.events.FlexEvent;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var iid:int;
+        private var crmeap:CrmEapRadianVbox;
+
+        private var ui_iresult:CrmEapTextInput;
+        private var ui_ifeedback:CrmEapTextInput;
+
+        private var icustomer:int;
+
+        [Bindable]
+        private var isLocale:Boolean = false;
+
+        public function myinit(iid:int, crmeap:CrmEapRadianVbox):void {
+            var isolution:int = 0;
+            this.iid = iid;
+            this.crmeap = crmeap;
+            this.icustomer = (crmeap.getValue() as Object).icustomer;
+            isolution = (crmeap.getValue() as Object).isolution;
+            if (isolution == 370) {
+                this.isLocale = true;
+            } else {
+                this.isLocale = false;
+            }
+            initConsult();
+            CRMtool.openView(this);
+            (ui_ddeparture.getHour()).addEventListener(FlexEvent.VALUE_COMMIT, hours_focusOutHandler);
+            (ui_ddeparture.getMin()).addEventListener(FlexEvent.VALUE_COMMIT, hours_focusOutHandler);
+        }
+
+        private function initConsult():void {
+
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_iresult";
+            obj1.ifuncregedit = "150";
+            obj1.cfield = "iresult";
+
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+
+                if (evt.result != null) {
+                    var consultObj:Object = evt.result;
+
+                    ui_iresult = new CrmEapTextInput();
+                    ui_iresult.percentWidth = 100;
+                    ui_iresult.name = "UI_C1";
+                    consultObj.cobjectname = "UI_C1";
+                    ui_iresult.singleType = consultObj;
+                    ui_iresult_box.addChild(ui_iresult);
+                    //ui_iresult.editable = false;
+
+                    {
+                        var obj2:Object = new Object();
+                        obj2.cobjectname = "ui_ifeedback";
+                        obj2.ifuncregedit = "150";
+                        obj2.cfield = "ifeedback";
+
+                        AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+
+                            if (evt.result != null) {
+                                var consultObj:Object = evt.result;
+
+                                ui_ifeedback = new CrmEapTextInput();
+                                ui_ifeedback.percentWidth = 100;
+                                ui_ifeedback.name = "UI_C2";
+                                consultObj.cobjectname = "UI_C2";
+                                ui_ifeedback.singleType = consultObj;
+                                ui_ifeedback.conditionSqlFunction = onGetConsultSqlCondition;
+
+                                ui_ifeedback_box.addChild(ui_ifeedback);
+                                //ui_ifeedback.editable = false;
+
+                                titlewindow1_updateCompleteHandler();
+                            }
+                        }, obj2, null, false);
+                    }
+                }
+            }, obj1);
+
+
+        }
+
+        public function onGetConsultSqlCondition(value:String = "icustomer=icustomer"):String {
+            if (icustomer > 0) {
+                return  " and icustomer=" + icustomer;
+            }
+            else {
+                return "";
+            }
+        }
+
+        private var flag:Boolean = true;
+
+        protected function titlewindow1_updateCompleteHandler():void {
+            //if(ui_iresult&&ui_ifeedback&&flag){
+            var valueObj:Object = crmeap.getValue();
+
+            ui_darrival.text = valueObj.darrival;
+            ui_ddeparture.text = valueObj.ddeparture;
+
+            ui_cdescription.text = valueObj.cdescription;
+            ui_cprocess.text = valueObj.cprocess;
+            ui_dengineer.text = valueObj.dengineer;
+            ui_cfeedback.text = valueObj.cfeedback;
+            ui_ffee.text = valueObj.ffee;
+            ui_cmemo.text = valueObj.cmemo;
+
+            ui_iresult.text = valueObj.iresult;
+            ui_iresult.addEventListener("initialization", function (event:Event):void {
+                ui_iresult.onDataChange();
+            });
+            ui_iresult.onDataChange();
+
+            if (valueObj.ifeedback && valueObj.ifeedback != "") {
+                ui_ifeedback.text = valueObj.ifeedback;
+            } else {
+                ui_ifeedback.text = valueObj.icustperson;
+            }
+
+            ui_ifeedback.addEventListener("initialization", function (event:Event):void {
+                ui_ifeedback.onDataChange();
+            });
+            //ui_ifeedback.onDataChange();
+
+
+            if (valueObj.darrival && valueObj.darrival != "") {
+                ui_darrival.editable = false;
+            }
+            if (valueObj.ddeparture && valueObj.ddeparture != "") {
+                ui_ddeparture.editable = false;
+            }
+
+
+            flag = false;
+            //}
+
+        }
+
+        private function verification():Boolean {
+            //lueObj.darrival = ui_darrival.text;
+            //	valueObj.ddeparture = ui_ddeparture.text;
+            //valueObj.dengineer = ui_dengineer.text;
+            if (!verificationItem(ui_darrival)) {
+                //服务类型为现场时，不为必输
+                if (this.isLocale == false) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            if (!verificationItem(ui_ddeparture)) {
+                //服务类型为现场时，不为必输
+                if (this.isLocale == false) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            if (!verificationItem(ui_dengineer)) {
+                return false;
+            }
+            if (!verificationItem(ui_cdescription)) {
+                return false;
+            }
+            if (!verificationItem(ui_cprocess)) {
+                return false;
+            }
+			if (!verificationItem(ui_iresult)) {
+				return false;
+			}
+            return true;
+
+        }
+
+        private function verificationItem(textInput:Object):Boolean {
+            var bool:Boolean = true;
+            if (CRMtool.isStringNull(textInput.text)) {
+                bool = false;
+                //CRMtool.showAlert(textInput.id+"  必填");
+                textInput.setFocus();
+            }
+            return bool;
+        }
+
+        override protected function onSubmit():void {
+            var valueObj:Object = crmeap.getValue();
+
+            if (verification() == false) {
+                return;
+            }
+
+            valueObj.darrival = ui_darrival.text;
+            valueObj.ddeparture = ui_ddeparture.text;
+            valueObj.cdescription = ui_cdescription.text;
+            valueObj.cprocess = ui_cprocess.text;
+            valueObj.dengineer = ui_dengineer.text;
+            valueObj.cfeedback = ui_cfeedback.text;
+            valueObj.ffee = ui_ffee.text;
+            valueObj.cmemo = ui_cmemo.text;
+
+            valueObj.istatus = 2;
+            valueObj.irecord = CRMmodel.userId.toString();
+            if (valueObj.iengineer > 0) {
+                //valueObj.iengineer = valueObj.irecord;
+            } else {
+                valueObj.iengineer = valueObj.irecord;
+            }
+
+            valueObj.drecord = CRMtool.getFormatDateString("YYYY-MM-DD HH:NN:SS", new Date());
+
+            if (ui_iresult && CRMtool.isStringNotNull(ui_iresult.text)) {
+                valueObj.iresult = ui_iresult.consultList.getItemAt(0)[ui_iresult.singleType.cconsultbkfld];
+            }
+
+            if (ui_ifeedback && CRMtool.isStringNotNull(ui_ifeedback.text)) {
+                valueObj.ifeedback = ui_ifeedback.consultList.getItemAt(0)[ui_ifeedback.singleType.cconsultbkfld];
+            }
+
+            AccessUtil.remoteCallJava("SrBillDest", "updateDataForStatus2", function ():void {
+                CRMtool.tipAlert("提交服务记录成功！");
+                var obj:Object = new Object();
+                obj.mainValue = valueObj;
+                crmeap.setValue(obj, 1, 1);
+                onCloseHandler();
+            }, valueObj, "更新中……");
+        }
+
+        protected function hours_focusOutHandler(event:FlexEvent):void {
+            this.ui_dengineer.text = this.ui_ddeparture.text;
+
+        }
+
+        private function setTabIndex():void {
+            CRMtool.setTabIndex(this.myBorder);
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+    </fx:Declarations>
+    <mx:VBox id="myBorder" width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10"
+             paddingBottom="10" verticalGap="10">
+        <mx:VBox width="100%" height="{isLocale==true?33:0}" styleName="content" visible="{isLocale}">
+            <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                <mx:HBox width="50%">
+                    <mx:Label text="到达时间:" styleName="contentLabel" color="red"/>
+                    <comps:DateControl id="ui_darrival" isStyle="true" width="100%" borderStyle="none"/>
+                </mx:HBox>
+                <mx:HBox width="50%">
+                    <mx:Label text="离开时间:" styleName="contentLabel" color="red"/>
+                    <comps:DateControl id="ui_ddeparture" isStyle="true" width="100%" borderStyle="none"/>
+                </mx:HBox>
+            </mx:HBox>
+        </mx:VBox>
+        <mx:VBox width="100%" height="120" styleName="content" paddingTop="5" paddingLeft="15" paddingRight="15"
+                 verticalGap="5" paddingBottom="10">
+            <s:Label text="问题描述" color="red"/>
+            <mx:TextArea id="ui_cdescription" borderVisible="false" width="100%" height="100%"
+                         focusIn="CRMtool.setIME()"/>
+        </mx:VBox>
+        <mx:VBox width="100%" height="120" styleName="content" paddingTop="5" paddingLeft="15" paddingRight="15"
+                 verticalGap="5" paddingBottom="10">
+            <s:Label text="处理过程" color="red"/>
+            <mx:TextArea id="ui_cprocess" borderVisible="false" width="100%" height="100%" focusIn="CRMtool.setIME()"/>
+        </mx:VBox>
+        <mx:VBox width="100%" height="66" styleName="content">
+            <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                <mx:HBox width="50%" id="ui_iresult_box">
+                    <mx:Label text="解决情况:" styleName="contentLabel" color="red"/>
+                    <!--					<mx:TextInput id="ui_iresult" height="100%" styleName="contentTextInput" width="100%"/>-->
+                </mx:HBox>
+                <mx:HBox width="50%">
+                    <mx:Label text="解决时间:" styleName="contentLabel" color="red"/>
+                    <comps:DateControl id="ui_dengineer" isStyle="true" width="100%" borderStyle="none"/>
+                    <!--<mx:TextInput id="dengineer_"  styleName="contentTextInput" width="100%"/>-->
+                </mx:HBox>
+            </mx:HBox>
+            <mx:HRule width="100%"/>
+            <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                <mx:HBox width="50%" id="ui_ifeedback_box">
+                    <mx:Label text="用户确认:" styleName="contentLabel" color="red"/>
+                    <!--					<mx:TextInput id="ui_ifeedback" height="100%" styleName="contentTextInput" width="100%"/>-->
+                </mx:HBox>
+                <mx:HBox width="50%">
+                    <mx:Label text="用户意见:" styleName="contentLabel"/>
+                    <mx:TextInput id="ui_cfeedback" styleName="contentTextInput" width="100%"
+                                  focusIn="CRMtool.setIME()"/>
+                </mx:HBox>
+
+            </mx:HBox>
+        </mx:VBox>
+        <mx:VBox width="100%" height="33" styleName="content">
+            <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                <mx:HBox width="50%">
+                    <mx:Label text="备       注:" styleName="contentLabel"/>
+                    <mx:TextInput id="ui_cmemo" styleName="contentTextInput" width="100%" focusIn="CRMtool.setIME()"/>
+                </mx:HBox>
+                <mx:HBox width="50%" visible="{isLocale}">
+                    <mx:Label text="发生费用:" styleName="contentLabel"/>
+                    <mx:TextInput id="ui_ffee" restrict="0-9." height="100%" styleName="contentTextInput" width="100%"/>
+                </mx:HBox>
+
+            </mx:HBox>
+        </mx:VBox>
+        <mx:HBox verticalAlign="middle" paddingRight="10" paddingLeft="10">
+            <s:Spacer width="455"/>
+            <s:Button label="确定" click="onSubmit()"/>
+            <s:Button label="放弃" click="onCloseHandler()"/>
+        </mx:HBox>
+    </mx:VBox>
+</basic:BasicTitleWindow>

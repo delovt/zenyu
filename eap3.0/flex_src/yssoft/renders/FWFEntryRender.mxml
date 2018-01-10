@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" 
+						  focusEnabled="true" dataChange="onDataChangeHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.getQualifiedClassName;
+			
+			import mx.controls.Alert;
+			import mx.controls.DataGrid;
+			import mx.events.FlexEvent;
+			import mx.utils.ObjectUtil;
+			
+			import spark.events.IndexChangeEvent;
+			
+			import yssoft.comps.NodeElement;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.workfform.FWFEntry;
+			
+			private var handString:String = "hand:";
+			
+			private function cbbData_changeHandler():void
+			{
+				var dg:DataGrid=this.dataGridListData.owner as DataGrid;
+				var nodeElement:NodeElement=(dg.parent as FWFEntry).nodeElement;
+				if(!nodeElement.fwfentry){
+					CRMtool.showAlert("请先选择节点。");
+					return;
+				}
+					
+				
+				var ac:ArrayCollection=dg.dataProvider as ArrayCollection;
+				
+				var obj:Object={};
+				
+				if(cbbData.selectedItem==null)
+					return;
+				
+				if(cbbData.selectedItem is String){
+					obj.cvalue=handString+cbbData.selectedItem;				
+				}else if(cbbData.selectedItem.name=="hand"){
+					this.cbbData.textInput.editable=true;
+					this.cbbData.textInput.selectAll();
+				}else{
+					this.cbbData.textInput.editable=false;
+					ac.getItemAt(dg.selectedIndex).cvalue=cbbData.selectedItem.name;
+					obj.cvalue=cbbData.selectedItem.name;
+				}
+								
+				
+				
+				var index:int=findItemIndex(nodeElement.fwfentry,dg.selectedItem.cfield);
+				
+				obj.cnodeid=nodeElement.inodeid;
+				obj.cfield=dg.selectedItem.cfield;
+				
+				if(index==-1){
+					nodeElement.fwfentry.addItem(obj);
+				}else{
+					nodeElement.fwfentry.setItemAt(obj,index);
+				}
+			}
+			
+			private function findItemIndex(ac:ArrayCollection,value:String):int{
+				for each(var item:Object in ac){
+					if(item.cfield==value){
+						return ac.getItemIndex(item);
+					}
+				}
+				return -1;
+			}
+			
+			private function findItemIndex1(ac:ArrayCollection,value:String):int{				
+				for each(var item:Object in ac){
+					if(item.name==value){
+						return ac.getItemIndex(item);
+					}
+				}
+				
+				return 0;
+			}
+			
+			protected function onDataChangeHandler(event:FlexEvent):void
+			{
+				if(!data.cvalue){
+					this.cbbData.selectedIndex = 0;
+					return;
+				}
+					
+				
+				if(data.cvalue.indexOf(handString)>-1){
+					this.cbbData.textInput.editable = true;
+					this.cbbData.textInput.text = (data.cvalue as String).substr(handString.length);
+				}else{
+					this.cbbData.textInput.editable=false;
+					this.cbbData.selectedIndex=findItemIndex1(this["ac_"+data.idatatype],data.cvalue);
+				}			
+			}
+			
+			protected function cbbData_creationCompleteHandler(event:FlexEvent):void
+			{
+				this.cbbData.textInput.addEventListener(FocusEvent.FOCUS_OUT,function(event:FocusEvent):void{
+					cbbData_changeHandler();
+				});
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ArrayCollection id="ac_1">
+			<fx:Object name="kong" 			label=""/>
+			<fx:Object name="iperson" 		label="处理人ID"/>
+			<fx:Object name="idepartment" 	label="处理人部门ID"/>
+			<fx:Object name="hand" 			label="手工输入"/>
+		</s:ArrayCollection>
+		<s:ArrayCollection id="ac_0">
+			<fx:Object name="kong" 			label=""/>
+			<fx:Object name="cperson" 		label="处理人名"/>
+			<fx:Object name="cdepartment" 	label="处理人部门名"/>
+			<fx:Object name="cmessage" 		label="处理内容"/>
+			<fx:Object name="cresult" 		label="处理结果"/>
+			<fx:Object name="hand" 			label="手工输入"/>
+		</s:ArrayCollection>
+		<s:ArrayCollection id="ac_3">
+			<fx:Object name="kong" 			label=""/>
+			<fx:Object name="ddate" 		label="服务器时间"/>
+			<fx:Object name="hand" 			label="手工输入"/>
+		</s:ArrayCollection>
+		<s:ArrayCollection id="ac_4">
+			<fx:Object name="kong" 			label=""/>
+			<fx:Object name="booltrue" 		label="是"/>
+			<fx:Object name="boolfalse" 	label="否"/>
+		</s:ArrayCollection>
+	</fx:Declarations>
+	<s:ComboBox id="cbbData"  creationComplete="cbbData_creationCompleteHandler(event)" toolTip="{data.idatatypename}" change="cbbData_changeHandler()" top="0" left="2" right="0" bottom="0" dataProvider="{this['ac_'+data.idatatype]}"/>
+</s:MXDataGridItemRenderer>

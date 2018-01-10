@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:basic="yssoft.comps.frame.module.Basic.*"
+				minWidth="493"
+				minHeight="278"
+				close="closePlay()"
+				initialize="init()" width="441" height="260">
+	<mx:Panel id="pan" width="440" height="229" paddingTop="27" textAlign="center" title="{panTitle}" backgroundColor="#097DA8">
+		<mx:VDividedBox width="100%" height="90%" paddingTop="1">
+			<mx:VBox paddingBottom="21" height="125"> 
+				<mx:VBox borderStyle="solid">
+					<mx:Label id="dd" width="418" height="27" color="#FFFFFF"/>
+					<mx:Canvas width="418" height="31" id="soundWave" y="71" x="20" alpha="1.0" click="changeWaveStyle(event)"/>
+				</mx:VBox>
+				
+				<mx:ProgressBar id="pb" width="420" label="0%" minimum="0" maximum="100" labelPlacement="center" mode="manual"/>
+				<mx:HBox width="420">
+					<mx:LinkButton label="播放" id="starts" click="pl()" color="#FFFFFF"/>
+					<mx:LinkButton label="暂停" id="pauses" click="pa()" color="#FFFFFF"/>
+					<mx:LinkButton label="停止" id="stops" click="st()"   color="#FFFFFF"/>
+					<mx:Label text="音量 -" paddingLeft="60" width="96" paddingRight="-10" color="#FFFFFF"/>
+					<mx:HSlider id="volume" width="80" minimum="0" maximum="1"  height="19"
+								value="0.8" change="changeVolume()" />  
+					<mx:Label text="+"  height="26" paddingLeft="-14" color="#FFFFFF"/>
+				</mx:HBox>
+			</mx:VBox>
+			<!--<mx:List id="sounds" width="100%" height="50" textAlign="left" color="#000000" change="handleItem(event);"/>-->
+		</mx:VDividedBox>
+		<!-- <mx:HBox>
+			<mx:Label text="播放顺序" paddingLeft="230" color="#FFFFFF"/>
+			<mx:ComboBox id="seq" height="21" width="105" dataProvider="{sequ}" labelField="label"/>
+		</mx:HBox>-->
+	</mx:Panel>
+	<fx:Style>
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		mx|Application
+		{
+			font-size:14;
+		}
+	</fx:Style>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+ 			
+			import flashx.textLayout.formats.Float;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.osmf.events.TimeEvent;
+			
+			private  var tim:Timer = new Timer(100,0); 
+			private  var wavStyle:int = -36;	//控制显示波形
+			private  var index:int = 0;		//播放顺序
+			
+			import org.as3wavsound.WavSound;
+			import org.as3wavsound.WavSoundChannel;
+			[Bindable]
+			private  var sequ:ArrayCollection =new ArrayCollection ([{label:'单曲循环',value:'circle'},{label:'顺序播放',value:'order'},{label:'随机播放',value:'random'}]);
+			private  var soundList:ArrayCollection = new ArrayCollection();  //歌曲列表
+			private  var pos:Number = 0;  //记录暂定的时间  然后播放从暂停位置开始播放
+			private  var sud:Sound ;  //声音文件
+			private  var scn:SoundChannel = new SoundChannel(); //声音通道，可对声音精确控制
+			
+			
+//			import com.noteflight.standingwave2.formats.WaveFile;
+//			import com.noteflight.standingwave2.output.AudioPlayer;
+
+			
+			
+			[Bindable]
+			public var panTitle:String="";
+			
+		
+			public var filePath="";
+//			private  var tim:Timer = new Timer(100,0); 
+			public var rain:WavSound;
+			public var drumLoop:WavSound;
+			
+			public var playingChannel:WavSoundChannel;
+			
+			private var file:FileReference;
+//			private var player:AudioPlayer;
+
+			
+			/**
+			 * 初始化、加载并开始播放
+			 * */
+			public function init():void{
+				pos = 0;
+				st();
+				pl();
+			}
+			public function closePlay():void{
+				st();
+				PopUpManager.removePopUp(this);
+			}
+			
+			public function loaderror(e:IOErrorEvent):void{
+				mx.controls.Alert.show("文件不存在或者已经转移,请重试。");
+				closePlay();
+				return;
+			}
+			
+			
+			public function completeLoad(evt:Event):void {
+				var wavByteLoader:Loader=new Loader();
+				
+				var content:ByteArray=evt.target.data as ByteArray;
+//				trace(content)
+				drumLoop = new WavSound(content);
+				tim.start();
+				tim.addEventListener(TimerEvent.TIMER,showSoundWave);
+				
+				if(pos == 0){
+					playingChannel=drumLoop.play(0);
+					pb.addEventListener(Event.ENTER_FRAME,ud);
+				}else{
+					playingChannel=drumLoop.play(pos);
+				}
+			}
+				
+
+			/**
+			 * 开始播放,开始显示波形并且监听进度条事件
+			 * */
+			public function pl():void
+			{
+//				var url:URLRequest=new URLRequest("PhoneRecord/2012-12-27/line1/13951353830_144051.wav");
+					var url:URLRequest=new URLRequest(filePath);
+					var loader:URLLoader=new URLLoader();
+					loader.dataFormat=URLLoaderDataFormat.BINARY;
+					
+					loader.addEventListener(Event.COMPLETE,completeLoad);
+					loader.addEventListener(IOErrorEvent.IO_ERROR,loaderror);
+					loader.load(url);
+			}
+			/**
+			 * 暂停播放
+			 * */
+			public function pa():void
+			{
+				pos = playingChannel.position;
+				playingChannel.stop();
+				tim.reset();
+				trace("pauseing the position is "+pos);
+				
+			}
+			
+			/**
+			 * 停止播放
+			 * */
+			public function st():void 
+			{	pos = 0;
+				if(playingChannel!=null){
+				playingChannel.stop();
+				tim.stop();
+				trace("stopping the position is "+pos);
+				}
+			}
+			
+			/**
+			 * 显示波形
+			 * */
+			internal function showSoundWave(evt:TimerEvent):void{
+				var g:Graphics=soundWave.graphics;
+				g.clear();
+				
+				var soundData:ByteArray=new ByteArray();
+				SoundMixer.computeSpectrum(soundData,true,0);
+				g.lineStyle(2,0xffffff,1);
+				
+				for(var i:Number=1;i<420;i+=1){
+					var n:Number=soundData.readFloat();
+					g.lineTo(i,-36*n);
+					g.moveTo(i,wavStyle*n);
+				}
+			}
+			
+			/**
+			 * 播放完后按照顺序播放
+			 * 
+			 * */
+			public function handleSeq(event:Event):void
+			{
+				
+				playSequ();
+			}
+			/**
+			 * 顺序
+			 * */
+			public function playSequ():void
+			{
+			}
+			
+			/**
+			 * 改变波形样式
+			 * */
+			public function changeWaveStyle(event:MouseEvent):void
+			{
+				this.wavStyle = -this.wavStyle;
+			}
+			/**
+			 * 调节音量
+			 * */
+			public function changeVolume():void{   
+				var transform:SoundTransform = playingChannel.soundTransform;   
+				transform.volume = volume.value; 
+				playingChannel.soundTransform.volume = volume.value; 
+				
+			}   
+			/**
+			 * 更新进度条信息
+			 * */
+			public function ud(event:Event):void
+			{		
+				var position:Number=playingChannel.position;
+				var length:Number=drumLoop.length;
+				var percent:Number=Math.round(position*100/length);
+				//	trace("position is "+position +"\n" +"length is " + length + "\n" +"percent is  "+percent);
+				if(isNaN(percent))
+					percent = 0;
+				pb.label=percent.toString()+"%";
+				pb.setProgress(position,length);
+				
+			}
+			/**
+			 * 处理IO错误
+			 * */
+			public function handleError(event:IOErrorEvent):void
+			{
+				mx.controls.Alert.show("文件不存在或者已经转移,请重试。");
+				closePlay();
+				return;
+			}
+		]]>
+	</fx:Script>
+</basic:BasicTitleWindow>

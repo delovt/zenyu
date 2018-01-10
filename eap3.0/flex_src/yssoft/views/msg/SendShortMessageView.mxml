@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!--
+    呼叫中心发送短信界面
+    创建人：王炫皓
+    创建时间 :2014/7/23
+-->
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="600" height="280"
+                        title="{'接收号码：'+phoneNumber}" close="close()" creationComplete="init()"
+
+>
+
+    <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+
+        <mx:HBox width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingBottom="5" paddingTop="20" horizontalAlign="center" verticalAlign="middle" >
+            <mx:TextArea id="messageText" width="100%" height="150" change="messageText_changeHandler(event)"/>
+        </mx:HBox>
+        <mx:HBox width="100%" horizontalAlign="left" paddingLeft="10" paddingRight="10" paddingTop="5">
+            <mx:Label id="mgs" text="{messageLength}" color="#178ea4" fontWeight="bold" />
+        </mx:HBox>
+        <mx:HBox width="100%" height="100%" horizontalAlign="right" paddingLeft="10" paddingRight="10" >
+            <mx:Button id="sendMessage" label="发送" click="sendMessage_clickHandler(event)"/>
+            <mx:Button id="sendClose" label="取消" click="close_clickHandler(event)"/>
+        </mx:HBox>
+    </mx:VBox>
+
+
+    <fx:Script>
+        <![CDATA[
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.vos.AbSmsVo;
+
+        [Bindable]
+        public var messageLength:String = "共： 0  字" ;
+        [Bindable]
+        public var phoneNumber:String = ""; //联系人电话
+        public var custName:String =""; //经销商名称
+        public var personName:String =""; //联系人姓名
+        public  var address:String =""; //联系人地址
+        /**
+         * 发送短信
+         * @param event
+         */
+        private function sendMessage_clickHandler(event:MouseEvent):void {
+            var abSmsVo:AbSmsVo = new AbSmsVo();
+            abSmsVo.ifuncregedit = 578
+            abSmsVo.imaker = CRMmodel.hrperson.iid;
+            abSmsVo.ccusname = custName;
+            abSmsVo.cmobile = phoneNumber;
+            abSmsVo.cdetail = messageText.text;
+            AccessUtil.remoteCallJava("SendMessageDest", "SendMessageLT", function (evt:ResultEvent):void {
+                if(evt.result == "发送短信成功"){
+                    CRMtool.showAlert("发送短信成功");
+                }else{
+                    CRMtool.showAlert("发送短信失败");
+                }
+            }, abSmsVo);
+            CRMtool.closeView(this);
+        }
+
+        private function close_clickHandler(event:Event):void {
+            CRMtool.closeView(this);
+        }
+
+        private function messageText_changeHandler(event:Event):void {
+            if(messageText.length > 402){
+               CRMtool.showAlert("短信内容, 最大402个字符！");
+            }
+            messageLength ="共： "+messageText.length+" 字";
+        }
+        private function init():void{
+            messageText.text=" 经销商："+custName+" 联系人："+personName+" 电话："+phoneNumber+" 地址："+address;
+            messageLength ="共： "+messageText.length+" 字";
+        }
+        ]]>
+    </fx:Script>
+</basic:BasicTitleWindow>

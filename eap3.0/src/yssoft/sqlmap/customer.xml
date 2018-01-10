@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+    <!-- 更新客户资产表信息 -->
+    <update id="updateCsproductIcontract" parameterClass="java.util.HashMap">
+		update cs_custproduct set icontract=#iorder#,istatus = 2 where iid=#icustproduct#
+	</update>
+
+    <!-- 更新客户资产表信息 -->
+    <update id="updateCsProductWithOrder" parameterClass="java.util.HashMap">
+        <!-- 		update cs_custproduct set dsbegin = dsend where iid=#icustproduct#; -->
+
+        update cs_custproduct set dsend=#dsend#,
+        iscstatus = #iscstatus#,
+        irefuse = #irefuse#,
+        dservicedate = #ddate#,
+        ichargestype = #iproduct#,
+        fservicecharge = #fsum#,
+        icustperson = #icustperson#,
+        iserviceperson = #iperson#,
+        igroupservices = #igroupservices#,
+        dgroupend = #dgroupend#,
+        icount=icount+1
+        where iid=#icustproduct#;
+
+        update cs_custproduct set icount=2 where icount>2
+    </update>
+
+    <update id="updateCsProductWithOrderNoDate" parameterClass="java.util.HashMap">
+        <!-- 		update cs_custproduct set dsbegin = dsend where iid=#icustproduct#; -->
+
+        update cs_custproduct set
+        iscstatus = #iscstatus#,
+        irefuse = #irefuse#,
+        ichargestype = #iproduct#,
+        fservicecharge = #fsum#,
+        icustperson = #icustperson#,
+        iserviceperson = #iperson#,
+        igroupservices = #igroupservices#,
+        dgroupend = #dgroupend#,
+        icount=icount+1
+        where iid=#icustproduct#;
+
+        update cs_custproduct set icount=2 where icount>2
+    </update>
+
+
+    <!-- 增加客商资产 主 -->
+    <insert id="addCsProduct" parameterClass="java.util.HashMap">
+        insert into cs_custproduct
+        (ifuncregedit,iinvoice,
+        icustomer,iproduct,csn,
+        dcontract,dsend,igroupservices,dgroupend,fsum,
+        iscstatus,istatus,icount,
+        imaker,dmaker,forderfsum)
+        select #ifuncregedit#,#iinvoice#,#icustomer#,#iproduct#,#csn#,
+        ddate,dsend,igroupservices,dgroupend,sc_orders.ftaxquotedprice,
+        #iscstatus#,#istatus#,0,#imaker#,#dmaker#,sc_orders.ftaxsum
+        from sc_order
+        left join sc_orders on sc_orders.iorder = sc_order.iid
+        where sc_order.iid=#orderiid# and sc_orders.iproduct = #iproduct#
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 增加客商资产 子 -->
+    <insert id="addCsProducts" parameterClass="java.util.HashMap">
+        insert into
+        cs_custproducts
+        (icustproduct,iproduct,fquantity,istate,irdrecordsbom,fprice)
+        values(
+        #icustproduct#,#iproduct#,#fquantity#,#istate#,#iid#,#fprice#
+        )
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 累加资产 标准金额-->
+    <update id="addCsProductFsum" parameterClass="java.util.HashMap">
+     update cs_custproduct set fsum=fsum+(select sc_ordersbom.fprice from sc_ordersbom 
+      left join sc_rdrecord on sc_rdrecord.iinvoice = sc_ordersbom.iorders
+      left join sc_rdrecordsbom on sc_rdrecordsbom.irdrecords = sc_rdrecord.iid
+      where sc_rdrecordsbom.iid = #irdrecordsbom# and sc_ordersbom.iproduct = sc_rdrecordsbom.iproduct)  where iid=#icustproduct#
+	</update>
+
+
+    <!-- 查看由此单据生成的客商资产-->
+    <select id="getCsProductWithScRdrecord" parameterClass="java.util.HashMap"
+            resultClass="java.util.HashMap">
+        select iid from cs_custproduct where ifuncregedit =#ifuncregedit# and
+        iinvoice = #iinvoice#
+        <isNotEmpty prepend="and" property="csn">
+            csn=#csn#
+        </isNotEmpty>
+    </select>
+
+    <!-- 查找给定加密狗号的 客商资产-->
+    <select id="getCsProductWithCsn" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select iid from cs_custproduct where csn =#csn# and iproduct = #iproduct# and icustomer=#icustomer#
+	</select>
+
+    <!-- 查找给定主表id，模块内码， 客商资产模块-->
+    <select id="getCsProductbomWithIcsproductAndBomiproduct" parameterClass="java.util.HashMap"
+            resultClass="java.util.HashMap">
+		select iid,iproduct,fquantity from CS_custproducts where icustproduct =#icustproduct# and iproduct=#iproduct#
+	</select>
+
+    <!-- 查找给定主表id， 客商资产模块-->
+    <select id="getCsProductbomWithIcsproduct" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select iid,iproduct,fquantity from CS_custproducts where icustproduct =#icustproduct#
+	</select>
+
+    <!-- 查找给定 出库单模块表 内码， 客商资产模块-->
+    <select id="getCsProductbomWithIrdrecordsbom" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select iid,icustproduct,iproduct,fquantity from CS_custproducts where irdrecordsbom =#irdrecordsbom#
+	</select>
+
+    <!-- 更新模块 的数量 及状态-->
+    <update id="updateCustproductsFquantity" parameterClass="java.util.HashMap">
+		update CS_custproducts set fquantity=#fquantity#，istate=#istate# where iid !=#iid#
+	</update>
+
+    <!-- 删除由此单据生成的客商资产 -->
+    <delete id="delCsProductWithScRdrecord" parameterClass="java.util.HashMap">
+		delete cs_custproducts where icustproduct=(select iid from cs_custproduct where ifuncregedit =#ifuncregedit# and iinvoice = #iinvoice#)
+		delete cs_custproduct where iid=(select iid from cs_custproduct where ifuncregedit =#ifuncregedit# and iinvoice = #iinvoice#)		
+	</delete>
+
+    <!-- 删除给定id的客户资产表 -->
+    <delete id="delCsProductWithiid" parameterClass="java.util.HashMap">
+		delete cs_custproduct where iid =#icustproduct#
+	</delete>
+
+    <delete id="deletesc_orderapportionsByiorder" parameterClass="java.util.HashMap">
+        delete sc_orderapportions where iorder =#iorder#
+    </delete>
+
+    <!-- 删除由此单据生成的客商资产bom -->
+    <delete id="delCsProducBomtWithIrdrecordsbom" parameterClass="java.util.HashMap">
+		delete cs_custproducts where irdrecordsbom =#irdrecordsbom#
+	</delete>
+
+    <!-- 消减资产 标准金额--> <!-- 20141204 SZC 修改-->
+    <update id="minusCsProductFsum" parameterClass="java.util.HashMap">
+	    update
+		cs_custproduct set fsum=fsum-(
+		SELECT fprice from sc_orders where iorder=(SELECT iinvoice FROM SC_rdrecord 
+		where iid=(SELECT irdrecords FROM sc_rdrecordsbom where iid = #irdrecordsbom#)) AND iproduct=#iproductp#
+		) where iid=#icustproduct#
+		<!-- update
+		cs_custproduct set fsum=fsum-(select sc_ordersbom.fprice from
+		sc_ordersbom
+		left join sc_rdrecord on sc_rdrecord.iinvoice = sc_ordersbom.iorders
+		left join sc_rdrecordsbom on sc_rdrecordsbom.irdrecords = sc_rdrecord.iid
+		where sc_rdrecordsbom.iid = #irdrecordsbom# and sc_ordersbom.iproduct
+		= sc_rdrecordsbom.iproduct) where iid=#icustproduct# -->
+	</update>
+
+    <!-- 去掉 某客商所有主联系人-->
+    <select id="getCustMainPerson" parameterClass="int" resultClass="java.util.HashMap" remapResults="true">
+		select iid from cs_custperson where bkeycontect =1 and icustomer = #icustomer#
+	</select>
+
+    <!-- 设置此客户的非当前联系人的 主联系人字段 为0 -->
+    <update id="updateCustperson" parameterClass="java.util.HashMap">
+		update cs_custperson set bkeycontect=0 where icustomer=#icustomer# and iid !=#iid#
+	</update>
+
+    <!-- 更新客商档案表的主联系人字段  为现在传入的 -->
+    <update id="updateCustomer" parameterClass="java.util.HashMap">
+		update cs_customer set ckeycontacts=#cname# where iid=#icustomer#
+	</update>
+
+    <!-- 更新销售商机 -->
+    <update id="updateOpportunity" parameterClass="java.util.HashMap">
+		update sa_opportunity set dfact=#dfact#,
+		 ffact = #ffact#,
+		 icompetitor = #icompetitor#,
+		 cbidanalyze = #cbidanalyze#,
+		 istatus = #istatus#
+		where iid=#iid#
+	</update>
+
+    <!-- 获取销售漏斗的数据 -->
+    <select id="getFunnelDate" resultClass="java.util.HashMap"
+            parameterClass="java.util.HashMap">
+        <!--select sa_opportunity.iid,ab_processs.cname as iphase_cname,aa_data.cname as
+        istatus_cname,
+        hr_person.cname as iperson_name,sa_opportunity.idepartment,hr_department.cname as idepartment_cname,
+        ab_processs.ino,fforecast,fprobability,sa_opportunity.cname as
+        opportunity_cname,sa_opportunity.dforecast,hr_department.ccode as dccode,
+        cs_customer.cname as customer_cname
+        from sa_opportunity
+        left join ab_processs on sa_opportunity.iphase = ab_processs.iid
+        left join aa_data on sa_opportunity.istatus = aa_data.iid
+        left join hr_person on sa_opportunity.iperson = hr_person.iid
+        left join hr_department on sa_opportunity.idepartment = hr_department.iid
+        left join cs_customer on sa_opportunity.icustomer = cs_customer.iid
+        where 1=1-->
+         select sa_opportunity.iid,ab_processs.cname as iphase_cname,aa_data.cname as         istatus_cname,  
+        hr_person.cname as iperson_name,sa_opportunity.idepartment,hr_department.cname as idepartment_cname,    
+        ab_processs.ino,fforecast,fprobability,sa_opportunity.cname as         opportunity_cname,sa_opportunity.dforecast,
+        hr_department.ccode as dccode,         cs_customer.cname as customer_cname    ,sa_opportunity.istatus,cs_customer.isalesregionName as sregion_cname,
+        case sa_opportunity.isjstatus when 0 then '未审核' when 1 then '已审核' when 2 then '已关闭'  end  cstatus_cname
+           from sa_opportunity  
+        left join ab_processs on sa_opportunity.iphase = ab_processs.iid      
+        left join aa_data on sa_opportunity.istatus = aa_data.iid         
+        left join hr_person on sa_opportunity.iperson = hr_person.iid        
+        left join hr_department on sa_opportunity.idepartment = hr_department.iid      
+        left join (select cs_customer.iid,cs_customer.cname,cs_customer.isalesregion,aa_data.cname isalesregionName from cs_customer left join aa_data on cs_customer.isalesregion=aa_data.iid)cs_customer on sa_opportunity.icustomer = cs_customer.iid   
+        where 1=1     
+                           
+        <isNotEmpty prepend="and" property="eddate">
+            sa_opportunity.dforecast &lt;=#eddate#
+        </isNotEmpty>
+        
+        <isNotEmpty prepend="and" property="sddate">
+            sa_opportunity.dforecast >= #sddate#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="idepartment">
+            sa_opportunity.idepartment in(
+            select iid from hr_department
+            where ccode like (select ccode from hr_department where
+            iid=#idepartment#)+'%')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="iperson">
+            sa_opportunity.iperson=#iperson#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="isPauseNo">
+            sa_opportunity.istatus not in (342,343,344)
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="isSuccessNo">
+            sa_opportunity.istatus not in (341)
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="isjstatus">
+            sa_opportunity.isjstatus =#isjstatus#
+        </isNotEmpty>
+           <isNotEmpty prepend="and" property="isalesregion">
+            cs_customer.isalesregion =#isalesregion#
+        </isNotEmpty>
+        $authSql$ order by ab_processs.ino,sa_opportunity.iperson,sa_opportunity.dforecast
+    </select>
+
+    <!-- 获取销售漏斗的数据 -->
+    <select id="getJieduan" resultClass="java.util.HashMap"
+            parameterClass="java.util.HashMap">
+        select cname,fpercent from ab_processs
+        where iprocess=(select iprocess from ab_processs where iid=(select top 1 iphase from sa_opportunity where iphase is not null))
+        order by ino
+	</select>
+
+    <!-- 获取客商活动的数据 -->
+    <select id="getWorkdiaryDate" resultClass="java.util.HashMap"
+            parameterClass="java.util.HashMap">
+        select * from(
+            select a.iid,a.icustomer,b.cname customer_name,b.iaddress,c.cname address_name,b.cofficeaddress,h.iinvoice,h.ccode,h.cname opportunity,
+            a.imaker,e.cname maker,a.dbegin,f.cname style,a.icustperson,d.cname custperson,d.cdepartment,d.cpost,ctel,cmobile1,
+            a.cdetail,a.dmessage,a.cmessage,a.inexstyle,g.cname cnexstyle
+            from OA_workdiary a
+            left join (select iid,cname,iaddress,cofficeaddress from cs_customer) b on a.icustomer=b.iid
+            left join (select iid,cname from aa_data where iclass=3) c on b.iaddress = c.iid
+            left join (select iid,cname,cdepartment,cpost,ctel,cmobile1 from cs_custperson) d on a.icustperson=d.iid
+            left join (select iid,cname from hr_person) e on a.imaker = e.iid
+            left join (select iid,cname from aa_data) f on a.istyle=f.iid
+            left join (select iid,cname from aa_data) g on a.inexstyle=g.iid
+            left join (select a.iid,a.iinvoice,b.ccode,b.cname from OA_workdiary a
+            left join sa_opportunity b on a.iinvoice = b.iid where a.ifuncregedit = 80
+            ) h on a.iid = h.iid
+            where a.iifuncregedit=46 and a.dmessage is not null
+        )oa_workdiary where 1=1
+        <isNotEmpty prepend="and" property="iaddress"><!-- 地理区域 -->
+            iaddress = #iaddress#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="imaker"><!-- 活动跟进人员 -->
+            imaker = #imaker#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="cnexstyle"><!-- 计划方式 -->
+            cnexstyle = #cnexstyle#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="sddate"><!-- 提醒开始日期 -->
+            dmessage >= #sddate#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="eddate"><!-- 提醒结束日期 -->
+            dmessage &lt;=#eddate#
+        </isNotEmpty>
+        $authSql$ order by dmessage
+    </select>
+
+    <!-- 查找在客户档案及黄页客户档案中存在的记录-->
+    <select id="getCsAndMrCustomerByCname" parameterClass="String" resultClass="java.util.HashMap">
+	select iid from cs_customer where cname = #cname#
+	union
+	select iid from mr_customer where cname = #cname#
+	</select>
+
+    <!-- 更新销售商机 -->
+    <update id="updateOpportunityIstatusAndIphase" parameterClass="java.util.HashMap">
+		update sa_opportunity set istatus=341,dfact=#dfact#,ffact=#ffact#,iphase=(select top 1 iid from ab_processs where iprocess=10 order by ino desc),
+		fprobability = (select top 1 fpercent from ab_processs where iprocess=10 order by ino desc)
+		where iid=#iid#
+	</update>
+	<!-- 修改合同时更新销售商机实际成交金额 -->
+	 <update id="updateOrderSaveUpdateOpportunity" parameterClass="java.util.HashMap">
+		update sa_opportunity set dfact=#dfact#,ffact=#ffact#  where iid=#iid#
+	</update>
+
+    <select id="getOpportunityIphase" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select iphase from sa_opportunity where iid=#iid#
+	</select>
+
+    <select id="getLastIphase" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select top 1 iid from ab_processs where iprocess=10 order by ino desc
+	</select>
+
+    <insert id="addAbinvoiceprocess" parameterClass="java.util.HashMap">
+        insert into ab_invoiceprocess
+        (ifuncregedit,iinvoice,iprocess,fpercent,ddate,dmaker,imaker,iifuncregedit)
+        select top 1
+        80,#iid#,iid,fpercent,#ddate#,#ddate#,#imaker#,258
+        from ab_processs where iprocess=10 order by ino desc
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <insert id="addsc_orderapportions" parameterClass="java.util.HashMap">
+        insert into sc_orderapportions
+        (iorder,ictrpclose,ddate,icorp,idepartment,iperson,crole,cdetail,fpercent,fmoney,imaker,dmaker)
+        values
+        (#iorder#,#ictrpclose#,#ddate#,#icorp#,#idepartment#,#iperson#,#crole#,#cdetail#,#fpercent#,#fmoney#,#imaker#,#dmaker#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 查找给定加密狗号的 入库单-->
+    <select id="checkCsnIn" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from sc_rdrecords
+left join sc_rdrecord on sc_rdrecords.irdrecord = sc_rdrecord.iid
+where sc_rdrecord.iifuncregedit =231 and csn=#csn# and iproduct=#iproduct#
+	</select>
+
+    <!-- 查找给定加密狗号的 出库单-->
+    <select id="checkCsnUse" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from sc_rdrecords
+left join sc_rdrecord on sc_rdrecords.irdrecord = sc_rdrecord.iid
+where sc_rdrecord.iifuncregedit =228 and csn=#csn# and iproduct=#iproduct# and sc_rdrecords.iid!=isnull(#iid#,0)
+	</select>
+
+    <!-- 查找给定iid的 出库单-->
+    <select id="checkIsSelf" parameterClass="int" resultClass="java.util.HashMap">
+        select isnull(fquantity,0) fquantity,iproduct from sc_rdrecords
+        where irdrecord=#iid#
+    </select>
+    
+    <select id="queryCvalue" resultClass="string">
+    	select isnull(cvalue,0) as cvalue from as_options where iid=92
+    </select>
+    
+    <select id="queryStock" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+    	select sc_warehouse.cname cwname,sc_rdrecords.iwarehouse,sc_rdrecords.iproduct,
+		sc_product.cname cpname,fin,fout,fnet from (select iwarehouse,iproduct,sum(fin) fin,
+		sum(fout) fout,sum(isnull(fin,0))-sum(isnull(fout,0)) fnet 
+		from (select iwarehouse,iproduct,case sc_rdrecord.iproperty   
+		when 1 then  fquantity else 0 end fin,
+		case  sc_rdrecord.iproperty  when 2 then  fquantity else 0 end fout
+		from sc_rdrecords left join sc_rdrecord on sc_rdrecord.iid=sc_rdrecords.irdrecord 
+		) 
+		sc_rdrecords group by iwarehouse,iproduct ) sc_rdrecords left join sc_warehouse
+		 on sc_rdrecords.iwarehouse=sc_warehouse.iid left join sc_product 
+		on sc_rdrecords.iproduct=sc_product.iid  where sc_rdrecords.iwarehouse=#iwarehouse#
+		  and   sc_rdrecords.iproduct in ($iproducts$)
+    </select>
+    <select id="queryDate" resultClass="string" parameterClass="java.util.HashMap">
+        select convert(varchar(100),dsend,120)dsend from cs_custproduct where iid=#icustproduct#;
+    </select>
+</sqlMap>

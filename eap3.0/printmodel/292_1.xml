@@ -1,0 +1,583 @@
+<ReportSettings version="1.1">
+  <PageWidth>40</PageWidth>
+  <PageHeight>21</PageHeight>
+  <LeftMargin>0.5</LeftMargin>
+  <RightMargin>0.5</RightMargin>
+  <TableHeaderRepeat>true</TableHeaderRepeat>
+  <AdjustPrintDirection>true</AdjustPrintDirection>
+  <FitToPrintSize>true</FitToPrintSize>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>部门人员回款月报表</Value>
+          <Width>36.9</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>2.5</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Width>5.6</Width>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>统计年份：</Value>
+          <Width>2.5</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>=Parameters!日期1.Value</Value>
+          <Width>14.3</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.9</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>部门</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>人员</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>7月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>8月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>9月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>10月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>11月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>12月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>部门</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+          <MergeSameContent>true</MergeSameContent>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>人员</BindingColumn>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月1.Value==0,"",Fields!月1.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月2.Value==0,"",Fields!月2.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月3.Value==0,"",Fields!月3.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月4.Value==0,"",Fields!月4.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月5.Value==0,"",Fields!月5.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月6.Value==0,"",Fields!月6.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月7.Value==0,"",Fields!月7.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月8.Value==0,"",Fields!月8.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月9.Value==0,"",Fields!月9.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月10.Value==0,"",Fields!月10.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月11.Value==0,"",Fields!月11.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Fields!月12.Value==0,"",Fields!月12.Value)</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>合计</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableFooterSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月1.Value)==0,"",Sum(Fields!月1.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月2.Value)==0,"",Sum(Fields!月2.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月3.Value)==0,"",Sum(Fields!月3.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月4.Value)==0,"",Sum(Fields!月4.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月5.Value)==0,"",Sum(Fields!月5.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月6.Value)==0,"",Sum(Fields!月6.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月7.Value)==0,"",Sum(Fields!月7.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月8.Value)==0,"",Sum(Fields!月8.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月9.Value)==0,"",Sum(Fields!月9.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月10.Value)==0,"",Sum(Fields!月10.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月11.Value)==0,"",Sum(Fields!月11.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!月12.Value)==0,"",Sum(Fields!月12.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!合计.Value)==0,"",Sum(Fields!合计.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>0.##</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <GroupColumn>部门</GroupColumn>
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+      <Enabled>true</Enabled>
+      <TableGroupFooterSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting">
+              <Value>小计</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月1.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月1.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月2.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月2.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月3.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月3.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月4.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月4.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月5.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月5.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月6.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月6.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月7.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月7.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月8.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月8.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月9.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月9.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月10.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月10.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月11.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月11.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!月12.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!月12.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Sum(Fields!合计.Value,GroupStartIndex(),GroupEndIndex())==0,"",Sum(Fields!合计.Value,GroupStartIndex(),GroupEndIndex()))</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableGroupFooterSettings>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

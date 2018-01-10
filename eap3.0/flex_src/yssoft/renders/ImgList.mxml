@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%" autoDrawBackground="true"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)" >
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import yssoft.models.ConstsModel;
+
+			
+			[Bindable]
+			public var item:Object;
+			
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				if (item.hasOwnProperty("cfeedback"))
+				{
+					this.img_icon.source=ConstsModel.png_menu3;
+				}
+				else
+				{
+					this.img_icon.source=ConstsModel.png_menu1;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" paddingLeft="11"  paddingRight="10">
+		<mx:HBox width="100%" height="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Image id="img_icon" width="10"/>
+			<mx:Text id="lbl_cdetail" text="{item.cname}" width="100%" paddingLeft="2" paddingRight="2"/>
+		</mx:HBox>
+	</mx:VBox>		
+</s:ItemRenderer>

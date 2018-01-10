@@ -1,0 +1,934 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 按照角色的父节点查询 -->
+	<insert id="wf.insertOAinvoice" parameterClass="yssoft.vos.OAinvoiceVo">
+		insert into oa_invoice(ifuncregedit,iinvoice,csubject,icustomer,dfinished,bplan,cdetail,baddnew,bsendnew,istatus,isendnew,csendnew)
+		values(#ifuncregedit#,#iinvoice#,#csubject#,#icustomer#,#dfinished#,#bplan#,#cdetail#,#baddnew#,#bsendnew#,#istatus#,#isendnew#,#csendnew#)
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+	</insert>
+	<!-- 修改 oa 信息 -->
+	<update id="wf.updateOAinvoice" parameterClass="yssoft.vos.OAinvoiceVo">
+		update oa_invoice set ifuncregedit=#ifuncregedit#,csubject=#csubject#,icustomer=#icustomer#,
+	              dfinished=#dfinished#,bplan=#bplan#,cdetail=#cdetail#,baddnew=#baddnew#,istatus=#istatus#,csendnew=#csendnew#,isendnew=#isendnew#
+		where iid=#iid#
+	</update>
+	<!-- 插入工作流节点 -->
+    <insert id="wf.insertWorkFlowNode" parameterClass="yssoft.vos.WfNodeVo">
+        insert into wf_node
+        (ipid,inodeid,ipnodeid,ioainvoice,inodetype,inodevalue,inodeattribute,inodemode,bfinalverify,baddnew,bsendnew,istatus,cnotice,inodelevel,ccomefield,bavailable,cexecsql,iistatus)
+        values
+        (#ipid#,#inodeid#,#ipnodeid#,#ioainvoice#,#inodetype#,#inodevalue#,#inodeattribute#,#inodemode#,#bfinalverify#,#baddnew#,#bsendnew#,#istatus#,#cnotice#,#inodelevel#,#ccomefield#,#bavailable#,#cexecsql#,#iistatus#)
+        <selectKey resultClass="int" keyProperty="iid">
+            select @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+	
+	<!-- 插入工作流节点的详细信息,节点类型 0（无） 人员-->
+	<select id="wf.insertNodeDetail0" parameterClass="java.util.HashMap" >
+		
+	</select>
+
+    <!--
+        LC 20160229 修改
+        流程设置中，把离职的人员过滤掉
+     -->
+
+	<!-- 插入工作流节点的详细信息,节点类型 1 部门-->
+	<select id="wf.selectNodeDetail1" parameterClass="string" resultClass="java.util.HashMap" >
+		select p.iid,'-1' ipid,p.ccode,p.cname from hr_person p where p.bjobstatus =1 and p.idepartment=#nodeValue#
+	</select>
+	<!-- 插入工作流节点的详细信息,节点类型 2 角色，分三类，部门主管，分管主管，分管领导-->
+	<!-- 部门主管 -->
+	<select id="wf.selectUserRole2" parameterClass="string" resultClass="java.util.HashMap" >
+		select h.iid,h.ccode,h.cname,'-1' ipid from  hr_department d 
+		left join  hr_person h on  d.ihead = h.iid  
+		where h.bjobstatus =1 and d.iid in ( select p.idepartment from hr_person p where p.iid=#personiid# )
+	</select>
+	<!-- 分管主管 -->
+	<select id="wf.selectUserRole3" parameterClass="string" resultClass="java.util.HashMap" >
+		select h.iid,h.ccode,h.cname,'-1' ipid from  hr_department d 
+		left join  hr_person h on  d.icharge = h.iid  
+		where h.bjobstatus =1 and d.iid in ( select p.idepartment from hr_person p where p.iid=#personiid# )
+	</select>
+	<!-- 分管领导 -->
+	<select id="wf.selectUserRole4" parameterClass="string" resultClass="java.util.HashMap" >
+		select h.iid,h.ccode,h.cname,'-1' ipid from  hr_department d 
+		left join  hr_person h on  d.ilead = h.iid  
+		where h.bjobstatus =1 and d.iid in ( select p.idepartment from hr_person p where p.iid=#personiid# )
+	</select>
+	<!-- 全部人员 -->
+	<select id="wf.selectUserRole5" parameterClass="string" resultClass="java.util.HashMap" >
+		select iid,ccode,cname,'-1' ipid from hr_person where bjobstatus=1 and busestatus=1
+	</select>
+	
+	<!-- 插入工作流节点的详细信息,节点类型 3 岗位-->
+	<select id="wf.selectNodeDetail3" parameterClass="string" resultClass="java.util.HashMap" >
+		select p.iid,'-1' ipid,p.ccode,p.cname from hr_person p where p.bjobstatus =1 and p.ijob1=#nodeValue# or p.ijob2=#nodeValue#
+	</select>
+	<!-- 插入工作流节点的详细信息,节点类型 4 职位-->
+	<select id="wf.selectNodeDetail4" parameterClass="string" resultClass="java.util.HashMap" >
+		select p.iid,'-1' ipid,p.ccode,p.cname from hr_person p where p.bjobstatus =1 and p.ipost = #nodeValue#
+	</select>
+	
+	<!-- 根据nodetype 来获取 组织信息 -->
+	<!-- 部门 -->
+	<select id="wf.selectNodeType1" resultClass="java.util.HashMap" >
+		<!--select d.iid,d.ipid,d.cname from hr_department d-->
+        select iid, ipid, ccode, cname from HR_department
+        where 1=1 and isnull(istatus,0)!=2   order by ccode
+	</select>
+	<!-- 角色，废弃了 -->
+	<select id="wf.selectNodeType2" resultClass="java.util.HashMap" >
+		select r.iid,r.ipid,r.ccode,r.cname from as_role r where r.buse = 1
+	</select>
+	<!-- 岗位 -->
+	<select id="wf.selectNodeType3" resultClass="java.util.HashMap" >
+        select j.iid,'-1' ipid,j.ccode,j.cname from hr_job j left join hr_department d on j.idepartment=d.iid
+        where isnull(d.istatus,0)!=2   order by d.ccode,j.ccode
+	</select>
+	<!-- 职位 -->
+	<select id="wf.selectNodeType4" resultClass="java.util.HashMap" >
+		select p.iid,'-1' ipid,p.ccode,p.cname from hr_post p  order by ccode
+	</select>
+	
+	<!-- 获取组织对应的 详细人员信息 -->
+	<!-- 部门 -->
+	<insert id="wf.insertNodeDetail1" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person where idepartment=#nodeValue#
+	</insert>
+	<!-- 角色 比较特殊 部门主管，分管主管，分管领导 -->
+	<insert id="wf.insertNodeDetail2" parameterClass="java.util.HashMap">
+		
+	</insert>
+	
+	<!-- 发起人 -->
+	<insert id="wf.insertRoleNodeDetail1" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		values
+		(#ioainvoice#,#inodeid#,#istatus#,#personiid# )
+		
+		<!--	select #ioainvoice#,#inodeid#,#istatus#,#personiid# 
+				from hr_person where iid in (select ihead from hr_department where iid in (select idepartment from hr_person where iid=#personiid#))-->
+	</insert>
+	
+	<!-- 部门主管 -->
+	<insert id="wf.insertRoleNodeDetail2" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person where iid in (select ihead from hr_department where iid in (select idepartment from hr_person where iid=#personiid#))
+	</insert>
+	<!-- 分管主管 -->
+	<insert id="wf.insertRoleNodeDetail3" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person where iid in (select icharge from hr_department where iid in (select idepartment from hr_person where iid=#personiid#))
+	</insert>
+	<!-- 分管领导 -->
+	<insert id="wf.insertRoleNodeDetail4" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person where iid in (select ilead from hr_department where iid in (select idepartment from hr_person where iid=#personiid#))
+	</insert>
+	<!-- 全部人员 -->
+	<insert id="wf.insertRoleNodeDetail5" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person where bjobstatus=1 and busestatus=1
+	</insert>
+
+	<!-- 表单协同，角色 部门 6  -->
+	<insert id="wf.insertRoleNodeDetail6" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person 
+		where idepartment = ( 
+			select top 1 idepartment from hr_person where  iid = #iperson# 
+		) and bjobstatus=1 and busestatus=1
+	</insert>
+	
+	<!-- 表单协同，角色 岗位 7  -->
+	<insert id="wf.insertRoleNodeDetail7" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#, iid from (
+			select iid from hr_person where bjobstatus=1 and busestatus=1 and ijob1 = #ijob1#
+			union
+			select iid from hr_person where bjobstatus=1 and busestatus=1 and ijob2 = #ijob1#
+			union
+			select iid from hr_person where bjobstatus=1 and busestatus=1 and ijob1 = #ijob2#
+			union
+			select iid from hr_person where bjobstatus=1 and busestatus=1 and ijob2 = #ijob2#
+		) a
+	</insert>
+	<!-- 表单协同，角色 职位 8  -->
+	<insert id="wf.insertRoleNodeDetail8" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person where ipost = (
+			select top 1 ipost from hr_person where  iid = #iperson# 
+		) and bjobstatus=1 and busestatus=1
+	</insert>
+	
+	
+	
+	
+	
+	
+	<!-- 岗位 -->
+	<insert id="wf.insertNodeDetail3" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person where ijob1=#nodeValue# or ijob2=#nodeValue#
+	</insert>
+	<!-- 职位 -->
+	<insert id="wf.insertNodeDetail4" parameterClass="java.util.HashMap">
+		insert into wf_nodes (ioainvoice,inodeid,istatus,iperson) 
+		select #ioainvoice#,#inodeid#,#istatus#,iid from hr_person where ipost=#nodeValue#
+	</insert>
+	
+	<!-- 根据 协同 iid 来获取 指定协同信息 -->
+	<select id="wf.getWorkFlow" parameterClass="int" resultClass="yssoft.vos.OAinvoiceVo" >
+		select oa.iid,oa.csubject,oa.icustomer,cs.cname customername,oa.bplan,oa.baddnew,oa.bsendnew,
+		oa.istatus,oa.cdetail,ab.imaker,hr.cname maker,convert(varchar,ab.dmaker,120) dmaker,convert(varchar(10),oa.dfinished,120) dfinished,
+		ab.iid abiid,oa.csendnew,oa.isendnew
+		from oa_invoice oa 
+		left join ab_invoiceproperty ab on oa.iid=ab.iinvoice
+		left join cs_customer cs on oa.icustomer=cs.iid
+		left join hr_person hr on ab.imaker=hr.iid
+		where oa.iid=#iid#
+	</select>
+	<!-- 获取当前登录用户的工作流（协同）信息 -->
+	<select id="wf.getWorkFlows" parameterClass="int" resultClass="java.util.HashMap" >
+		select oa.iid,oa.csubject,ab.imaker,convert(varchar,ab.dmaker,120) dmaker,convert(varchar(10),oa.dfinished,120) dfinished,oa.istatus,p.cname pcname from oa_invoice oa 
+		left join ab_invoiceproperty ab on oa.iid=ab.iinvoice 
+		left join hr_person p on ab.imaker=p.iid
+		where ab.ifuncregedit=10 and ab.imaker=#personiid#
+	</select>
+	<!-- 分页处理 -->
+	<select id="wf.getWorfFlowsPage" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" remapResults="true">
+		select * from (select top $pagesize$ * from (select top $topsize$ oa.iid,oa.csubject,ab.imaker,convert(varchar,ab.dmaker,120) dmaker,convert(varchar(10),oa.dfinished,120) dfinished,oa.istatus,p.cname pcname 
+		from oa_invoice oa 
+		left join ab_invoiceproperty ab on oa.iid=ab.iinvoice 
+		left join hr_person p on ab.imaker=p.iid
+		where ab.ifuncregedit=10 and ab.imaker=#personiid# ) as table1 order by table1.iid desc) as table2 order by table2.iid desc
+	</select>
+	<select id="wf.getWorfFlowsPage_sum" resultClass="int" parameterClass="java.util.HashMap">
+		select count(*)
+		from oa_invoice oa 
+		left join ab_invoiceproperty ab on oa.iid=ab.iinvoice 
+		left join hr_person p on ab.imaker=p.iid
+		where ab.ifuncregedit=10 and ab.imaker=#personiid#
+	</select>
+	
+	
+	
+	
+	<!-- 获取指定工作流节点信息 -->
+	<select id="wf.getWorkFlowNodes" parameterClass="int" resultClass="java.util.HashMap">
+		select n.*,p.cname from wf_node n 
+		left join hr_person p on n.inodevalue=p.iid
+		where n.ioainvoice=#ioainvoice# and n.inodetype=0
+		union
+		select n.*,d.cname from wf_node n 
+		left join hr_department d on n.inodevalue=d.iid 
+		where n.ioainvoice=#ioainvoice# and n.inodetype=1
+		union
+		select n.*,dbo.getWFRelativeRoleName(n.inodevalue) cname from wf_node n
+		where n.ioainvoice=#ioainvoice# and n.inodetype=2
+		union
+		select n.*,j.cname from wf_node n 
+		left join hr_job j on n.inodevalue=j.iid 
+		where n.ioainvoice=#ioainvoice# and n.inodetype=3
+		union
+		select n.*,p.cname from wf_node n 
+		left join hr_post p on n.inodevalue=p.iid 
+		where n.ioainvoice=#ioainvoice# and n.inodetype=4
+	</select>
+	<!-- 获取指定工作流节点信息 -->
+	<select id="wf.getWorkFlowNodeDetails" parameterClass="int" resultClass="java.util.HashMap">
+		select n.*,p.cname from wf_nodes n
+		left join hr_person p on n.iperson=p.iid
+		where n.ioainvoice=#ioainvoice#
+	</select>
+	
+	
+	<update id="wf.modifyab" parameterClass="java.util.HashMap">
+		update ab_invoiceproperty set imodify=#personiid#,dmodify=convert(varchar,getdate(),120) where iid=#ioainvoice#;
+	</update>
+	<update id="wf.deleteab" parameterClass="java.util.HashMap">
+		update ab_invoiceproperty set idelete=#personiid#,ddelete=convert(varchar,getdate(),120) where iid=#ioainvoice#;
+	</update>
+	<!-- 根据 协同的iid 来删除 协同 -->
+	<delete id="wf.deleteWorkFlow" parameterClass="java.util.HashMap">
+		begin	
+			delete from wf_nodes where  ioainvoice=#ioainvoice#;
+			delete from wf_node where ioainvoice=#ioainvoice#;
+			delete from oa_invoice where iid=#ioainvoice#;
+		end;	
+	</delete>
+	<!-- 删除 节点与节点对应的详细信息 -->
+	<delete id="wf.deleteWorkFlowNode" parameterClass="yssoft.vos.WfNodeVo">
+		begin
+			delete from wf_nodes where inodeid=#inodeid# and ioainvoice=#ioainvoice#;
+			delete from wf_node  where inodeid=#inodeid# and ioainvoice=#ioainvoice#;
+		end;
+	</delete>
+	<update id="wf.zjEditWorkFlow">
+		begin
+			
+		end;
+	</update>
+	
+	<!-- 修改协同节点信息 -->
+	<update id="wf.updateWFNode" parameterClass="yssoft.vos.WfNodeVo">
+		update wf_node set ipid=#ipid#,ipnodeid=#ipnodeid#,inodetype=#inodetype#,inodevalue=#inodevalue#,
+		   inodeattribute=#inodeattribute#,inodemode=#inodemode#,bfinalverify=#bfinalverify#,
+		   baddnew=#baddnew#,bsendnew=#bsendnew#,istatus=#istatus#,cnotice=#cnotice#,inodelevel=#inodelevel#,ccomefield=#ccomefield#
+		where inodeid=#inodeid# and ioainvoice=#ioainvoice#
+	</update>
+	<!-- 修改协同节点对应的详细信息 -->
+	<update id="wf.updateWFNodes" parameterClass="java.util.HashMap">
+		update wf_nodes set istatus=#istatus# where ioainvoice=#ioainvoice# and inodeid=#inodeid#
+	</update>
+	
+	
+	<!-- 公告 SDY add-->
+<!-- 	YJ Modify 2012-04-17 Add field iifuncregedit -->
+	<select id="xtgl.selectGG" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+<!--			select top 7 OA_notice.iid,aa_data.cname 'funname',csubject,hr_person.cname 'pcname',convert(varchar,OA_notice.dmaker,120) dmaker,hr_person.iid 'piid',cdetail,'xtgg' as 'xtlx'  from  OA_notice -->
+<!--			left join hr_person on oa_notice.imaker=hr_person.iid -->
+<!--			left join aa_data on oa_notice.itype=aa_data.iid  -->
+<!--			order by oa_notice.dmaker desc -->
+
+		select top $topsize$ OA_notice.iid,OA_notice.iid iinvoice,aa_data.cname 'funname',csubject,hr_person.cname 'pcname',
+		convert(varchar,OA_notice.dmaker,120) dmaker,hr_person.iid 'piid',cdetail,'xtgg' as 'xtlx','gg' as 'type',
+		case when c.iid is null then '0' else '1' end isread,OA_notice.iifuncregedit ifuncregedit from  OA_notice 
+		left join hr_person on oa_notice.imaker=hr_person.iid 
+		left join aa_data on oa_notice.itype=aa_data.iid  
+		left join (select iid,inotice from oa_notices where iperson=#iperson# ) c on oa_notice.iid=c.inotice
+		order by isread,oa_notice.dmaker desc
+
+	</select>
+	<select id="xtgl.selectGG_sum" resultClass="string">
+		select  convert(varchar,(select count(*) from  oa_notice ))+'_'+ convert(varchar,sum(a.row))  from  (select count(*) row  from oa_notices where iperson =#iperson# ) a
+		
+		
+		<!-- select count(1)  from OA_notice -->
+	</select>
+	<select id="xtgl.forum.list" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		select top 6 a.iid ,
+		c.cname as 'funname',
+		a.cname as 'csubject',
+		b.cname as 'pcname',
+		a.itype,
+		'xtgg'  as 'xtlx', 'lt' as 'type',
+		convert(varchar,a.dmaker,120) dmaker  from  OA_twitter a  
+		left join  hr_person  b on a.imaker = b.iid  
+		left join oa_twitterclass c on a.itype = c.iid order by a.dmaker desc
+	</select> 
+	
+	<!-- 获取当前公告附件列表 -->
+	<select id="select_notice_file"  resultClass="java.util.HashMap" parameterClass="string">
+			select * from ab_invoiceatm where ifuncregedit = 116 and iinvoice = #iid#
+	</select>
+	
+	<!-- 协同管理 -->
+	<!-- 待办事项 -->
+	<select id="xtgl.selectDbsx" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" >
+		select c.*,ab.imaker,dbo.getXTType(ab.ifuncregedit) 'xtname',ab.ifuncregedit 'xtlx',convert(varchar,ab.dmaker,120) dmaker,p.cname pcname,isnull(f.cname,'自由协同')  funname  from (
+		select top $pagesize$ * from (
+		select top $topsize$  iid,csubject,convert(varchar(10),dfinished,120) dfinished,istatus,ifuncregedit,iinvoice from oa_invoice where iid in (
+			select ioainvoice from wf_node where  inodetype=0 and inodevalue=#iperson# and (istatus = 3)
+			union
+			select ioainvoice from wf_nodes where iperson=#iperson# and (istatus = 3 )
+		) order by iid desc) as b order by b.iid
+		) c
+		left join ab_invoiceproperty ab on c.iid=ab.iinvoice 
+		left join hr_person p on ab.imaker=p.iid
+		left join as_funcregedit f on f.iid=c.ifuncregedit
+		where 1=1 
+		<isNotEmpty prepend="and" property="scvalue"> 
+			(p.cname like '%'+#scvalue#+'%' or f.cname like '%'+#scvalue#+'%' or csubject like '%'+#scvalue#+'%' or ab.dmaker like '%'+#scvalue#+'%'  or dbo.getXTType(ab.ifuncregedit) like '%'+#scvalue#+'%' )
+		</isNotEmpty>
+<!--		where ab.ifuncregedit=10-->
+		order by c.iid desc
+	</select>
+	<select id="xtgl.selectDbsx_sum" resultClass="int" parameterClass="java.util.HashMap" >
+		select count(*) from (
+			select ioainvoice from wf_node where  inodetype=0 and inodevalue=#iperson# and (istatus = 3)
+			union
+			select ioainvoice from wf_nodes where iperson=#iperson# and (istatus = 3)
+			) b
+	</select>
+	<!-- 已办事项 -->
+	<select id="xtgl.selectYbsx" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" >
+		select c.*,ab.imaker,dbo.getXTType(ab.ifuncregedit) 'xtname',ab.ifuncregedit 'xtlx',convert(varchar,ab.dmaker,120) dmaker,p.cname pcname,isnull(f.cname,'自由协同')  funname from (
+		select top $pagesize$ * from (
+		select top $topsize$  iid,csubject,convert(varchar(10),dfinished,120) dfinished,istatus,ifuncregedit,iinvoice from oa_invoice where iid in (
+			select ioainvoice from wf_node where  inodetype=0 and inodevalue=#iperson# and istatus=5
+			union
+			select ioainvoice from wf_nodes where iperson=#iperson# and istatus=5
+		) order by iid desc) as b order by b.iid
+		) c
+		left join ab_invoiceproperty ab on c.iid=ab.iinvoice 
+		left join hr_person p on ab.imaker=p.iid
+		left join as_funcregedit f on f.iid=c.ifuncregedit
+		where 1=1 
+		<isNotEmpty prepend="and" property="scvalue"> 
+			(p.cname like '%'+#scvalue#+'%' or f.cname like '%'+#scvalue#+'%' or csubject like '%'+#scvalue#+'%' or ab.dmaker like '%'+#scvalue#+'%'  or dbo.getXTType(ab.ifuncregedit) like '%'+#scvalue#+'%' )
+		</isNotEmpty>
+<!--		where ab.ifuncregedit=10-->
+		order by c.iid desc
+	</select>
+	<select id="xtgl.selectYbsx_sum" resultClass="int" parameterClass="java.util.HashMap" >
+		select count(*) from ( 
+			select ioainvoice from wf_node where  inodetype=0 and inodevalue=#iperson# and istatus=5
+			union
+			select ioainvoice from wf_nodes where iperson=#iperson# and istatus=5
+		) b
+	</select>
+	
+	<!-- 待发事项 -->
+	<select id="xtgl.selectDfsx" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" >
+		select * from (
+		select top $pagesize$ a.*,dbo.getXTType(ab.ifuncregedit) 'xtname',ab.ifuncregedit 'xtlx',ab.imaker,convert(varchar,ab.dmaker,120) dmaker,p.cname pcname,isnull(f.cname,'自由协同')  funname from (
+			select top $topsize$ iid,csubject,convert(varchar(10),dfinished,120) dfinished,istatus,ifuncregedit,iinvoice   
+			from oa_invoice where iid in (select ioainvoice from wf_node where ipnodeid='startnode' and istatus=0 and inodevalue=#iperson#) order by iid desc
+		) a 
+		left join ab_invoiceproperty ab on a.iid=ab.iinvoice 
+		left join hr_person p on ab.imaker=p.iid
+		left join as_funcregedit f on f.iid=a.ifuncregedit
+		where 1=1 
+		<isNotEmpty prepend="and" property="scvalue"> 
+			(p.cname like '%'+#scvalue#+'%' or f.cname like '%'+#scvalue#+'%' or csubject like '%'+#scvalue#+'%' or ab.dmaker like '%'+#scvalue#+'%'  or dbo.getXTType(ab.ifuncregedit) like '%'+#scvalue#+'%' )
+		</isNotEmpty>
+<!--		where ab.ifuncregedit=10-->
+		order by a.iid
+		) b
+		order by b.iid  desc
+	</select>
+	<select id="xtgl.selectDfsx_sum" resultClass="int" parameterClass="java.util.HashMap" >
+		select count(*) from oa_invoice where iid in (select ioainvoice from wf_node where ipnodeid='startnode' and istatus=0 and inodevalue=#iperson#) 
+	</select>
+	
+	<!-- 已发事项 -->
+	<select id="xtgl.selectYfsx" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" >
+<!--		select * from (-->
+<!--		select top $pagesize$ a.*,ab.imaker,convert(varchar,ab.dmaker,120) dmaker,p.cname pcname from (-->
+<!--			select top $topsize$ iid,csubject,convert(varchar(10),dfinished,120) dfinished,istatus  -->
+<!--			from oa_invoice where iid in (select ioainvoice from wf_node where ipnodeid='startnode' and istatus=1 and inodevalue=#iperson#) order by iid desc-->
+<!--		) a -->
+<!--		left join ab_invoiceproperty ab on a.iid=ab.iinvoice -->
+<!--		left join hr_person p on ab.imaker=p.iid-->
+<!--		where ab.ifuncregedit=10-->
+<!--		order by a.iid-->
+<!--		) b-->
+<!--		order by b.iid  desc-->
+	
+	select * from (select top $pagesize$ a.*,dbo.getXTType(ab.ifuncregedit) 'xtname',ab.ifuncregedit 'xtlx',ab.imaker,convert(varchar,ab.dmaker,120) dmaker,p.cname pcname,isnull(f.cname,'自由协同')  funname from
+	(select top $topsize$ iid,csubject,convert(varchar(10),dfinished,120) dfinished,istatus,ifuncregedit,iinvoice from oa_invoice where iid in (
+		select distinct(ioainvoice) from wf_node where ipnodeid='startnode' and inodevalue=#iperson# and ioainvoice not in (select distinct (ioainvoice) from wf_node where istatus != 5 and istatus !=1 )
+	) order by iid desc ) a 
+	left join ab_invoiceproperty ab on a.iid=ab.iinvoice 
+	left join hr_person p on ab.imaker=p.iid
+	left join as_funcregedit f on f.iid=a.ifuncregedit
+	where 1=1 
+		<isNotEmpty prepend="and" property="scvalue"> 
+			(p.cname like '%'+#scvalue#+'%' or f.cname like '%'+#scvalue#+'%' or csubject like '%'+#scvalue#+'%' or ab.dmaker like '%'+#scvalue#+'%'  or dbo.getXTType(ab.ifuncregedit) like '%'+#scvalue#+'%' )
+		</isNotEmpty>
+<!--	where ab.ifuncregedit=10-->
+	order by a.iid
+	) b order by b.iid  desc
+	</select>
+	<select id="xtgl.selectYfsx_sum" resultClass="int" parameterClass="java.util.HashMap" >
+<!--select count(*) from oa_invoice where iid in (select ioainvoice from wf_node where ipnodeid='startnode' and istatus=1 and inodevalue=#iperson#) -->
+	select count(*) from oa_invoice where iid in (
+		select distinct(ioainvoice) from wf_node where ipnodeid='startnode' and inodevalue=#iperson# and ioainvoice not in (select distinct (ioainvoice) from wf_node where istatus != 5 and istatus !=1 )
+	)
+	</select>
+	<!-- 跟踪事项 -->
+	<select id="xtgl.selectGzsx" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" >
+	select * from (
+	select top $pagesize$ b.*,dbo.getXTType(ab.ifuncregedit) 'xtname',ab.ifuncregedit 'xtlx',ab.imaker,convert(varchar,ab.dmaker,120) dmaker,p.cname pcname,isnull(f.cname,'自由协同')  funname from (
+	select top $topsize$ iid,csubject,convert(varchar(10),dfinished,120) dfinished,istatus,ifuncregedit,iinvoice   from oa_invoice where iid in (
+		select distinct(a.ioainvoice) from (
+			select count(inodeid) nodenum,ioainvoice from wf_node where istatus=3 group by ioainvoice
+			union all
+			select count(inodeid) nodenum,ioainvoice from wf_nodes where istatus=3 group by ioainvoice
+		) a 
+		where a.ioainvoice in (select ioainvoice from wf_node where ipnodeid='startnode' and inodevalue=#iperson#)
+		group by a.ioainvoice having sum(nodenum)>0
+		) order by iid desc
+	) b 
+	left join ab_invoiceproperty ab on b.iid=ab.iinvoice 
+	left join hr_person p on ab.imaker=p.iid
+	left join as_funcregedit f on f.iid=b.ifuncregedit
+	where 1=1 
+		<isNotEmpty prepend="and" property="scvalue"> 
+			(p.cname like '%'+#scvalue#+'%' or f.cname like '%'+#scvalue#+'%' or csubject like '%'+#scvalue#+'%' or ab.dmaker like '%'+#scvalue#+'%' or dbo.getXTType(ab.ifuncregedit) like '%'+#scvalue#+'%' )
+		</isNotEmpty>
+<!--	where ab.ifuncregedit=10-->
+	order by b.iid
+	) c order by c.iid desc
+	</select>
+	<select id="xtgl.selectGzsx_sum" resultClass="int" parameterClass="java.util.HashMap" >
+		select  count(*)  from oa_invoice where iid in (
+		select distinct(a.ioainvoice) from (
+			select count(inodeid) nodenum,ioainvoice from wf_node where istatus=3 group by ioainvoice
+			union all
+			select count(inodeid) nodenum,ioainvoice from wf_nodes where istatus=3 group by ioainvoice
+		) a 
+		where a.ioainvoice in (select ioainvoice from wf_node where ipnodeid='startnode' and inodevalue=#iperson#)
+		group by a.ioainvoice having sum(nodenum)>0
+		)
+	</select>
+	
+	<!-- 获取协同中，登录用户要处理的节点 -->
+	<select id="wf.getCurNodeInfo" parameterClass="java.util.HashMap" resultClass="yssoft.vos.WfNodeVo">
+		select top 1 * from(
+		select wf_node.*,wf_node.istatus nodesIstatus,'wf_node' source from wf_node where inodetype=0 and inodevalue=#iperson# and ioainvoice=#ioainvoice# and istatus=3
+		union
+		select node.*,nodes.istatus nodesIstatus,'wf_nodes' source from wf_node node
+		left join wf_nodes nodes
+		on nodes.inodeid=node.inodeid
+		where 
+		nodes.iperson=#iperson# and nodes.ioainvoice=#ioainvoice# and node.ioainvoice=#ioainvoice# and nodes.istatus=3
+		) a 
+	</select>
+
+    <!--获取当前节点信息  是否主表 以及 内码-->
+    <select id="getCurNodeiid" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select top 1 * from(
+        select wf_node.iid,'true' as isNode from wf_node where inodetype=0 and inodevalue=#iperson# and ioainvoice=#ioainvoice# and istatus=3
+        union
+        select nodes.iid,'false' as isNode from wf_nodes nodes
+        left join wf_node node
+        on nodes.inodeid=node.inodeid
+        where
+        nodes.iperson=#iperson# and nodes.ioainvoice=#ioainvoice# and node.ioainvoice=#ioainvoice# and nodes.istatus=3
+        ) a
+    </select>
+	
+	<!-- 获取 协同的 发起人节点 -->
+	<select id="wf.getStartNodeInfo" parameterClass="int" resultClass="yssoft.vos.WfNodeVo">
+		select top 1 *,wf_node.istatus nodesIstatus,'wf_node' source from wf_node where ioainvoice=#ioainvoice# and ipnodeid='startnode'
+	</select>
+	
+	<!-- 发起人节点处理 -->
+	<update id="wf.clstartnode" parameterClass="java.util.HashMap">
+		begin
+			update wf_node set istatus=1 where ipnodeid='startnode' and ioainvoice=#ioainvoice#;
+			update wf_node set istatus=3 where inodelevel=2 and ioainvoice=#ioainvoice#;
+			update wf_nodes set istatus=3 where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where inodelevel=2 and ioainvoice=#ioainvoice#);
+		end;
+	</update>
+	
+	<!-- 人员节点处理 -->
+	<update id="wf.clnode" parameterClass="java.util.HashMap">
+		begin
+			update wf_node set istatus=5 where ioainvoice=#ioainvoice# and inodeid=#inodeid#;
+			update wf_node set istatus=3 where ioainvoice=#ioainvoice# and ipnodeid = #inodeid#;
+			update wf_nodes set istatus=3 where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where inodetype !=0 and ipnodeid=#inodeid# );
+		end;
+	</update>
+
+    <update id="wf.clnode2" parameterClass="java.util.HashMap">
+        begin
+        update wf_node set istatus=5 where ioainvoice=#ioainvoice# and inodeid=#inodeid#;
+        <!--update wf_node set istatus=3 where ioainvoice=#ioainvoice# and ipnodeid = #inodeid#;
+        update wf_nodes set istatus=3 where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where inodetype !=0 and ipnodeid=#inodeid# );-->
+        end;
+    </update>
+	
+	<!-- 只更新 wf_node 节点 -->
+	<update id="wf.clnode_only" parameterClass="java.util.HashMap">
+		update wf_node set istatus=5 where ioainvoice=#ioainvoice# and inodeid=#inodeid#;
+	</update>
+	<!-- 非人员节点处理 -->
+	<select id="wf.clnodesishandled" resultClass="int" parameterClass="java.util.HashMap">
+		select count(*) from wf_nodes where ioainvoice=#ioainvoice# and inodeid=#inodeid# and istatus != 5 
+	</select>
+	<update id="wf.clnodes" parameterClass="java.util.HashMap">
+		update wf_nodes set istatus=5 where ioainvoice=#ioainvoice# and inodeid=#inodeid# and iperson=#iperson#
+	</update>
+	
+	<!-- 跟踪撤销 -->
+	<!-- 验证能否撤销 -->
+	<select id="wf.yzcx" resultClass="int" parameterClass="int">
+		select sum(num) from (
+		select count(*) num from wf_node where inodelevel=2 and ioainvoice=#ioainvoice# and (istatus=5 or istatus=4)
+		union all
+		select count(*) num from wf_nodes where (istatus=5 or istatus=4) and inodeid in (select inodeid from wf_node where inodelevel=2 and ioainvoice=#ioainvoice#)
+		) a
+	</select>
+	<!-- 撤销 -->
+	<update id="wf.cxcl" parameterClass="int">
+		begin
+			update wf_node set istatus=0 where ipnodeid='startnode' and ioainvoice=#ioainvoice#;
+			update wf_node set istatus=2 where inodelevel=2 and ioainvoice=#ioainvoice#;
+			update wf_nodes set istatus=2 where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where inodelevel=2 and ioainvoice=#ioainvoice#);
+		end;
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	<!-- 协同表单 -->
+	<!-- 1 判断表单是否 有相关联的可用的协同流程 -->
+    <select id="fwf.co_invoset_judge" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select wf_invoset.*,wf_invosets.cexecsql from wf_invoset
+        left join wf_invosets on wf_invosets.iinvoset = wf_invoset.iid
+        where brelease=1 and ifuncregedit=#ifuncregedit# and ipnodeid='startnode'
+    </select>
+	<!-- 2 如果有，就获取 模板的节点信息  -->
+	<select id="fwf.co_invosets_items" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from wf_invosets where iinvoset = #iinvoset#
+	</select>
+	<!-- 写入 条件 -->
+	<insert id="fwf.co_insert_nodecd" parameterClass="java.util.HashMap">
+		insert into wf_nodecd(ioainvoice,cnodeid,candor,cleftbk,cfield,coperator,cvalue,crightbk)
+		select #ioainvoice#,cnodeid,candor,cleftbk,cfield,coperator,cvalue,crightbk from wf_invosetscd where cnodeid=#cnodeid#
+	</insert>
+	<!-- 写入 录入 -->
+	<insert id="fwf.co_insert_nodeentry" parameterClass="java.util.HashMap">
+		insert into wf_nodeentry (ioainvoice,cnodeid,cfield,cvalue)
+		select #ioainvoice#,cnodeid,cfield,cvalue from wf_invosetsentry where cnodeid=#cnodeid#
+	</insert>
+	
+	<!-- 根据单据iid 和 注册功能iid 来查找协同id -->
+	<select id="fwf.co_select_oainvoice" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from oa_invoice where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice#
+	</select>
+	
+	<!-- 获取节点，条件 -->
+	<select id="fwf.co_select_wfnodecd" parameterClass="int" resultClass="java.util.HashMap">
+		select * from dbo.wf_nodecd where ioainvoice=#ioainvoice#
+	</select>
+	<!-- 获取节点，录入 -->
+	<select id="fwf.co_select_wfnodeentry" parameterClass="int" resultClass="java.util.HashMap">
+		select * from dbo.wf_nodeentry where ioainvoice=#ioainvoice#
+	</select>
+	
+	<!-- 获取指定节点，条件 -->
+	<select id="fwf.co_zd_select_wfnodecd" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from dbo.wf_nodecd where ioainvoice=#ioainvoice# and cnodeid=#cnodeid#
+	</select>
+	<!-- 获取指定节点，录入 -->
+	<select id="fwf.co_zd_select_wfnodeentry" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from dbo.wf_nodeentry where ioainvoice=#ioainvoice# and cnodeid=#cnodeid#
+	</select>
+	
+	<!-- 获取表单协同的信息 -->
+	<select id="fwf.co_select_abinvoiceproperty" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from ab_invoiceproperty where iinvoice=#iinvoice# and ifuncregedit=11
+	</select>
+	
+	<!-- 获取指定节点的所有子节点 -->
+	<select id="fwf.co_select_subnodes" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from wf_node where ioainvoice=#ioainvoice# and ipnodeid=#ipnodeid#
+	</select>
+
+    <!-- 获取指定工作流未完成的所有子节点 -->
+    <select id="co_select_allnodes" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select iid from wf_node where ioainvoice=#ioainvoice# and istatus!=5 and istatus!=1
+    </select>
+	
+	<!-- 验证节点的条件 是不是 成立 -->
+	<select id="fwf.co_judge_nodecd" parameterClass="string" resultClass="int">
+		$sql$
+	</select>
+	<!-- 节点录入 反馈 -->
+	<update id="fwf.co_update_nodeentry" parameterClass="string">
+		$sql$
+	</update>
+	<!-- 获取单据对应的数据表名 -->
+	<select id="fwf.co_form_tablename" parameterClass="java.util.HashMap" resultClass="String">
+		select top 1 ctable from dbo.ac_datadictionary where ifuncregedit=#ifuncregedit#  order by iid asc;
+	</select>
+	<!-- 修改节点状态 -->
+	<update id="fwf.co_update_node" parameterClass="java.util.HashMap">
+		update wf_node set istatus=#istatus# where ioainvoice=#ioainvoice# and inodeid=#inodeid#;
+	</update>
+	<update id="fwf.co_update_nodes" parameterClass="java.util.HashMap">
+		update wf_nodes set istatus=#istatus# where ioainvoice=#ioainvoice# and inodeid=#inodeid# and iperson=#iperson#
+	</update>
+	<update id="fwf.co_update_nodes_patch" parameterClass="java.util.HashMap">
+		update wf_nodes set istatus=#istatus# where ioainvoice=#ioainvoice# and inodeid=#inodeid#
+	</update>
+	<!-- 同时更新 -->
+	<update id="fwf.co_updateNode" parameterClass="java.util.HashMap">
+		begin
+			update wf_node set istatus=#istatus#,bavailable=1 where ioainvoice=#ioainvoice# and inodeid=#inodeid#;
+			update wf_nodes set istatus=#istatus# where ioainvoice=#ioainvoice# and inodeid=#inodeid#
+		end;
+	</update>
+	
+	<!-- 清空所有工作流协同信息-->
+	<delete id="fwf.co_deleteWorkFlow" parameterClass="java.util.HashMap">
+		    begin
+			   delete from wf_messages where ioainvoice=#ioainvoice#;
+			   delete from wf_message where ioainvoice=#ioainvoice#;
+			   delete from wf_nodecd where ioainvoice=#ioainvoice#;
+			   delete from wf_nodeentry where ioainvoice=#ioainvoice#;
+			   delete from wf_nodes where  ioainvoice=#ioainvoice#;
+			   delete from wf_node where ioainvoice=#ioainvoice#;
+			   delete from oa_invoice where iid=#ioainvoice#;
+	        end;
+<!-- 		begin -->
+<!-- 			delete from wf_nodecd where ioainvoice=#ioainvoice#; -->
+<!-- 			delete from wf_nodeentry where ioainvoice=#ioainvoice#; -->
+<!-- 			delete from wf_nodes where  ioainvoice=#ioainvoice#; -->
+<!-- 			delete from wf_node where ioainvoice=#ioainvoice# and ; -->
+<!-- 		end;	 -->
+
+	</delete>
+	
+	<!-- 检查 能不能 撤销 [禁用]-->
+	<select id="fwf.co_is_zx" parameterClass="java.util.HashMap" resultClass="int">
+		select count(*) from (
+			select iid from wf_node where ioainvoice=#ioainvoice# and istatus=5
+			union
+			select iid from wf_nodes where ioainvoice=#ioainvoice# and istatus=5
+		) c
+	</select>
+	
+	<!-- 回退 操作 -->
+	<!-- 相关节点的 批量更新 -->
+	<update id="fwf.co_node_return_update" parameterClass="java.util.HashMap">
+		begin
+		update wf_node set istatus=0 where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where ioainvoice=#ioainvoice# and  inodelevel &gt;= #inodelevel#);
+		update wf_nodes set istatus=0 where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where ioainvoice=#ioainvoice# and  inodelevel &gt;= #inodelevel#);
+		end;
+	</update>
+	<!-- 修改 层级大于2的 节点的父节点的状态 状态为3 -->
+	<update id="fwf.co_node_return_update_p" parameterClass="java.util.HashMap">
+		begin
+		update wf_node set istatus=3 where ioainvoice=#ioainvoice# and inodelevel=#pinodelevel# and inodeid=#pinodeid#;
+		update wf_nodes set istatus=3 where ioainvoice=#ioainvoice# and inodeid = #pinodeid#;
+		end
+	</update>
+	<!--所有2层级的状态为3 原本状态不为0 -->
+	<update id="fwf.co_node_return_2_copy">
+		update wf_node set istatus=3 where iid in (select iid from wf_node where ioainvoice=#ioainvoice# and inodelevel=#inodelevel#  and istatus !=0 )
+	</update>
+	<!-- 业务协同 ，2节点撤销 -->
+	<delete id="fwf.co_node_return_2">
+		begin
+			update wf_node set istatus=0 where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where ioainvoice=#ioainvoice# and inodelevel>=2);
+			update wf_nodes set istatus=0 where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where ioainvoice=#ioainvoice# and  inodelevel>=2);
+			
+			update wf_node set istatus=4 where  ioainvoice=#ioainvoice# and inodeid = #inodeid#;
+			update wf_nodes set istatus=4 where  ioainvoice=#ioainvoice# and inodeid = #inodeid#;
+			update wf_node set istatus=0 where  ioainvoice=#ioainvoice# and ipnodeid = 'startnode';
+		end;		
+<!-- 		delete wf_node where ioainvoice=#ioainvoice#;	 -->
+<!-- 		delete wf_nodes where ioainvoice=#ioainvoice#; -->
+<!-- 		delete oa_invoice where iid=#ioainvoice# -->
+	</delete>
+	
+	
+	<!-- 角色 -9，-10 特殊处理 -->
+	
+	<!-- 获取 指定功能iid，功能注册相关信息 -->
+	<select id="fwf.co_node_ts_js" parameterClass="int" resultClass="java.util.HashMap">
+		select * from as_funcregedit where iid=#ifuncregedit#
+	</select>
+	<!-- 获取相关单据的信息 -->
+	<select id="fwf.co_node_ts_js_sql" parameterClass="string" resultClass="java.util.HashMap" remapResults="true">
+		$sql$
+	</select>
+	
+	<!-- 系统公告 新增浏览公告信息 SDY-->
+	<insert id="insert_oa_notices"  parameterClass="java.util.HashMap">
+		insert into oa_notices(inotice,iperson,ddate) values (#inotice# , #iperson# , #ddate#)
+	</insert>
+	<select id="select_oa_notices" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		select oa_notices.iid,oa_notices.inotice,oa_notices.iperson,oa_notices.iperson,hr_person.cname 'pcname',convert(varchar,oa_notices.ddate,120) ddate from oa_notices
+		left join hr_person on oa_notices.iperson = hr_person.iid 
+		 where inotice =#inotice#
+	</select>
+	<select id="isExistLook_oa_notices" parameterClass="java.util.HashMap"  resultClass="int">
+		select count(*) from oa_notices where iperson = #iperson# and inotice = #inotice#
+	</select>
+	
+	<!-- 插入节点 推进的消息 提示信息 -->
+	<insert id="wf.insert_node_items_msg" parameterClass="java.util.HashMap" >
+		begin
+		insert into as_communication(itype,isperson,irperson,dsend,cdetail,ifuncregedit,iinvoice,isread)
+		select 1,#isperson#,c.iperson,convert(varchar,getdate(),120),#cdetail#,#ifuncregedit#,#ioainvoice#,0 from (
+			select inodevalue iperson from wf_node where ioainvoice=#ioainvoice# and ipnodeid=#inodeid# and inodetype=0
+			union
+			select iperson from wf_nodes where ioainvoice=#ioainvoice# and inodeid in (select inodeid from wf_node where ipnodeid=#inodeid# )
+		) c
+		end;
+	</insert>
+	<!-- 制定节点发送提示信息 -->
+	<insert id="wf.insert_node_items_msg_zd" parameterClass="java.util.HashMap" >
+        begin
+        insert into as_communication(itype,isperson,irperson,dsend,cdetail,ifuncregedit,iinvoice,isread,bsms)
+        select 1,#isperson#,c.iperson,convert(varchar,getdate(),120),#cdetail#,#ifuncregedit#,#ioainvoice#,0,bsms from (
+        select inodevalue iperson,0 as bsms from wf_node where ioainvoice=#ioainvoice# and inodeid=#inodeid# and inodetype=0  and isnull(cnotice,'0')='0'
+        union
+        select inodevalue iperson,1 as bsms from wf_node where ioainvoice=#ioainvoice# and inodeid=#inodeid# and inodetype=0  and isnull(cnotice,'0')='1'
+        union
+        select iperson,0 as bsms from wf_nodes left join wf_node on wf_node.inodeid = wf_nodes.inodeid
+        where  wf_nodes.ioainvoice=#ioainvoice# and wf_nodes.inodeid =#inodeid#
+        and  wf_node.ioainvoice=#ioainvoice#  and isnull(wf_node.cnotice,'0')='0'
+        union
+        select iperson,1 as bsms from wf_nodes left join wf_node on wf_node.inodeid = wf_nodes.inodeid
+        where  wf_nodes.ioainvoice=#ioainvoice# and wf_nodes.inodeid =#inodeid#
+        and  wf_node.ioainvoice=#ioainvoice#  and isnull(wf_node.cnotice,'0')='1'
+        ) c
+        end;
+	</insert>
+
+    <select id="getNodeAndNodes" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+        select iid,'true' as isNode from wf_node where inodeid=#inodeid# and ioainvoice=#ioainvoice#
+        union
+        select iid,'false' as isNode from wf_nodes where inodeid=#inodeid# and ioainvoice=#ioainvoice#
+    </select>
+
+    <insert id="insertWfTime" parameterClass="java.util.HashMap" >
+        insert into wf_time(ifuncregedit,iinvoice,itype,ddate)
+        values(#ifuncregedit#,#iinvoice#,#itype#,#ddate#);
+    </insert>
+	
+	<!-- 向指定节点 反馈信息 -->
+	<insert id="wf.insert_pnode_items_msg" parameterClass="java.util.HashMap" >
+		begin
+		insert into as_communication(itype,isperson,irperson,dsend,cdetail,ifuncregedit,iinvoice,isread)
+		select 1,#isperson#,c.iperson,convert(varchar,getdate(),120),#cdetail#,#ifuncregedit#,#ioainvoice#,0 from (
+			select inodevalue iperson from wf_node where ipnodeid='startnode' and ioainvoice=#ioainvoice# and inodetype=0
+		) c
+		end;
+	</insert>
+
+	<insert id="wf.insert_startnode_item_msg" parameterClass="java.util.HashMap" >
+	begin
+		insert into as_communication(itype,isperson,irperson,dsend,cdetail,ifuncregedit,iinvoice,isread)
+		select 1,#isperson#,c.iperson,convert(varchar,getdate(),120),#cdetail#,#ifuncregedit#,#ioainvoice#,0 from (
+			select iperson from wf_nodes where inodeid in (
+				select inodeid from wf_node where inodetype !=0 and ipnodeid = (select inodeid from wf_node where ioainvoice=1 and ipnodeid='startnode')
+			)
+			union 
+			select inodevalue iperson from wf_node where inodetype =0 and ipnodeid = (select inodeid from wf_node where ioainvoice=1 and ipnodeid='startnode')
+		) c
+	end;
+	</insert>
+	
+		<!-- 回退消息 -->
+	<insert id="wf.insert_pnodeback_item_msg" parameterClass="java.util.HashMap">
+		begin
+		insert into
+		as_communication(itype,isperson,irperson,dsend,cdetail,ifuncregedit,iinvoice,isread)
+		select
+		1,#isperson#,c.iperson,convert(varchar,getdate(),120),#cdetail#,#ifuncregedit#,#ioainvoice#,0
+		from (
+		select inodevalue iperson from wf_node where ioainvoice=#ioainvoice# and
+		inodeid=#inodeid# and inodetype=0
+		union
+		select iperson from wf_nodes where ioainvoice=#ioainvoice# and inodeid in
+		(select inodeid from wf_node where inodeid=#inodeid# )
+		) c
+		end;
+	</insert>
+	
+	<!-- 处理相关人员权限 -->
+	
+	<!-- 获取指定节点的人员信息，人员iid，部门iid -->
+	<select id="wf.select_xgry_person_info" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		 select c.iperson,p.idepartment from (
+			 select inodevalue iperson from wf_node where ioainvoice = #wfid# and inodetype=0 and inodeid=#inodeid#
+			 union
+			 select iperson from wf_nodes where ioainvoice = #wfid# and inodeid=#inodeid#
+		 ) c left join hr_person p on c.iperson=p.iid
+	</select>
+	<!-- 获取指定节点的人员信息，人员iid，部门iid -->
+	<select id="wf.select_xgry_person_info_xj" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		 select c.iperson,p.idepartment from (
+			 select inodevalue iperson from wf_node where ioainvoice = #wfid# and inodetype=0 and ipnodeid=#inodeid#
+			 union
+			 select iperson from wf_nodes where ioainvoice = #wfid# and inodeid in (select inodeid from wf_node where ioainvoice = #wfid# and ipnodeid=#inodeid# )
+		 ) c left join hr_person p on c.iperson=p.iid
+	</select>
+	
+	<!-- 处理直接发送,位置 开始节点iid -->
+	<select id="wf.select_xgry_person_info_nukown" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+			select c.iperson,p.idepartment from (
+			select inodevalue iperson from wf_node where ioainvoice = #wfid# and inodelevel=2 and inodetype = 0
+			union 
+			select iperson from wf_nodes where ioainvoice = #wfid# and inodeid in (
+				select inodeid from wf_node where ioainvoice = #wfid# and inodelevel=2 and inodetype !=0
+			) ) c left join hr_person p on c.iperson=p.iid
+	</select>
+	
+	<!-- 工作流，提交，撤销时，更新对应单据的状态 -->
+	<!-- 1 获取对应单据的对应的 表名 -->
+	<select id="wf.get_form_table_name"  parameterClass="string"  resultClass="string">
+		select ctable from dbo.as_funcregedit where iid = #ifunid#
+	</select>
+	<!-- 2 更新 单据状态  -->
+	<update id="wf.update_form_status">
+		$sql$
+	</update>
+	
+	
+	<!-- 批量修改 单据对应的 上传附件 -->
+	 <!-- 获取指定单据的项目零号 ，依赖wf.get_form_table_name-->
+	 <select id="dj.getitemcode"  parameterClass="string"  resultClass="string">
+	 	$sql$
+	 </select>
+	 <!-- 1 检查 指定单据是不是 有附件 -->
+	 <select id="dj.getdjfjnum" parameterClass="java.util.HashMap"  resultClass="int">
+	 	select count(*) from ab_invoiceatm where ifuncregedit = #ifuniid# and iinvoice = #iinvoice#
+	 </select>
+	 <!-- 2 如果1 有附件，在批量修改 附件的名称 根据 单击对应的令号 -->
+	 <update id="dj.patcheditfj" parameterClass="java.util.HashMap" >
+	 	update ab_invoiceatm set cname = case when  charindex('|',cname) =0 then #itemlh#+'|'+cname else
+			#itemlh#+'|'+substring(cname,charindex('|',cname)+1,len(cname))
+		 end  
+		where ifuncregedit = #ifuniid# and iinvoice = #iinvoice#
+	 </update>
+	
+	<!-- 消息浮动窗口，收到点击关闭时，把所有登录人 已被处理 的消息 置成已阅的 -->
+	<update id="fwf.msgreaded" parameterClass="string" >
+		update as_communication set isread=1,dread=convert(varchar(19),getdate(),120) 
+		where irperson=#ipersonid#
+<!--		update as_communication set isread=1,dread=convert(varchar(19),getdate(),120) -->
+<!--		where -->
+<!--		itype=1 and cdetail='已被处理' and isread=0 and irperson=#ipersonid#-->
+	</update>
+	
+	
+	<!-- 判断 单据是不是已经绑定了流程,单据提交验证 -->
+	 <select id="fwf.djtjcheck"  parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		select iid from oa_invoice where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice#
+	</select>
+	
+	<!-- 验证工作流 有效性 -->
+	<parameterMap class="java.util.HashMap" id="checkparam"> 
+		<parameter property="iwfset" 		javaType="java.lang.Integer" 	jdbcType="INTEGER" 	mode="IN" />   
+		<parameter property="iwfperson" 	javaType="java.lang.Integer" 	jdbcType="INTEGER" 	mode="IN" />   
+	</parameterMap> 
+	
+	<procedure id="fwf.checkformwf" parameterMap="checkparam" resultClass="java.util.HashMap">
+		<![CDATA[   
+			{call bwfcanuse(?,?)}
+		  ]]>
+	</procedure>
+	
+	<!-- 验证工作流 是否可以撤销 -->
+	<parameterMap class="java.util.HashMap" id="canbackparam">
+		<parameter property="ioainvoice" javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN" />   
+		<parameter property="iperson" javaType="java.lang.Integer" jdbcType="INTEGER" mode="IN" />
+		<parameter property="icanback" javaType="java.lang.Integer" jdbcType="INTEGER" mode="OUT" />
+        <parameter property="cexecsql" javaType="java.lang.String" jdbcType="VARCHAR" mode="OUT" />
+        <parameter property="iistatus" javaType="java.lang.Integer" jdbcType="INTEGER" mode="OUT"/>
+	</parameterMap>
+	
+	<procedure id="fwf.pr_canback" parameterMap="canbackparam" resultClass="java.util.HashMap">
+		<![CDATA[   
+			{call pr_canback(?,?,?,?,?)}
+		  ]]>
+	</procedure>
+</sqlMap>

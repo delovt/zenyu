@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         verticalGap="0"
+         width="100%" height="100%"
+         creationComplete="getWarnData();"
+        >
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.renders.WarnShowRenderer;
+        import yssoft.tools.AccessUtil;
+
+        [Bindable]
+        private var warnList:ArrayCollection;
+
+        [Bindable]
+        private var warnSelectId:int = 1;
+
+        //预警条数
+        private var warnSize:int;
+        //预警加载完成时会使warnItemAdd加1
+        private var warnItemAdd:int;
+
+        public function getWarnData():void {
+            warnSelectId = 1;
+            warnItemAdd = 0;
+            var sql:String = "select AC_desktoplistcd.*,af.ctable," +
+                    "ac_listcd.ifuncregedit as ifuncregedit," +
+                    "af.ifuncregedit as outifuncregedit," +
+                    "ac_listcd.csql," +
+                    "af.cname as title," +
+                    "bf.cname as outtitle " +
+                    "from AC_desktoplistcd " +
+                    "left join ac_listcd on AC_desktoplistcd.ilistcd = ac_listcd.iid " +
+                    "left join as_funcregedit af on ac_listcd.ifuncregedit = af.iid " +
+                    "left join as_funcregedit bf on af.ifuncregedit = bf.iid " +
+                    "where AC_desktoplistcd.bvisible=1 and iperson=" + int(CRMmodel.userId) +
+                    " order by AC_desktoplistcd.ccode";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                warnList = event.result as ArrayCollection;
+                warnSize = warnList.length;
+                warnListBox.removeAllChildren();
+                for each(var item:Object in warnList) {
+                    var warnItem:WarnShowRenderer = new WarnShowRenderer();
+                    warnItem.percentWidth = 100;
+                    warnItem.itemObj = item;
+                    warnItem.owner = warnListBox;
+                    warnItem.useHandCursor = true;
+                    warnItem.buttonMode = true;
+                    warnListBox.addChild(warnItem);
+                }
+            }, sql, null, false);
+        }
+
+        private function initEvent():void {
+            warnListBox.addEventListener("warnItemComplete", function (event:Event):void {
+                warnItemAdd++;
+                if (warnItemAdd == warnSize)
+                    box.visible = true;
+            });
+        }
+
+        protected function attentionClick(event:MouseEvent):void {
+            warnSelectId = 2;
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <!--<mx:HBox width="100%" verticalAlign="middle" height="28" paddingLeft="2" horizontalGap="0" paddingRight="15"
+              useHandCursor="true">
+        <mx:Image source="yssoft/assets/explorer/icon_0.png"/>
+        <s:Spacer width="8"/>
+        <s:Label id="title" text="预警消息" height="32" color="#333333" verticalAlign="middle" fontWeight="bold" styleName="linkBar1" />
+        <s:Spacer width="100%"/>
+    </mx:HBox>-->
+    <s:BorderContainer backgroundAlpha="1" width="100%" height="29" borderVisible="false" buttonMode="true"
+                       toolTip="点此刷新数据"
+                       backgroundColor="#f4f4f4" click="getWarnData()">
+        <s:layout>
+            <s:HorizontalLayout horizontalAlign="left" verticalAlign="middle" paddingLeft="3"/>
+        </s:layout>
+        <s:Image source="yssoft/assets/index/alert.png"/>
+        <s:Label text="预警信息" fontWeight="bold"/>
+    </s:BorderContainer>
+    <mx:HRule height="1" width="100%" strokeColor="#efefef"/>
+    <!--<mx:HBox  width="100%" height="28" horizontalGap="0">
+        <s:BorderContainer backgroundAlpha="0" width="50%" height="28" borderVisible="false" click="vbox1_creationCompleteHandler()">
+            <s:Image source="yssoft/assets/explorer/warn1.png" visible="{warnSelectId==1}"/>
+            <s:Image source="yssoft/assets/explorer/warn0.png" visible="{warnSelectId!=1}"/>
+            <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="top" paddingTop="5">
+                <s:Label text="预警信息" color="{warnSelectId==1?new uint(0xFFFFFF):new uint(0x000000)}"/>
+            </mx:VBox>
+        </s:BorderContainer>
+        <s:BorderContainer backgroundAlpha="0"  width="50%" height="28" borderVisible="false" click="attentionClick(event)">
+            <s:Image source="yssoft/assets/explorer/warn1.png" visible="{warnSelectId!=1}"/>
+            <s:Image source="yssoft/assets/explorer/warn0.png" visible="{warnSelectId==1}"/>
+            <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="top" paddingTop="5">
+                <s:Label text="关注指标" color="{warnSelectId!=1?new uint(0xFFFFFF):new uint(0x000000)}"/>
+            </mx:VBox>
+        </s:BorderContainer>
+    </mx:HBox>-->
+    <s:Spacer height="4"/>
+    <s:BorderContainer id="box" width="100%" height="100%" borderVisible="false" backgroundAlpha="0" visible="false">
+        <mx:VBox id="warnListBox" width="{box.width}" height="{box.height}" visible="{warnSelectId==1}" verticalGap="6"
+                 creationComplete="initEvent()"
+                 horizontalScrollPolicy="off"/>
+    </s:BorderContainer>
+</mx:VBox>

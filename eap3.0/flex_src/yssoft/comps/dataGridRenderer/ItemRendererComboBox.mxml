@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ComboBox
+	xmlns:mx="http://www.adobe.com/2006/mxml"  
+	dataChange="setSelected()" width="100%"  
+	change="onSelectionChange(event)" 
+	focusEnabled="true" creationComplete="combobox1_creationCompleteHandler(event)"> 
+	
+	<mx:Script> 
+		<![CDATA[ 
+			import mx.controls.dataGridClasses.DataGridListData;
+			import mx.events.DataGridEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent; 
+			
+			private var _ownerData:Object; 
+			private var _lookupField:String = "value"; 
+			
+			[Bindable] public var selectedItemKey:Object; 
+			
+			public function set lookupField (value:String) : void { 
+				if(value) { 
+					_lookupField = value; 
+					setSelected(); 
+				} 
+			}            
+			override public function set data (value:Object) : void { 
+				if(value) {                     
+					_ownerData = value; 
+					setSelected(); 
+				} 
+			} 
+			override public function get data() : Object {
+				return _ownerData; 
+			}             
+			private function setSelected() : void { 
+				if (dataProvider && _ownerData) { 
+					var col:DataGridListData = DataGridListData(listData); 
+					for each (var dp:Object in dataProvider) { 
+						if (dp[_lookupField] == _ownerData[col.dataField]) { 
+							selectedItem = dp; 
+							selectedItemKey = _ownerData[col.dataField];
+							return;      
+						} 
+					}                     
+				} 
+				selectedItem = null; 
+			} 
+			private function onSelectionChange (e:ListEvent) : void { 
+				if (selectedItem && _ownerData) {                     
+					var col:DataGridListData = DataGridListData(listData); 
+					_ownerData[col.dataField] = selectedItem[_lookupField]; 
+					selectedItemKey = selectedItem[_lookupField]; 
+				} 
+			}                    
+			
+			protected function combobox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				this.selectedIndex = 0;
+				
+			}
+			
+		]]> 
+	</mx:Script>     
+</mx:ComboBox> 
+

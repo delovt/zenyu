@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:comps="yssoft.comps.*"
+				xmlns:checkBoxColumn="yssoft.comps.checkBoxColumn.*"
+				width="100%" height="100%" creationComplete="getMyTree();"
+				implements="yssoft.impls.ICRMWindow" styleName="contentHDividedBox">
+	<fx:Script>
+		<![CDATA[
+			import flash.events.Event;
+			
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.evts.EventAdv;
+			import yssoft.frameui.formopt.OperDataAuth;
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			public var winParam:Object=new Object();
+			private var formIfunIid:int = 0;
+			public var curButtonStatus:String = "onGiveUp";
+			public var formStatus:String = "new";
+			public var auth:OperDataAuth;
+			public var currid:int;
+			private var crmeap:CrmEapRadianVbox=null;
+			
+			//窗体初始化
+			public function onWindowInit():void{
+				//Alert.show("init");
+			}
+			//窗体打开
+			public function onWindowOpen():void{
+				//Alert.show("open");
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void{
+				myTree.CollapseAll();
+				CRMtool.containerChildsEnabled(crmeap,false);
+				
+				if(null==this.myTree.treeCompsXml)
+				{
+					CRMtool.toolButtonsEnabled(this.myLinkBar,"onGiveUp",0);
+				}
+				else
+				{
+					CRMtool.toolButtonsEnabled(this.myLinkBar,"onGiveUp",this.myTree.treeCompsXml.length());
+				}
+				this.myTree.enabled = true;	
+				
+			}
+			
+			public function getMyTree():void
+			{
+				AccessUtil.remoteCallJava("BasisFileDest","getWareHouseTree",getTreeBack,null,ConstsModel.EPARTMENT_GET_INFO);
+			}
+			
+			private function getTreeBack(event:ResultEvent):void
+			{
+				if(event.result!=null)
+				{
+					var result:String = event.result as String;
+					this.myTree.treeCompsXml = new XML(result);
+				}
+				
+				auth = new OperDataAuth();
+				//---------------加载操作权限 begin---------------//
+				var params1:Object=new Object();
+				var itemObj:Object = CRMtool.getObject(winParam);
+				params1.ifuncregedit=itemObj.ifuncregedit;
+				params1.iperson=CRMmodel.userId;
+				auth.get_funoperauth(params1);
+				//---------------加载操作权限 end---------------//
+				winParam = CRMtool.getObject(this.winParam);
+				this.formIfunIid = int(winParam.ifuncregedit);
+				
+				crmeap = new CrmEapRadianVbox();
+				crmeap.name="myCanva";
+				crmeap.curButtonStatus=this.curButtonStatus;
+				crmeap.formIfunIid = this.formIfunIid;
+				crmeap.owner=this;
+				crmeap.addEventListener("complete",complete);
+				crmeap.addEventListener("EventAuth",authEventListener);
+				crmeap.queryVouchForm();
+				this.formShowArea.addChild(crmeap);
+				
+				setAllButtonsEnabled("onGiveUp");	
+			}
+			
+			private function onTreeClick(event:Event):void
+			{
+				
+				if(myTree.selectedItem!=null){
+					
+					crmeap.currid=int(myTree.selectedItem.@iid);
+					var treid:String = myTree.selectedItem.@iid;		
+					crmeap.queryPm(treid);
+					crmeap.addEventListener("queryComplete",queryComplete);
+				}
+			}
+			
+			private function queryComplete(event:Event):void
+			{
+				
+				
+			}
+			
+			private function complete(event:Event):void
+			{
+				
+			}
+			
+			
+			private function onGiveUp(event:Event):void
+			{
+				CRMtool.containerChildsEnabled(crmeap,false);
+				
+				if(null==this.myTree.treeCompsXml)
+				{
+					CRMtool.toolButtonsEnabled(this.myLinkBar,"onGiveUp",0);
+				}
+				else
+				{
+					CRMtool.toolButtonsEnabled(this.myLinkBar,"onGiveUp",this.myTree.treeCompsXml.length());
+				}
+				this.myTree.enabled = true;
+			}
+			
+			
+			private function authEventListener(event:EventAdv):void
+			{
+				var result:Boolean = event.param;
+				if(result)
+				{
+					if(curButtonStatus == "onNew"){
+						myNew();
+					}
+					if(curButtonStatus == "onEdit"){
+						myEdit();
+					}
+				}
+			}
+			
+			
+			public function myNew():void
+			{
+				this.curButtonStatus = "onNew";
+				this.myTree.enabled = false;
+				this.myTree.selectedIndex=-1;
+				CRMtool.containerChildsEnabled(crmeap,true);
+				crmeap.setValue(null,1,1);
+				crmeap.curButtonStatus = this.curButtonStatus;
+				
+				CRMtool.toolButtonsEnabled(this.myLinkBar,"onNew");
+			}
+			
+			public function myEdit():void
+			{
+				this.curButtonStatus = "onEdit";
+				CRMtool.containerChildsEnabled(crmeap,true);
+				crmeap.curButtonStatus = this.curButtonStatus;
+				if(!this.myTree.selectedItem)
+				{
+					CRMtool.tipAlert(ConstsModel.CHOOSE_ROLE);
+					return;
+				}
+				this.myTree.enabled= false;
+				CRMtool.toolButtonsEnabled(this.myLinkBar,"onEdit");
+			}
+			
+			
+			public function onNew(event:Event):void
+			{
+				this.curButtonStatus = "onNew";
+				crmeap.onNew();
+			}
+			
+			public function onEdit(event:Event):void
+			{
+				this.curButtonStatus = "onEdit";
+				crmeap.onEdit();
+			}
+			
+			public function onDelete(event:Event):void
+			{
+				var crmeapValue:Object = crmeap.getValue();
+				if(myTree.isExistsChild(crmeapValue.ccode,"存在下级目录，不可删除...")){
+					return;
+				}
+				
+				curButtonStatus = "onDelete";
+				//var crmeap:CrmEapRadianVbox=this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				crmeap.curButtonStatus= this.curButtonStatus;
+				crmeap.onDelete();
+				crmeap.addEventListener("success",success);
+			}
+			
+			public function onSave(event:Event):void
+			{	
+				var crmeapValue:Object = crmeap.getValue();
+				
+				if(curButtonStatus == "onNew"&&myTree.isExistsCcode(crmeapValue.ccode,"该编码已存在,请重新输入...")){
+					return;
+				}
+				
+				if(curButtonStatus == "onEdit"&&crmeapValue.ccode!=myTree.selectedItem.@ccode){
+					if(myTree.isExistsCcode(crmeapValue.ccode,"该编码已存在,请重新输入")){
+						return;
+					}
+				}
+				
+				
+				if(crmeapValue.ccode==null){
+					CRMtool.showAlert("需要填入内容才可保存");
+				}
+				else if (myTree.isExistsParent(crmeapValue.ccode,"上级目录不存在,请重新输入...")){			
+					var ipid:int  = myTree.getIpid(crmeapValue.ccode);
+					crmeapValue.ipid = ipid;
+					var main:Object=new Object();
+					main.mainValue=crmeapValue;
+					
+					//Alert.show(ObjectUtil.toString(main));
+					
+					crmeap.setValue(main);
+					crmeap.onSave();	
+					crmeap.addEventListener("success",success);
+				}
+				
+			}
+			
+			
+			private function updateMyTreeCcode(event:ResultEvent):void
+			{
+				var vo:Object = crmeap.getValue();	
+				myTree.EditTreeNode(vo);
+			}
+			
+			private function success(event:Event):void
+			{
+				switch (curButtonStatus){
+					case "onEdit":{
+						var crmeapValue:Object = crmeap.getValue();
+						var oldCcode:String = myTree.selectedItem.@ccode;
+						var ccode:String = crmeapValue.ccode;
+						crmeapValue.oldCcode = oldCcode
+						//Alert.show(ObjectUtil.toString(crmeapValue));
+						if(ccode!=oldCcode){
+							AccessUtil.remoteCallJava("BasisFileDest","updateWareHouseCcode",updateMyTreeCcode,crmeapValue);
+						}else{
+							var vo:Object = crmeap.getValue();	
+							myTree.EditTreeNode(vo);
+						}
+						
+						break;
+					}
+					case "onNew":{
+						var vo:Object = crmeap.getValue();
+						vo.iid = crmeap.currid;
+						myTree.AddTreeNode(vo);
+						break;
+					}
+					case "onDelete":{
+						myTree.DeleteTreeNode();
+						this.myTree.selectedIndex=-1;
+						crmeap.setValue(null,1,1);
+						break;
+					}
+						
+				}
+				
+				myTree.enabled = true;
+				setAllButtonsEnabled("onGiveUp");
+			}
+			
+			//设置按钮互斥
+			public function setAllButtonsEnabled(selectedName:String,length:int=1):void
+			{
+				CRMtool.toolButtonsEnabled(this.myLinkBar,selectedName,length);
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<!-- 组织树 -->
+	<mx:VBox width="20%" height="100%" styleName="lefttree">
+		<mx:ApplicationControlBar width="100%" height="32" dock="true">
+			<s:Label styleName="contentTitle" text="仓库档案"/>
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox id="myTree" width="100%" height="100%"
+								 click="onTreeClick(event)"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:HBox width="80%" height="100%" styleName="centerbg4" >
+		<mx:VBox width="100%" height="100%" verticalGap="0">
+			<mx:ApplicationControlBar width="100%" height="32" styleName="centertop" dock="true">
+				<comps:LinkBarVboxComps id="myLinkBar" width="15%" height="25"
+										dataProvider="{ConstsModel.LBRITEM}"
+										onDeleteEvent="onDelete(event);" onEditEvent="onEdit(event)"
+										onGiveUpEvent="onGiveUp(event);" onNewEvent="onNew(event)"
+										onSaveEvent="onSave(event)" styleName="contentButtonBar"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" verticalGap="0" paddingLeft="10" paddingRight="10" >
+				<mx:Canvas id="formShowArea" width="100%" height="100%" 
+						   horizontalScrollPolicy="off" >
+				</mx:Canvas>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:HBox>
+</mx:HDividedBox>

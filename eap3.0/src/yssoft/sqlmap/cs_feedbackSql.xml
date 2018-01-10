@@ -1,0 +1,38 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!-- 客户反馈 - SDY                   -->
+
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_cs_feedback" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,isourceregedit,isource,ccode,citemcode,itype,icustomer,icustperson,ccustpersontel,ccustpersonemail,
+            iperson,idepartment,csubject,cdetail,cmessage,cresultstate,cresult,cmemo
+			from cs_feedback where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_cs_feedback" parameterClass="java.util.HashMap">
+            insert into cs_feedback(
+            	isourceregedit,isource,ccode,citemcode,itype,icustomer,icustperson,ccustpersontel,ccustpersonemail,
+            iperson,idepartment,csubject,cdetail,cmessage,cresultstate,cresult,cmemo ) 
+            values (
+           #isourceregedit#,#isource#,#ccode#,#citemcode#,#itype#,#icustomer#,#icustperson#,#ccustpersontel#,#ccustpersonemail#,
+            #iperson#,#idepartment#,#csubject#,#cdetail#,#cmessage#,#cresultstate#,#cresult#,#cmemo#
+           )
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_cs_feedback" parameterClass="java.util.HashMap">
+            update cs_feedback set 
+            isourceregedit=#isourceregedit#,isource=#isource#,ccode=#ccode#,citemcode=#citemcode#,itype=#itype#,icustomer=#icustomer#,icustperson=#icustperson#,ccustpersontel=#ccustpersontel#,ccustpersonemail=#ccustpersonemail#,
+            iperson=#iperson#,idepartment =#idepartment#,csubject=#csubject#,cdetail=#cdetail#,cmessage=#cmessage#,cresultstate=#cresultstate#,cresult=#cresult#,cmemo=#cmemo#
+            
+            
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_cs_feedback" parameterClass="String">
+            delete from cs_feedback
+            where $condition$
+     </delete>
+</sqlMap>

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+         xmlns:comps="yssoft.comps.*" creationComplete="init2()">
+
+    <fx:Script>
+		<![CDATA[
+        [Bindable]
+        private var _product:Object = new Object();
+
+        public function set product(val:Object):void {
+            _product = val;
+        }
+
+        public function get product():Object {
+            return _product;
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Script source="../../../yssoft/scripts/MateriesVboxScript.as"/>
+    <mx:VBox width="100%" height="20%" styleName="content">
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="物料编码：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_ccode" styleName="contentTextInput" width="100%" text="{_product.ccode}"/>
+            </mx:HBox>
+
+            <mx:HBox width="50%">
+                <mx:Label text="物料名称：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_cname" styleName="contentTextInput" width="100%" text="{_product.cname}"/>
+            </mx:HBox>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="规格型号：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_cpdstv" styleName="contentTextInput" width="100%" text="{_product.cpdstv}"/>
+            </mx:HBox>
+            <mx:HBox width="50%">
+                <mx:Label text="助 记 码：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_cmnemonic" styleName="contentTextInput" width="100%" text="{_product.cmnemonic}"/>
+            </mx:HBox>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="所属分类：" styleName="contentLabel" width="90"/>
+                <comps:CRMReferTextInput id="tnp_iproductclass" styleName="contentTextInput" width="100%" iid="95"
+                                         te="{_product.iproductclass}" visibleIcon="{tnp_iproductclass.editable}"/>
+
+
+            </mx:HBox>
+
+            <mx:HBox width="50%">
+                <mx:Label text="所属分组：" styleName="contentLabel" width="90"/>
+                <comps:CRMReferTextInput id="tnp_iproductgroup" styleName="contentTextInput" width="100%" iid="107"
+                                         te="{_product.iproductgroup}" visibleIcon="{tnp_iproductgroup.editable}"/>
+            </mx:HBox>
+        </mx:HBox>
+    </mx:VBox>
+
+    <s:Spacer height="16"/>
+
+    <mx:VBox width="100%" height="35%" styleName="content">
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="单位组：" styleName="contentLabel" width="90"/>
+                <comps:CRMReferTextInput id="tnp_iunitclass" styleName="contentTextInput" width="100%" iid="100"
+                                         te="{_product.iunitclass}" visibleIcon="{tnp_iunitclass.editable}"/>
+            </mx:HBox>
+
+            <mx:HBox width="50%">
+                <mx:Label text="基本单位：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_iunitdefault" styleName="contentTextInput" width="100%"
+                              text="{_product.iunitdefault}"/>
+            </mx:HBox>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="计量单位：" styleName="contentLabel" width="90"/>
+                <comps:CRMReferTextInput id="tnp_iunit" styleName="contentTextInput" width="100%" iid="92"
+                                         te="{_product.iunit}" visibleIcon="{tnp_iunit.editable}"/>
+            </mx:HBox>
+            <mx:HBox width="50%">
+                <mx:Label text="计税方式：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_itaxtype" styleName="contentTextInput" width="100%" text="{_product.itaxtype}"/>
+            </mx:HBox>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="计税税率：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_itaxrate" styleName="contentTextInput" width="100%" text="{_product.itaxrate}"/>
+            </mx:HBox>
+
+            <mx:HBox width="50%">
+                <mx:Label text="安全库存：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_fsafequantity" styleName="contentTextInput" width="100%"
+                              text="{_product.fsafequantity}"/>
+            </mx:HBox>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="参考报价：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_ftaxquotedprice" styleName="contentTextInput" width="100%"
+                              text="{_product.ftaxquotedprice}"/>
+            </mx:HBox>
+
+            <mx:HBox width="50%">
+                <mx:Label text="参考成本：" styleName="contentLabel" width="90"/>
+                <mx:TextInput id="tnp_freferencecost" styleName="contentTextInput" width="100%"
+                              text="{_product.freferencecost}"/>
+            </mx:HBox>
+        </mx:HBox>
+    </mx:VBox>
+
+    <s:Spacer height="16"/>
+
+    <mx:VBox width="100%" height="15%" styleName="content">
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="是否外购：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bpurchase" selected="{_product.bpurchase}"/>
+            </mx:HBox>
+
+            <mx:HBox width="50%">
+                <mx:Label text="是否销售：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bsale" selected="{_product.bsale}"/>
+            </mx:HBox>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="是否自制：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bselfmake" selected="{_product.bselfmake}"/>
+            </mx:HBox>
+
+            <mx:HBox width="50%">
+                <mx:Label text="是否耗用：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bconsume" styleName="{_product.bconsume}"/>
+            </mx:HBox>
+        </mx:HBox>
+    </mx:VBox>
+
+    <s:Spacer height="16"/>
+
+    <mx:VBox width="100%" height="15%" styleName="content">
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="客户资产：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bassets" selected="{_product.bassets}"/>
+            </mx:HBox>
+            <mx:HBox width="50%">
+                <mx:Label text="配套耗材：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bfittings" selected="{_product.bfittings}"/>
+            </mx:HBox>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="费用劳物：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bservice" selected="{_product.bservice}"/>
+            </mx:HBox>
+            <mx:HBox width="50%">
+                <mx:Label text="序 列 号：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bsn" selected="{_product.bsn}"/>
+            </mx:HBox>
+        </mx:HBox>
+    </mx:VBox>
+
+    <s:Spacer height="16"/>
+
+    <mx:VBox width="100%" height="15%" styleName="content">
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="自由项1：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bfree1" selected="{_product.bfree1}"/>
+            </mx:HBox>
+            <mx:HBox width="50%">
+                <mx:Label text="自由项2：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bfree2" selected="{_product.bfree2}"/>
+            </mx:HBox>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:HBox width="100%" styleName="contentSubHbox">
+            <mx:HBox width="50%">
+                <mx:Label text="自由项3：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bfree3" selected="{_product.bfree3}"/>
+            </mx:HBox>
+            <mx:HBox width="50%">
+                <mx:Label text="自由项4：" styleName="contentLabel" width="90"/>
+                <mx:CheckBox id="chbx_bfree4"/>
+            </mx:HBox>
+        </mx:HBox>
+    </mx:VBox>
+
+</mx:VBox>

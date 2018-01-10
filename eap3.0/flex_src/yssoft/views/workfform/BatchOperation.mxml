@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				width="100%" height="100%" xmlns:comps="yssoft.comps.*" 
+				implements="yssoft.impls.ICRMWindow" creationComplete="init()">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.CRMTimerSetting;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			//模块名称
+			[Bindable]
+			private var iifuncnameArr:ArrayCollection;
+			
+			//时间转换
+			private var datefields:Array=new Array();
+			
+			private var dept_xml:XML=new XML();
+			
+			//条件，查询语句
+			private var invoiceuserFields:ArrayCollection = new ArrayCollection();
+			
+			private var person_xml:XML=new XML();
+			
+			private var optType:String="";
+			
+			private var param:Object;
+			
+			private var selectmokuai:ArrayCollection =new ArrayCollection();
+			
+			//窗体初始化
+			public function onWindowInit():void
+			{
+				
+			}
+			//窗体打开
+			public function onWindowOpen():void
+			{
+				invoiceuserFields = new ArrayCollection();
+				datefields = new Array();
+				iifuncnameArr=new ArrayCollection();
+				dgLeft.visible = true;
+				this.tnp_bjobstatus.text="";
+				init();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void
+			{
+				
+			}
+			
+			//初始化列表
+			private function init():void
+			{
+				AccessUtil.remoteCallJava("FuncregeditDest","getAllFuncregeditBybdataauth1",getAllFuncregeditBack,null,null,false);
+			}
+			
+			private function getAllFuncregeditBack(event:ResultEvent):void
+			{
+				iifuncnameArr=event.result as ArrayCollection;
+				
+				AccessUtil.remoteCallJava("MsgDest","getDeptPersonInfo",onInfoCallBack,null,null,false);
+			}
+			
+			private function onInfoCallBack(event:ResultEvent):void{
+				if(event.result){
+					var ret:Object=event.result;
+					dept_xml=new XML(event.result.dept_xml);
+					person_xml=new XML(event.result.person_xml);
+					for each(var node:XML in dept_xml..node){
+						node.appendChild(this.person_xml.node.(@idepartment==node.@iid));
+					}
+					this.tre_person.treeCompsXml=this.dept_xml;
+				}
+				onClick();
+			}
+			
+			//点击模块，进行初始化表格
+			private function onClick():void
+			{
+				var paramObj:Object = new Object()
+				paramObj.ifuncregedit = this.com_iifu.selectedItem.iid;
+				paramObj.binvoiceuser=1;
+				AccessUtil.remoteCallJava("FuncregeditDest","getdatadictonaryList",getdatadictonaryListBack,paramObj,null,false);
+			}
+			
+			private function getdatadictonaryListBack(event:ResultEvent):void
+			{
+				var datadictionaryArr:ArrayCollection = event.result as ArrayCollection;
+				dgLeft.dataProvider =new ArrayCollection();
+				invoiceuserFields=new ArrayCollection();
+				if(datadictionaryArr.length>0)
+				{
+					dgLeft.visible = true;
+					this.dgLeft.InitColumns();
+					datefields.splice();
+					invoiceuserFields.removeAll();
+					for each(var datadictionaryObj:Object in datadictionaryArr)
+					{
+						if(datadictionaryObj.binvoiceuser)
+						{
+							var dgc_name:DataGridColumn = new DataGridColumn();
+							dgc_name.dataField = datadictionaryObj.cfield;
+							dgc_name.headerText = datadictionaryObj.ccaption;
+							if (datadictionaryObj.ifieldtype==3)
+							{
+								datefields.push(datadictionaryObj.cfield);
+								dgc_name.labelFunction=getDateText;
+							}
+							invoiceuserFields.addItem(datadictionaryObj.cfield);
+							dgc_name.width =200;
+							dgLeft.columns =dgLeft.columns.concat(dgc_name);
+						}
+					}
+					
+					var dgc_name1:DataGridColumn = new DataGridColumn();
+					dgc_name1.dataField = "iperson";
+					dgc_name1.headerText = "负责人员";
+					dgc_name1.width =200;
+					dgLeft.columns =dgLeft.columns.concat(dgc_name1);
+					
+					var dgc_name2:DataGridColumn = new DataGridColumn();
+					dgc_name2.dataField = "iperson1";
+					dgc_name2.headerText = "相关人员";
+					dgc_name2.width =200;
+					dgLeft.columns =dgLeft.columns.concat(dgc_name2);
+				}
+				else
+				{
+					this.dgLeft.columns = new Array();
+					this.dgLeft.visible = false;
+				}
+			}
+			
+			//格式化时间
+			private function getDateText(item:Object,column:DataGridColumn):String
+			{
+				var strdate:String;
+				if (item[column.dataField]!=null)
+				{
+					strdate=item[column.dataField].toString();
+					if (strdate.length>10)
+					{
+						return CRMtool.convertDateToString(item[column.dataField],"YYYY-MM-DD");
+					}
+					else
+					{
+						return strdate;
+					}
+				}
+				else
+				{
+					return null;
+				}
+			}
+			
+			//查询表格内容
+			private function onSearch():void
+			{
+				if(invoiceuserFields.length>0)
+				{
+					var sql:String = "select ";
+					var tjSql:String="";
+					for(var i:int=0;i<invoiceuserFields.length;i++)
+					{
+						var field:String = 	invoiceuserFields.getItemAt(i).toString();
+						if(i>0)
+						{
+							sql+=",";
+							tjSql+=" or ";
+						}
+						sql+=field ;
+						tjSql+=field+" like '%"+this.tnp_bjobstatus.text+"%'";
+					}
+					sql+=",iid,(select value =dbo.f_str(iid,"+this.com_iifu.selectedItem.iid+",1)) iperson,(select value1 =dbo.f_str(iid,"+this.com_iifu.selectedItem.iid+",2)) iperson1 ";
+					sql+=" from "+this.com_iifu.selectedItem.ctable+" where "+tjSql;
+					//调用后台方法
+					AccessUtil.remoteCallJava("hrPersonDest","verificationSql",function(evt:ResultEvent):void{
+						var rArr:ArrayCollection = evt.result as ArrayCollection;
+						var i:int=1;
+						for each (var item:Object in rArr) 
+						{
+							item.sort_id=i++;	
+						}
+						dgLeft.dataProvider = rArr;
+					},sql,null,false);
+				}
+				else
+				{
+					CRMtool.tipAlert("请先在数据字典配置显示列");
+				}
+			}
+			
+			
+			//批量添加
+			private function addResponsible(irole:String):void
+			{
+				if(invoiceuserFields.length>0)
+				{
+					var selectPersonArr:ArrayCollection = getRolesB();
+					selectmokuai=new ArrayCollection();
+					if(selectPersonArr.length==0)
+					{
+						CRMtool.tipAlert("请选择人员");
+						return;
+					}
+					var mkArr:ArrayCollection = this.dgLeft.getSelectRows();
+					if(mkArr.length==0)
+					{
+						CRMtool.tipAlert("请选择要分配的单据");
+						return;
+					}
+					for each(var mkObj:Object in mkArr)
+					{
+						for each(var selectPersonObj:Object in selectPersonArr)
+						{
+							xgryInsertItem(selectPersonObj.iperson,selectPersonObj.idepartment,irole,mkObj.iid);
+						}
+					}
+				}
+				else
+				{
+					CRMtool.tipAlert("请先在数据字典中配置显示列");
+				}
+			}
+			
+			
+			private function xgryInsertItem(iperson:String,idepartment:String,irole:String,iinvoice:int):void{
+				optType="insert";
+				param={};
+				param.ifuncregedit=this.com_iifu.selectedItem.iid;
+				param.iinvoice=iinvoice;
+				param.irole=irole;
+				param.iperson=iperson;
+				param.idepartment=idepartment;
+				AccessUtil.remoteCallJava("WorkFlowDest","xgryInsertItem",callBack,param);
+			}
+			
+			
+			private function callBack(event:ResultEvent):void{
+				
+				if(selectmokuai.length<this.dgLeft.getSelectRows().length)
+				{
+					if((event.result as String)=="suc")
+					{
+						
+					}
+				}
+				/* if(optType=="delete"){
+					if((event.result as String)=="suc"){
+						CRMtool.tipAlert("删除人员，成功");
+						onSearch();
+					}else{
+						CRMtool.tipAlert(event.result as String);
+					}
+				}else if(optType=="insert"){
+					if(isNaN(parseInt(event.result as String))){
+						CRMtool.tipAlert(event.result as String);
+						return;
+					}else{
+						param.iid=event.result;
+						CRMtool.tipAlert("保存人员,成功");
+						onSearch();
+					}
+				} */
+			}
+			
+			
+			private function getRolesB():ArrayCollection{
+				var tmpAr:ArrayCollection=new ArrayCollection();
+				for each(var item:Object in this.tre_person.treeCompsXml.descendants("*")){
+					var checked:String=item[tre_person.checkBoxStateField];
+					if(checked !='' && checked =='1'&&item.@isPerson=="1"){
+					 	var iperson:int = int(item.@personid);
+						var idepartment:int=int(item.@idepartment);
+						var tmpObj:Object = new Object();
+						tmpObj.iperson =iperson;
+						tmpObj.idepartment = idepartment;
+						tmpAr.addItem(tmpObj);
+					}
+				}
+				return tmpAr;
+			}
+			
+			//删除相关人员
+			private function xgryDeleteItem1():void
+			{
+				if(invoiceuserFields.length>0)
+				{
+					var selectPersonArr:ArrayCollection = getRolesB();
+					selectmokuai=new ArrayCollection();
+					if(selectPersonArr.length==0)
+					{
+						CRMtool.tipAlert("请选择人员");
+						return;
+					}
+					var mkArr:ArrayCollection = this.dgLeft.getSelectRows();
+					if(mkArr.length==0)
+					{
+						CRMtool.tipAlert("请选择要分配的单据");
+						return;
+					}
+					
+					for each(var mkObj:Object in mkArr)
+					{
+						for each(var selectPersonObj:Object in selectPersonArr)
+						{
+							deleteitem(mkObj.iid,selectPersonObj.iperson);
+						}
+					}
+				}
+				else
+				{
+					CRMtool.tipAlert("请先在数据字典配置显示列");
+				}
+				
+			}
+			
+			private function deleteitem(iinvoice:int,iperson:int):void
+			{
+				optType="delete";
+				param={};
+				param.ifuncregedit=this.com_iifu.selectedItem.iid;
+				param.iinvoice=iinvoice;
+				param.iperson=iperson;
+				AccessUtil.remoteCallJava("WorkFlowDest","deletItem",callBack,param);
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	<mx:VBox width="80%" height="100%" paddingBottom="0" paddingTop="0" styleName="freeCoVbox"
+			 verticalGap="0">
+		<mx:ApplicationControlBar width="100%" height="32" >
+			<comps:CrmTextInput  id="tnp_bjobstatus" search="onSearch();"/>
+			<mx:HBox width="100%" horizontalAlign="right">
+				<mx:ComboBox id="com_iifu" labelField="cname" dataProvider="{iifuncnameArr}" change="onClick()" selectedIndex="-1"/>
+				<s:Button label="批量分配负责人员" click="addResponsible('1')"/>
+				<s:Button label="批量分配相关人员" click="addResponsible('2')"/>
+				<s:Button label="批量回收人员" click="xgryDeleteItem1()"/>
+			</mx:HBox>
+		</mx:ApplicationControlBar>
+		<comps:CRMDataGridForCheckBox visible="false" allowMulti="true"  width="100%" height="100%" id="dgLeft" horizontalScrollPolicy="auto">
+		</comps:CRMDataGridForCheckBox>
+	</mx:VBox>
+	<mx:VBox width="20%" height="100%" borderVisible="false" styleName="lefttree">
+		<mx:ApplicationControlBar width="100%" height="32" dock="true">
+			<mx:Label id="lblDataName" styleName="contentTitle" text="选择人员"/>
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" height="100%" styleName="lefttree1">
+		<comps:TreeCompsVbox id="tre_person" width="100%" height="100%" allowMulti="true" isShowCheckBox="true" itemDClickSelect="true"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:HDividedBox>

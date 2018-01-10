@@ -1,0 +1,35 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+<!--	YJ Add 20110822 获取档案分类树菜单-->
+	<select id="DataClassDest.getMenuList" resultClass="java.util.HashMap">
+		Select  iid,ipid, ccode, cname, bsystem,bbuse,coperauth,cmemo from AA_dataclass where 1=1  
+		order by ccode
+	</select>
+	
+<!--	YJ Add 20110823 添加档案分类 	-->
+	<insert id="DataClassDest.addDataClass" parameterClass="yssoft.vos.AsDataClassVO">
+		insert into aa_dataclass(ipid,ccode,cname,bsystem,bbuse,coperauth,cmemo) 
+						  values(#ipid#,#ccode#,#cname#,#bsystem#,#bbuse#,#coperauth#,#cmemo#)
+		<selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey>
+	</insert>
+	
+<!--	YJ Add 20110823 删除档案分类 	-->
+	<delete id="DataClassDest.delDataClass" parameterClass="int">
+		delete aa_dataclass where iid=#iid#
+	</delete>
+	
+<!--	YJ Add 20110823 更新档案分类   	-->
+	<update id="DataClassDest.updateDataClass" parameterClass="yssoft.vos.AsDataClassVO">
+	  begin
+          Update aa_dataclass SET ipid=#ipid# ,  ccode=#ccode# ,  cname=#cname# ,  bsystem=#bsystem# , bbuse=#bbuse#, coperauth=#coperauth# ,  cmemo=#cmemo#  Where iid=#iid#;
+          update aa_dataclass set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+      end; 
+	</update>
+	
+<!--	YJ Add 20110826 相关档案分类的档案数据记录数-->
+	<select id="DataClassDest.getDataCountByClass" parameterClass="int" resultClass="int">
+		select count(*) from aa_data where iclass=#iid# 
+	</select>
+</sqlMap>

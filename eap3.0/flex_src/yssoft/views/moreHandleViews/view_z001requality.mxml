@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--YJ Add 请假核销单-->
+
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="500" height="240"
+                        title="售后质量反馈" xmlns:comps="yssoft.comps.*"
+                        close="PopUpManager.removePopUp(this)" creationComplete="ini()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.utils.SecurityUtil;
+			import mx.utils.StringUtil;
+			import mx.controls.Alert;
+			
+			import yssoft.comps.RadianVbox;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.CRMtool;
+			
+			public var parentForm:Object;
+			
+			private function ini():void{
+				parentForm = this.owner;
+				
+				var date:Date=new Date();
+				var FormatDate:DateFormatter=new DateFormatter();
+				FormatDate.formatString="YYYY-MM-DD";	
+				
+				//初始化处理部门及处理时间
+				this.iaction.te = CRMmodel.hrperson.idepartment+"";
+				this.daction.text = FormatDate.format(date);
+			}
+			
+			//确定
+			private function onOK():void{
+				//获取新的页面元素
+				var objup:Object = {};
+				objup.bproducterr	= cbbproducterr.selected;
+				objup.bliveerr		= cbbliveerr.selected;
+				objup.bnotquality	= cbbnotquality.selected;
+				objup.bother		= cbbother.selected;
+				objup.iaction		= this.iaction.cconsultbkfld;
+				objup.daction		= daction.text;
+				objup.cactionrecord = mx.utils.StringUtil.trim(cactionrecord.text);
+				
+				try{
+					for(var i:int=0;i<parentForm._frameArr.length;i++)
+					{
+						var obj:Object = parentForm._frameArr.getItemAt(i);
+						var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+						customerVbox.parametersObj = objup;
+						customerVbox.reset();
+					}
+					
+					CRMtool.tipAlert("处理成功！");
+					onCancle();
+					
+				}catch(e:Error){
+					CRMtool.tipAlert("处理失败！");
+				}
+
+			}
+			
+			//放弃
+			private function onCancle():void{
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<basic:layout>
+		<s:VerticalLayout gap="0"/>
+	</basic:layout>
+	<mx:VBox id="container" width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" cornerRadius="8"
+			 styleName="contentVBox" verticalGap="20">
+		<mx:VBox width="100%" cornerRadius="8" styleName="content">
+			
+			<mx:HBox width="100%" styleName="contentSubHbox">
+				
+				<mx:Label  text="产品质量问题:" height="100%" styleName="contentLabel" width="180"/>					
+				<mx:CheckBox id="cbbproducterr" width="20" textAlign="center"/>
+			
+				<mx:Label  text="现场缺失遗漏错发:" height="100%" styleName="contentLabel" width="180"/>
+				<mx:CheckBox id="cbbliveerr" width="20" textAlign="center"/>
+				
+			</mx:HBox>
+			
+			<mx:HRule width="100%"/>
+			
+			<mx:HBox width="100%" styleName="contentSubHbox">
+				
+				<mx:Label  text="非质量技术问题:" height="100%" styleName="contentLabel" width="180"/>
+				<mx:CheckBox id="cbbnotquality" width="20" textAlign="center"/>
+			
+				<mx:Label  text="其他:" height="100%" styleName="contentLabel" width="180"/>
+				<mx:CheckBox id="cbbother" width="20" textAlign="center"/>
+				
+			</mx:HBox>
+			
+			<mx:HRule width="100%"/>
+			
+			<mx:HBox width="100%" styleName="contentSubHbox">
+				
+				<mx:Label  text="处理部门:" height="100%" styleName="contentLabel"/>
+				<comps:CRMReferTextInput id="iaction" iid="2133" width="100%" styleName="contentTextInput"
+										 editable="true" visibleIcon="true"/>
+				<mx:Label  text="处理时间:" height="100%" styleName="contentLabel"/>
+				<comps:CRMDateField id="daction" width="100%"/>
+				
+			</mx:HBox>
+			
+			<mx:HRule width="100%"/>
+			
+			<mx:HBox width="100%" styleName="contentSubHbox">
+				
+				<mx:Label text="实施方案:" height="100%" styleName="contentLabel"/>
+				<s:TextArea width="100%" height="30" id="cactionrecord"/>
+				
+			</mx:HBox>
+			
+		</mx:VBox>
+	</mx:VBox>
+	
+	<mx:HBox width="100%" horizontalAlign="right" height="38" verticalAlign="middle" paddingRight="10">
+		<s:Button id="btnOK" label="确定" click="onOK()"/>
+		<s:Button id="btnCancle" label="放弃" click="onCancle()"/>
+	</mx:HBox>
+	
+</basic:BasicTitleWindow>

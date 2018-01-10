@@ -1,0 +1,863 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx" verticalGap="10" width="100%"
+         verticalScrollPolicy="off" horizontalScrollPolicy="off"
+         paddingBottom="10" creationComplete="Vboxinit();"
+         implements="yssoft.impls.ICRMWindow" top="10">
+    <!--zhong_jing Add 更多操作-->
+    <fx:Script source="../../../scripts/CalculatedScript.as"/>
+
+    <!--YJ Add 单据编码-->
+    <fx:Script source="../../../scripts/BillNumberHandle.as"/>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Metadata>
+        [Event(name="complete", type="flash.events.Event")]
+        [Event(name="queryComplete", type="flash.events.Event")]
+        [Event(name="success", type="flash.events.Event")]
+        [Event(name="resultSucc", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import mx.containers.HBox;
+        import mx.controls.Alert;
+        
+        import yssoft.frameui.FrameCore;
+        import yssoft.frameui.event.FormEvent;
+        import yssoft.frameui.formopt.FormOpt;
+        import yssoft.interfaces.IAllCrmInput;
+        import yssoft.models.CRMmodel;
+
+        //保存点击左侧树后的当前duix
+        private var currentObj:Object;
+        //获取当前点击节点的功能内码
+        public var ifun:int;
+        //判断是否是引入
+        public var popupTree:Boolean = true;
+        // 单据功能注册码
+        [Bindable]
+        public var formIfunIid:int = 0;
+
+        //lr add  input 对象集合
+        public var crmAllInputList:ArrayCollection;
+
+
+        //是否是第一次打开
+        public var isFirst:Boolean = true;
+
+        public var publicFlagObject:Object = new Object();
+
+        //单据编码
+        public var currid:int = 0;
+
+        private var _vouchFormArr:ArrayList;
+
+        private var _childTableArr:Object;
+
+        public function get vouchFormArr():ArrayList {
+            return this._vouchFormArr;
+        }
+
+        public var tableMessage:ArrayCollection;
+
+        public var relation:RelationCheckBox;
+
+        //查询表头集合
+        private var mainSqlObj:Object;
+
+        //查询表体集合
+        private var childSql:ArrayList;
+
+        public var paramForm:Object;
+
+        // 按钮的当前状态,默认为 onNew 增加
+        public var curButtonStatus:String = "onNew";
+
+        public var vouchFormValue:Object;
+
+        public var oldvouchFormValue:Object;
+
+        public var vouch:Object;
+
+        //lr add  字表grid 对象集合
+        public var gridList:ArrayCollection = new ArrayCollection();
+        //lr add  input 对象集合
+        public var textInputList:ArrayCollection = new ArrayCollection();
+
+
+        //lr modify
+        public function refAllGrid():void {
+            for each(var grid:CrmEapDataGrid in gridList) {
+                grid.invalidateList();
+                //grid.validateNow();
+                //(grid.dataProvider as ArrayCollection).refresh();
+            }
+        }
+
+        //lr add end
+
+        //以下为 YJ 	Add		用于单据编码业务模块
+        [Bindable]
+        public var numFlag:int = 1;//生成单据编码的分支标记
+        [Bindable]
+        public var billnumber:AcNumberHandleClass = new AcNumberHandleClass();//单据编码管理
+        [Bindable]
+        public var isSave:Boolean = false;//是否保存单据编码
+        [Bindable]
+        public var numbercount:int = 0;//承载参与单据编码管理的字段个数
+        [Bindable]
+        public var billnumberArr:ArrayCollection = new ArrayCollection();//承载单据编码中参照翻译时字段及字段值集合
+        [Bindable]
+        public var isExec:Boolean = false;//承载是否执行过(用于单据编码)
+
+        //是否是第一次保存
+        public var isSaveFirst:Boolean = true;
+
+        //YJ Add 参与编码管理的字段
+        public var nFieldsValueArr:ArrayCollection = new ArrayCollection();
+
+        public var writeMap:Object;
+
+        public var writeLit:ArrayCollection;
+
+        public function Vboxinit():void {
+            this.addEventListener(FormEvent.FORM_OPT_SUCCES, onFormOpt);
+            this.addEventListener(FormEvent.FORM_OPT_EXCUTE, onFormOpt);
+            this.addEventListener(FormEvent.FORM_OPT_FAILURE, onFormOpt);
+            this.addEventListener("numberEvent", onNumberEvent);
+        }
+
+        private function onFormOpt(event:FormEvent):void {
+            if (event.type == "form_opt_success") {
+                if (this.curButtonStatus == "onNew" || this.curButtonStatus == "onEdit") {
+                    var param:Object = event.items as Object;
+                    //this.curButtonStatus = "onGiveUp";20150722 lhl----新增保存后出现----按钮状态错误
+
+                    CRMtool.containerChildsEnabled(this, false);
+                    oldvouchFormValue = ObjectUtil.clone(this.fzsj(getValue()));
+                }
+
+                this.dispatchEvent(new Event("success"));
+            }
+            else {
+                CRMtool.tipAlert(event.msg);
+            }
+
+        }
+
+        //查询单据信息
+        public function queryVouchForm(paramObj:Object = null):void {
+            this.paramForm = this.owner;
+            var param:Object = new Object();
+            param.ifuncregedit = this.formIfunIid;
+            if (currid > 0) {
+                param.iid = currid;
+            }
+            if (paramObj != null) {
+                param.paramObj = paramObj;
+            }
+
+
+            CRMtool.getFormUI(formIfunIid, function (result):void {
+                vouch = result.vouch;
+                _vouchFormArr = result.vouchForm as ArrayList;//组、组成员信息
+
+                tableMessage = result.tableMessage as ArrayCollection;//表信息
+                if (result.hasOwnProperty("childTable")) {
+                    _childTableArr = result.childTable;
+                }
+                mainSqlObj = result.mainSql;
+                childSql = result.childSql as ArrayList;
+                if (result.hasOwnProperty("value")) {
+                    this.currid = result.value.mainValue.iid;
+                    var newObj:Object = new Object();
+                    newObj = result.value;
+                    vouchFormValue = newObj;
+                    oldvouchFormValue = clone(newObj);
+                }
+                if (result.hasOwnProperty("writeMap")) {
+                    writeMap = result.writeMap;
+                    writeLit = result.writeLit as ArrayCollection;
+                }
+                resolveFormula();//计算公式
+                createFormUI(_vouchFormArr);
+            });
+        }
+
+        private function clone(source:Object):* {
+            var myBA:ByteArray = new ByteArray();
+            myBA.writeObject(source);
+            myBA.position = 0;
+            return(myBA.readObject());
+        }
+
+
+        // 构建单据UI
+        private function createFormUI(componentInfo:*):void {
+            crmAllInputList = new ArrayCollection();
+            if (componentInfo == null) {
+                Alert.show("无法获取单据UI构建信息", "提示");
+                return;
+            }
+            var componentInfoArr:ArrayList = componentInfo as ArrayList;
+
+            for (var i:int = 0; i < componentInfoArr.length; i++) {
+                var singvouch:Object = componentInfoArr.getItemAt(i);
+                singvouch.curButtonStatus = paramForm.curButtonStatus;
+                //先创建最外面的框
+                var group:SingleVbox = new SingleVbox();
+                group.getValueFun = getValue;
+                group.setValueFun = setValue;
+                group.subTableAssignment = subTableAssignment;
+                group.constraintFormula = constraintFormula;
+                group.singleType = singvouch;
+                group.owner = this;
+                //隐藏组不占位置
+                if (group.singleType.bshow == false) {
+                    group.includeInLayout = false;
+                }
+                this.addChild(group);
+                group.init();
+                //每组行数
+                var rownums:Number;
+                if (group.singleType.childMap.length / group.singleType.hidenum > 2 && group.singleType.hidenum > 0) {
+                    rownums = Math.floor((group.singleType.childMap.length - group.singleType.hidenum) / group.singleType.igrouprow);
+                }
+                else {
+                    rownums = Math.round((group.singleType.childMap.length - group.singleType.hidenum) / group.singleType.igrouprow);
+                }
+                if (group.singleType.childMap is ArrayCollection) {
+                    var childlist:ArrayCollection = group.singleType.childMap;
+                    if (childlist.length > 0) {
+
+                        //lr add  2012.6.1
+                        var swapHeight:Number = 0;
+                        //var swapFlag:Boolean = false;//存在大占位内容
+                        var swapNO:int = 0;//大占位的数量
+                        for each(var child:Object in childlist) {
+                            if (child.objecttype == "RichTextEditor" || child.objecttype == "TextArea" || child.objecttype == "DataGrid") {
+                                //swapFlag = true;
+                                swapNO++;
+                                swapHeight += child.iheight;
+                                if (CRMtool.isStringNotNull(child.ccaption)) {
+                                    swapHeight += 50;
+                                }
+                            }
+                        }
+
+
+                        group.height = swapHeight + (rownums - swapNO) * 33.4;
+
+                        /* if (childlist.getItemAt(0).objecttype=="RichTextEditor"
+                         ||childlist.getItemAt(0).objecttype=="TextArea"
+                         ||childlist.getItemAt(0).objecttype=="DataGrid")
+                         {
+                         group.height=childlist.getItemAt(0).iheight;//以上三种控件高度
+                         if (childlist.getItemAt(0).ccaption!=null && childlist.getItemAt(0).ccaption!="")
+                         {
+                         group.height=group.height+50;//50为标题行高
+                         }
+                         }
+                         else
+                         {
+                         group.height=rownums*33.4;//33.4一般录入控件高度
+                         }  */
+                    }
+                }
+            }
+            //回车事件
+            CRMtool.setTabIndex(this);
+            if (paramForm.formStatus == "browser" || paramForm.curButtonStatus == "onGiveUp") {
+                CRMtool.containerChildsEnabled(this, false);
+            }
+            else {
+                CRMtool.containerChildsEnabled(this, true);
+            }
+
+
+            this.dispatchEvent(new Event("complete"));
+        }
+
+
+        public function setValue(dataObj:Object = null, number:int = 0, count:int = 0):void {
+            if (dataObj == null)
+                errorTip = "";
+
+            for (var i:int = 0; i < this.numChildren; i++) {
+                var singVbox:SingleVbox = this.getChildAt(i) as SingleVbox;
+                if (singVbox == null)
+                    continue;
+                singVbox.curButtonStatus = this.curButtonStatus;
+                singVbox.setValue(dataObj, number, count);
+            }
+
+            if (_childTableArr != null) {
+                var objInfo:Object = ObjectUtil.getClassInfo(_childTableArr);
+                var fieldName:Array = objInfo["properties"] as Array;
+                for each(var q:QName in fieldName) {
+                    var fieldArr:ArrayCollection = _childTableArr[q.localName] as ArrayCollection;
+                    var fieldValueobj:Object = new Object();
+                    for each(var fieldObj:Object in fieldArr) {
+                        for (var i:int = 0; i < this.numChildren; i++) {
+                            var singVbox:SingleVbox = this.getChildAt(i) as SingleVbox;
+                            if (singVbox == null)
+                                continue;
+                            singVbox.curButtonStatus = this.curButtonStatus;
+                            if (singVbox.singleType.cobjectname == fieldObj.maincobjectname) {
+                                if (dataObj != null) {
+                                    var tableArr:ArrayCollection = dataObj[q.localName] as ArrayCollection;
+                                    if (tableArr.length > 0) {
+                                        singVbox.setChidValue(fieldObj.cobjectname, this.fzsj(tableArr.getItemAt(0)), number, count);
+                                    }
+                                    else {
+                                        singVbox.setChidValue(fieldObj.cobjectname, null, number, count);
+                                    }
+                                }
+                                else {
+                                    singVbox.setChidValue(fieldObj.cobjectname, null, number, count);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (dataObj && dataObj.mainValue && dataObj.mainValue.iid > 0 && (paramForm.formStatus == "browser" || paramForm.curButtonStatus == "onGiveUp"))
+                this.oldvouchFormValue = ObjectUtil.clone(this.fzsj(this.getValue()));
+
+            //this.dispatchEvent(new Event("setValueComplete"));
+            if (this.paramForm is FrameCore) {
+                this.paramForm.dispatchEvent(new Event("setValueComplete"));
+            }
+        }
+
+        public function setSingValue(cfield:String, value:String, number:int = 0, count:int = 0):void {
+            for (var i:int = 0; i < this.numChildren; i++) {
+                var singVbox:SingleVbox = this.getChildAt(i) as SingleVbox;
+                if (singVbox == null)
+                    continue;
+                var crmEapVBox:CrmEapVBox = singVbox.getChildAt(singVbox.numChildren - 1) as CrmEapVBox;
+                for (var j:int = 0; j < crmEapVBox.numChildren; j++) {
+                    if (crmEapVBox.getChildAt(j) is HBox) {
+                        var hBox:HBox = crmEapVBox.getChildAt(j) as HBox;
+                        for (var k:int = 0; k < hBox.numChildren; k++) {
+                            if (hBox.getChildAt(k) is SingleVbox) {
+                                var singleVbox:SingleVbox = hBox.getChildAt(k) as SingleVbox;
+                                var ui:UIComponent = singleVbox.getChildByName(singleVbox.singleType.cobjectname) as UIComponent;
+                                if (singVbox.singleType.cfield == cfield) {
+                                    setSingleValue(ui, singleVbox.singleType.objecttype, value);
+                                }
+
+                            }
+                            else if (hBox.getChildAt(k) is SingleVouch) {
+                                var singleVouch:SingleVouch = hBox.getChildAt(k) as SingleVouch;
+                                var ui:UIComponent = singleVouch.getChildByName(singleVouch.singleType.cobjectname) as UIComponent;
+                                if (singleVouch.singleType.cfield == cfield) {
+                                    setSingleValue(ui, singleVouch.singleType.objecttype, value);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //往每个记录集中塞值
+        private function setSingleValue(ui:UIComponent, ctype:String, value:String):void {
+            switch (ctype) {
+                case "TextInput":
+                {
+                    var tnp_cfield:CrmEapTextInput = ui as CrmEapTextInput;
+                    tnp_cfield.text = value;
+                    break;
+                }
+            }
+        }
+
+        public function setTextValue(ctable:String, cfield:String, value:*):void {
+            for each(var textInput:IAllCrmInput in crmAllInputList) {
+                if (textInput.ctable == ctable && textInput.cfield == cfield) {
+                    textInput.cvalue = (value + "").toString();
+                    return;
+                }
+            }
+        }
+
+        public function getTextValue(ctable:String, cfield:String):String {
+            for each(var textInput:IAllCrmInput in crmAllInputList) {
+                if (textInput.ctable == ctable && textInput.cfield == cfield) {
+                    return textInput.cvalue;
+                }
+            }
+            return "";
+        }
+
+        //查询并且给tree
+        public function queryPm(value:String, _fun:Function = null):void {
+            var _valueObj:Object = new Object();
+            var selectSql:String = this.mainSqlObj.selectSql;
+            _valueObj.selectSql = selectSql;
+            _valueObj.childSql = this.childSql;
+            for (var i:int = 0; i < this.tableMessage.length; i++) {
+                var obj:Object = tableMessage.getItemAt(i);
+                if (Boolean(obj.bMain)) {
+                    _valueObj[obj.foreignKey] = value;
+                    break;
+                }
+            }
+            AccessUtil.remoteCallJava("CommonalityDest", "queryPm", function (event:ResultEvent):void {
+                var obj:Object = event.result as Object;
+
+                vouchFormValue = obj;
+                oldvouchFormValue = ObjectUtil.clone(obj);
+                if (obj.mainValue != null) {
+                    //判断是否点击引入树 【true : 左侧树 false:引入树】
+                    if (!popupTree) {
+                        obj.mainValue.ifuncregedit = ifun;
+                    }
+                    currid = int(obj.mainValue.iid);
+
+                }
+
+                setValue(obj, 1);
+                dispatchEvent(new Event("queryComplete"));
+
+                if (_fun != null) {
+                    _fun();
+                }
+            }, _valueObj, null, false);
+        }
+
+        public function onNew():void {
+            FormOpt.newOpt(this);
+        }
+
+        public function onEdit():void {
+            FormOpt.editOpt(this);
+        }
+
+        //保存
+        public function onSave(count:int = 0, arr:Array = null):void {
+            if (CRMtool.isStringNotNull(errorTip)) {
+                CRMtool.tipAlert1(errorTip);
+                return;
+            }
+
+            /*if(this.messageArr.length>0)
+             {
+             var paramObj:Object = messageArr.getItemAt(0);
+             CRMtool.tipAlert1(paramObj.message);
+             return;
+             }*/
+
+            var paramObj:Object = new Object();
+            paramObj.value = getValue();
+            paramObj.mainSqlObj = this.mainSqlObj;
+            paramObj.childSqlObj = this.childSql;
+            paramObj.tableMessage = this.tableMessage;
+            paramObj.ruleObj = this.vouchFormArr;
+            paramObj.curButtonStatus = this.paramForm.curButtonStatus;
+
+            //表单复制功能所需参数
+            if (!popupTree) {
+                paramObj.ifun = this.ifun;
+                paramObj.imports = "imports";
+//					for(var i :int=0;i<paramObj.value.ac_vouchform.length;i++){
+//						paramObj.value.ac_vouchform[i].iid="";
+//					}
+
+            }
+
+            //lzx begin 保存和删除未保存的富文本图片
+            var imagesForDelNew:ArrayCollection = new ArrayCollection();
+            var imagesForDelOld:ArrayCollection = new ArrayCollection();
+            var childMapArr:ArrayCollection = null;
+            var htmlNew:String = "";
+            var htmlOld:String = "";
+            var isRichTextEditor:Boolean = false;
+            for (var j:int = 0; j < vouchFormArr.length; j++) {
+                if (vouchFormArr.getItemAt(j).childMap is ArrayCollection) {
+                    childMapArr = vouchFormArr.getItemAt(j).childMap;
+                    for (var i:int = 0; i < childMapArr.length; i++) {
+                        if (childMapArr[i].objecttype == "RichTextEditor") {
+                            isRichTextEditor = true;
+                            htmlNew = paramObj.value[childMapArr[i].cfield];
+                            if (oldvouchFormValue != null && CRMtool.isStringNotNull(oldvouchFormValue.mainValue[childMapArr[i].cfield])) {
+                                htmlOld = oldvouchFormValue.mainValue[childMapArr[i].cfield];
+                            }
+                            imagesForDelNew.addItem(htmlNew);
+                            imagesForDelOld.addItem(htmlOld);
+                            paramObj.hasRichTextEditor = CRMmodel.userId;
+                            paramObj.cfield = childMapArr[i].cfield;
+                        }
+
+                    }
+                }
+            }
+            if (isRichTextEditor) {
+                var imagesForDelObj:Object = new Object();
+                imagesForDelObj.imagesForDelNew = imagesForDelNew;
+                imagesForDelObj.imagesForDelOld = imagesForDelOld;
+                var status:ArrayCollection = new ArrayCollection();
+                var object:String = "save";
+                status.addItem(object);
+                imagesForDelObj.status = status;
+                var userId:ArrayCollection = new ArrayCollection();
+                var obj:int = CRMmodel.userId;
+                userId.addItem(obj);
+                imagesForDelObj.userId = userId;
+                AccessUtil.remoteCallJava("FileDest", "deleteImage", null, imagesForDelObj, "", false);
+                status.removeAll();
+                userId.removeAll();
+                imagesForDelNew.removeAll();
+                imagesForDelOld.removeAll();
+                isRichTextEditor = false;
+            }
+
+            //lzx end
+
+            if (oldvouchFormValue != null) {
+                var deleteObj:Object = new Object();
+                //找出所有要删除的表体内容
+                for (var i:int = 0; i < tableMessage.length; i++) {
+                    var tableMessageObj:Object = tableMessage.getItemAt(i);
+                    if (tableMessageObj.bMain == "false" || !Boolean(tableMessageObj.bMain)) {
+                        var tableList:ArrayCollection = oldvouchFormValue[tableMessageObj.ctable] as ArrayCollection;
+                        if (vouchFormValue)
+                            var tableList2:ArrayCollection = vouchFormValue[tableMessageObj.ctable] as ArrayCollection;
+                        if (tableList != null) {
+                            //lr modify
+                            var removeList:ArrayCollection = new ArrayCollection();
+                            for each(var item:Object in tableList) {
+                                for each(var item2:Object in tableList2) {
+                                    if (item.iid == item2.iid)
+                                        removeList.addItem(item);
+                                }
+                            }
+
+                            for each(var ritem:Object in removeList) {
+                                if (tableList.getItemIndex(ritem) != -1) {
+                                    tableList.removeItemAt(tableList.getItemIndex(ritem));
+                                }
+                            }
+                            /*
+                             for(var j:int=0;j<tableList.length;j++)
+                             {
+                             var tableObj:Object = tableList.getItemAt(j);
+                             if(tableList2){
+                             for(var k:int=0;k<tableList2.length;k++)
+                             {
+                             var tableObj2:Object = tableList2.getItemAt(k);
+                             if(tableObj2.iid==tableObj.iid)
+                             {
+                             tableList.removeItemAt(j);
+                             }
+                             }
+                             }
+                             }*/
+                            deleteObj[tableMessageObj.ctable] = tableList;
+                        }
+                    }
+                }
+                paramObj.deleteObj = deleteObj;
+            }
+
+            if (count > 0) {
+                paramObj.count = count;
+            }
+            if (null != writeMap) {
+                paramObj.writeMap = this.writeMap;
+            }
+            isSaveFirst = true;
+            FormOpt.saveOpt(this, paramForm.curButtonStatus, paramObj, arr);
+        }
+
+
+        public function onSubmit(count:int = 0):void {
+
+            //var s:String = this.curButtonStatus ;
+            var paramObj:Object = new Object();
+            paramObj.value = getValue();
+            paramObj.mainSqlObj = this.mainSqlObj;
+            paramObj.childSqlObj = this.childSql;
+            paramObj.tableMessage = this.tableMessage;
+            paramObj.ruleObj = this.vouchFormArr;
+            paramObj.curButtonStatus = this.paramForm.curButtonStatus;
+            if (count > 0) {
+                paramObj.count = count;
+            }
+            FormOpt.submitWorkflowOpt(this, paramForm.curButtonStatus, paramObj);
+            //this.curButtonStatus = "onNew";
+
+            //if(this.currid>0){
+            //FormOpt.submitWorkflowOpt(this);
+            //}
+            //paramForm.wfiid;
+            //paramForm.currid;
+        }
+
+        public function onDelete():void {
+
+            var paramObj:Object = new Object();
+            var newObj:Object = getValue();
+            paramObj.value = newObj;
+            paramObj.mainSqlObj = this.mainSqlObj;
+            paramObj.childSqlObj = this.childSql;
+            paramObj.tableMessage = this.tableMessage;
+            paramObj.ruleObj = this.vouchFormArr;
+            paramObj.curButtonStatus = this.paramForm.curButtonStatus;
+            //lzx begin 删除富文本图片
+            var imagesForDelObj:Object = new Object();
+            var imagesForDelNew:ArrayCollection = new ArrayCollection();
+            var childMapArr:ArrayCollection = null;
+            var html:String = "";
+            var isRichTextEditor:Boolean = false;
+            for (var j:int = 0; j < vouchFormArr.length; j++) {
+                if (vouchFormArr.getItemAt(j).childMap is ArrayCollection) {
+                    childMapArr = vouchFormArr.getItemAt(j).childMap;
+                    for (var i:int = 0; i < childMapArr.length; i++) {
+                        if (childMapArr[i].objecttype == "RichTextEditor") {
+                            isRichTextEditor = true;
+                            html = paramObj.value[childMapArr[i].cfield];
+                            imagesForDelNew.addItem(html);
+                        }
+
+                    }
+                }
+            }
+            if (isRichTextEditor) {
+                imagesForDelObj.imagesForDelNew = imagesForDelNew;
+                var status:ArrayCollection = new ArrayCollection();
+                var object:String = "delete";
+                status.addItem(object);
+                imagesForDelObj.status = status;
+                AccessUtil.remoteCallJava("FileDest", "deleteImage", null, imagesForDelObj, "");
+                status.removeAll();
+                imagesForDelNew.removeAll();
+                isRichTextEditor = false;
+            }
+            //lzx end
+            if (null != writeMap) {
+                paramObj.writeMap = this.writeMap;
+            }
+            if (oldvouchFormValue != null) {
+                var deleteObj:Object = new Object();
+                //找出所有要删除的表体内容
+                for (var i:int = 0; i < tableMessage.length; i++) {
+                    var tableMessageObj:Object = tableMessage.getItemAt(i);
+                    if (tableMessageObj.bMain == "false" || !Boolean(tableMessageObj.bMain)) {
+                        deleteObj[tableMessageObj.ctable] = newObj[tableMessageObj.ctable] as ArrayCollection;
+                    }
+                }
+                paramObj.deleteObj = deleteObj;
+            }
+            FormOpt.deleteOpt(this, paramForm.curButtonStatus, paramObj);
+
+        }
+
+        public function onPrint(item:Object, formIfunIid:int, currid:int):void {
+            var paramObj:Object = new Object();
+            paramObj.pttemp = item;
+            paramObj.formIfunIid = formIfunIid
+            paramObj.currid = currid;
+            FormOpt.printOpt(this, paramForm.curButtonStatus, paramObj);
+        }
+
+        //获得所有值
+        public function getValue(number:int = 0):Object {
+            var param:Object = new Object();
+            var bool:Boolean = false;
+            for (var i:int = 0; i < this.numChildren; i++) {
+                var singVbox:SingleVbox = this.getChildAt(i) as SingleVbox;
+                if (singVbox == null)
+                    continue;
+
+                singVbox.formStatus = paramForm.formStatus;
+                singVbox.curButtonStatus = this.curButtonStatus;
+                var result:Object = singVbox.getValue(number);
+
+                var objInfo:Object = ObjectUtil.getClassInfo(result);
+                var fieldName:Array = objInfo["properties"] as Array;
+                for each(var q:QName in fieldName) {
+                    if (!bool && q.localName == "ifuncregedit") {
+                        bool = true;
+                    }
+                    if (result[q.localName] is ArrayCollection) {
+                        var valueArr:ArrayCollection = result[q.localName] as ArrayCollection;
+                        param[q.localName] = valueArr;
+                    }
+                    else {
+                        var value:String = result[q.localName];
+                        param[q.localName] = value;
+                    }
+                }
+            }
+            param.iifuncregedit = this.formIfunIid;
+            if (!bool) {
+                param.ifuncregedit = this.formIfunIid;
+            }
+
+            if (paramForm.curButtonStatus == "onNew") {
+                param.iid = 0;
+            }
+            else {
+                param.iid = this.currid;
+            }
+
+            if (_childTableArr != null) {
+                var objInfo:Object = ObjectUtil.getClassInfo(_childTableArr);
+                var fieldName:Array = objInfo["properties"] as Array;
+                for each(var q:QName in fieldName) {
+                    var fieldArr:ArrayCollection = _childTableArr[q.localName] as ArrayCollection;
+                    var fieldcount:int = 0;
+                    var fieldValueobj:Object = new Object();
+                    for each(var fieldObj:Object in fieldArr) {
+                        for (var i:int = 0; i < this.numChildren; i++) {
+                            var singVbox:SingleVbox = this.getChildAt(i) as SingleVbox;
+                            if (singVbox == null)
+                                continue;
+                            if (singVbox.singleType.cobjectname == fieldObj.maincobjectname) {
+                                var childVal:Object = singVbox.getChidValue(fieldObj.cobjectname, number);
+                                if (childVal == null || childVal.toString() == "") {
+                                    fieldcount++;
+                                }
+                                fieldValueobj[fieldObj.cfield] = childVal;
+                            }
+
+                        }
+                    }
+                    if (paramForm.curButtonStatus == "onEdit") {
+                        for (var i:int = 0; i < this.tableMessage.length; i++) {
+                            var obj:Object = tableMessage.getItemAt(i);
+                            if (obj.ctable == q.localName) {
+                                fieldValueobj[obj.foreignKey] = this.currid;
+                                break;
+                            }
+                        }
+                        var a:ArrayCollection = vouchFormValue[q.localName] as ArrayCollection;
+                        if (a.length > 0) {
+                            fieldValueobj.iid = a.getItemAt(0).iid;
+                        }
+                    }
+                    var fildValueArr:ArrayCollection = new ArrayCollection();
+                    if (fieldcount != fieldArr.length) {
+
+                        fildValueArr.addItem(fieldValueobj);
+                    }
+                    param[q.localName] = fildValueArr;
+                }
+            }
+            return param;
+        }
+
+        //获得参数值
+        public function getconsultsetResult(cfield:String, number:int = 0):String {
+            var result:String = "";
+
+            //获取文本框的值
+            for (var i:int = 0; i < this.numChildren; i++) {
+                var singVbox:SingleVbox = this.getChildAt(i) as SingleVbox;
+                if (singVbox == null)
+                    continue;
+                singVbox.formStatus = paramForm.formStatus;
+                singVbox.curButtonStatus = this.curButtonStatus;
+                result = singVbox.getconsultsetResult(cfield, number);
+                if (result != "") {
+                    break;
+                }
+            }
+            return result;
+        }
+
+        //窗体初始化
+        public function onWindowInit():void {
+        }
+
+        //窗体打开，再次打开
+        public function onWindowOpen():void {
+            this.curButtonStatus = "onNew";
+
+            //lr注释，太不合理了，这样的话再次打开事件岂不是监听两次了
+            //Vboxinit();
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+
+        }
+
+        //新增
+        public function setCurButtonStatus():void {
+            for (var i:int = 0; i < this.numChildren; i++) {
+                var singVbox:SingleVbox = this.getChildAt(i) as SingleVbox;
+                if (singVbox == null)
+                    continue;
+                singVbox.setCurButtonStatus(this.paramForm.curButtonStatus);
+            }
+        }
+
+        //唯一约束验证
+        public function isUnique():void {
+            var paramObj:Object = new Object();
+            paramObj.value = getValue();
+            paramObj.mainSqlObj = this.mainSqlObj;
+            paramObj.childSqlObj = this.childSql;
+            paramObj.tableMessage = this.tableMessage;
+            paramObj.ruleObj = this.vouchFormArr;
+            paramObj.curButtonStatus = this.paramForm.curButtonStatus;
+            AccessUtil.remoteCallJava("CommonalityDest", "isUnique", isUniqueBack, paramObj);
+        }
+
+        public function isUniqueBack(event:ResultEvent):void {
+            if (event.result != null) {
+                CRMtool.tipAlert(event.result.toString());
+            }
+            else {
+                this.dispatchEvent(new Event("resultSucc"));
+            }
+        }
+
+        /**
+         * 表单数据复制
+         * 创建人：王炫皓
+         * 创建时间：20130131
+         * */
+        public function formDataCopy():void {
+            var myMainValue:Object = this.getValue() as Object;
+            var param:Object = new Object();
+            param.ifuncregedit = this.formIfunIid;
+			myMainValue.imaker=CRMmodel.userId;
+			myMainValue.dmaker=CRMtool.formatDateNoHNS();
+            var tableName:String;
+            for each (var obj:Object in this.tableMessage) {
+                if (obj.bMain == true) {
+                    tableName = obj.ctable;
+                }
+                if (obj.ctable2 != "null") {
+                    /*
+                     *分解子表 去掉iid
+                     */
+                    var objarr:ArrayCollection = myMainValue[obj.ctable] as ArrayCollection;
+
+                    for (var i:int = 0; i < objarr.length; i++) {
+                        var newObj:Object = objarr.getItemAt(i) as Object;
+                        delete newObj.iid;
+                        myMainValue[obj.ctable][i] = newObj;
+                    }
+
+                }
+            }
+            param.ctable = tableName;
+            param.itemType = "onNew";
+            param.operId = "onListNew";
+            param.formTriggerType = "fromOther";
+            param.injectObj = myMainValue;
+            var iid:ArrayCollection = new ArrayCollection();
+            param.personArr = iid;
+            CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param, "加载中 ...", "");
+        }
+        ]]>
+	</fx:Script>
+</mx:VBox>

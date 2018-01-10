@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" 
+						  focusEnabled="true" xmlns:comps="yssoft.comps.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.DataGrid;
+			protected function csl_textinput_searchChangeHandler(event:Event):void
+			{
+				data.iconsult=event.currentTarget.value;
+			}
+			override public function set data(value:Object):void{
+				super.data=value;
+				if(value==null){
+					return;
+				}
+				
+				if(data.iconsult !=null && data.iconsult !="" && data.iconsult !=0 && data.iconsult !="0"){
+					csl_textinput.value=data.iconsult;
+				}
+			}
+		]]>
+	</fx:Script>
+	<comps:ConsultTextInput left="0" right="0" top="0" bottom="0" 
+							iid="15" bindValueField="iid" bindLabelField="cname" visibleIcon="{(this.owner as DataGrid).editable}"  
+							id="csl_textinput" searchChange="csl_textinput_searchChangeHandler(event)">
+	</comps:ConsultTextInput>
+</s:MXDataGridItemRenderer>

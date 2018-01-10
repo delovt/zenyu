@@ -1,0 +1,823 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         styleName="centerbg4"
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+         verticalGap="0" creationComplete="initBasicData()"
+         height="100%">
+	
+	<fx:Script>
+		<![CDATA[
+        import com.google.zxing.common.flexdatatypes.ArrayList;
+
+        import hlib.Hash;
+
+        import mx.collections.ArrayCollection;
+        import mx.controls.List;
+        import mx.events.FlexEvent;
+        import mx.formatters.DateFormatter;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.ObjectUtil;
+
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var _counter:int = 1;
+        private var maxConter:int = 4;
+        private var parObj:Object;
+        private var cslist:ArrayCollection;//客户列表
+        private var prolist:ArrayCollection;//产品列表
+        private var monstatuslist:ArrayCollection;//服务收费状态列表
+        private var prostatuslist:ArrayCollection;//产品使用状态列表
+        private var closeprolist:ArrayCollection;//最近服务产品列表
+        private var icountlist:ArrayCollection;//服务收费状况列表
+        private var iproductlist:ArrayCollection;//产品模块列表
+
+        private var datalist:ArrayCollection;//枚举列表
+        private var datalist2:ArrayCollection;//枚举列表
+        private var cpersonlist:ArrayCollection;//联系人列表
+        private var personlist:ArrayCollection;//人员列表
+
+
+        [Bindable]
+        public var aclist:ArrayCollection;
+
+        [Bindable]
+        public var checkFlag:Boolean = true;
+
+        public var errString:String = "@*#@";
+        public var catchString:String = "@#*@";
+
+        private var footText:String = "导入数据说明：<br/>" +
+                "	1、客户名称、购买产品、最近服务到期日、服务收费状态、产品使用状态、制单人为必填项；<br/>" +
+                "	2、制单人为创建资产单据的职员，制单时间如果为空会默认为系统当前日期；<br/>" +
+                "	3、客户名称可以输入其编码或名称，系统会自行校验内码，但编码不能含汉字；<br/>" +
+                "	4、系统导入时会根据字段长度进行截位处理；<br/>" +
+                "   <FONT COLOR='#ff8100'>	5、一次导入数据上限为2000条,数据验证将会花费一定时间，视数据量与计算机性能将会等待1至60秒。</FONT>";
+
+        private var downloadText =
+                "<FONT COLOR='#ff0000'><A HREF='"
+                + ConstsModel.publishUrlRoot + "/importDataTemplate/" + "cs_custproduct.xls"
+                + "' TARGET='_blank'>点此下载数据导入模板</A></FONT>";
+
+        private function initBasicData():void {
+            var sql1:String = "select * from ( "+
+                    "select cs_customer.iid,cs_customer.ccode,cs_customer.cname,cofficeaddress,cs_customer.cname as cust_name, "+
+                    "istatus,iservicesdepart,hr_person.cname serviceperson,hp.cname saleperson from cs_customer "+
+                    "left join hr_person on CS_customer.iservicesperson=hr_person.iid "+
+                    "left join hr_person hp on CS_customer.isalesperson=hp.iid "+
+                    "where (cs_customer.iproperty=290 or cs_customer.iproperty=308)) cs_customer where 1=1 ";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                cslist = event.result as ArrayCollection;
+                counter++;
+            }, sql1);
+
+            var sql2:String = "select iid,cname,ccode,iclass from aa_data where iclass =92";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                datalist = event.result as ArrayCollection;
+                counter++;
+            }, sql2);
+
+            var sql3:String = "select iid,cname,ccode from hr_person";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                personlist = event.result as ArrayCollection;
+                counter++;
+            }, sql3);
+
+            var sql4:String = "select iid,cname,icustomer from cs_custperson";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                cpersonlist = event.result as ArrayCollection;
+                counter++;
+            }, sql4);
+
+            var sql5:String = "select iid,ccode,cname from sc_product";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                prolist = event.result as ArrayCollection;
+                counter++;
+            }, sql5);
+
+            var sql8:String = "select iid,ccode,cname from sc_product";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                closeprolist = event.result as ArrayCollection;
+                counter++;
+            }, sql8);
+
+            var sql10:String = "select * from" +
+                    " (select sc_product.ccode,sc_product.iid iproduct,sc_product.cname pname,sc_boms.iid,sc_boms.fquantity,sc_boms.ipricetype," +
+                    " sc_productbom.cname cname," +
+                    "      (sc_product.cname+'-'+sc_productbom.cname) linkpname from (" +
+                    "      select iproduct,iid from sc_bom union select iproduct,ibom as iid from sc_bomp" +
+                    " ) sc_bom" +
+                    "   left join (select iid,ibom,iproduct,fquantity,ipricetype,iifuncregedit from sc_boms) sc_boms on sc_bom.iid=sc_boms.ibom" +
+                    " left join (select iid,ccode,cname from sc_product) sc_product on sc_bom.iproduct=sc_product.iid" +
+                    "  left join (select iid,ccode,cname from sc_product) sc_productbom on sc_boms.iproduct=sc_productbom.iid" +
+                    " ) sc_bom";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                iproductlist = event.result as ArrayCollection;
+                counter++;
+            }, sql10);
+
+            var sql11:String = "select iid ,cname,ccode,iclass from aa_data where iclass in(104,119)";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                datalist2 = event.result as ArrayCollection;
+                counter++;
+            }, sql11);
+        }
+
+        private function importButton_clickHandler(event:MouseEvent):void {
+
+            var fileReference:FileReference = new FileReference();
+            var fileFilter:FileFilter = new FileFilter("选择文件", "*.xls");
+            fileReference.addEventListener(Event.SELECT, function (event:Event):void {
+                var url:String = "/eap1.0/FileUploadServlet?param=importdata";
+                var request:URLRequest = new URLRequest(url);
+                fileReference.upload(request);
+            });
+            fileReference.addEventListener(Event.COMPLETE, function (event:Event):void {
+                AccessUtil.remoteCallJava("MrCustomerDest", "importData", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac.length > 2000) {
+                        CRMtool.showAlert("一次导入最多支持2000条数据，请检查您的文件。");
+                        return;
+                    }
+
+                    aclist = ac;
+                    checkAll.enabled = true;
+                }, {filename: fileReference.name});
+            });
+            fileReference.browse([fileFilter]);
+        }
+
+
+        protected function checkAll_clickHandler(event:MouseEvent):void {
+
+            checkAllData();
+
+        }
+
+        private function checkAllData():void {
+            if (aclist == null) {
+                CRMtool.showAlert("Excel数据无效，请检查。");
+                return;
+            }
+
+            var obj:Object = new Object();
+            obj.checkFlag = checkFlag;
+            obj.aclist = aclist;
+            checkFlag = true;
+            clearData();
+
+            checkNull("客户名称");
+            checkNull("购买产品");
+
+            checkNull("最近服务到期日");
+            checkNull("服务收费状态");
+            checkNull("产品使用状态");
+            checkNull("制单人");
+            checkDate("最早购买日期");
+            checkDate("最近服务到期日");
+            checkDate("制单时间");
+            checkRepeat("客户名称","购买产品","加密盒号");
+            checkRepeat("客户名称","购买产品","产品CDK");
+            checkCDKRepeat("客户名称","购买产品","加密盒号","产品CDK");
+            checkNoEnumID("客户名称");//icustomer
+            checkNoEnumID("制单人");//imaker
+            checkNoEnumID("购买产品");//cs_custproduct -- iproduct
+            checkNoEnumID("最近服务收费产品");//ichargestype
+            checkNoEnumID("产品模块");//cs_custproducts -- iproduct
+            checkEnumID("服务收费状态");//iscstatus
+            checkEnumID2("产品使用状态");//istatus
+            checkEnumID2("服务收费状况");//icount
+            AccessUtil.remoteCallJava("MrCustomerDest", "checkbom", function (event:ResultEvent):void {
+                parObj=event.result as Object;
+                aclist = parObj.aclist;
+
+                checkCSN("加密盒号");//验证加密狗是否重复
+                checkCDK("产品CDK");//验证cdk是否重复
+                checkproductboms("产品模块");//验证模块是否属于产品
+                aclist.refresh();
+                importDataButton.enabled = checkFlag;
+            }, obj, "验证数据将花费一定时间，请等待。");
+        }
+
+        //验证加密盒号是否重复
+        private function checkCSN(param1:String):void {
+            for each(var item:Object in aclist) {
+                if (item["CSNfalse"] == 1) {
+                    checkFlag = false;
+                    item[param1] = errString + item["msg"] + item[param1];
+                }
+            }
+            aclist.refresh();
+        }
+        //验证加密盒号是否重复
+        private function checkCDK(param1:String):void {
+            for each(var item:Object in aclist) {
+                if (item["CDKfalse"] == 1) {
+                    checkFlag = false;
+                    item[param1] = errString + item["msg"] + item[param1];
+                }
+            }
+            aclist.refresh();
+        }
+
+        //验证模块
+        private function checkproductboms(param2:String):void {
+            for each(var item:Object in aclist) {
+                if (item["false"] == 1) {
+                    item[param2] = errString + "产品模块不存在产品中，值:" + item[param2];
+                }
+            }
+        }
+        //重复验证
+        private function checkRepeat(param1:String,param2:String,param3:String):void {
+            //当前页面
+            var value1:String;
+            var value2:String;
+            var value3:String;
+            for (var i = 0; i < aclist.length; i++) {
+
+                 if(!hasFaultFlag(aclist.getItemAt(i),param1) && !hasFaultFlag(aclist.getItemAt(i),param2)
+                        && !hasFaultFlag(aclist.getItemAt(i),param3)) {
+                     if(CRMtool.isStringNotNull(aclist.getItemAt(i)[param3])){
+                         value1 = aclist.getItemAt(i)[param1];
+                         value2 = aclist.getItemAt(i)[param2];
+                         value3 = aclist.getItemAt(i)[param3];
+                         for (var j = i+1; j < aclist.length; j++) {
+                             if(aclist.getItemAt(j)[param3] == value3){
+                                 if(!(aclist.getItemAt(j)[param1] == value1&&aclist.getItemAt(j)[param2] == value2)){
+                                     checkFlag = false;
+
+                                     aclist.getItemAt(j)[param3] = errString + "存在重复,第" + (i+1) + "行,值:" + aclist.getItemAt(j)[param3];
+
+                                 }
+                             }
+
+                         }
+                     }
+                }else{
+                    checkFlag = false;
+                    break;
+                }
+            }
+        }
+        //重复验证
+        private function checkCDKRepeat(param1:String,param2:String,param:String,param3:String):void {
+            //当前页面
+            var value1:String;
+            var value2:String;
+            var value:String;
+            var value3:String;
+            for (var i = 0; i < aclist.length; i++) {
+
+                if(!hasFaultFlag(aclist.getItemAt(i),param1) && !hasFaultFlag(aclist.getItemAt(i),param2)
+                        && !hasFaultFlag(aclist.getItemAt(i),param3)&& !hasFaultFlag(aclist.getItemAt(i),param)) {
+                    if(CRMtool.isStringNotNull(aclist.getItemAt(i)[param])&&CRMtool.isStringNotNull(aclist.getItemAt(i)[param3])){
+                        value1 = aclist.getItemAt(i)[param1];
+                        value2 = aclist.getItemAt(i)[param2];
+                        value=aclist.getItemAt(i)[param];
+                        value3 = aclist.getItemAt(i)[param3];
+                        for (var j = i+1; j < aclist.length; j++) {
+                            if(aclist.getItemAt(j)[param3] == value3){
+                                if(!(aclist.getItemAt(j)[param1] == value1&&aclist.getItemAt(j)[param2] == value2&&aclist.getItemAt(j)[param] == value)){
+                                    checkFlag = false;
+
+                                    aclist.getItemAt(j)[param3] = errString + "加密盒号重复,第" + (i+1) + "行,值:" + aclist.getItemAt(j)[param3];
+
+                                }
+                            }
+                            if(aclist.getItemAt(j)[param] == value){
+                                if(!(aclist.getItemAt(j)[param1] == value1&&aclist.getItemAt(j)[param2] == value2&&aclist.getItemAt(j)[param3] == value3)){
+                                    checkFlag = false;
+
+                                    aclist.getItemAt(j)[param] = errString + "产品cdk重复,第" + (i+1) + "行,值:" + aclist.getItemAt(j)[param];
+
+                                }
+                            }
+
+                        }
+                    }
+                }else{
+                    checkFlag = false;
+                    break;
+                }
+            }
+        }
+        //验证字母和数字
+        private function checkIntegerAndZimu(item:Object, param:String):void {
+            var pattern:RegExp = /^-?\d+$/;
+            if (CRMtool.isStringNotNull(item[param]) && !hasFaultFlag(item,param)) {
+                var flag = pattern.test(item[param]);
+                if (!flag) {
+                    checkFlag = false;
+                    item[param] = errString + "非整数";
+                }
+            }
+        }
+        private function hasFaultFlag(item:Object,param:String):Boolean{
+            if (item[param] && item[param].toString().indexOf(errString) > -1) {
+                checkFlag = false;
+                return true;
+            }
+            if (item[param] && item[param].toString().indexOf(catchString) > -1) {
+                item[param] = item[param].toString().substr(catchString.length);
+            }
+            return false;
+        }
+        private function clearData():void {
+            for (var i:int = aclist.length - 1; i >= 0; i--) {
+                var item:Object = aclist.getItemAt(i);
+
+                var flag:Boolean = true;
+                var objInfo:Object = ObjectUtil.getClassInfo(item);
+                var fieldName:Array = objInfo["properties"] as Array;
+                for each (var q:QName in fieldName) {
+                    if (CRMtool.isStringNotNull(item[q.localName])) {
+                        flag = false;
+                    }
+                }
+                if (flag)
+                    aclist.removeItemAt(i);
+            }
+        }
+
+
+        private function checkNull(param:String):void {
+            for each(var item:Object in aclist) {
+                if (CRMtool.isStringNull(item[param])|| hasFaultFlag(item,param)) {
+                    checkFlag = false;
+                    item[param] = errString + "空";
+                }
+            }
+        }
+
+        /*checkEnumID("服务收费状态");//iscstatus
+         checkEnumID("产品使用状态");//istatus
+         checkEnumID("最近服务收费产品");//ichargestype
+         checkEnumID("服务收费状况");//icount*/
+
+        private function checkEnumID(param:String):void {
+
+            var iclass:int = 0;
+
+            switch (param) {
+                case "服务收费状态":
+                    iclass = 92;
+                    break;
+                case "产品使用状态":
+                    iclass = 104;
+                    break;
+                case "服务收费状况":
+                    iclass = 119;
+                    break;
+
+            }
+
+            if (iclass == 0)
+                return;
+
+            var field:String = "";
+
+            for each(var item:Object in aclist) {
+                if (CRMtool.isStringNotNull(item[param])&& !hasFaultFlag(item,param)) {
+                    var value:String = item[param];
+                    if (value && value.indexOf(errString) > -1) {
+                        checkFlag = false;
+                        continue;
+                    }
+
+                    if (value && value.indexOf(catchString) > -1) {
+                        value = value.substr(catchString.length);
+                    }
+                    if(param=="购买产品"||param=="制单人"){
+                        field = "cname";
+                    }
+                    else if (value && value.search("[\u4e00-\u9fa5]+") > -1) {//有汉字，是name
+                        field = "cname";
+                    } else if (value && value.match("[0-9]+") == null) {//没有汉字，没有数字，是name
+                        field = "cname";
+                    } else {//其他，是code
+                        field = "ccode";
+                    }
+
+                    var hasObj:Object = null;
+                    for each(var o:Object in datalist) {
+                        if (o[field] == value) {
+                            hasObj = o;
+                            break;
+                        }
+                    }
+
+                    if (hasObj) {
+                        if (field == "ccode") {
+                            item[param] = catchString + hasObj.cname;
+                        }
+                        item["iid" + param] = hasObj.iid;
+                    } else {
+                        checkFlag = false;
+                        item[param] = errString + "内码未找到,值:" + item[param];
+                        item["iid" + param] = 0;
+                    }
+                } else {
+                    item["iid" + param] = 0;
+                }
+            }
+        }
+
+        private function checkEnumID2(param:String):void {
+
+            var iclass:int = 0;
+
+            switch (param) {
+
+                case "产品使用状态":
+                    iclass = 104;
+                    break;
+                case "服务收费状况":
+                    iclass = 119;
+                    break;
+
+            }
+
+            if (iclass == 0)
+                return;
+
+            var field:String = "";
+
+            for each(var item:Object in aclist) {
+                if (CRMtool.isStringNotNull(item[param])&& !hasFaultFlag(item,param)) {
+                    var value:String = item[param];
+                    if (value && value.indexOf(errString) > -1) {
+                        checkFlag = false;
+                        continue;
+                    }
+
+                    if (value && value.indexOf(catchString) > -1) {
+                        value = value.substr(catchString.length);
+                    }
+
+                    if (value && value.search("[\u4e00-\u9fa5]+") > -1) {//有汉字，是name
+                        field = "cname";
+                    } else if (value && value.match("[0-9]+") == null) {//没有汉字，没有数字，是name
+                        field = "cname";
+                    } else {//其他，是code
+                        field = "ccode";
+                    }
+
+                    var hasObj:Object = null;
+                    for each(var o:Object in datalist2) {
+                        if (o[field] == value) {
+                            hasObj = o;
+                            break;
+                        }
+                    }
+
+                    if (hasObj) {
+                        if (field == "ccode") {
+                            item[param] = catchString + hasObj.cname;
+                        }
+                        item["iid" + param] = hasObj.ccode;
+                    } else {
+                        checkFlag = false;
+                        item[param] = errString + "内码未找到,值:" + item[param];
+                        item["iid" + param] = 0;
+                    }
+                } else {
+                    item["iid" + param] = 0;
+                }
+            }
+        }
+
+        /*checkNoEnumID("客户名称");//icustomer
+         checkNoEnumID("制单人");//imaker
+         checkNoEnumID("购买产品");//cs_custproduct -- iproduct
+         checkNoEnumID("最近服务收费产品");//ichargestype
+         checkNoEnumID("产品模块");//cs_custproducts -- iproduct*/
+
+        private function checkNoEnumID(param:String):void {
+
+            var field:String = "";
+            var table:String = "";
+
+            switch (param) {
+                case "客户名称":
+                    table = "cs_customer";
+                    break;
+                case "制单人":
+                    table = "hr_person";
+                    break;
+                case "购买产品":
+                    table = "sc_product";
+                    break;
+                case "最近服务收费产品":
+                    table = "sc_product";
+                    break;
+                case "产品模块":
+                    table = "sc_productBom";
+                    break;
+            }
+
+            for each(var item:Object in aclist) {
+                 var iids:ArrayCollection=new ArrayCollection();
+                if (CRMtool.isStringNotNull(item[param])&& !hasFaultFlag(item,param)) {
+                    var value:String = item[param];
+                    if (value && value.indexOf(errString) > -1) {
+                        checkFlag = false;
+                        continue;
+                    }
+
+                    if (value && value.indexOf(catchString) > -1) {
+                        value = value.substr(catchString.length);
+                    }
+                  if(param=="购买产品"||param=="制单人"){
+                        field = "cname";
+                    }else if (value && value.search("[\u4e00-\u9fa5]+") > -1) {
+                        field = "cname";
+                    } else {
+                        field = "ccode";
+                    }
+
+                    var hasObj:Object = null;
+                    var swaplist:ArrayCollection;
+
+                    if (table == "hr_person") {
+                        swaplist = personlist;
+                    } else if (table == "cs_customer") {
+                        swaplist = cslist;
+                    } else if (table == "sc_product") {
+                        swaplist = prolist;
+                    } else if (table == "sc_productBom") {
+                        swaplist = prolist;
+                    } else if (table == "sc_boms") {
+                        swaplist = iproductlist;
+                    }
+
+                    for each(var o:Object in swaplist) {
+                        if (o[field] == value) {
+                            hasObj = o;
+                            if(table == "sc_productBom"){
+
+                                iids.addItem(hasObj["iid"]);
+                            }else{
+                                break;
+                            }
+
+                        }
+                    }
+                    item["iids"]=iids;
+
+                    if (hasObj) {
+                        if (field == "ccode") {
+                            item[param] = catchString + hasObj.cname;
+                        }
+                        item["iid" + param] = hasObj.iid;
+
+                    } else {
+                        checkFlag = false;
+                        item[param] = errString + "内码未找到,值:" + item[param];
+                        item["iid" + param] = 0;
+                    }
+
+                } else {
+                    item["iid" + param] = 0;
+                }
+            }
+        }
+        /**
+         * 验证日期,可以为空
+         * */
+        private function checkDate(param:String):void {
+            for each(var item:Object in aclist){
+                if (CRMtool.isStringNotNull(item[param]) && !hasFaultFlag(item,param)) {
+                    var pattern:RegExp = /^((((1[6-9]|[2-9]\d)\d{2})-(0?[13578]|1[02])-(0?[1-9]|[12]\d|3[01]))|(((1[6-9]|[2-9]\d)\d{2})-(0?[13456789]|1[012])-(0?[1-9]|[12]\d|30))|(((1[6-9]|[2-9]\d)\d{2})-0?2-(0?[1-9]|1\d|2[0-8]))|(((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))-0?2-29))$/;
+                    var flag = pattern.test(item[param]);
+                    if (CRMtool.isStringNotNull(item[param]) && !flag) {
+                        checkFlag = false;
+                        item[param] = errString + "日期格式非法,请按2016-10-10格式输入日期";
+                    }
+                }
+            }
+
+        }
+        private function checkNoEnumID2(param:String):void {
+
+            var field:String = "";
+            var table:String = "";
+
+
+            for each(var item:Object in aclist) {
+                if (CRMtool.isStringNotNull(item[param])) {
+                    var value:String = item[param];
+                    if (value && value.indexOf(errString) > -1) {
+                        checkFlag = false;
+                        continue;
+                    }
+
+                    if (value && value.indexOf(catchString) > -1) {
+                        value = value.substr(catchString.length);
+                    }
+
+                    if (value && value.search("[\u4e00-\u9fa5]+") > -1) {
+                        field = "cname";
+                    } else {
+                        field = "ccode";
+                    }
+
+                    var hasObj:Object = null;
+
+
+                    for each(var o:Object in iproductlist) {
+                        if (o[field] == value) {
+                            hasObj = o;
+                            break;
+                        }
+                    }
+
+                    if (hasObj) {
+                        if (field == "ccode") {
+                            item[param] = catchString + hasObj.cname;
+                        }
+                        item["id" + param] = hasObj.iid;
+                    } else {
+                        checkFlag = false;
+                        item[param] = errString + "内码未找到,值:" + item[param];
+                        item["iid" + param] = 0;
+                    }
+
+                } else {
+                    item["iid" + param] = 0;
+                }
+            }
+        }
+
+
+        private function checkFunction(field:String, param:String, sql:String) {
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var eventAC:ArrayCollection = event.result as ArrayCollection;
+                if (eventAC && eventAC.length > 0) {
+                    var length:int = eventAC.length;
+                    var rvalue:String = eventAC[0].liu;
+
+                    for each(var item:Object in aclist) {
+                        if (item[param] == rvalue) {
+                            if (length == 1) {
+                                checkFlag = false;
+                                item[param] = errString + "内码未找到,值:" + item[param];
+
+                            } else if (length > 1) {
+                                if (field == "ccode") {
+                                    item[param] = catchString + eventAC[1].cname;
+                                }
+                                var iid:String = eventAC[1].iid;
+                                item["iid" + param] = iid;
+                            }
+
+                        }
+                    }
+                    aclist.refresh();
+                }
+            }, sql);
+        }
+
+
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = aclist.getItemIndex(item) + 1;
+            return lineNum + "";
+        }
+
+        private function button1_clickHandler(event:MouseEvent):void {
+            if (aclist == null || aclist.length == 0) {
+                return;
+            }
+            if (!checkFlag) {
+                CRMtool.showAlert("数据有误，请检查后单击[数据验证]按钮进行验证。");
+            } else {
+                for each(var item:Object in aclist) {
+                    if (CRMtool.isStringNull(item.制单时间)){
+                        var dateFormatter:DateFormatter = new DateFormatter();
+                        dateFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
+                        var nowData:String= dateFormatter.format(new Date());
+                        item.制单时间 = nowData;
+                    }
+                    item.imaker = item.iid制单人;
+                    item.dmaker = item.制单时间;
+                }
+
+                AccessUtil.remoteCallJava("MrCustomerDest", "importCscustproduct", function (event:ResultEvent):void {
+                    if (event.result as Boolean) {
+                        CRMtool.showAlert("导入成功。");
+                        _counter = 1;
+                        initBasicData();
+                        checkAll.enabled = false;
+                        importDataButton.enabled = false;
+                    }
+                }, aclist);
+            }
+        }
+
+
+        public function get counter():int {
+            return _counter;
+        }
+
+        public function set counter(value:int):void {
+            _counter = value;
+            if (value == maxConter) {
+                importButton.enabled = true;
+            }
+        }
+        ]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<fx:Component id="listItemRender">
+			<s:MXDataGridItemRenderer>
+				<fx:Script>
+					<![CDATA[
+                    import mx.utils.StringUtil;
+
+                    [Bindable]
+                    private var textValue:String = "";
+
+                    override public function set data(value:Object):void {
+                        super.data = value;
+                        if (!value)
+                            return;
+
+                        var param:String = this.dataGridListData.dataField;
+                        if (value && value.hasOwnProperty(param) && String(value[param]).indexOf(outerDocument.errString) != -1) {
+                            textInput.setStyle("color", "red");
+                            textValue = value[param].substring(outerDocument.errString.length);
+                        } else if (value && value.hasOwnProperty(param) && String(value[param]).indexOf(outerDocument.catchString) != -1) {
+                            textInput.setStyle("color", "green");
+                            textValue = value[param].substring(outerDocument.catchString.length);
+                        } else {
+                            textInput.setStyle("color", "#000000");
+                            textValue = value[param];
+                        }
+                    }
+
+                    private var swapString:String = "";
+
+                    protected function textInput_focusOutHandler(event:FocusEvent):void {
+                        if (StringUtil.trim(textInput.text) != swapString) {
+                            var param:String = this.dataGridListData.dataField;
+                            data[param] = textInput.text;
+                            data = data;
+                        }
+                    }
+
+                    protected function textInput_changeHandler(event:Event):void {
+                        outerDocument.checkFlag = false;
+                    }
+
+                    protected function textInput_focusInHandler(event:FocusEvent):void {
+                        swapString = StringUtil.trim(textInput.text);
+                    }
+                    ]]>
+				</fx:Script>
+				<mx:HBox id="box" width="100%">
+					<mx:TextInput id="textInput" borderVisible="false" text="{textValue}" toolTip="{textValue}" width="100%" height="100%"
+								  focusIn="textInput_focusInHandler(event)"
+								   focusOut="textInput_focusOutHandler(event)" change="textInput_changeHandler(event)"/>
+				</mx:HBox>
+			</s:MXDataGridItemRenderer>
+		</fx:Component>
+	</fx:Declarations>
+	<mx:ApplicationControlBar width="100%" height="32" styleName="centertop">
+        <mx:Button id="importButton" enabled="false" label="导入文件" click="importButton_clickHandler(event)"/>
+        <mx:Text htmlText="{downloadText}" width="300"/>
+        <s:Spacer width="100%"/>
+        <mx:Button id="checkAll" enabled="false" label="数据验证" click="checkAll_clickHandler(event)" />
+        <mx:Button id="importDataButton" enabled="false" label="数据导入" click="button1_clickHandler(event)"/>
+	</mx:ApplicationControlBar>
+	<mx:HBox width="100%" height="100%" paddingLeft="1" paddingRight="1">
+	<mx:DataGrid id="dg" borderStyle="none" width="100%" height="100%" dataProvider="{aclist}" sortableColumns="false">
+		<mx:columns>
+			<mx:DataGridColumn  labelFunction="doLineNum" width="30"/>
+		
+			<mx:DataGridColumn dataField="客户名称"  itemRenderer="{listItemRender}" width="200"/>
+			<mx:DataGridColumn dataField="购买产品" itemRenderer="{listItemRender}"/>
+            <mx:DataGridColumn dataField="成交金额" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="加密盒号" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="最早购买时间" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="最近服务到期日" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="服务收费状态" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="产品CDK" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="产品使用状态" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="最近服务收费产品" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="最近服务收费金额" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="服务收费状况" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="产品模块" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="许可数" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="制单人" itemRenderer="{listItemRender}"/>
+			<mx:DataGridColumn dataField="制单时间" itemRenderer="{listItemRender}"/>
+            <mx:DataGridColumn dataField="备注" itemRenderer="{listItemRender}"/>
+		</mx:columns>
+	</mx:DataGrid>
+	</mx:HBox>
+	<mx:HRule width="100%"  strokeColor="#c4cccc"/>
+	<mx:Text id="footHelp" htmlText="{footText}"/>
+</mx:VBox>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="55" height="66"
+		 cornerRadius="5" creationComplete="fnmCreationCompleteHandler()">
+	
+	<fx:Script>
+		<![CDATA[
+			import yssoft.models.ConstsModel;
+			//头像
+			[Bindable]
+			private var _headerIcon:Class=ConstsModel.wf_inodetype_0;
+			[Bindable]
+			private var _nodeIcon:Class
+			[Bindable]
+			private var _inodemodestr:String;
+			[Bindable]
+			public var cname:String;
+			
+			public var iid:int;
+			public var cnodeid:String
+			public var cpnodeid:String;
+			public var inodelevel:int
+			public var ipid:int;
+			public var iinvoset:int;
+			public var inodevalue:int;
+			public var inodeattribute:int;
+			public var bfinalverify:int;					//是否终审
+			public var baddnew:int;
+			public var bsendnew:int;
+			public var cnotice:String;						//消息通知方式  允许多选：0系统消息、1邮件消息、2短信消息
+			
+			private var _inodetype:int;					//节点类型  0人员、1部门、2相对角色、3岗位、4职务
+			private var _inodemode:int;					//节点处理方式  0知会、1审批
+			private var _isHandlerNode:Boolean=false;		//当前节点是否为 操作节点 false 为不是，true 是
+			
+			
+			public function set inodetype(value:int):void{
+				this._inodetype=value;
+			}
+			public function get inodetype():int{
+				return this._inodetype;
+			}
+			
+			public function set inodemode(value:int):void{
+				this._inodemode=value;
+				_inodemodestr=ConstsModel["WF_INODEMODE_"+value];
+			}
+			public function get inodemode():int{
+				return this._inodemode;
+			}
+			
+			public function set isHandlerNode(value:Boolean):void{
+				this._isHandlerNode=value;
+			}
+			public function get isHandlerNode():Boolean{
+				return this._isHandlerNode;
+			}
+			
+			// 生成节点 xml 数据 str
+			public function generateNodeXmlStr():String{
+				return "<node iid='"+iid+"' cnodeid='"+cnodeid+"' cpnodeid='"+cpnodeid+"' inodelevel='"
+					+inodelevel+"' ipid='"+ipid+"' iinvoset='"+iinvoset+"' inodetype='"+iinvoset+"' inodevalue='"
+					+inodevalue+"' inodeattribute='"+inodeattribute+"' inodemode='"+inodemode+"' bfinalverify='"
+					+bfinalverify+"' baddnew='"+baddnew+"' bsendnew='"+bsendnew+"' cnotice='"+cnotice+"'/>";
+			}
+			// 生成节点 xml 数据
+			public function generateNodeXml():XML{
+				return XML(generateNodeXmlStr());
+			}
+			
+			protected function fnmCreationCompleteHandler():void{
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:Text text="{cname}" height="18" left="0" top="0" right="0" textAlign="center"/>
+	<s:Image id="headerIcon" left="0" right="0" top="18" bottom="18" source="{_headerIcon}"/>
+	<s:Image bottom="18" source="{_nodeIcon}" right="6"/>
+	<mx:Text id="iNodeModel" text="[{_inodemodestr}]" height="18" left="0" bottom="0" right="0" textAlign="center"/>
+</mx:Canvas>

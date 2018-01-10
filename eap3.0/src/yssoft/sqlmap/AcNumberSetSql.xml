@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 获取菜单列表 -->
+	<select id="NumberSetDest.getMenuList" resultClass="java.util.HashMap" >
+	
+		Select iid,ipid, ccode, cname, cprogram, ctable, iworkflow, iform, coperauth, cdataauth,bquery, blist,brepeat,ilistset
+		from as_funcregedit 
+		where bnumber=1 
+		order by ccode
+		
+	</select>
+	
+	<insert id="NumberSetDest.addNumberSet" parameterClass="yssoft.vos.AcNumberSetVO">
+	
+		Insert Into dbo.ac_numberset (ifuncregedit , itype , bedit , cprefix1 , cprefix1value , bprefix1rule ,
+								  	  cprefix2 , cprefix2value , bprefix2rule , cprefix3 , cprefix3value , bprefix3rule ,
+								      ilength , istep , ibegin)
+								      
+							   Values ( #ifuncregedit# , #itype# , #bedit# , #cprefix1# , #cprefix1value# , #bprefix1rule# ,
+								 #cprefix2# , #cprefix2value# , #bprefix2rule# , #cprefix3# , #cprefix3value# ,
+								 #bprefix3rule# , #ilength# , #istep# , #ibegin# )
+								 
+		<selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey>
+		
+	</insert>
+	
+<!--	YJ Add 20110826		更新单据编码-->
+	<update id="NumberSetDest.updateNumberSet" parameterClass="yssoft.vos.AcNumberSetVO">
+	
+		update ac_numberset set ifuncregedit=#ifuncregedit#,itype=#itype#,bedit=#bedit#,
+								cprefix1=#cprefix1#,cprefix1value=#cprefix1value#,bprefix1rule=#bprefix1rule#,
+								cprefix2=#cprefix2#,cprefix2value=#cprefix2value#,bprefix2rule=#bprefix2rule#,
+								cprefix3=#cprefix3#,cprefix3value=#cprefix3value#,bprefix3rule=#bprefix3rule#,
+								ilength=#ilength#,istep=#istep#,ibegin=#ibegin#
+					where iid=#iid#
+					
+	</update>
+	
+	<select id="NumberSetDest.getPreFixList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+	
+		select cfield,ccaption, 
+				  case when idatatype=0 then 'nvarchar'
+				       when idatatype=1 then 'int'
+				       when idatatype=2 then 'float'
+				       when idatatype=3 then 'datetime'
+				       when idatatype=4 then 'bit'
+				       when idatatype=5 then 'image' end idatatype from ac_datadictionary where bprefix=1
+				       
+		<isNotEmpty prepend="and" property="ctable"> 
+			ctable=#ctable#
+		</isNotEmpty>
+		
+		<isNotEmpty prepend="and" property="ifuncregedit">
+			ifuncregedit=#ifuncregedit#
+		</isNotEmpty>
+		
+	</select>
+	
+	
+	<select id="NumberSetDest.getNumberSetListByIfid" parameterClass="int" resultClass="java.util.HashMap" >
+	
+		select iid,ifuncregedit,itype,bedit,cprefix1,cprefix1value,bprefix1rule,
+		cprefix2,cprefix2value,bprefix2rule,
+		cprefix3,cprefix3value,bprefix3rule,
+		ilength,istep,ibegin from AC_numberset where ifuncregedit=#ifuncregedit#
+		
+	</select>
+	
+<!--	YJ Add 20111128 获取单据历史信息 -->
+	<select id="NumberSetDest.getNumberHistory" parameterClass="int" resultClass="java.util.HashMap" >
+	
+		select iid,ifuncregedit,cprefix,inumber
+		from ac_numberhistory where ifuncregedit=#ifuncregedit#
+		order by cprefix
+		
+	</select>
+	
+<!--	YJ Add 20111128 更新单据历史信息，主要是更新流水号 -->
+	<update id="NumberSetDest.updateNumberHistory" parameterClass="java.util.HashMap">
+		update ac_numberhistory set inumber=#inumber# where iid=#iid#
+	</update>
+	
+	
+<!--	YJ Add 20110902 是否参与单据编码管理		-->
+	<select id="NumberSetDest.getIsBNumber" parameterClass="String">
+	
+		select top 1 from AS_funcregedit where cname=#cname# and ctable=#ctable# and bnumber=#bnumber#
+		
+	</select>
+	
+<!--	YJ Add 20110902 公共查询		-->
+	<select remapResults="true" id="NumberSetDest.getSearchResult" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+	
+		$sqlValue$
+		
+	</select>
+	
+	<update id="NumberSetDest.updateNumberhistory" parameterClass="java.util.HashMap">
+	
+		$sqlValue$
+		
+	</update>
+</sqlMap>
+
+

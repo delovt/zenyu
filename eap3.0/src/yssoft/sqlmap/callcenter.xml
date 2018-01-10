@@ -1,0 +1,374 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+
+	<select id="cc.getcallinfos" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select top $pagesize$ * from (
+			select top $topsize$ cc.iid,case when ccallintel is null then ccallouttel+' 呼出 '+ccallstate else ccallintel+' 呼入 '+ccallstate end callphone
+		 ,ccsname,ccustperson,cc.icustperson,convert(varchar(19),dbegin,120) dbegin,hr.cname makername,
+		 cc.isolution,dbo.getsolutiontype(cc.isolution) solname,cc.cdetail,cc.imaker,
+		 crouteline,cc.icustomer,cpersondepart,cpersonpost,isnull(cpersondepart,'')+' '+isnull(cpersonpost,'') as cdepartpost,sr.ccode fwdh
+		 from cc_callcenter cc left join hr_person hr on cc.imaker=hr.iid
+		 left join sr_bill sr on cc.isrbill = sr.iid
+		 where 1=1 
+ 		<isNotEmpty prepend="and" property="dbegin"> 
+			convert(varchar(30),dbegin,120) &gt;= #dbegin#
+ 		</isNotEmpty>
+ 		<isNotEmpty prepend="and" property="dbegin"> 
+ 			convert(varchar(30),dbegin,120) &lt;= #dend#
+ 		</isNotEmpty>
+ 		<isNotEmpty prepend="and" property="scvalue"> 
+ 			(ccallouttel like '%'+#scvalue#+'%'  or ccallintel like '%'+#scvalue#+'%'
+ 			 or ccsname like '%'+#scvalue#+'%' or ccustperson like '%'+#scvalue#+'%' 
+ 			 or dbo.getsolutiontype(cc.isolution) like '%'+#scvalue#+'%' )
+ 		</isNotEmpty>
+ 		order by cc.iid ) a  order by a.iid desc
+		
+		
+	</select>
+	
+	<select id="cc.getcallinfos_sum"  parameterClass="java.util.HashMap" resultClass="int">
+<!--		select count(*) from cc_callcenter where 1=1 -->
+<!--		<isNotEmpty prepend="and" property="startdate"> -->
+<!--			convert(varchar(10),dbegin,120) &gt;= #dbegin#-->
+<!--		</isNotEmpty>-->
+<!--		<isNotEmpty prepend="and" property="enddate"> -->
+<!--			convert(varchar(10),dend,120) &lt;= #dend#-->
+<!--		</isNotEmpty>-->
+
+			
+select count(*) from cc_callcenter cc left join hr_person hr on cc.imaker=hr.iid
+		 left join sr_bill sr on cc.isrbill = sr.iid
+		 where 1=1 
+		<isNotEmpty prepend="and" property="startdate"> 
+			convert(varchar(10),dbegin,120) &gt;= #dbegin#
+ 		</isNotEmpty>
+ 		<isNotEmpty prepend="and" property="enddate"> 
+ 			convert(varchar(10),dend,120) &lt;= #dend#
+ 		</isNotEmpty>
+ 		<isNotEmpty prepend="and" property="scvalue"> 
+ 			(ccallouttel like '%'+#scvalue#+'%'  or ccallintel like '%'+#scvalue#+'%'
+ 			 or ccsname like '%'+#scvalue#+'%' or ccustperson like '%'+#scvalue#+'%' 
+ 			 or dbo.getsolutiontype(cc.isolution) like '%'+#scvalue#+'%' )
+ 		</isNotEmpty>
+
+	</select>
+
+	<!-- 获取单条记录 -->
+	<select id="cc.getsinglecallinfo" parameterClass="java.util.HashMap"
+		resultClass="java.util.HashMap">
+        select A.iid,ccallintel,B.cmemo,
+        case when A.ccallintel is null or
+        A.ccallintel='' then A.ccallouttel else
+        A.ccallintel end callphone2,
+        case when A.ccallintel is null or
+        A.ccallintel='' then A.ccallouttel+' 呼出 '+A.ccallstate else
+        A.ccallintel+' 呼入 '+A.ccallstate end callphone,
+        convert(varchar(16),A.dbegin,120)+'~'+convert(varchar(16),A.dend,120)
+        dategap,A.isolution,A.icsperson,A.icustperson,
+        A.icustomer,A.ccustperson cname,A.isex,A.cpersondepart
+        cdepartment,A.cpersonpost cpost,A.cdetail,
+        convert(varchar(19),A.daskprocess,120) yydate,A.ccsname
+        dwname,convert(varchar(19),A.dbegin,120) as
+        dbegin,convert(varchar(19),A.dend,120) as dend,
+        case when A.ccallintel is null or A.ccallintel='' then A.ccallouttel else
+        A.ccallintel end ctel,B.cofficeaddress,
+        hr_person.cname as imaker,
+        convert(varchar(16),A.dmaker,120) as dmaker,isnull(b.iservicesdepart,0) iservicesdepart,
+        aa_data.cname as isalesstatus_cname,b.iservicelevel,b.iserviceperson,b.ifiery
+        from cc_callcenter A left join cs_customer B on A.icustomer=B.iid
+        left join hr_person on A.imaker = hr_person.iid
+        left join aa_data on aa_data.iid = B.isalesstatus
+        where A.iid=#ccid#
+<!-- 		select A.iid,ccallintel, case when A.ccallintel is null or -->
+<!-- 		A.ccallintel='' then A.ccallouttel+' 呼出 '+A.ccallstate else -->
+<!-- 		A.ccallintel+' 呼入 '+A.ccallstate end callphone, -->
+<!-- 		convert(varchar(16),A.dbegin,120)+'~'+convert(varchar(16),A.dend,120) -->
+<!-- 		dategap,A.isolution,A.icsperson,A.icustperson, -->
+<!-- 		A.icustomer,A.ccustperson cname,A.isex,A.cpersondepart -->
+<!-- 		cdepartment,A.cpersonpost cpost,A.cdetail, -->
+<!-- 		convert(varchar(19),A.daskprocess,120) yydate,A.ccsname -->
+<!-- 		dwname,convert(varchar(19),A.dbegin,120) as -->
+<!-- 		dbegin,convert(varchar(19),A.dend,120) as dend, -->
+<!-- 		case when A.ccallintel is null or A.ccallintel='' then A.ccallouttel else -->
+<!-- 		A.ccallintel end ctel,B.cofficeaddress, -->
+<!-- 		hr_person.cname as imaker, -->
+<!-- 		convert(varchar(16),A.dmaker,120) as dmaker -->
+<!-- 		from cc_callcenter A left join cs_customer B on A.icustomer=B.iid -->
+<!-- 		left join hr_person on A.imaker = hr_person.iid -->
+<!-- 		where A.iid=#ccid# -->
+	</select>
+
+	<select id="getCallcenterForProjects" parameterClass="java.util.HashMap"
+		resultClass="java.util.HashMap">
+        select * from(
+        select cc.iid,convert(varchar(19),dbegin,120) dbegin,ccallintel,cs.cname as customer_name,cp.cname as
+        custperson_name,cdetail,cc.icustomer from cc_callcenter cc
+        left join cs_customer cs on cc.icustomer = cs.iid
+        left join cs_custperson cp on cc.icustperson = cp.iid
+        where (isnull(isolution,0)=7 and isnull(ccallintel,'')!='') and isnull(breport,0)=0 and (cc.icustomer = #icustomer# or isnull(cc.icustomer,0)=0)
+        )a where CONVERT(varchar(10),dbegin,23) =  #ddate# order by dbegin desc
+	</select>
+	
+	<!-- 更新联系人 信息 -->
+	<update id="cc.updatecustperson" parameterClass="java.util.HashMap" >
+		update cs_custperson set cname=#cname#,cdepartment=#cdepartment#,cpost=#cpost#,isex=(case when #isex#=1 then 136 when #isex#=2 then 137 else 138 end),ctel=#ctel# where iid = #iid#;
+<!--需要更新单位名称么？目测有难度 		update cs_customer set cname = #dwname# where iid=#icustomer# and 'update'=#type# -->
+	</update>
+	
+	<!-- 暂存待办  lr add-->
+	<update id="cc.savemoment" parameterClass="java.util.HashMap" >
+		update cc_callcenter set icustomer=#icustomer#,icustperson=#icsperson#,ccustperson=#cname#,cpersondepart=#cdepartment#,cpersonpost=#cpost#,
+		                         isolution=#isolution#,isex=#isex#,ccsname=#dwname#,daskprocess=#yydate#,cdetail=#cdetail#,imaker=#imaker# where iid = #cciid#;
+	</update>
+	
+	<!-- 提交更新处理方式 信息 -->
+	<update id="cc.updatesolution" parameterClass="java.util.HashMap" >
+		update cc_callcenter set isolution=#isolution#,imaker=#imaker#,dmaker=#dmaker#,breport=#breport# where iid = #cciid#;
+	</update>
+
+	<!-- 更新 实施日志的 签到相关 -->
+	<update id="updateSrProjectsArr" parameterClass="java.util.HashMap">
+		update sr_projects set dbegin=#dbegin#,carrivaltel=#carrivaltel# where
+		iid = #iid#;
+	</update>
+
+	<!-- 更新 实施日志的 签退相关 -->
+	<update id="updateSrProjectsLea" parameterClass="java.util.HashMap">
+		update sr_projects set dend=#dend#,cdeparturetel=#cdeparturetel# where
+		iid = #iid#;
+	</update>
+	
+	<!-- 更新到达时间-->
+	<update id="cc.updatearrivaldate" parameterClass="java.util.HashMap">
+		update sr_bill set darrival=#ddate# ,carrivaltel=#callphone# where iid = #iid#
+	</update>
+	<!-- 更新离开时间-->
+	<update id="cc.updatedeparturedate" parameterClass="java.util.HashMap">
+		update sr_bill set ddeparture=#ddate#,cdeparturetel=#callphone# where iid = #iid#
+	</update>
+	
+	<!-- 变更工程师 -->
+	<update id="cc.updateiengineer"  parameterClass="java.util.HashMap">
+		update sr_bill set iengineer=#iengineer# where iid = #iid#
+	</update>
+	<!-- 验证 服务单号 是否唯一 -->
+	<select id="cc.countCcode" parameterClass="java.util.HashMap" resultClass="int" >
+		select count(*) from sr_bill where ccode = #ccode#
+	</select>
+	<!-- 唯一 就变更 服务单号 -->
+	<update id="dd.updateCcode" parameterClass="java.util.HashMap">
+		update sr_bill set ccode=#ccode# where iid = #iid#
+	</update>
+	<!-- 获取工单状态 -->
+	<select id="cc.getistatus" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+	select istatus from sr_bill where iid=#iid#
+	</select>
+	<!-- 获取工单号 -->
+	<select id="cc.getccode" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+            select ccode from sr_bill where ccode=#ccode#
+	</select>
+	<!-- 获取进行工单 -->
+	<select id="cc.getnowworkorder" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		select sb.iid,sb.ccode,iengineer,convert(varchar(19),darrival,120) darrival,case when istatus=1 then '制单' 
+		when istatus=2 then '填单' when istatus=3 then '交单' when istatus=4 then '关闭' end cstatus,
+		convert(varchar(19),ddeparture,120) ddeparture,istatus,iresult,dt.cname as cresult,hrp.cname pname
+		from sr_bill sb left join hr_person hrp on sb.iengineer=hrp.iid	
+                left join aa_data dt on sb.isolution=dt.iid
+		where icustomer=#icustomer# and ( istatus=1 or istatus=2 ) and sb.isolution=370
+		order by sb.dmaker desc
+	</select>
+	<!-- 获取历史工单 -->
+	<select id="cc.gethisotryworkorder" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+	select srb.iid,convert(varchar(19),dengineer,120)
+	dengineer,isolution,dt.cname csolution,srb.ccode,iresult,dt2.cname
+	cresult,iengineer,srb.imaker,hrp.cname ename,hrp1.cname pname,srb.cdetail  cdetail from
+	sr_bill srb
+	left join hr_person hrp on srb.iengineer=hrp.iid
+	left join hr_person hrp1 on srb.imaker=hrp1.iid
+	left join aa_data dt on srb.isolution=dt.iid
+	left join aa_data dt2 on srb.iresult=dt2.iid
+	where icustomer=#icustomer# and ( istatus=3 or istatus=4 )
+	<isNotEmpty prepend="and" property="startTime">
+		srb.dmaker >= #startTime#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="endTime">
+		srb.dmaker &lt;= #endTime#
+	</isNotEmpty>
+	    order by srb.dmaker desc
+	</select>
+	<!-- 获取 购买资产 -->
+	<select id="cc.getassets" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+	select ctp.iid,iproduct,ad.cname paystatus,dbo.f_bomername(ctp.iid) cmemo,p2.cname as
+	ichargestype_cname,case ctp.istatus when 1 then '新购' when 2 then '升级替换' else '暂停使用' end cstatus,
+	convert(varchar(19),dcontract,120) dcontract,
+	convert(varchar(19),dservicedate,120) dservicedate,
+	convert(varchar(19),dsend,120) dsend,
+	fservicecharge,iserviceperson pid,
+	hrp.cname pname,spd.cname proname,csn
+	from cs_custproduct ctp
+	left join hr_person hrp on ctp.iserviceperson=hrp.iid
+	left join sc_product spd on ctp.iproduct = spd.iid
+	left join sc_product p2 on ctp.ichargestype = p2.iid
+	left join aa_data ad on  ctp.iscstatus = ad.iid
+	where icustomer=#icustomer#
+	</select>
+	<!-- 获取 日志活动 -->
+	<select id="cc.getactivity" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+	select oaw.iid,oaw.cname,cdetail,convert(varchar(19),dbegin,120)
+	dbegin,cn.cname as custperson,
+	istyle,d1.cname istyleName,itype,d.cname itypeName,oaw.imaker,hrp.cname pname from
+	oa_workdiary oaw left join hr_person hrp on oaw.imaker=hrp.iid
+	left join (select iid,ccode,cname from aa_data where iclass=23) d on d.iid=oaw.itype
+	left join (select iid,ccode,cname from aa_data where iclass=22) d1 on d1.iid= oaw.istyle
+    left join cs_custperson cn on cn.iid = oaw.icustperson
+	where oaw.icustomer=#icustomer#
+	<isNotEmpty prepend="and" property="startTime">
+		oaw.dbegin >= #startTime#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="endTime">
+		oaw.dbegin &lt;= #endTime#
+	</isNotEmpty>
+	    order by oaw.dmaker desc
+	</select>
+	<!-- 获取 历史热线记录   and ccc.iid != #ccid# 不包含自己，暂时不需要 -->
+	<select id="cc.gethistoryhotline"  parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+	select ccc.iid,case when ccallintel is null or ccallintel='' then '呼出'
+	else '呼入' end itype,
+	case when ccallintel is null or ccallintel='' then ccallouttel else
+	ccallintel end callphone,
+	convert(varchar(19),dbegin,120) dbegin,cdetail,isolution,dbo.getsolutiontype(ccc.isolution)
+	csolution,ccc.imaker,hrp.cname pname from cc_callcenter ccc
+	left join hr_person hrp on ccc.imaker=hrp.iid
+	left join aa_data dt on ccc.isolution=dt.iid
+	where icustomer=#icustomer#
+	<isNotEmpty prepend="and" property="startTime">
+		ccc.dbegin >=	#startTime#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="endTime">
+		ccc.dbegin &lt;= #endTime#
+	</isNotEmpty>
+		order by ccc.dmaker desc
+	</select>
+
+    <!--获得历史收费记录-->
+    <select id="gethistoryPaidRecord"  parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+        select b.ccode,b.ccontcode,convert(varchar(19),a.dscontdate,111) dscontdate,convert(varchar(19),a.decontdate,111) decontdate,case when dmscontdate is null and dmecontdate is null then '' else '是' end ibt,
+        convert(varchar(19),a.dmscontdate,111) dmscontdate,convert(varchar(19),a.dmecontdate,111) dmecontdate,c.cname getuser,d.cname bustype,convert(varchar(19),a.dgetdate,111) dgetdate,e.cname verify,convert(varchar(19),a.dverify,111) dverify,f.cname custperson
+        from tr_charge a
+        left join tr_invoice b on b.iid = a.iinvoice
+        left join hr_person c on a.iperson = c.iid
+        left join aa_data d on a.ibustype = d.ccode
+        left join hr_person e on a.iverify = e.iid
+        left join CS_custperson f on a.icustperson = f.iid
+        where d.iclass = 137 and a.istatus >= 2 and a.icustomer = #icustomer#
+        <isNotEmpty prepend="and" property="startTime">
+            a.dverify >=	#startTime#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="endTime">
+            a.dverify &lt;= #endTime#
+        </isNotEmpty>
+        order by a.dscontdate
+    </select>
+
+	<select id="cc.getReceivable" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select convert(varchar(19),SC_order.ddate,120) ddate,SC_order.ccode,
+		hd.cname as cdepartment,
+		hp.cname as cperson,
+		isnull(SC_order.frpsum,0) frpsum,
+		isnull(SC_order.fsum,0) fsum,
+		as_funcregedit.cname as funcname,
+		dbo.f_bomername3(SC_order.iid) products,
+		isnull(SC_order.fsum,0)-isnull(SC_order.frpsum,0) as receivable,
+		SC_order.iid,
+		SC_order.iifuncregedit
+		from SC_order 
+		left join hr_department hd on SC_order.idepartment=hd.iid 
+		left join hr_person hp on SC_order.iperson=hp.iid
+		left join as_funcregedit on SC_order.iifuncregedit=as_funcregedit.iid 
+		where SC_order.icustomer = #icustomer#
+	</select>
+	
+	<!-- 生成 服务需求单 -->
+	<!-- 验证 服务需求单 是不是 已经生成过了 -->
+	<select id="cc.countSrRequest" parameterClass="java.util.HashMap" resultClass="int" >
+		select count(*) from sr_request where ifuncregedit=#ifunid# and iinvoice=#iinvoice#
+	</select>
+	<!-- 生成 -->
+	<insert id="cc.insertSrRequest" parameterClass="java.util.HashMap" >
+		insert into sr_request (ifuncregedit,iinvoice,ccode,idepartment,iimportance,icustomer,
+		icustperson,ctel,cdetail,isolution,daskprocess,imaker,dmaker)
+		values
+		(#ifunid#,#iinvoice#,#ccode#,#idepartment#,#iimportance#,#icustomer#,
+		#icustperson#,#ctel#,#cdetail#,#isolution#,#daskprocess#,#imaker#,convert(varchar(19),getdate(),120) )
+		 <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	</insert>
+	<!-- 删除对应的 服务 -->
+	<delete id="cc.deleteService" parameterClass="java.util.HashMap">
+		delete from sr_bill where iid=#iid#
+	</delete>
+	
+	<!-- 更新呼叫中心记录中的  状态-->
+	<update id="cc.updateCallcenterIsolution" parameterClass="java.util.HashMap">
+		update CC_callcenter set isolution=#isolution#,breport = 0 where iid=#ccid#
+	</update>
+	
+	
+<!-- 	<delete id="cc.deleteService" parameterClass="java.util.HashMap"> -->
+<!-- 		begin -->
+<!-- 			delete from sr_bill where ifuncregedit = #reqfunid# and iinvoice in ( select iid from sr_request where ifuncregedit=#ccfunid# and iinvoice=#ccid# ); -->
+<!-- 			delete from sr_request where ifuncregedit=#ccfunid# and iinvoice=#ccid# -->
+<!-- 			update CC_callcenter set isolution=0 where iid=#ccid# -->
+<!-- 		end; -->
+<!-- 	</delete> -->
+	
+	<select id="cc.getSrbilloniinvoice"  parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+		select iid,istatus from sr_bill where ifuncregedit=#ccfunid# and iinvoice=#ccid#
+	</select>
+	
+	<!-- 生成 服务工单 -->
+	<insert id="cc.insertSrBill" parameterClass="java.util.HashMap">
+		insert into sr_bill (ifuncregedit,iinvoice,isolution,ccode,icustomer,
+			icustperson,cproduct,cproductno,cservices,imaker,dmaker) 
+		values 
+		(#billfunid#,#billiinvoice#,#isolution#,#ccode#,#icustomer#,
+			#icustperson#,#cproduct#,#cproductno#,#cservices#,#imaker#,convert(varchar(19),getdate(),120) ) 
+	</insert>
+	<!-- 生成 线索 -->
+	<!-- 判断相关线索是不是 已经生成过了 -->
+	<select id="cc.countSaCule" resultClass="int" >
+		select count(*) from sa_clue where ifuncregedit=#ifunid# and iinvoice#iinvoice#
+	</select>
+	<insert id="cc.insertSaCule"  parameterClass="java.util.HashMap">
+		
+		insert into sa_clue(ifuncregedit,iinvoice,ccode,cname,cdetail,iimportance,iisource,
+		icustomer,ccustomer,ccustperson,ccustpersonpost,ccustpersonmobile,ccustpersontel,imaker,dmaker)
+		values
+		(#ifunid#,#iinvoice#,#ccode#,#cname#,#cdetail#,#iimportance#,#iisource#,
+		#icustomer#,#custname#,#ccustperson#,#post#,#mobile#,#tel#,#imaker#,convert(varchar(19),getdate(),120))
+		
+	</insert>
+	
+	<select id="cc.onSearch" remapResults="true" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		$sqlValue$
+	</select>
+	
+	<insert id="cc.insertCusPerson" parameterClass="java.util.HashMap">
+		insert into cs_custperson(ccode,cname,isex,icustomer,cdepartment,cpost,ctel,istate) 
+		values(#ccode#,#cname#,(case when #isex#=1 then 136 when #isex#=2 then 137 else 138 end),#icustomer#,#cdepartment#,#cpost#,#ctel#,0)
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	    </selectKey> 
+	</insert>
+	
+	<!-- 获取客商人员信息 -->
+	<select id="cc.getcusperson" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+            select * from CS_custperson where iid=#iid#
+	</select>
+	<!--获取客户联系电话 -->
+    <select id="getoersontel" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select ctel from CS_custperson where icustomer = (select icustomer from sr_project where iid=#iproject#)
+    </select>
+
+</sqlMap>

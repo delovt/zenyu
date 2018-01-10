@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="0"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:fwr="yssoft.pub.fwr.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			
+			import yssoft.evts.FWREvent;
+			
+			protected function onFwrEventHandler(event:FWREvent):void
+			{
+				//判断装填
+				
+				// TODO Auto-generated method stub
+				Alert.show(""+event.label+","+event.targetType);
+			}
+			//功能注册码
+			public var ifunId:int=0;
+			//字表功能注册码，如果有的话
+			public var subIfunId:int=0; 
+			//从哪里打开本窗口的 菜单，浮动窗口，管理页面，其他窗口
+			public var fromWhere:String="";
+			//传递过来的数据集合
+			[Bindable]
+			public var items:ArrayCollection=new ArrayCollection();
+			//数据集合的中的索引，默认为0
+			public var itemIndex:int=0;
+			//回调方法
+			public var callBack:Function=null;
+			
+			//构建UI
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:ApplicationControlBar width="100%" height="35">
+		<fwr:FWRTop width="100%" onFwrEvent="onFwrEventHandler(event)"/>
+	</mx:ApplicationControlBar>
+	<fwr:FWRMain id="fwrmain" width="100%" height="100%"/>
+	<s:BorderContainer width="100%" height="30" contentBackgroundColor="0xff0000" borderVisible="false">
+		
+	</s:BorderContainer>
+</mx:VBox>

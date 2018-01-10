@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="470" height="210" xmlns:comps="yssoft.comps.*" title="忘记密码	>  找回密码 "
+                        close="titlewindowClose(event)" creationComplete="init()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.CrmDotLine;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.tools.LoginTool;
+			import yssoft.vos.HrPersonVo;
+			
+			[Bindable]
+			private var _loginName:String = "";
+			
+			/**
+			 * 是否为初始密码登录
+			 */ 
+			[Bindable]public var isInitUserLogin:Boolean = false;
+			
+			/**
+			 * 初始化用户的iid
+			 */ 
+			[Bindable]public var isInitUserIid:int  = 0;
+			
+			[Bindable]public var initLabelVisible:Boolean = false;
+			
+			[Bindable]public var initLabelText:String = "";
+			
+			
+			
+			public function set loginName(val:String):void
+			{
+				this._loginName = val ;
+			}
+
+			public function get loginName():String
+			{
+				return  _loginName;
+			}
+			
+			//密码最少长度
+			private var minPwd:int = 1;
+			
+			/**
+			 * 初始化密码最少长度
+			 */ 
+			private function init():void{
+				
+				if(isInitUserLogin){
+					this.myViewStack.selectedChild = twoCan ;
+				}
+				
+				AccessUtil.remoteCallJava("As_optionsDest","getMinPwd",minpwdCallBack,null);
+			}
+			
+			private function minpwdCallBack(e:ResultEvent):void{
+				if(null != e.result)
+					minPwd = int(e.result);
+			}
+			
+			
+			//密码重置
+			private function reset():void{
+				
+				if(this.myViewStack.selectedIndex == 0)
+				{
+					this.question.text = "";
+					this.answer.text = "";
+				}
+				else
+				{
+					this.pwd.text ="";
+					this.pwdTo.text="";
+				}
+			}
+			
+			//验证非空
+			private function checkNotEmpty():Boolean{
+				if(this.myViewStack.selectedChild == oneCan)
+				{
+					if(this.question.text == "" || this.answer.text == "")
+					{
+						LoginTool.tipAlert(" 问题与答案不允许为空 ！");
+						return false;
+					}
+				}
+				else
+				{
+					if(this.pwd.text == "" || this.pwdTo.text == ""){
+						LoginTool.tipAlert(" 密码不允许为空！ ");
+						return false;
+					}else{
+						if(this.pwd.text.length < minPwd){
+							CRMtool.tipAlert("您的密码长度不得低于"+minPwd+"位数！");
+							return false;
+						}
+					}
+					
+					if(this.pwd.text != this.pwdTo.text){
+						LoginTool.tipAlert(" 您两次输入的密码不一致！ ");
+						return false;
+					}
+				}
+				return true;
+			}
+			
+			
+			private var _question:String = null;
+			private var _answer:String = null;
+			private var currentUser:HrPersonVo = null;
+			/*
+			* wxh add
+			**/
+			public function set _currentUser(val:HrPersonVo):void
+			{
+				this.currentUser = val ;
+			}
+			
+			public function get _currentUser():HrPersonVo
+			{
+				return  currentUser;
+			}
+			//验证问题 and 答案
+			private function checkQuestion():void{
+				if(checkNotEmpty())
+				{
+					_question = this.question.text;
+					_answer = this.answer.text;
+					
+					AccessUtil.remoteCallJava("UserDest","getUserObj",call_fun_result,this._loginName);
+				}
+			}
+			//验证回调函数
+			private function call_fun_result(e:ResultEvent):void{
+				currentUser = e.result as HrPersonVo; 
+                if(currentUser) {
+                    if(CRMtool.isStringNull(currentUser.cquestion+"") || CRMtool.isStringNull(currentUser.canswer+""))
+                    {
+                        LoginTool.tipAlert(" 您的账号并未设置密码或答案，请与管理员联系！ ");
+                        return;
+                    }
+
+                    if(_question == currentUser.cquestion && _answer == currentUser.canswer)
+                    {
+                        this.myViewStack.selectedChild = this.twoCan;
+                    }
+                    else
+                    {
+                        LoginTool.tipAlert(" 您的问题或答案不正确！ ");
+                        return;
+                    }
+                }else {
+                    LoginTool.tipAlert(" 系统不存在此用户名！ ");
+                    return;
+                }
+			}
+			
+			//修改密码
+			private function modityPwd():void{
+				if(checkNotEmpty())
+				{
+					var params:Object = {};
+					
+/* 					if(!isInitUserLogin)
+					{
+						params.iid = currentUser.iid; 
+					}
+					else
+					{ 
+						params.iid = isInitUserIid 
+					} */ //如果为初始用户密码登录获取登录界面用户IID
+					
+					params.iid = CRMmodel.hrperson.iid; 
+					params.pwd = this.pwd.text;
+					params.oldpwd = (this.owner as NewLoginView).userInitpwd;
+					params.dbpwd =  CRMmodel.hrperson.cusepassword;
+					
+					AccessUtil.remoteCallJava("hrPersonDest","updatePersonPwd",call_fun_result_1,params);
+				}
+			}
+			
+			//修改密码回调
+			private function call_fun_result_1(e:ResultEvent):void
+			{
+				if(e.result == "success") 
+				{
+					LoginTool.tipAlert("密码重置成功，请重新登陆！");
+					(this.owner as NewLoginView).tiptxt.text="";
+					PopUpManager.removePopUp(this);
+				}
+				else
+				{
+					LoginTool.tipAlert("密码重置失败，请联系管理员！");
+				}
+				
+			}
+			
+			protected function titlewindowClose(event:CloseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			/**
+			 * 忘记密码最后一步操作，更新密码
+			 * 创建人：王炫皓
+			 * 创建时间：20121222
+			 * */
+			private function backTo():void{
+				var param:Object = new Object;
+				//验证
+				if(checkNotEmpty()){
+					param.iid = currentUser.iid;
+					param.pwd = this.pwd.text;
+					AccessUtil.remoteCallJava("hrPersonDest","updatePwd",call_fun_result_1,param);
+				}
+				
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<mx:ViewStack id="myViewStack"  width="100%" height="100%"  paddingTop="20"  paddingLeft="10" paddingRight="10">
+		
+		<!--  验证问题  -->
+		<mx:Canvas id="oneCan"  width="100%" >
+			<mx:VBox width="100%" cornerRadius="8" borderStyle="solid" borderAlpha="1" borderColor="#c4cccc">
+				<mx:HBox width="100%" height="30"  paddingRight="10" verticalAlign="middle" y="18">
+					<s:Label text="  密码提示问题：" />
+					<mx:TextInput id="question" width="100%" styleName="contentTextInput"/>
+				</mx:HBox>
+				<mx:HRule width="100%" />
+				
+				<mx:HBox width="100%" height="30"  paddingRight="10" verticalAlign="middle">
+					<s:Label text="  密码提示答案：" />
+					<mx:TextInput id="answer"  width="100%" styleName="contentTextInput"  />
+				</mx:HBox>
+			</mx:VBox>
+			<mx:HBox width="100%" height="38" bottom="0" horizontalAlign="right" verticalAlign="middle">
+				<s:Button label=" 下一步 " click="checkQuestion()" /> <s:Button label=" 重   置 " click="reset()"/>
+			</mx:HBox>
+		</mx:Canvas>
+		
+		<!--  重置密码  -->
+		<mx:Canvas id="twoCan"  width="100%" >
+			<mx:VBox width="100%" cornerRadius="8" borderStyle="solid" borderAlpha="1" borderColor="#c4cccc">
+				<mx:HBox width="100%"  height="30" verticalAlign="middle" y="18">
+					<s:Label text="  密码重置 : " />
+					<mx:TextInput id="pwd" width="100%" styleName="contentTextInput" displayAsPassword="true" restrict="0-9a-zA-Z'" />
+				</mx:HBox>
+				<mx:HRule width="100%" />
+				
+				<mx:HBox width="100%" height="30" verticalAlign="middle">
+					<s:Label text="  确认密码 : " />
+					<mx:TextInput id="pwdTo"  width="100%" styleName="contentTextInput" displayAsPassword="true" restrict="0-9a-zA-Z'" />
+				</mx:HBox>
+				
+				
+			</mx:VBox>
+			<mx:HBox width="100%" height="32" bottom="0" horizontalAlign="right" verticalAlign="middle" paddingRight="5" paddingBottom="8">
+				<s:Label visible="{initLabelVisible}"  height="18" color="#FF6D50" verticalAlign="bottom"
+						 fontWeight="bold" text="  您的密码为初始密码,请先更换密码！"/><s:Spacer width="100%" />
+				<s:Button label=" 确   认 " click="backTo()" /> <s:Button label=" 重   置 " click="reset()" visible="false" includeInLayout="false" />
+			</mx:HBox>
+		</mx:Canvas>
+		
+	</mx:ViewStack>
+</basic:BasicTitleWindow>

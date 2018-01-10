@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="费用报销生单"
+                        width="700" height="400"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.DateField;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			
+			import spark.events.IndexChangeEvent;
+			
+			import yssoft.models.DateHadle;
+			import yssoft.tools.CRMtool;
+
+			private var expenseNeedList:ArrayCollection;
+			
+			private var dropDownListData:ArrayCollection = new ArrayCollection([{name:"本周"},{name:"本月"},{name:"本年"}]);
+			[Bindable]
+			private var start:String = DateHadle.getFirstOfWeek();
+			[Bindable]
+			private var end:String = DateHadle.getEndOfWeek();
+			
+			private var fsum:Number;
+			private var inumber:Number;
+			
+			public function init(expenseNeedList:ArrayCollection):void
+			{
+				this.expenseNeedList = expenseNeedList;
+				CRMtool.openView(this);				
+			}
+					
+			public function onFormatDate(item:Object,column:DataGridColumn):String{
+				
+				var df:DateFormatter = new DateFormatter();
+				df.formatString = "YYYY-MM-DD";			
+				return df.format(item.ddate);				
+			}
+
+			
+			protected function remove(event:MouseEvent):void
+			{
+				var array:Array =  myDataGrid.selectedItems;
+				var expenseList:ArrayCollection = myDataGrid.dataProvider as ArrayCollection;
+				if(array&&array.length>0){
+					for each(var o:Object in array){
+						expenseList.removeItemAt(myDataGrid.selectedIndex);
+					}
+				}
+			}
+			
+			protected function dropdownlist_changeHandler(event:IndexChangeEvent):void
+			{
+				switch (myDropDownList.selectedItem.name){
+					case "本周":
+						start = DateHadle.getFirstOfWeek();
+						end = DateHadle.getEndOfWeek();
+						break;
+					case "本月":
+						start = DateHadle.getFirstOfMonth();
+						end = DateHadle.getEndOfMonth();
+						break;
+					case "本年":
+						start = DateHadle.getFirstOfYear();
+						end = DateHadle.getEndOfYear();
+						break;			
+				}
+				filterDate(start,end);
+			}
+			
+			protected function filterDateButton_clickHandler(event:MouseEvent):void
+			{
+				if(startDateField.text==""||endDateField.text==""){
+					return;
+				}else{				
+					filterDate(startDateField.text,endDateField.text);
+				}
+			}
+			
+			protected function filterDate(start:String,end:String):void
+			{
+				var startDate:Date = DateField.stringToDate(start,"YYYY-MM-DD");
+				var endDate:Date = DateField.stringToDate(end,"YYYY-MM-DD");
+				
+				var afterButtonfilterList:ArrayCollection = new ArrayCollection();
+				for each(var item:Object in expenseNeedList){
+					var itemDate:Date = item.ddate as Date;
+					item.iifuncregedit = null;
+					item.iinvoices = null;
+					item.ifunconsult = null;
+					item.ifunconsults = null;
+					
+					if(itemDate>=startDate&&itemDate<=endDate){
+						afterButtonfilterList.addItem(item);
+					}
+				}
+				
+				if(afterButtonfilterList.length>0){
+					myDataGrid.dataProvider = afterButtonfilterList;
+				}else{
+					myDropDownList.selectedIndex =-1;
+					myDataGrid.dataProvider = null;
+				}
+			}
+			
+			protected function dateField_changeHandler(event:CalendarLayoutChangeEvent):void
+			{
+				myDropDownList.selectedIndex = -1;
+			}
+			
+			protected function submitExpense(event:MouseEvent):void
+			{
+				var expenseList:ArrayCollection = myDataGrid.dataProvider as ArrayCollection;
+				if(expenseList.length>0){
+					onCloseHandler();
+					openExpense(expenseList);
+				}
+				
+			}
+			
+			protected function openExpense(expenseList:ArrayCollection):void
+			{
+				fsum = 0;
+				inumber = 0;
+				
+				var param:Object=new Object();
+				param.operId="onListNew";
+				param.outifuncregedit="226";
+				param.ifuncregedit="226";
+				var iid:ArrayCollection=new ArrayCollection();
+				param.personArr=iid;
+				param.itemType="onNew";
+				param.formTriggerType="fromOther";
+				param.ctable="oa_expense";
+				
+				var oa_expenses:ArrayCollection = expenseList;
+				for each(var item:Object in oa_expenses){
+					inumber += parseInt(item.inumber);
+					fsum += item.fexpense;
+				}
+				var injectObj:Object = new Object();
+				injectObj.oa_expenses = oa_expenses;
+				injectObj.inumber = inumber;
+				injectObj.fsum = fsum;
+				
+				param.injectObj = injectObj;			
+				CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore",param,"新建费用报销单","");
+			}
+			
+		]]>
+	</fx:Script>
+
+	<mx:VBox width="100%" height="100%" verticalGap="10">
+		<mx:HBox width="100%" paddingTop="5" paddingLeft="10" paddingRight="10">
+			<s:DropDownList id="myDropDownList" dataProvider="{dropDownListData}" labelField="name"  selectedIndex="0"
+							 change="dropdownlist_changeHandler(event)"/>
+			<s:Spacer width="100%"/>
+			<s:Label text="开始时间：" paddingTop="5"/>
+			<comps:CRMDateField id="startDateField" text="{start}" isStyle="false" width="120" change="dateField_changeHandler(event)"/>
+			<s:Spacer width="20"/>
+			<s:Label text="结束时间：" paddingTop="5"/>
+			<comps:CRMDateField id="endDateField" text="{end}" isStyle="false" width="120" change="dateField_changeHandler(event)"/>
+			<s:Button id="filterDateButton" label="查询" click="filterDateButton_clickHandler(event)"/>
+		</mx:HBox>
+
+		<mx:DataGrid id="myDataGrid" editable="true"  width="100%" height="100%"  allowMultipleSelection="true"
+					 horizontalScrollPolicy="auto" >
+				<mx:columns>	
+					<mx:DataGridColumn headerText="相关单据" dataField="ifuncregedit_Name" width="90" editable="false"/>
+					<mx:DataGridColumn headerText="单据编号" dataField="iinvoice_Name" width="65" editable="false"/>
+					<mx:DataGridColumn headerText="发生时间" dataField="ddate" width="75" editable="false" labelFunction="onFormatDate"/>
+					<mx:DataGridColumn headerText="相关客户" dataField="icustomer_Name" width="120" editable="false"/>
+					<mx:DataGridColumn headerText="费用项目" dataField="cfeeitem" width="70" editable="true"/>
+					<mx:DataGridColumn headerText="费用金额" dataField="fexpense" width="70" editable="false"/>
+					<mx:DataGridColumn headerText="费用明细" dataField="cuse" width="100" editable="true"/>
+					<mx:DataGridColumn headerText="备注" dataField="cmemo" width="100" editable="true"/>
+					<mx:DataGridColumn headerText="附单据数" dataField="inumber" width="70" editable="true"/>
+				</mx:columns>
+		</mx:DataGrid>
+		
+		<mx:VBox width="100%" height="38" verticalGap="0">
+			<mx:HRule width="100%" height="1"/>
+			<mx:HBox height="100%" width="100%" verticalAlign="middle" paddingRight="10" paddingLeft="10">
+				
+				<s:Button label="删行" click="remove(event)"/>
+				<s:Spacer width="100%"/>
+				<s:Button label="确定" click="submitExpense(event)" />
+				<s:Button label="放弃"  click="onCloseHandler()"/>
+			</mx:HBox>
+		</mx:VBox>
+		
+	</mx:VBox>
+</basic:BasicTitleWindow>

@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%"
+				height="100%" 
+				horizontalGap="0" 
+				 xmlns:comps="yssoft.comps.*" implements="yssoft.impls.ICRMWindow" xmlns:customer="yssoft.views.customer.*" creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.CsCustomerVo;
+			import yssoft.vos.CsCustpersonVo;
+			
+			[Bindable]
+			public var winParam:Object=new Object();
+			
+			private var custormerArr:ArrayCollection = new ArrayCollection();
+			
+			private var count:int =1;
+			
+			//页面初始化
+			private function init():void
+			{
+				if(winParam=="1")
+				{
+					this.currentState="customerState";
+					this.label="新建客商档案";
+					CRMtool.toolButtonsEnabled(this.lbr_authcontent,null,this.custormerArr.length);
+				}
+				else if(winParam=="2")
+				{
+					this.currentState="custpersonState";
+					this.label="新建客商人员";
+					CRMtool.toolButtonsEnabled(this.lbr_authcontent,null,this.custormerArr.length);
+				}
+				else if(winParam.hasOwnProperty("isCustom"))
+				{
+					if(winParam.isCustom=="1")
+					{
+						this.currentState="customerState";
+						this.label="新建客商档案";
+					}
+					
+					if(winParam.hasOwnProperty("itemType"))
+					{
+						CRMtool.toolButtonsEnabled(this.lbr_authcontent,winParam.itemType,this.custormerArr.length);
+						switch(winParam.itemType)
+						{
+							case "onNew":
+							{
+								customerVBox.onNew();
+								break;
+							}
+							case "onEdit":
+							{
+								customerVBox.onEdit();
+								break;
+							}
+						}
+					}
+					
+					if(winParam.hasOwnProperty("personArr"))
+					{
+						AccessUtil.remoteCallJava("csCustomerDest","getCustoums",getPersoanBack,winParam.personArr);
+					}
+				}
+				
+			}
+			
+			private function getPersoanBack(event:ResultEvent):void
+			{
+				if(event.result!=null)
+				{
+					this.custormerArr = new ArrayCollection();
+					custormerArr = event.result as ArrayCollection;
+					
+					if(!winParam.hasOwnProperty("itemType"))
+					{
+						CRMtool.toolButtonsEnabled(this.lbr_authcontent,null,this.custormerArr.length);
+					}
+				}
+				else
+				{
+					this.customerVBox.onGiveUp();
+					this.btn_next.enabled = false;
+					this.btn_up.enabled = false;
+				}
+				
+			}
+			
+			private function onNew(event:Event):void
+			{
+				if(winParam=="1")
+				{
+					customerVBox.onNew();
+				}
+				else if(winParam=="2")
+				{
+					this.custpersonVbox.onNew();
+				}
+				CRMtool.toolButtonsEnabled(this.lbr_authcontent,"onNew",this.custormerArr.length);
+			}
+			
+			private function onEdit(event:Event):void
+			{
+				if(winParam=="1")
+				{
+					this.customerVBox.onEdit();
+					
+				}
+				else if(winParam=="2")
+				{
+					this.custpersonVbox.onEdit();
+				}
+				CRMtool.toolButtonsEnabled(this.lbr_authcontent,"onEdit",this.custormerArr.length);
+			}
+			
+			private function onDelete(event:Event):void
+			{
+				if(winParam=="1")
+				{
+					this.customerVBox.removeCustomer();
+					
+				}
+				else if(winParam=="2")
+				{
+					this.custpersonVbox.removeCustomer();
+				}
+				CRMtool.toolButtonsEnabled(this.lbr_authcontent,"onDelete",this.custormerArr.length);
+			}
+			
+			private function onGiveUp(event:Event):void
+			{
+				if(winParam=="1")
+				{
+					customerVBox.onGiveUp();
+				}
+				else if(winParam=="2")
+				{
+					this.custpersonVbox.onGiveUp();
+				}
+				CRMtool.toolButtonsEnabled(this.lbr_authcontent,null,this.custormerArr.length);
+			}
+			
+			private function onSave(event:Event):void
+			{
+				if(winParam=="1")
+				{
+					this.customerVBox.onSave();
+				}
+				else if(winParam=="2")
+				{
+					this.custpersonVbox.onSave();
+				}
+				CRMtool.toolButtonsEnabled(this.lbr_authcontent,"onSave",this.custormerArr.length);
+			}
+			
+			//窗体初始化
+			public function onWindowInit():void
+			{
+				
+			}
+			//窗体打开
+			public function onWindowOpen():void
+			{
+				this.init();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void
+			{
+				
+			}
+			
+			public function pageInitBack(personVo:Object,item:String):void
+			{
+				switch(item)
+				{
+					case "onNew":
+					{
+						var obj:Object = new Object();
+						var custome:CsCustomerVo= personVo.csCustomerVo;
+						obj.iid =custome.iid;
+						obj.ccode = custome.ccode;
+						obj.cname = custome.cname;
+						obj.icustclass = custome.icustclass;
+						obj.ipartnership = custome.ipartnership;
+						obj.iindustry =custome.iindustry;
+						obj.cwebsite =custome.cwebsite;
+						obj.iorganization =custome.iorganization;
+						obj.iheadcust =custome.iheadcust;
+						obj.icreditrating =custome.icreditrating;
+						obj.isalesprocess =custome.isalesprocess;
+						
+						obj.icountry=custome.icountry;
+						obj.iprovince=custome.iprovince;
+						obj.icity=custome.icity;
+						obj.cofficeaddress=custome.cofficeaddress;
+						obj.cofficezipcode=custome.cofficezipcode;
+						obj.cshipaddress=custome.cshipaddress;
+						obj.cshipzipcode=custome.cshipzipcode;
+						obj.ctel=custome.ctel;
+						obj.cfax=custome.cfax;
+						
+						obj.isalesarea=custome.isalesarea;
+						obj.isalesdepart=custome.isalesdepart;
+						obj.isalesperson=custome.isalesperson;
+						obj.icreditrating=custome.icreditrating;
+						obj.cproducteffect=custome.cproducteffect;
+						obj.cmemo=custome.cmemo;
+						
+						obj.ikeycontacts =custome.ikeycontacts;
+						if(personVo.hasOwnProperty("csCustperson"))
+						{
+							var custper:CsCustpersonVo = personVo.csCustperson;
+							
+							obj.custpersonName= custper.cname ;
+							obj.cdepartment= custper.cdepartment;
+							obj.cpost =custper.cpost;
+							obj.ctitle= custper.ctitle;
+							obj.custpersonCmobile=custper.cmobile1;
+							obj.custpersonCtel=custper.ctel;
+							obj.custpersonCemail=custper.cemail;
+							obj.isex=custper.isex ;
+							obj.custperIid = custper.iid;
+							obj.icustomer = custper.icustomer;
+						}
+						
+						 this.custormerArr.addItem(obj);
+						
+						if(this.custormerArr.length>1)
+						{
+							count++;
+						}
+						initText(obj); 
+						break;
+					}
+					case "onEdit":
+					{
+						for each(var person:Object in this.custormerArr)
+						{
+							if(personVo.iid == person.iid)
+							{
+								person = personVo;
+							}
+						}
+						break;
+					}	
+					default:
+					{
+						break;
+					}
+				}
+				CRMtool.toolButtonsEnabled(this.lbr_authcontent,null,this.custormerArr.length);
+				
+				if(this.custormerArr.length>1)
+				{
+					if(count==this.custormerArr.length)
+					{
+						this.btn_next.enabled = false;
+						this.btn_up.enabled = true;
+					}
+					else if(count==1)
+					{
+						this.btn_up.enabled = false;
+						this.btn_next.enabled = true;
+					}
+					else
+					{
+						this.btn_next.enabled = true;
+						this.btn_up.enabled = true;
+					}
+				}
+			}
+			
+			
+			public function deleteInitBack(iid:int):void
+			{
+				for(var i:int=0;i<this.custormerArr.length;i++)
+				{
+					if(this.custormerArr.getItemAt(i).iid == iid)
+					{
+						this.custormerArr.removeItemAt(i);
+					}
+				}
+				count--;
+				if(this.custormerArr.length>1)
+				{
+					if(count==this.custormerArr.length)
+					{
+						this.btn_next.enabled = false;
+						this.btn_up.enabled = false;
+					}
+				}
+				if(count!=0)
+				{
+					var obj:Object= this.custormerArr.getItemAt(count-1) as Object;
+					initText(obj);
+				}
+				else if(count ==0)
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_authcontent,null,this.custormerArr.length);
+					count=0;
+					if(winParam=="1")
+					{
+						this.customerVBox.onGiveUp();
+					}
+					else if(winParam=="2")
+					{
+						this.custpersonVbox.onGiveUp();
+					}
+				}
+			}
+			
+			public function initText(obj:Object):void
+			{
+				if(winParam=="1")
+				{
+					this.customerVBox.customerVo = obj;
+				}
+				else if(winParam=="2")
+				{
+					this.custpersonVbox.custpersonVo = obj;
+				}
+				/*this.personVbox.tnp_idepartment.text = obj.idepartment;*/
+				
+				/*this.custpersonVbox.rbtgn_bjobstatus.selectedValue = obj.bjobstatus;
+				if(obj.bjobstatus)
+				{
+				this.personVbox.rbtn_working.selected = true;
+				}
+				else if(obj.bjobstatus)
+				{
+				this.personVbox.rbtn_Leaving.selected = true;
+				}
+				this.personVbox.rbtgn_busestatus.selectedValue=obj.busestatus;
+				if(obj.busestatus)
+				{
+				this.personVbox.rbtn_enabled.selected = true;
+				}
+				else if(obj.busestatus)
+				{
+				this.personVbox.rbtn_disable.selected = true;
+				}*/
+			}
+			
+			
+			private function up():void
+			{
+				count--;
+				if(count==1)
+				{
+					this.btn_up.enabled = false;
+				}
+				if(count==this.custormerArr.length)
+				{
+					this.btn_next.enabled = false;
+				}
+				else
+				{
+					this.btn_next.enabled = true;
+				}
+				var obj:Object = this.custormerArr.getItemAt(count-1) as Object;
+				this.label =obj.cname;
+				initText(obj);
+				
+			}
+			
+			private function next():void
+			{
+				
+				count++;
+				if(count==this.custormerArr.length)
+				{
+					this.btn_next.enabled=false;
+				}
+				if(count==1)
+				{
+					this.btn_up.enabled = false;
+				}
+				else
+				{
+					this.btn_up.enabled = true;
+				}
+				
+				var obj:Object = this.custormerArr.getItemAt(count-1) as Object;
+				this.label =obj.cname;
+				initText(obj);
+			}
+			
+			protected function customerVBox_onInitHandler(event:Event):void
+			{
+				if(custormerArr.length>0)
+				{
+					var obj:Object = custormerArr.getItemAt(0) as Object;
+					this.customerVBox.customerVo = obj;
+					this.label = obj.cname;
+					if(custormerArr.length>1)
+					{
+						this.btn_next.enabled = true;
+					}
+				}
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:states>
+		<s:State name="custpersonState"/>
+		<s:State name="customerState"/>
+	</mx:states>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<!--<fx:Script source="/../../../yssoft/scripts/CsCustomerRecordScript.as" />-->
+	<mx:VBox width="80%" height="100%" styleName="freeCoVbox" verticalGap="0">
+		<mx:ApplicationControlBar dock="true" height="32" width="100%">
+			<comps:LinkBarVboxComps id="lbr_authcontent" height="25" width="30%" dataProvider="{ConstsModel.LBRITEM}"
+									styleName="contentButtonBar" onNewEvent="onNew(event)" onEditEvent="onEdit(event)"
+									onGiveUpEvent="onGiveUp(event)" onSaveEvent="onSave(event)" onDeleteEvent="onDelete(event)"/>
+			<mx:HBox width="100%" horizontalAlign="right">
+					<!--<mx:Button label="上一条" id="btn_up" enabled="false" height="25" click="up();"/>
+					Button label="下一条" id="btn_next" height="25" click="next()" enabled="false"/>-->
+					<mx:LinkButton click="up();"  name="Pre" id="btn_up" 	icon="{ConstsModel.page_pre}" toolTip="上一条" enabled="false"	width="16" height="16"/>
+					<mx:LinkButton click="next()" name="Next" id="btn_next" icon="{ConstsModel.page_next}" toolTip="下一条" enabled="false"	width="16" height="16"/>
+			</mx:HBox>
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" paddingLeft="20" height="55" verticalAlign="middle" styleName="contentVBox">
+			<s:Image id="headericon"  width="50" height="50" source="{CRMmodel.headerIcon}" enabled="false"/>
+		</mx:HBox>
+		<mx:VBox width="100%" verticalGap="0" height="95%">
+			<mx:Canvas height="100%" width="100%" horizontalScrollPolicy="off">
+				<customer:CustomerVBox id="customerVBox" owner="{this}" height="100%" includeIn="customerState" onInit="customerVBox_onInitHandler(event)"/>
+				<customer:CustpersonVbox id="custpersonVbox" owner="{this}" height="100%" includeIn="custpersonState"/>
+			</mx:Canvas>
+		</mx:VBox>
+		<mx:VBox width="100%" height="10%" styleName="contentVBox" verticalAlign="middle" paddingLeft="20">
+			<mx:Text htmlText="状态:  &lt;font color='#ff0000'&gt;进程中&lt;font&gt;">
+			</mx:Text>
+		</mx:VBox>
+	</mx:VBox>
+	<!--<mx:VRule width="1" height="100%"/>-->
+	<mx:VBox width="20%" height="100%" borderVisible="false">
+		<!--<mx:ApplicationControlBar dock="true" height="34" width="100%"/>-->
+		<mx:Accordion width="100%" height="100%" headerHeight="32">
+			<mx:Canvas label="协同回复(3)" width="100%" height="100%">
+				
+			</mx:Canvas>
+			<mx:Canvas label="协同关联(0)" width="100%" height="100%">
+				
+			</mx:Canvas>
+			<mx:Canvas label="协同附件(1)" width="100%" height="100%">
+				
+			</mx:Canvas>
+		</mx:Accordion>
+	</mx:VBox>
+</mx:HDividedBox>

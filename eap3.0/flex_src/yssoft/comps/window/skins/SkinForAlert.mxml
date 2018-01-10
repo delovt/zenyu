@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SparkSkin name="CustomPanelBorderSkin"
+             xmlns:fx="http://ns.adobe.com/mxml/2009"
+             xmlns:s="library://ns.adobe.com/flex/spark"
+             implements="mx.core.IRectangularBorder">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.core.EdgeMetrics;
+        import mx.core.IUIComponent;
+
+        import yssoft.models.CRMmodel;
+
+
+        static private const exclusions:Array = ["background"];
+
+        override public function get colorizeExclusions():Array {
+            return exclusions;
+        }
+
+
+        static private const contentFill:Array = [];
+
+        override public function get contentItems():Array {
+            return contentFill
+        };
+
+        private var _metrics:EdgeMetrics = new EdgeMetrics(1, 32, 1, 1);
+
+        public function get borderMetrics():EdgeMetrics {
+            var hasPanelParent:Boolean = isPanel(parent);
+            var controlBar:IUIComponent = hasPanelParent ? Object(parent).mx_internal::_controlBar :
+
+                    null;
+            if (controlBar && controlBar.includeInLayout) {
+                _metrics.bottom = controlBar.getExplicitOrMeasuredHeight() + 1;
+            } else {
+                _metrics.bottom = 1;
+            }
+            return _metrics;
+        }
+
+        public function get backgroundImageBounds():Rectangle {
+            return null;
+        }
+
+        public function set backgroundImageBounds(value:Rectangle):void {
+        }
+
+        public function get hasBackgroundImage():Boolean {
+            return false;
+        }
+
+        public function layoutBackgroundImage():void {
+        }
+
+        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+            var em:EdgeMetrics = borderMetrics;
+            super.updateDisplayList(unscaledWidth, unscaledHeight);
+        }
+
+        private static var panels:Object = {};
+
+        private static function isPanel(parent:Object):Boolean {
+            var s:String = getQualifiedClassName(parent);
+            if (panels[s] == 1) {
+                return true;
+            }
+            if (panels[s] == 0) {
+                return false;
+            }
+            if (s == "mx.containers::Panel") {
+                panels[s] == 1;
+                return true;
+            }
+            var x:XML = describeType(parent);
+            var xmllist:XMLList = x.extendsClass.(@type == "mx.containers::Panel");
+            if (xmllist.length() == 0) {
+                panels[s] = 0;
+                return false;
+            }
+            panels[s] = 1;
+            return true;
+        }
+        ]]>
+	</fx:Script>
+
+    <!-- 阴影 -->
+    <!--    <s:Rect left="1" top="1" right="1" bottom="1" radiusX="8" radiusY="8">
+            <s:filters>
+                <s:DropShadowFilter blurX="20" blurY="20" alpha="0.32" distance="11" angle="90" knockout="true"/>
+            </s:filters>
+            <s:fill>
+                <s:SolidColor color="0"/>
+            </s:fill>
+        </s:Rect>-->
+
+    <s:Group left="{-CRMmodel.alertShadowMargin-1}" right="{-CRMmodel.alertShadowMargin-1}"
+             top="{-CRMmodel.alertShadowMargin-1}" bottom="{-CRMmodel.alertShadowMargin-1}">
+        <s:Rect left="0" top="0" right="0" bottom="0" topLeftRadiusX="8" topRightRadiusX="8" bottomLeftRadiusX="8"
+                bottomRightRadiusX="8">
+            <s:fill>
+                <s:SolidColor color="#656565" alpha="0.6"/>
+            </s:fill>
+        </s:Rect>
+        <s:Rect left="{CRMmodel.alertShadowMargin}" top="{CRMmodel.alertShadowMargin}"
+                right="{CRMmodel.alertShadowMargin}" bottom="{CRMmodel.alertShadowMargin}">
+            <s:fill>
+                <s:SolidColor color="#545454"/>
+            </s:fill>
+        </s:Rect>
+        <s:Group left="{CRMmodel.alertShadowMargin}" right="{CRMmodel.alertShadowMargin}"
+                 top="{CRMmodel.alertShadowMargin}" bottom="{CRMmodel.alertShadowMargin}">
+
+            <!-- layer 2: 背景色-->
+            <s:Rect id="background" left="1" top="1" right="1" bottom="1" alpha="1">
+                <s:fill>
+                    <s:SolidColor color="0xFFFFFF"/>
+                </s:fill>
+            </s:Rect>
+
+            <!-- layer 3: 标题栏-->
+            <s:Rect left="1" right="1" top="1" height="32">
+                <s:fill>
+                    <s:LinearGradient rotation="90">
+                        <s:GradientEntry color="{CRMmodel.basicColorArray[0]}"/>
+                        <s:GradientEntry color="{CRMmodel.basicColorArray[1]}"/>
+                    </s:LinearGradient>
+                </s:fill>
+            </s:Rect>
+
+            <!-- layer 4:标题栏边框-->
+            <s:Rect left="1" right="1" top="1" height="32">
+                <s:stroke>
+                    <s:LinearGradientStroke rotation="90" weight="1">
+                        <s:GradientEntry color="{CRMmodel.basicColorArray[0]}"/>
+                        <s:GradientEntry color="{CRMmodel.basicColorArray[1]}"/>
+                    </s:LinearGradientStroke>
+                </s:stroke>
+            </s:Rect>
+        </s:Group>
+    </s:Group>
+</s:SparkSkin>

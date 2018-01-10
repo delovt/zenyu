@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+    <!-- 验证sql -->
+    <select id="verification_sql" resultClass="java.util.HashMap" parameterClass="string" remapResults="true">
+        $sql$
+    </select>
+
+    <!-- 列表配置表查询 -->
+    <select id="get_listset_by_ifuncregedit" resultClass="yssoft.vos.AcListsetVo" parameterClass="int">
+        select
+        AC_listset.iid,AC_listset.ifuncregedit,ipage,ifixnum,AC_listset.cdataauth,csql1,csql2,AS_funcregedit.ctable,AC_listset.itype,idiagram,AC_listset.cxfield,AC_listset.cyfield,AC_listset.border,
+        AC_listset.bpage,AC_listset.bmap,AC_listset.cmapfield
+        from AC_listset left join AS_funcregedit
+        on AC_listset.ifuncregedit=AS_funcregedit.iid where AC_listset.ifuncregedit=#ilist#
+    </select>
+
+    <select id="get_listsetp" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select isnull(ipage,0) ipage,isnull(ifixnum,0) ifixnum from ac_listsetp where ilist=#ilist# and
+        iperson=#iperson#
+    </select>
+
+    <!-- 列表配置表查询 -->
+    <select id="get_listclm_by_ilist" resultClass="yssoft.vos.AcListclmVo" parameterClass="yssoft.vos.AcListclmVo">
+        select iid,ilist,isnull(iperson,0)
+        iperson,cfield,ccaption,cnewcaption,ifieldtype,cformat,icolwidth,ialign,bshow,
+        isnull(bsum,0) bsum,ino,bsearch,cshfield,isnull(blinkfun,0) blinkfun,isnull(bgroup,0) bgroup,isnull(bfilter,0)
+        bfilter
+        from AC_listclm where ilist=#ilist# and bshow=1
+        <isNotEqual prepend="and" property="iperson" compareValue="0">
+            iperson= #iperson#
+        </isNotEqual>
+        <isEqual prepend="and" property="iperson" compareValue="0">
+            (iperson is null or iperson=0)
+        </isEqual>
+        order by ino
+    </select>
+
+    <!-- 列表配置表查询 -->
+    <select id="get_listclm_by_ilist_set" resultClass="yssoft.vos.AcListclmVo" parameterClass="yssoft.vos.AcListclmVo">
+        select iid,ilist,isnull(iperson,0) iperson,cfield,ccaption,cnewcaption,ifieldtype,cformat,icolwidth,ialign,
+        0 bshow,
+        isnull(bsum,0) bsum,ino,bsearch,cshfield,isnull(blinkfun,0) blinkfun,isnull(bgroup,0) bgroup,isnull(bfilter,0)
+        bfilter from AC_listclm
+        where isnull(iperson,0)=0 and ilist=#ilist# and bshow=1
+        <isNotEqual prepend=" " property="iperson" compareValue="0">
+            and cfield not in ( select cfield from AC_listclm where ilist=#ilist# and iperson= #iperson# and bshow=1)
+            union
+            select iid,ilist,isnull(iperson,0) iperson,cfield,ccaption,cnewcaption,ifieldtype,cformat,icolwidth,ialign,
+            bshow,
+            isnull(bsum,0) bsum,ino,bsearch,cshfield,isnull(blinkfun,0) blinkfun,isnull(bgroup,0)
+            bgroup,isnull(bfilter,0) bfilter from AC_listclm
+            where iperson=#iperson# and ilist=#ilist# and bshow=1
+        </isNotEqual>
+        order by ino
+    </select>
+
+    <!-- YJ Add 2012-04-27 列表配置业务模块 -->
+    <select id="get_listclm_by_ilist_server" resultClass="yssoft.vos.AcListclmVo"
+            parameterClass="yssoft.vos.AcListclmVo">
+        select iid,ilist,isnull(iperson,0)
+        iperson,cfield,ccaption,cnewcaption,ifieldtype,cformat,icolwidth,ialign,bshow,
+        isnull(bsum,0) bsum,ino,bsearch,cshfield,isnull(blinkfun,0) blinkfun,isnull(bgroup,0) bgroup,isnull(bfilter,0)
+        bfilter ,
+        isnull(bcrossrow,0) bcrossrow,isnull(bcrosscol,0) bcrosscol,isnull(btotalfield,0) btotalfield ,isnull(bamount,0)
+        bamount ,isnull(browtotal,0) browtotal,isnull(bcoltotal,0) bcoltotal
+        from AC_listclm where ilist=#ilist#
+        <isNotEqual prepend="and" property="iperson" compareValue="0">
+            iperson= #iperson#
+        </isNotEqual>
+        <isEqual prepend="and" property="iperson" compareValue="0">
+            (iperson is null or iperson=0)
+        </isEqual>
+        order by ino
+    </select>
+
+    <!-- 新增列表格式设置表 -->
+    <insert id="add_listclm" parameterClass="yssoft.vos.AcListclmVo">
+        insert into
+        AC_listclm(ilist,cfield,ccaption,cnewcaption,ifieldtype,icolwidth,ialign,bsearch,ino,bshow,iperson,cshfield,blinkfun,bgroup,bfilter,bsum,bcrossrow,bcrosscol,btotalfield,bamount,browtotal,bcoltotal)
+        values(#ilist#,#cfield#,#ccaption#,#ccaption#,#ifieldtype#,#icolwidth#,#ialign#,#bsearch#,#ino#,#bshow#,#iperson#,#cshfield#,#blinkfun#,#bgroup#,#bfilter#,#bsum#,#bcrossrow#,#bcrosscol#,#btotalfield#,#bamount#,#browtotal#,#bcoltotal#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 删除角色 -->
+    <delete id="remove_listclm" parameterClass="java.util.HashMap">
+        delete from AC_listclm where ilist=#ilist#
+        <isNotEmpty property="iperson">
+            <isNotEqual prepend="and" property="iperson" compareValue="0">
+                iperson= #iperson#
+            </isNotEqual>
+            <isEqual prepend="and" property="iperson" compareValue="0">
+                (iperson is null or iperson=0)
+            </isEqual>
+        </isNotEmpty>
+    </delete>
+
+    <!-- 新增列表配置表 -->
+    <insert id="add_listset" parameterClass="yssoft.vos.AcListsetVo">
+        insert into AC_listset(ifuncregedit,ipage,ifixnum,cdataauth,csql1,itype,
+        idiagram,cxfield,cyfield,border,bpage,bmap,cmapfield)
+        values(#ifuncregedit#,#ipage#,#ifixnum#,#cdataauth#,#csql1#,#itype#,
+        #idiagram#,#cxfield#,#cyfield#,#border#,#bpage#,#bmap#,#cmapfield#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 修改列表配置表 -->
+    <update id="update_listset" parameterClass="yssoft.vos.AcListsetVo">
+        update AC_listset set ipage=#ipage#,ifixnum=#ifixnum#,cdataauth=#cdataauth#,csql1=#csql1#,itype=#itype#,
+        idiagram=#idiagram#,cxfield=#cxfield#,cyfield=#cyfield#,border =
+        #border#,bpage=#bpage#,bmap=#bmap#,cmapfield=#cmapfield# where ifuncregedit=#ifuncregedit#
+    </update>
+
+    <!-- 修改列表配置表 -->
+    <update id="update_listclm" parameterClass="yssoft.vos.AcListclmVo">
+        update AC_listclm set
+        cnewcaption=#cnewcaption#,ino=#ino#,bshow=#bshow#,icolwidth=#icolwidth#,ialign=#ialign#,bsum=#bsum#,bgroup=#bgroup#,bfilter=#bfilter#
+        where iid=#iid#
+        <isNotEqual prepend="and" property="iperson" compareValue="0">
+            iperson= #iperson#
+        </isNotEqual>
+    </update>
+
+    <insert id="add_listclmByResume" parameterClass="java.util.HashMap">
+        insert into AC_listclm(ilist,iperson,cfield,ccaption,cnewcaption,ifieldtype,
+        cformat,icolwidth,ialign,bshow,bsum,ino,
+        bsearch,cshfield,blinkfun,bgroup,bfilter,bcrossrow,bcrosscol,btotalfield,bamount,browtotal,bcoltotal) select
+        ilist,#iperson#,cfield,ccaption,cnewcaption,ifieldtype,
+        cformat,icolwidth,ialign,bshow,bsum,ino,
+        bsearch,cshfield,blinkfun,bgroup,bfilter,bcrossrow,bcrosscol,btotalfield,bamount,browtotal,bcoltotal from
+        AC_listclm where (iperson is null or iperson=0) and ilist=#ilist#
+    </insert>
+    <!-- 列表配置常用条件 -->
+    <select id="get_listcd" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select iid,ipid,cname,ccode,bdesktop,ccolor from AC_listcd where ifuncregedit=#ifuncregedit# order by ccode
+    </select>
+
+    <select id="get_listStyle" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select iid,ipid,ccode,cname from AC_liststyle where ifuncregedit=#ifuncregedit# order by ccode
+    </select>
+
+    <!-- 列表配置常用条件 -->
+    <select id="get_listcd2" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select iid,ipid,cname,ccode,bdesktop,ccolor,csql from AC_listcd where ifuncregedit=#ifuncregedit# order by ccode
+    </select>
+
+    <!-- 新增列表配置常用条件 -->
+    <insert id="add_listcd" parameterClass="java.util.HashMap">
+        insert into AC_listcd(ipid,ifuncregedit,ccode,cname,csql,bdesktop,ccolor)
+        values(#ipid#,#ifuncregedit#,#ccode#,#cname#,#csql#,#bdesktop#,#ccolor#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+
+    <insert id="add_listStyle" parameterClass="java.util.HashMap">
+        insert into AC_liststyle
+        (ipid,ifuncregedit,ccode,cname,itype,cfield,cbcolor,cfcolor,csql)
+        values
+        (#ipid#,#ifuncregedit#,#ccode#,#cname#,#itype#,#cfield#,#cbcolor#,#cfcolor#,#csql#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <update id="update_listStyle" parameterClass="java.util.HashMap">
+        update AC_liststyle set
+        ipid=#ipid#,cname=#cname#,csql=#csql#,ccode=#ccode#,itype=#itype#,cfield=#cfield#,cbcolor=#cbcolor#,cfcolor=#cfcolor#
+        where iid=#iid#;
+        <!-- update AC_liststyle set
+         ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode))
+         where ccode like #oldCcode#+'%' and ifuncregedit=#ifuncregedit#;-->
+    </update>
+
+    <!-- 修改列表配置常用条件 -->
+    <update id="update_listcd" parameterClass="java.util.HashMap">
+        begin
+        update AC_listcd set
+        ipid=#ipid#,cname=#cname#,csql=#csql#,ccode=#ccode#,bdesktop=#bdesktop#,ccolor=#ccolor#
+        where iid=#iid#;
+        update AC_listcd set
+        ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode))
+        where ccode like #oldCcode#+'%' and ifuncregedit=#ifuncregedit#;
+        delete AC_desktoplistcd where iid not in(
+        select AC_desktoplistcd.iid from AC_desktoplistcd
+        left join ac_listcd on ac_listcd.iid = AC_desktoplistcd.ilistcd
+        where ac_listcd.bdesktop=1 );
+        end;
+    </update>
+
+    <!-- 删除列表配置常用条件 -->
+    <delete id="remove_listcd" parameterClass="int">
+        delete from AC_listcd where iid=#iid#
+    </delete>
+
+    <delete id="delete_listStyle" parameterClass="int">
+        delete from AC_liststyle where iid=#iid#
+    </delete>
+
+    <delete id="delete_listclm" parameterClass="int">
+        delete from AC_listclm where iperson!=0 and ilist=#ilist#
+    </delete>
+
+    <select id="get_dataType" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+        select * from as_datatype
+    </select>
+</sqlMap>

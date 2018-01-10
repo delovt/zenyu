@@ -1,0 +1,950 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:frameui="yssoft.frameui.*" width="100%" height="100%"
+                implements="yssoft.impls.ICRMWindow"
+                xmlns:myreport="myreport.*" xmlns:printreport="yssoft.views.printreport.*" creationComplete="init()"
+                horizontalGap="0">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.controls.TextInput;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import spark.components.ComboBox;
+			
+			import yssoft.comps.ConsultTextInput;
+			import yssoft.comps.DateControl;
+			import yssoft.frameui.formopt.OperDataAuth;
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.models.DateHadle;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.MainView;
+			import yssoft.views.printreport.PrintView;
+			import yssoft.views.sysmanage.AssemblyQueryclmView;
+			import yssoft.vos.ListclmVo;
+			[Bindable]
+			public var itemObj:Object;
+			
+			//菜单传参
+			[Bindable]
+			public var winParam:Object=new Object();
+			
+			//权限类对象
+			public var auth:OperDataAuth;
+			
+			//重新封装高级查询数据集
+			[Bindable]public var advancedArr:ArrayCollection = new ArrayCollection();
+			
+			public var componentsArr:ArrayCollection = new ArrayCollection();
+			
+			//找出所有的非空验证
+			[Bindable]
+			public var isNotNullArr:ArrayCollection = new ArrayCollection();
+			
+			//打印模板
+			[Bindable]
+			private var printTemplate:ArrayCollection=new ArrayCollection([{cname:""}]);
+			
+			private var isAutoSearch:Boolean = false;
+			
+			private var printTpls:ComboBox;
+			
+			private function init():void
+			{
+				//YJ Modify 移动
+				itemObj = CRMtool.getObject(winParam);
+				winParam=itemObj;
+				
+				//初始化权限
+				auth=new OperDataAuth();
+				
+				
+				var params:Object=new Object();
+				params.ifuncregedit=itemObj.ifuncregedit;
+				params.iperson=CRMmodel.userId;
+				auth.get_funoperauth(params);
+				//---------------加载操作权限 刘磊 20111014 end---------------//
+				
+				var ifuncregedit:int= int(itemObj.ifuncregedit);
+				AccessUtil.remoteCallJava("ACqueryclmDest","getAcQueryclmList",onGetAcQueryclmListBack,ifuncregedit);
+			}
+			
+			
+			private var textInputList:ArrayCollection= new ArrayCollection();
+			
+			private function onGetAcQueryclmListBack(evt:ResultEvent):void{
+				textInputList.removeAll();
+				var arrDataList:ArrayCollection = evt.result as ArrayCollection;
+				
+				
+				var _commons:ArrayCollection = new ArrayCollection();
+				
+				var co:int=1;
+				/******************* 找出所有常用条件 ***********************/
+				for each(var obj:Object in arrDataList)
+				{
+					//找出常用条件
+					if(String(obj.bcommon)== "true")
+					{
+						_commons.addItem(obj);
+					}
+					
+					/******************* 重新封装数据集 ***********************/
+					var advancedObj:Object = new Object();
+					advancedObj.logic ="and";
+					advancedObj.leftParenthesis ="";
+					advancedObj.cfiled=obj.cfield;
+					advancedObj.ccaption=obj.ccaption;
+					advancedObj.condition ="like";
+					advancedObj.value =" ";
+					advancedObj.rightParenthesis =" ";
+					advancedArr.addItem(advancedObj);
+					
+					/******************* 封装字段名下拉框 ***********************/
+					
+					co++;
+				}
+				/******************* 封装组件 ***********************/
+				//空值行数
+				var count:int = 0;
+				//动态对象集合（包括，动态主键，组件类型，和哪个字段绑定）
+				var comms_Hbox1:HBox = new HBox();
+				comms_Hbox1.styleName="contentSubHbox";
+				comms_Hbox1.percentWidth=100;
+				vbx_common.addChild(comms_Hbox1);
+				
+				var comms_lable1:Label = new Label();
+				comms_lable1.styleName="contentLabel";
+				comms_lable1.percentWidth=34;
+				comms_lable1.text="报表模版";
+				comms_Hbox1.addChild(comms_lable1);
+				
+				printTpls = new ComboBox();
+				printTpls.labelField="cname";
+				printTpls.percentWidth=66;
+				comms_Hbox1.addChild(printTpls);
+				
+				for(var i:int=0;i<_commons.length;i++)
+				{
+					var comms_Hbox:HBox = new HBox();
+					comms_Hbox.styleName="contentSubHbox";
+					comms_Hbox.percentWidth=100;
+					vbx_common.addChild(comms_Hbox);
+					
+					var comms_lable:Label = new Label();
+					comms_lable.styleName="contentLabel";
+					comms_lable.percentWidth=34;
+					comms_lable.text=_commons.getItemAt(i).ccaption;
+					//必输项
+					if(Boolean(_commons.getItemAt(i).bunnull)||_commons.getItemAt(i).bunnull=="true")
+					{
+						comms_lable.setStyle("color","red");
+					}
+					comms_Hbox.addChild(comms_lable);
+					
+					var componentsObj:Object = new Object();
+					switch(int(Number(_commons.getItemAt(i).ifieldtype)))
+					{
+						case 0:
+						{
+							var tnp_cfield;
+							//判断是参照  add by lr
+							if(_commons.getItemAt(i).iconsult!=null&&_commons.getItemAt(i).iconsult!=0){
+								tnp_cfield = new ConsultTextInput();
+								tnp_cfield.iid = _commons.getItemAt(i).iconsult;
+								tnp_cfield.bindValueField=_commons.getItemAt(i).cconsultbkfld;
+								tnp_cfield.bindLabelField=_commons.getItemAt(i).cconsultswfld;
+								tnp_cfield.visibleIcon = true;
+								tnp_cfield.editable = true;
+								tnp_cfield.showBorder = true;
+								tnp_cfield.borderStyle = "inset";
+								tnp_cfield.clabel = comms_lable.text;
+
+								if(CRMtool.isStringNotNull(tnp_cfield.bindValueField)&&StringUtil.trim(tnp_cfield.bindValueField)=="iid"){
+									tnp_cfield.editable = false;
+								}
+
+								if(null!=_commons.getItemAt(i).cdefault&&""!=_commons.getItemAt(i).cdefault)
+								{
+									switch(_commons.getItemAt(i).cdefault)
+									{
+										case "登录人":
+										{
+											tnp_cfield.tnp_text_str=CRMmodel.hrperson.cname;
+											break;
+										}
+										case "登录人部门":
+										{
+											tnp_cfield.tnp_text_str=CRMmodel.hrperson.departcname;
+											break;
+										}	
+									}
+								}
+								else if(null!=_commons.getItemAt(i).cfixdefault&&""!=_commons.getItemAt(i).cfixdefault)
+								{
+									tnp_cfield.tnp_text_str=_commons.getItemAt(i).cfixdefault;
+								}
+								tnp_cfield.onlyGetEndNode=Boolean(_commons.getItemAt(i).bconsultendbk);
+								componentsObj.type ="ConsultTextInput";
+								
+								tnp_cfield.name = _commons.getItemAt(i).cfield;
+								textInputList.addItem(tnp_cfield);
+								
+							}
+							else if(null!=_commons.getItemAt(i).cdefault&&""!=_commons.getItemAt(i).cdefault) {
+								switch(_commons.getItemAt(i).cdefault)
+								{
+									case "当前年份":
+									{
+										tnp_cfield = new TextInput();				
+										componentsObj.type ="TextInput";
+										tnp_cfield.text=CRMtool.getFormatDateString("YYYY");
+										break;
+									}
+									case "当前月份":
+									{
+										tnp_cfield = new TextInput();				
+										componentsObj.type ="TextInput";
+										tnp_cfield.text=CRMtool.getFormatDateString("MM");
+										if(tnp_cfield.text.substr(0, 1) == "0") {
+											tnp_cfield.text = tnp_cfield.text.substr(1, 1);
+										}	
+										break;
+									}
+									case "当前年月":
+									{
+										tnp_cfield = new TextInput();				
+										componentsObj.type ="TextInput";
+										tnp_cfield.text=CRMtool.getFormatDateString("YYYY")+CRMtool.getFormatDateString("MM");	
+										break;
+									}	
+								}
+							}
+							else{
+								tnp_cfield = new TextInput();	
+								tnp_cfield.name = _commons.getItemAt(i).cfield;
+								componentsObj.type ="TextInput";
+								if(null!=_commons.getItemAt(i).cfixdefault&&""!=_commons.getItemAt(i).cfixdefault)
+								{
+									tnp_cfield.text=_commons.getItemAt(i).cfixdefault;
+								}
+								
+								textInputList.addItem(tnp_cfield);
+							}
+							tnp_cfield.percentWidth=66;
+							comms_Hbox.addChild(tnp_cfield);
+							componentsObj.components=tnp_cfield;
+							componentsObj.cfield = _commons.getItemAt(i).cfield;
+							break;
+						}
+						case 1:
+						{
+							var tnp_cfield_Number:TextInput = new TextInput();
+							tnp_cfield_Number.restrict="[0-9]";
+							tnp_cfield_Number.percentWidth=66;
+							comms_Hbox.addChild(tnp_cfield_Number);
+							componentsObj.components=tnp_cfield_Number;
+							componentsObj.type ="TextInput";
+							if(null!=_commons.getItemAt(i).cfixdefault&&""!=_commons.getItemAt(i).cfixdefault)
+							{
+								tnp_cfield_Number.text=_commons.getItemAt(i).cfixdefault;
+							}
+							if(_commons.getItemAt(i).cdefault == "当前年份") {
+								tnp_cfield_Number.text = CRMtool.getFormatDateString("YYYY");
+							}
+							if(_commons.getItemAt(i).cdefault == "上一年份") {
+								tnp_cfield_Number.text = String(int(Number(CRMtool.getFormatDateString("YYYY")))-1);
+							}
+							componentsObj.cfield = _commons.getItemAt(i).cfield;
+							
+							tnp_cfield_Number.name = _commons.getItemAt(i).cfield;
+							textInputList.addItem(tnp_cfield_Number);
+							break;
+						}
+						case 2:
+						{
+							var tnp_cfield_Float:TextInput = new TextInput();
+							tnp_cfield_Float.restrict="[0-9]\.";
+							tnp_cfield_Float.percentWidth=66;
+							comms_Hbox.addChild(tnp_cfield_Float);
+							componentsObj.components=tnp_cfield_Float;
+							componentsObj.type ="TextInput";
+							if(null!=_commons.getItemAt(i).cfixdefault&&""!=_commons.getItemAt(i).cfixdefault)
+							{
+								tnp_cfield_Float.text=_commons.getItemAt(i).cfixdefault;
+							}
+							componentsObj.cfield = _commons.getItemAt(i).cfield;
+							
+							tnp_cfield_Float.name = _commons.getItemAt(i).cfield;
+							textInputList.addItem(tnp_cfield_Float);
+							break;
+						}
+						case 3:
+						{
+							var dfl_cfield:DateControl = new DateControl();
+							dfl_cfield.showShape = 0;
+							dfl_cfield.percentWidth=66;
+							if(null!=_commons.getItemAt(i).cdefault&&""!=_commons.getItemAt(i).cdefault)
+							{
+								switch(_commons.getItemAt(i).cdefault)
+								{
+									case "本年":
+									{
+										dfl_cfield.text=DateHadle.getFirstOfYear();
+										break;
+									}
+									case "本月":
+									{
+										dfl_cfield.text=DateHadle.getFirstOfMonth();
+										break;
+									}	
+									case "本周":
+									{
+										dfl_cfield.text=DateHadle.getFirstOfWeek();
+										break;
+									}
+									case "今天":
+									{
+										dfl_cfield.text=CRMtool.getFormatDateString("YYYY-MM-DD");
+										break;
+									}
+									case "本年第一天":
+									{
+										dfl_cfield.text=DateHadle.getFirstOfYear();
+										break;
+									}
+									case "本月第一天":
+									{
+										dfl_cfield.text=DateHadle.getFirstOfMonth();
+										break;
+									}
+									case "本周第一天":
+									{
+										dfl_cfield.text=DateHadle.getFirstOfWeek();
+										break;
+									}
+								}
+							}
+							comms_Hbox.addChild(dfl_cfield);
+							dfl_cfield.isStyle = false;
+							dfl_cfield.editable = true;
+							componentsObj.components=dfl_cfield;
+							componentsObj.type ="DateControl";
+							componentsObj.cfield = _commons.getItemAt(i).cfield;
+							
+							dfl_cfield.name = _commons.getItemAt(i).cfield;
+							textInputList.addItem(dfl_cfield);
+							
+							break;
+						}
+						case 4:
+						{
+							var chbx_cfield:CheckBox = new CheckBox();
+							comms_Hbox.addChild(chbx_cfield);
+							componentsObj.components=chbx_cfield;
+							componentsObj.type ="CheckBox";
+							componentsObj.cfield = _commons.getItemAt(i).cfield;
+							
+							chbx_cfield.name = _commons.getItemAt(i).cfield;
+
+                            if(null!=_commons.getItemAt(i).cfixdefault&&"1"==_commons.getItemAt(i).cfixdefault)
+                            {
+                                chbx_cfield.selected = true;
+                            }
+
+							textInputList.addItem(chbx_cfield);
+							break;
+						}
+							
+						default:
+						{
+							break;
+						}
+					}
+					
+					if(int(Number(_commons.getItemAt(i).icmtype))==1)
+					{
+						var hbx_row1:HBox = new HBox();
+						hbx_row1.percentWidth = 100;
+						hbx_row1.styleName="contentSubHbox";
+						vbx_common.addChild(hbx_row1);
+						
+						var lbe_ccaption1:Label = new Label;
+						lbe_ccaption1.text = "到";
+						lbe_ccaption1.styleName ="contentLabel";
+						lbe_ccaption1.percentWidth=34;
+						//必输项
+						if(Boolean(_commons.getItemAt(i).bunnull)||_commons.getItemAt(i).bunnull=="true")
+						{
+							lbe_ccaption1.setStyle("color","red");
+						}
+						hbx_row1.addChild(lbe_ccaption1);
+						
+						
+						switch(int(Number(_commons.getItemAt(i).ifieldtype)))
+						{
+							case 0:
+							{
+								var tnp_cfield1:TextInput = new TextInput();
+								tnp_cfield1.percentWidth=66;
+								hbx_row1.addChild(tnp_cfield1);
+								componentsObj.between=tnp_cfield1;
+								break;
+							}
+							case 1:
+							{
+								var tnp_cfield_Number1:TextInput = new TextInput();
+								tnp_cfield_Number1.percentWidth=66;
+								tnp_cfield_Number1.restrict="[0-9]";
+								hbx_row1.addChild(tnp_cfield_Number1);
+								componentsObj.between=tnp_cfield_Number1;
+								break;
+							}
+							case 2:
+							{
+								var tnp_cfield_Float1:TextInput = new TextInput();
+								tnp_cfield_Float1.percentWidth=66;
+								tnp_cfield_Float1.restrict="[0-9]\.";
+								hbx_row1.addChild(tnp_cfield_Float1);
+								componentsObj.between=tnp_cfield_Float1;
+								break;
+							}
+							case 3:
+							{
+								var dfl_cfield1:DateControl = new DateControl();
+								dfl_cfield1.showShape = 0;
+								dfl_cfield1.percentWidth=66;
+								dfl_cfield1.isStyle = false;
+								dfl_cfield1.editable = true;
+								if(null!=_commons.getItemAt(i).cdefault&&""!=_commons.getItemAt(i).cdefault)
+								{
+									switch(_commons.getItemAt(i).cdefault)
+									{
+										case "本年":
+										{
+											dfl_cfield1.text=DateHadle.getEndOfYear();
+											break;
+										}
+										case "本月":
+										{
+											dfl_cfield1.text=DateHadle.getEndOfMonth();
+											break;
+										}	
+										case "本周":
+										{
+											dfl_cfield1.text=DateHadle.getEndOfWeek();
+											break;
+										}
+										case "今天":
+										{
+											dfl_cfield1.text=CRMtool.getFormatDateString("YYYY-MM-DD");
+											break;
+										}
+										case "本年第一天":
+										{
+											dfl_cfield1.text=DateHadle.getFirstOfYear();
+											break;
+										}
+										case "本月第一天":
+										{
+											dfl_cfield1.text=DateHadle.getFirstOfMonth();
+											break;
+										}
+										case "本周第一天":
+										{
+											dfl_cfield1.text=DateHadle.getFirstOfWeek();
+											break;
+										}	
+									}
+								}
+								hbx_row1.addChild(dfl_cfield1);
+								componentsObj.between=dfl_cfield1;
+								break;
+								
+							}
+							case 4:
+							{
+								var chbx_cfield1:CheckBox = new CheckBox();
+								hbx_row1.addChild(chbx_cfield1);
+								componentsObj.between=hbx_row1;
+								break;
+							}
+								
+							default:
+							{
+								break;
+							}
+								
+						}
+						count++;
+					}
+					componentsArr.addItem(componentsObj);
+					if(Boolean(_commons.getItemAt(i).bunnull)||_commons.getItemAt(i).bunnull=="true")
+					{
+						this.isNotNullArr.addItem(componentsObj);
+					}
+				}
+				CRMtool.setTabIndex(vbx_common);
+				
+				//lr add 初始化注入数据
+				if(winParam.hasOwnProperty("injectObj")){
+					initInjectDate();
+				}
+				
+				
+				
+				var param:Object=new Object();
+				param.ifunid=itemObj.ifuncregedit;
+				AccessUtil.remoteCallJava("WorkFlowDest","print_selete_items",wfCallBack,param,null,false);
+			}
+			
+			private function initInjectDate():void{
+				var injectObj:Object = winParam.injectObj;
+				if(injectObj){
+					if(injectObj.isAutoSearch)
+						isAutoSearch = true;
+					
+					var objInfo:Object=ObjectUtil.getClassInfo(injectObj);
+					var fieldName:Array=objInfo["properties"] as Array;  
+					for each (var q:QName in fieldName)  
+					{  
+						for each(var item in textInputList){
+							var name:String = item.name;
+							if(name==q.localName||name==("@"+q.localName)){
+								if(item is ConsultTextInput&&injectObj[q.localName+"_NAME"]){
+									(item as ConsultTextInput).value =  injectObj[q.localName];
+									(item as ConsultTextInput).tnp_text_str = injectObj[q.localName+"_NAME"];
+								}else if(item is TextInput){
+									(item as TextInput).text = injectObj[q.localName];
+								}else if(item is DateControl){
+									(item as DateControl).text = injectObj[q.localName];
+								}else if(item is CheckBox){
+									(item as CheckBox).selected = injectObj[q.localName];
+								}
+							}
+						}
+						
+					}
+				}			
+			}
+			
+			private function wfCallBack(event:ResultEvent):void
+			{
+				var ret:ArrayCollection=event.result as ArrayCollection;
+				if(ret != null){
+					
+					printTemplate=new ArrayCollection([{cname:""}]);
+					printTemplate.addAll(ret as ArrayCollection);
+					printTpls.dataProvider = this.printTemplate;
+					//设置默认打印模板
+					for each (var item:Object in ret) 
+					{
+						if (item.ifuncregedit==int(itemObj.ifuncregedit) && item.bdefault==true)
+						{
+							this.printTpls.selectedItem=item;
+						}
+					}
+					
+					//获取打印模板信息
+					if(ret.hasOwnProperty("print")){
+						printTemplate=new ArrayCollection([{cname:""}]);
+						printTemplate.addAll(ret as ArrayCollection);
+					}
+					
+					/* var paramObj:Object = new Object();
+					paramObj.formIfunIid=int(itemObj.ifuncregedit);
+					paramObj.reportiid= 0;
+					var request:URLRequest;
+					request=new URLRequest(ConstsModel.publishUrlRoot+"/printmodel/"+printTpls.selectedItem["ctemplate"]);
+					paramObj.url=request;					
+ */				
+				}
+			}
+			
+			//查询
+			public function pageInitBack(sql1:String):void
+			{
+				
+			}
+			
+			private function cleanAll():void
+			{
+				for each(var obj:Object  in componentsArr)
+				{
+					switch(obj.type)
+					{
+						//解析参照数据，此处取字符串值
+						case "ConsultTextInput":
+						{
+							var tnp_confield:ConsultTextInput = obj.components as ConsultTextInput;
+							tnp_confield.tnp_text_str="";
+							break;
+						}
+						case "TextInput":
+						{
+							var tnp_cfield:TextInput = obj.components as TextInput;
+							tnp_cfield.text="";
+							break;
+						}
+						case "DateControl":
+						{
+							var dfl_cfield:DateControl = obj.components as DateControl;
+							dfl_cfield.text="";
+							if(obj.hasOwnProperty("between"))
+							{
+								var dfl_between:DateControl = obj.between as DateControl;
+								dfl_between.text="";
+							}
+							break;
+						}
+						case "CheckBox":
+						{
+							var chbx_cfield:CheckBox = obj.components as CheckBox;
+							chbx_cfield.selected=false;
+							break;
+						}
+						default:
+						{
+							break;
+						}
+					}
+				}
+			}
+			
+			private function openWindow():void
+			{
+				var ass:AssemblyQueryclmView = new AssemblyQueryclmView();
+				ass.ifuncregedit =int(itemObj.ifuncregedit);
+				ass.width=700;
+				ass.height = 500;
+				ass.owner = this;
+				CRMtool.openView(ass);
+			}
+			
+			private function search():void
+			{
+				if(this.isNotNullArr.length>0)
+				{
+					for each(var notobj:Object in isNotNullArr)
+					{
+						switch(notobj.type)
+						{
+							//解析参照数据，此处取字符串值
+							case "ConsultTextInput":
+							{
+								var tnp_confield:ConsultTextInput = notobj.components as ConsultTextInput;
+								if(CRMtool.isStringNull(tnp_confield.value))
+								{
+									CRMtool.tipAlert("红色标签项必填！！",tnp_cfield);
+									return;
+								}
+								break;
+							}
+							case "TextInput":
+							{
+								var tnp_cfield:TextInput = notobj.components as TextInput;
+								if(CRMtool.isStringNull(tnp_cfield.text))
+								{
+									CRMtool.tipAlert("红色标签项必填！！",tnp_cfield);
+									return;
+								}
+								if(notobj.hasOwnProperty("between"))
+								{
+									var tnp_between:TextInput = notobj.between as TextInput;
+									if(CRMtool.isStringNull(tnp_between.text))
+									{
+										CRMtool.tipAlert("红色标签项必填！！",tnp_between);
+										return;
+									}
+								}
+								break;
+							}
+							case "DateControl":
+							{
+								var dfl_cfield:DateControl = notobj.components as DateControl;
+								if(CRMtool.isStringNull(dfl_cfield.text))
+								{
+									CRMtool.tipAlert("红色标签项必填！！",dfl_cfield);
+									return;
+								}
+								if(notobj.hasOwnProperty("between"))
+								{
+									var dfl_between:DateControl = notobj.between as DateControl;
+									if(CRMtool.isStringNull(dfl_between.text))
+									{
+										CRMtool.tipAlert("红色标签项必填！！",dfl_between);
+										return;
+									}
+								}
+								break;
+							}
+						}
+					}
+				}
+				
+				
+				
+				var sql1:String="";
+				var paramvalues:Array=new Array();
+				var index:int=0;
+				
+				for each(var obj:Object in componentsArr)
+				{
+					var objindex:Object = new Object();
+					
+					switch(obj.type)
+					{
+						//解析参照数据，此处取字符串值
+						case "ConsultTextInput":
+						{
+							var tnp_confield:ConsultTextInput = obj.components as ConsultTextInput;
+
+							if (CRMtool.isStringNull(tnp_confield.bindValueField)) {
+								CRMtool.showAlert("<" + tnp_confield.clabel + ">的查询配置有误，请更正。");
+								return;
+							}
+
+							if (StringUtil.trim(tnp_confield.bindValueField) == "iid") {
+								if (Number(tnp_confield.value) > 0) {
+									sql1 += " and " + obj.cfield;
+									sql1 += "='" + tnp_confield.value + "'";
+									objindex.cname = obj.cfield;
+									objindex.cvalue = "'" + tnp_confield.value + "'";
+									//paramvalues[index] = "'" + tnp_confield.value + "'";
+								} else {
+									CRMtool.showAlert("请手动选择<" + tnp_confield.clabel + ">的内容");
+									return;
+								}
+							} else if (tnp_confield.value != null && tnp_confield.value != "") {
+								sql1 += " and " + obj.cfield;
+								sql1 += "='" + tnp_confield.value + "'";
+								objindex.cname = obj.cfield;
+								objindex.cvalue = "'" + tnp_confield.value + "'";
+								//paramvalues[index] = "'" + tnp_confield.value + "'";
+							} else {
+								objindex.cname = obj.cfield;
+								objindex.cvalue = "''";
+							}
+							paramvalues[index]= objindex;
+							index++;
+							break;
+						}
+						case "TextInput":
+						{
+							var tnp_cfield:TextInput = obj.components as TextInput;
+							if(CRMtool.isStringNotNull(StringUtil.trim(tnp_cfield.text)))
+							{
+								sql1+=" and " + obj.cfield;
+								if(obj.hasOwnProperty("between"))
+								{
+									var tnp_between:TextInput = obj.between as TextInput;
+									sql1+=" between '";
+									sql1+= tnp_cfield.text;
+									
+									objindex.cname = obj.cfield;
+									objindex.cvalue = "'"+ StringUtil.trim(tnp_cfield.text)+"'";
+									paramvalues[index]= objindex;
+									
+									//paramvalues[index]="'"+ StringUtil.trim(tnp_cfield.text)+"'";
+									index++;
+									sql1+="' and '";
+									sql1+= StringUtil.trim(tnp_between.text)+"'";
+									
+									objindex.cname = obj.cfield;
+									objindex.cvalue = "'"+ StringUtil.trim(tnp_between.text)+"'";
+									paramvalues[index]= objindex;
+									
+									//paramvalues[index]="'"+ StringUtil.trim(tnp_between.text)+"'";
+									index++;
+								}
+								else
+								{
+									sql1+="='"+ StringUtil.trim(tnp_cfield.text)+"'";
+									objindex.cname = obj.cfield;
+									objindex.cvalue = "'"+ StringUtil.trim(tnp_cfield.text)+"'";	
+									paramvalues[index]= objindex;
+									//paramvalues[index]="'"+ StringUtil.trim(tnp_cfield.text)+"'";									
+									index++;
+								}
+							}
+							else
+							{
+								objindex.cname = obj.cfield;
+								objindex.cvalue = "''";
+								paramvalues[index]= objindex;
+								index++;
+							}
+							break;
+						}
+						case "DateControl":
+						{
+							var dfl_cfield:DateControl = obj.components as DateControl;
+							if(CRMtool.isStringNotNull(StringUtil.trim(dfl_cfield.text)))
+							{
+								sql1+=" and convert(varchar(10)," + obj.cfield+",120) ";
+								if(obj.hasOwnProperty("between"))
+								{
+									var dfl_between:DateControl = obj.between as DateControl;
+									sql1+=" between '";
+									if(CRMtool.isStringNotNull(StringUtil.trim(dfl_cfield.text)))
+									{
+										sql1+= StringUtil.trim(dfl_cfield.text);
+										
+										objindex.cname = obj.cfield;
+										objindex.cvalue = "'" + StringUtil.trim(dfl_cfield.text) + "'";
+										paramvalues[index]= objindex;
+										
+										//paramvalues[index]="'"+ StringUtil.trim(dfl_cfield.text)+"'";
+										index++;
+									}
+									else
+									{
+										dfl_cfield.text="1900-01-01";
+										sql1+="1900-01-01";
+										
+										objindex.cname = obj.cfield;
+										objindex.cvalue = "'"+ StringUtil.trim(dfl_cfield.text)+"'";
+										paramvalues[index]= objindex;
+										
+										//paramvalues[index]="'"+ StringUtil.trim(dfl_cfield.text)+"'";
+										index++;
+									}
+									sql1+="' and '";
+									if(CRMtool.isStringNotNull(StringUtil.trim(dfl_between.text)))
+									{
+										sql1+= StringUtil.trim(dfl_between.text)+"'";
+										
+										objindex.cname = obj.cfield;
+										objindex.cvalue = "'"+ StringUtil.trim(dfl_between.text)+"'";
+										paramvalues[index]= objindex;
+										
+										//paramvalues[index]="'"+ StringUtil.trim(dfl_between.text)+"'";
+										index++;
+									}
+									else
+									{
+										dfl_between.text=CRMtool.getFormatDateString("YYYY-MM-DD");
+										sql1+=CRMtool.getFormatDateString("YYYY-MM-DD")+"'";
+										
+										objindex.cname = obj.cfield;
+										objindex.cvalue = "'"+ StringUtil.trim(dfl_between.text)+"'";
+										paramvalues[index]= objindex;
+										
+										//paramvalues[index]="'"+ StringUtil.trim(dfl_between.text)+"'";
+										index++;
+									}
+								}
+								else
+								{
+									sql1+="='"+ dfl_cfield.text+"'";
+									
+									objindex.cname = obj.cfield;
+									objindex.cvalue = "'"+ StringUtil.trim(dfl_cfield.text)+"'";
+									paramvalues[index]= objindex;
+									
+									//paramvalues[index]="'"+ StringUtil.trim(dfl_cfield.text)+"'";
+									index++;
+								}
+							}
+							else
+							{
+								objindex.cname = obj.cfield;
+								objindex.cvalue = "''";
+								paramvalues[index]= objindex;
+								index++;
+							}
+							break;
+						}
+						case "CheckBox":
+						{
+							var chbx_cfield:CheckBox = obj.components as CheckBox;
+							sql1+=" and " + obj.cfield;
+							objindex.cname = obj.cfield;
+							if(chbx_cfield.selected)
+							{
+								sql1+="='1'";
+								objindex.cvalue = "'1'";
+							}
+							else
+							{
+								sql1+="='0'";
+								objindex.cvalue = "'0'";
+							}
+							paramvalues[index]=objindex;
+							index++;
+							break;
+						}
+						default:
+						{
+							break;
+						}
+					}
+				}
+				var request:URLRequest;
+				request=new URLRequest(ConstsModel.publishUrlRoot+"/printmodel/"+ this.printTpls.selectedItem["ctemplate"]);
+				myTB.removeAllChildren();
+				var printview:PrintView=new PrintView();
+				printview.winParam.formIfunIid=winParam.ifuncregedit;
+				printview.winParam.reportiid=this.printTpls.selectedItem.iid;
+				printview.winParam.paramvalues=paramvalues;
+				printview.winParam.printurl=request.url;
+				myTB.addChild(printview);
+			}
+			
+			//窗体初始化
+			public function onWindowInit():void
+			{
+				
+			}
+			//窗体打开
+			public function onWindowOpen():void
+			{
+				//YJ Modify 移动
+				itemObj = CRMtool.getObject(winParam);
+				winParam=itemObj;
+				//---------------加载操作权限 刘磊 20111014 end---------------//
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void
+			{
+				
+			}
+		]]>
+	</fx:Script>
+	<mx:VBox id="sideBox" width="257" height="100%" horizontalScrollPolicy="off">
+		<mx:VBox  width="100%" height="100%" verticalGap="0" styleName="lefttree">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="reportSideAppBar">
+				<s:Label text="查询条件"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" styleName="lefttree1">
+				<mx:VBox id="vbx_common" width="100%" height="100%" paddingTop="10" backgroundColor="#FFFFFF">
+				</mx:VBox>
+				<!-- 水平分割线-->
+				<mx:HRule width="100%" height="1"/>
+				<mx:VBox width="100%" height="36" horizontalAlign="center" verticalAlign="middle">
+					<mx:HBox width="100%" height="100%"  verticalAlign="middle" paddingLeft="10" paddingRight="10">
+						<mx:Button label="清除" click="cleanAll()" width="50" height="25" />
+						<mx:Button label="高级" id="highLevelButton" visible="false" click="openWindow();" width="50" height="25"  />
+						<s:Spacer width="100%"/>
+						<mx:Button label="查询" id="searchButton" click="search()" width="50" height="25"  />								
+					</mx:HBox>
+				</mx:VBox>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:VBox>
+    <frameui:FoldGapBox id="jiange" targetBox="{sideBox}"/>
+	<mx:HBox width="100%" height="100%" backgroundColor="#FFFFFF" id="myTB" paddingRight="0" styleName="coreBorder">
+		<printreport:PrintView id="myPrint" width="100%" height="100%" paddingTop="-1" paddingLeft="-1" paddingRight="-1"/>
+	</mx:HBox>
+</mx:HDividedBox>

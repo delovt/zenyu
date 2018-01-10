@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        xmlns:comps="yssoft.comps.*"   width="{winwidth}" height="{winheight}" title="{csl_list.acConsultsetVo.cname}"
+                        isAllowMax="true">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.tools.AccessUtil;
+
+        //模糊查询值
+        [Bindable]
+        public var search:String;
+        //数据字典中条件sql
+        [Bindable]
+        public var condition:String;
+
+        //子sql
+        [Bindable]
+        public var childsql:String;
+
+        //参照编辑条件sql
+        [Bindable]
+        public var cconsultedit:String;
+
+        //参照窗体宽
+        [Bindable]
+        public var winwidth:int;
+
+        //参照窗体高
+        [Bindable]
+        public var winheight:int;
+
+        //允许多选
+        [Bindable]
+        public var allowmulti:Boolean;
+
+        //参照主键
+        public var iid:int;
+
+        //获得选中记录集回调方法
+        [Bindable]
+        public var getSelectListRows:Function;
+
+        protected function csl_list_initializeHandler(event:FlexEvent):void {
+            this.csl_list.allowmulti = this.allowmulti;
+            this.csl_list.iid = this.iid;
+            this.csl_list.getSelectListRows = this.getSelectListRows;
+            this.csl_list.closeWindow = this.closeWindow;
+            this.csl_list.childsql = this.childsql;
+            this.csl_list.condition = this.condition;
+            this.csl_list.search = this.search;
+            csl_list.cconsultedit = this.cconsultedit;
+            AccessUtil.remoteCallJava("ConsultDest", "get_bdataauth_AcConsultsetByID", callBackHandler, this.iid);
+        }
+
+        public function callBackHandler(event:ResultEvent):void {
+            if (event.result != null) {
+                var arr:ArrayCollection = event.result as ArrayCollection;
+                if (arr.length > 0) {
+                    this.csl_list.bdataauth = arr[0].bdataauth;
+                    this.csl_list.ifuniid = arr[0].ifuncregedit;
+                    if (!this.allowmulti) {
+                        this.csl_list.allowmulti = arr[0].ballowmulti;
+                    }
+                }
+
+                csl_list.getBodyData();
+            }
+        }
+
+        public function closeWindow():void {
+            PopUpManager.removePopUp(this);
+        }
+        ]]>
+	</fx:Script>
+    <comps:ConsultUI id="csl_list" creationComplete="csl_list_initializeHandler(event)"/>
+</basic:BasicTitleWindow>

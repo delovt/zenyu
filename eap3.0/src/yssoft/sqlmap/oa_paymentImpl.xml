@@ -1,0 +1,37 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：oa_payment
+ * 创建人：孙东亚
+ 
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_oa_payment" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,iperson,idepartment,icustomer,isettlestyle,cbank,cbankcode,cuse,fpayables,fpaid,fpay,dpay,cmemo,iagent,ihead,icharge,ifinance,ilead,iaccountant,dmaker from oa_payment 
+			where $condition$
+     </select>
+     
+     <!--增加一条记录-->
+     <insert id="add_oa_payment" parameterClass="java.util.HashMap">
+            insert into oa_payment(iperson,idepartment,icustomer,isettlestyle,cbank,cbankcode,cuse,fpayables,fpaid,fpay,dpay,cmemo,iagent,ihead,icharge,ifinance,ilead,iaccountant,dmaker) 
+            values (#iperson#,#idepartment#,#icustomer#,#isettlestyle#,#cbank#,#cbankcode#,#cuse#,#fpayables#,#fpaid#,#fpay#,#dpay#,#cmemo#,#iagent#,#ihead#,#icharge#,#ifinance#,#ilead#,#iaccountant#,#dmaker#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     
+     <!--更新一条记录-->
+     <update id="update_oa_payment" parameterClass="java.util.HashMap">
+            update oa_payment set iperson=#iperson#,idepartment=#idepartment#,icustomer=#icustomer#,isettlestyle=#isettlestyle#,cbank=#cbank#,cbankcode=#cbankcode#,cuse=#cuse#,fpayables=#fpayables#,fpaid=#fpaid#,fpay=#fpay#,dpay=#dpay#,cmemo=#cmemo#,iagent=#iagent#,ihead=#ihead#,icharge=#icharge#,ifinance=#ifinance#,ilead=#ilead#,iaccountant=#iaccountant#,dmaker=#dmaker#
+            where iid=#iid#
+     </update>
+     
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_oa_payment" parameterClass="String">
+            delete from oa_payment
+            where $condition$
+     </delete>
+</sqlMap>

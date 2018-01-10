@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        title="计划处理"
+                        width="550" height="380"
+                        creationComplete="creationCompleteHandler(event)"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        public var ownerBox:PlanMainView;
+
+        [Bindable]
+        public var hasOaWorkdiary:Boolean = true;
+
+        private var _iplans:int;//处理时 传入计划内码
+
+        [Bindable]
+        public var istatus:int = 1;//0未执行 1已完成 2已取消 3执行未完成
+        [Bindable]
+        public var csummary:String;
+        [Bindable]
+        public var cdetail:String;
+
+        public function get iplans():int {
+            return _iplans;
+        }
+
+        public function set iplans(value:int):void {
+            _iplans = value;
+        }
+
+
+        protected function submit():void {
+            if (CRMtool.isStringNotNull(ui_csummary.text)) {
+                ui_csummary.text = StringUtil.trim(ui_csummary.text);
+            } else {
+                ui_csummary.text = "";
+            }
+
+            var sql:String = "update oa_plans set csummary='" + ui_csummary.text + "',istatus=" + istatus + ",dsummary='" + CRMtool.getNowDateHNS() + "' where iid=" + iplans;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                if (ownerBox)
+                    ownerBox.refData();
+                onCloseHandler();
+            }, sql);
+
+            //推出新建活动,推过的就不再推了
+            var sqlstring:String = "select * from OA_workdiary where iplans=" + iplans;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (e:ResultEvent):void {
+                var resArr:ArrayCollection = e.result as ArrayCollection;
+                if (resArr.length == 0) {
+                    var sqlstr:String = "select * from oa_plans where iid=" + iplans;
+                    AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                        var resultArr:ArrayCollection = event.result as ArrayCollection;
+                        if (resultArr.length > 0) {
+                            var param:Object = new Object();
+                            param.ifuncregedit = "46";
+                            param.ctable = "OA_workdiary";
+                            param.itemType = "onNew";
+                            param.operId = "onListNew";
+                            param.formTriggerType = "fromOther";
+
+                            var paramObj:Object = new Object();
+                            paramObj.ioaplans = iplans;
+                            paramObj.icustomer = resultArr[0].icustomer;
+                            paramObj.ifuncregedit = 320;
+                            param.injectObj = paramObj;
+                            var iid:ArrayCollection = new ArrayCollection();
+                            param.personArr = iid;
+
+                            if (CRMtool.isStringNotNull(paramObj.icustomer + "") && (!paramObj.icustomer == 0)) {
+                                CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param);
+                            }
+                        }
+                    }, sqlstr);
+
+                }
+            }, sqlstring);
+
+
+        }
+
+        protected function ui_csummary_keyDownHandler(event:KeyboardEvent):void {
+            if (event.ctrlKey && event.keyCode == Keyboard.ENTER) {
+                submit();
+            }
+        }
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            if (!ownerBox && iplans > 0) {
+                var sql:String = "select *,isnull(icustomer,0) iicustomer from oa_plans where iid=" + iplans;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac && ac.length > 0) {
+                        csummary = ac[0].csummary;
+                        cdetail = ac[0].cdetail;
+                        istatus = ac[0].istatus;
+                        if (Number(ac[0].iicustomer) > 0) {
+                            hasOaWorkdiary = false;
+                        } else {
+                            hasOaWorkdiary = true;
+                        }
+                    }
+
+                }, sql);
+            } else {
+                var sql:String = "select isnull(icustomer,0) iicustomer from oa_plans where iid=" + iplans;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac && ac.length > 0) {
+                        if (Number(ac[0].iicustomer) > 0) {
+                            hasOaWorkdiary = false;
+                        } else {
+                            hasOaWorkdiary = true;
+                        }
+                    }
+                }, sql);
+            }
+        }
+        ]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<s:FormItem width="100%" height="100%">
+		<mx:HBox width="100%" height="50" >
+			<mx:FormItemLabel text="计划细则" />
+			<s:TextArea width="100%" height="100%" text="{cdetail}" editable="false" color="#929190"/>
+		</mx:HBox>
+		<mx:HBox width="100%">
+			<mx:FormItemLabel text="处理状态" color="red" />
+			<s:RadioButton label="已完成" selected="{istatus==1}" click="{istatus=1}"/>
+			<s:RadioButton label="执行未完成" selected="{istatus==3}" click="{istatus=3}"/>
+			<s:RadioButton label="未执行" selected="{istatus==0}" click="{istatus=0}"/>
+			<s:RadioButton label="已取消" selected="{istatus==2}" click="{istatus=2}"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="195">
+			<mx:FormItemLabel text="处理说明" />
+			<s:TextArea id="ui_csummary" width="100%" height="100%" text="{csummary}" keyDown="ui_csummary_keyDownHandler(event)" restrict="^'" editable="{hasOaWorkdiary}" />
+		</mx:HBox>		
+		<s:Spacer height="5"/>
+		<mx:HBox width="100%"  verticalAlign="middle" paddingRight="10" paddingLeft="10" >
+			<s:Spacer width="100%"/>
+			<s:Button label="确定" click="submit()"/>
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</s:FormItem>
+</basic:BasicTitleWindow>

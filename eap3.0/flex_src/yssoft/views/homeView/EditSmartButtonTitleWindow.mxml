@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="600" height="450"
+                        close="onCloseHandler()" xmlns:homeView="yssoft.views.homeView.*"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+    <fx:Metadata>
+        [Event(name="ButtonConfigChange", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var iid:int;
+        private var crmeap:CrmEapRadianVbox;
+
+        private var icustomer:int;
+
+        private var mydata:Object;
+
+        private var iimage:int;
+        private var ccolor:String;
+
+        public function myinit(mydata:Object):void {
+            this.mydata = mydata;
+            this.title = "常用功能 [" + mydata.ino + "]";
+            CRMtool.openView(this);
+            this.menuTree.dataProvider = CRMmodel.authMenu;
+        }
+
+        private function openAllOrHide():void {
+            var xml:XML = menuTree.selectedItem as XML;
+            if (xml.hasComplexContent()) {
+                this.menuTree.expandItem(xml, !this.menuTree.isItemOpen(xml));
+            }
+        }
+
+        protected function colorSelet(event:MouseEvent):void {
+            ccolor = (event.currentTarget as VBox).getStyle("backgroundColor");
+
+            ui_ccolor.selectedColor = new uint(ccolor);
+        }
+
+        protected function ui_ccaption_changeHandler(event:Event):void {
+            for (var i:int = 1; i <= 8; i++) {
+                (this["b" + i] as SmartButton).ccaption = ui_ccaption.text;
+            }
+        }
+
+        protected function buttonSelete(event:MouseEvent):void {
+            for (var i:int = 1; i <= 8; i++) {
+                (this["b" + i] as SmartButton).selected = false;
+            }
+            (event.currentTarget as SmartButton).selected = true;
+        }
+
+        override protected function onSubmit():void {
+            if (!mydata.ino)
+                return;
+            if (CRMtool.isStringNull(ui_ifuncregedit.text)) {
+                CRMtool.showAlert("请选择功能。");
+                return;
+            }
+
+            if (CRMtool.isStringNull(ui_ccaption.text)) {
+                CRMtool.showAlert("请填写标题。");
+                return;
+            }
+
+            var ifuncregedit:int = menuTree.selectedItem.@ifuncregedit;
+            if (!ifuncregedit)
+                return;
+
+            var iimage:int = 0;
+            for (var i:int = 1; i <= 8; i++) {
+                if ((this["b" + i] as SmartButton).selected)
+                    iimage = i;
+            }
+            if (iimage == 0) {
+                CRMtool.showAlert("请选择一个图标样式。");
+                return;
+            }
+
+
+            var sql:String = "select iid from ac_start where iperson=" + CRMmodel.userId + " and ino=" + mydata.ino;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var eventAC:ArrayCollection = event.result as ArrayCollection;
+                var sql2:String;
+                if (eventAC.length == 0) {
+                    sql2 = "insert into ac_start	(iperson,ino,ifuncregedit,ccaption,ccolor,iimage)" +
+                            "values(" + CRMmodel.userId + "," + mydata.ino + "," + ifuncregedit + ",'" + ui_ccaption.text + "'," + ui_ccolor.selectedColor + "," + iimage + ")"
+                } else {
+                    sql2 = "update ac_start set ifuncregedit=" + ifuncregedit + ",ccaption='" + ui_ccaption.text + "',ccolor=" + ui_ccolor.selectedColor + ",iimage=" + iimage + "" +
+                            " where iid=" + eventAC.getItemAt(0).iid;
+                }
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", setSmartButtonBack, sql2);
+            }, sql);
+        }
+
+        private function setSmartButtonBack(event:ResultEvent):void {
+            this.dispatchEvent(new Event("ButtonConfigChange"));
+            this.onCloseHandler();
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+    </fx:Declarations>
+    <mx:HBox width="100%" height="100%">
+        <mx:VBox width="170" height="100%" verticalGap="5" paddingTop="10">
+            <mx:Tree id="menuTree" height="100%" itemClick="openAllOrHide()"
+                     itemRenderer="yssoft.renders.TreeSetItemRender"
+                     borderVisible="false"
+                     width="100%"
+                     showRoot="false"
+                     labelField="@cname"/>
+        </mx:VBox>
+        <mx:VRule height="100%"/>
+        <mx:VBox id="myBorder" width="100%" height="100%" paddingRight="10" paddingTop="10" paddingBottom="10"
+                 verticalGap="10">
+            <mx:VBox width="100%" height="100%" styleName="content">
+                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                    <mx:Label text="标题:" styleName="contentLabel"/>
+                    <mx:TextInput id="ui_ccaption" change="ui_ccaption_changeHandler(event)"
+                                  text="{ui_ifuncregedit.text}" height="100%" styleName="contentTextInput"
+                                  width="100%"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox id="ui_ifuncregedit_box" width="100%" height="33" styleName="contentSubHbox">
+                    <mx:Label text="功能:" styleName="contentLabel"/>
+                    <mx:TextInput id="ui_ifuncregedit" editable="false"
+                                  text="{(menuTree.selectedItem.@pmenuauth=='1'&amp;&amp;menuTree.selectedItem.@itype==1)?menuTree.selectedItem.@cname:''}"
+                                  height="100%" styleName="contentTextInput" width="100%"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                    <mx:Label text="颜色:" styleName="contentLabel"/>
+
+                    <mx:HBox horizontalGap="17" height="100%" verticalAlign="middle">
+                        <mx:ColorPicker id="ui_ccolor" selectedColor="#0daad8"/>
+                        <!--<mx:VBox width="20" height="20" backgroundColor="#0daad8" click="colorSelet(event)" useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#a7d238" click="colorSelet(event)"  useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#dbae00" click="colorSelet(event)"  useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#d66b1d" click="colorSelet(event)"  useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#d22c29" click="colorSelet(event)"  useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#8764ac" click="colorSelet(event)" useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#567fa1" click="colorSelet(event)" useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#a77e62" click="colorSelet(event)" useHandCursor="true"/>-->
+                        <mx:VBox width="20" height="20" backgroundColor="#29b4dd" click="colorSelet(event)"
+                                 useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#28b779" click="colorSelet(event)"
+                                 useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#ffb849" click="colorSelet(event)"
+                                 useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#a79215" click="colorSelet(event)"
+                                 useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#da542e" click="colorSelet(event)"
+                                 useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#a77e62" click="colorSelet(event)"
+                                 useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#2e3740" click="colorSelet(event)"
+                                 useHandCursor="true"/>
+                        <mx:VBox width="20" height="20" backgroundColor="#3f95c4" click="colorSelet(event)"
+                                 useHandCursor="true"/>
+                    </mx:HBox>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:VBox width="100%" height="100%" styleName="contentSubHbox" verticalGap="10">
+                    <mx:Label text="按钮样例:" styleName="contentLabel"/>
+                    <mx:HBox paddingLeft="40">
+                        <homeView:SmartButton id="b1" typeid="1" iimage="1" clickAble="false"
+                                              ccaption="{ui_ccaption.text}" ccolor="{ui_ccolor.selectedColor}"
+                                              click="buttonSelete(event)"/>
+                        <homeView:SmartButton id="b2" typeid="1" iimage="2" clickAble="false"
+                                              ccaption="{ui_ccaption.text}" ccolor="{ui_ccolor.selectedColor}"
+                                              click="buttonSelete(event)"/>
+                        <homeView:SmartButton id="b3" typeid="1" iimage="3" clickAble="false"
+                                              ccaption="{ui_ccaption.text}" ccolor="{ui_ccolor.selectedColor}"
+                                              click="buttonSelete(event)"/>
+                        <homeView:SmartButton id="b4" typeid="1" iimage="4" clickAble="false"
+                                              ccaption="{ui_ccaption.text}" ccolor="{ui_ccolor.selectedColor}"
+                                              click="buttonSelete(event)"/>
+                    </mx:HBox>
+                    <mx:HBox paddingLeft="40">
+                        <homeView:SmartButton id="b5" typeid="1" iimage="5" clickAble="false"
+                                              ccaption="{ui_ccaption.text}" ccolor="{ui_ccolor.selectedColor}"
+                                              click="buttonSelete(event)"/>
+                        <homeView:SmartButton id="b6" typeid="1" iimage="6" clickAble="false"
+                                              ccaption="{ui_ccaption.text}" ccolor="{ui_ccolor.selectedColor}"
+                                              click="buttonSelete(event)"/>
+                        <homeView:SmartButton id="b7" typeid="1" iimage="7" clickAble="false"
+                                              ccaption="{ui_ccaption.text}" ccolor="{ui_ccolor.selectedColor}"
+                                              click="buttonSelete(event)"/>
+                        <homeView:SmartButton id="b8" typeid="1" iimage="8" clickAble="false"
+                                              ccaption="{ui_ccaption.text}" ccolor="{ui_ccolor.selectedColor}"
+                                              click="buttonSelete(event)"/>
+                    </mx:HBox>
+                </mx:VBox>
+            </mx:VBox>
+            <s:Spacer height="30"/>
+            <mx:HBox verticalAlign="middle" paddingRight="10" paddingLeft="10">
+                <s:Spacer width="220"/>
+                <s:Button label="确定" click="onSubmit()"/>
+                <s:Button label="放弃" click="onCloseHandler()"/>
+            </mx:HBox>
+        </mx:VBox>
+    </mx:HBox>
+</basic:BasicTitleWindow>

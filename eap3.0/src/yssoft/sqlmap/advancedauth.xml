@@ -1,0 +1,9 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+
+<sqlMap>
+     
+     <select remapResults="true" id="AdvancedAuthDest.getAllData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		$sqlValue$
+	</select>
+     
+</sqlMap>

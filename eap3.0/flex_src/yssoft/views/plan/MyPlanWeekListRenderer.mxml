@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				click="itemrenderer_clickHandler(event)"
+				autoDrawBackground="true">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.formatters.DateFormatter;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.DateHadle;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			[Bindable] private var cname:String="";
+			[Bindable] private var dmaker:String="";
+			private var iplan:int=0;
+
+			var df:DateFormatter = new DateFormatter();
+
+			public override function set data(value:Object):void{
+				super.data = value;
+				cname="";
+				dmaker="";
+				iplan=0;
+				
+				if(data&&data.week>0&&data.year>0){
+
+					var debgin:String = CRMtool.formatDateNoHNS(CRMtool.firstDayInWeek(data.year, data.week));
+					var dend:String = CRMtool.formatDateNoHNS(CRMtool.endDayInWeek(data.year, data.week));
+
+					var sql:String="select * from oa_plan where iperson="+CRMmodel.userId+" and itype=4 and dbegin='"+debgin+"' and dend='"+dend+"'";
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+						var ac:ArrayCollection = event.result as ArrayCollection;
+						if(ac&&ac.length>0){
+							var dbeginDate:Date = CRMtool.firstDayInWeek(data.year, data.week);
+							if(dbeginDate.time==(ac[0].dbegin as Date).time){
+								iplan = ac[0].iid;
+								if(CRMtool.isStringNotNull(ac[0].cname))
+									cname = ac[0].cname;
+								else
+									//cname = data.year+"年 第"+data.week+"周计划";
+									cname =CRMtool.convertDateToString(CRMtool.firstDayInWeek(data.year,data.week),"MM月DD日")+"-"+CRMtool.convertDateToString(CRMtool.endDayInWeek(data.year,data.week),"MM月DD日");
+								
+								var df:DateFormatter = new DateFormatter();
+								df.formatString = "MM-DD HH:NN";			
+								dmaker = df.format(ac[0].dmaker);	
+							}
+						}
+					},sql);
+				}
+			}
+			
+			protected function itemrenderer_clickHandler(event:MouseEvent):void
+			{
+				var obj:Object = new Object();
+				obj.year = data.year;
+				obj.week = data.week;
+				obj.itype = 4;
+				obj.iplan = iplan;
+				obj.iperson = CRMmodel.userId;
+				CRMtool.openMenuItemFormOther("yssoft.views.plan.PlanMainView",obj,data.year+"年 第"+data.week+"周计划");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:HBox id="itemBox" width="100%" height="24" paddingLeft="8" paddingRight="10" verticalAlign="middle" horizontalGap="0">
+		<s:Label text="{(CRMtool.weekOfYear(new Date())==data.week &amp;&amp; data.year==int(DateHadle.getYear()))?'本周：':'第'+data.week+'周：'}" 
+				 width="50" textAlign="justify" color="{cname.length>0?new uint(0x000000):new uint(0x9a9a9a)}"/>
+		<s:Label text="{cname}" visible="{cname.length>0}"/>
+		<s:Spacer width="100%"/>
+		<s:Label text="{dmaker}" visible="{dmaker.length>0}" includeInLayout="{dmaker.length>0}"/>
+		<s:Label text="[新建计划]" visible="{dmaker.length==0}" includeInLayout="{dmaker.length==0}" color="#9a9a9a"/>
+	</mx:HBox>
+</s:ItemRenderer>

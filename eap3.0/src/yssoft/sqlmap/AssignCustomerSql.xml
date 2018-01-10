@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+
+<sqlMap>
+    <select remapResults="true" id="AssignCustomerDest.Search" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+    	$sqlValue$
+    </select>
+     
+     <select id="AssignCustomerDest.queryConsult" resultClass="java.util.HashMap">
+		select  d.cfield,dt.ctype,d.ilength,d.bprefix,d.ctable,
+		0 bread,
+		'UI_AS_funcregedit_ifuncregedit' cobjectname,
+		d.bwfentry,d.bwfcd,d.cregularfunction,
+		d.cregularmessage,d.cunique,d.cfunction,d.cresfunction,
+		d.cresmessage,d.binvoiceuser,cc.iconsult,
+		case when c.itype=0 then c.ctreesql else REPLACE(c.cgridsql,'@join','') end consultSql,
+		c.itype,c.bdataauth,cc.cconsulttable,cc.cconsultbkfld,cc.cconsultswfld,
+		cc.cconsultipvf,cc.bconsultmtbk,cc.bconsultendbk,cc.bconsultcheck,
+		cc.cconsultconfld,
+		 c.bdataauth bdataauth,cc.cconsultcondition,
+		  d.cresfunctionread 
+		 from  AC_datadictionary d 
+		left join as_datatype dt on dt.iid = d.idatatype
+		left join Ac_consultConfiguration cc on cc.idatadictionary = d.iid 
+		left join ac_consultset c on c.iid=cc.iconsult
+		 where d.ifuncregedit=44 and ctable='cs_customer'
+		and cfield='imaker'
+	</select>
+	
+</sqlMap>

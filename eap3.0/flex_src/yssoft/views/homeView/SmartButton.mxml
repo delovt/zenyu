@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark" buttonMode="true" useHandCursor="true"
+                   borderVisible="{_typeid==2||_typeid==3}"
+                   borderColor="#9a9a9a"
+
+                   dragEnter="dragEnterHandler(event);"
+                   dragDrop="dragDropHandler(event);"
+                   rollOver="bordercontainer1_rollOverHandler(event)"
+                   rollOut="bordercontainer1_rollOutHandler(event)"
+                   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+    <fx:Metadata>
+        [Event(name="SmartButtonListChange",type="flash.events.Event")]
+        [Event(name="smartButtonClosed",type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        //  mouseMove="mouseMoveHandler(event)"
+        import mx.collections.ArrayCollection;
+        import mx.containers.VBox;
+        import mx.controls.Alert;
+        import mx.controls.List;
+        import mx.core.Container;
+        import mx.core.DragSource;
+        import mx.events.*;
+        import mx.managers.DragManager;
+        import mx.rpc.events.ResultEvent;
+
+        import spark.components.Button;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var _ownerBox:Container;
+
+        private var _mydata:Object = new Object();
+
+
+        [Bindable]
+        private var _ccolor:String;
+        [Bindable]
+        private var _ino:int;
+        [Bindable]
+        private var _iimage:int;
+        [Bindable]
+        private var _ccaption:String;
+        [Bindable]
+        private var _clickAble:Boolean;
+        [Bindable]
+        private var _ifuncregedit:int;
+        [Bindable]
+        private var _selected:Boolean;
+        [Bindable]
+        private var _iid:int;
+        [Bindable]
+        private var _cprogram:String;
+        [Bindable]
+        private var _text:String = "";
+        [Bindable]
+        private var _typeid:int;
+        [Bindable]
+        private var _binadbleButton:Button;//绑定的六大事项按钮
+        [Bindable]
+        private var _binadbleObj:*;//绑定的容器
+        [Bindable]
+        private var _ipage:int;//六大事项，显示行数
+        [Bindable]
+        private var _funtypeid:int;
+        [Bindable]
+        private var _binableItem:Object;
+        [Bindable]
+        private var _ifuncregedits:int;//列表功能 对应 其查询视图内码
+
+
+        public function get ifuncregedits():int {
+            return _ifuncregedits;
+        }
+
+        public function set ifuncregedits(value:int):void {
+            _ifuncregedits = value;
+        }
+
+        public function get binableItem():Object {
+            return _binableItem;
+        }
+
+        public function set binableItem(value:Object):void {
+            _binableItem = value;
+        }
+
+        public function get funtypeid():int {
+            return _funtypeid;
+        }
+
+        public function set funtypeid(value:int):void {
+            _funtypeid = value;
+        }
+
+        public function get ipage():int {
+            return _ipage;
+        }
+
+        public function set ipage(value:int):void {
+            _ipage = value;
+        }
+
+        public function get binadbleObj():* {
+            return _binadbleObj;
+        }
+
+        public function set binadbleObj(value:*):void {
+            _binadbleObj = value;
+        }
+
+        public function get binadbleButton():Button {
+            return _binadbleButton;
+        }
+
+        public function set binadbleButton(value:Button):void {
+            if (_binadbleButton)
+                _binadbleButton.enabled = true;
+
+            if (value)
+                value.enabled = false;
+
+            _binadbleButton = value;
+        }
+
+        public function get typeid():int {
+            return _typeid;
+        }
+
+        public function set typeid(value:int):void {
+            _typeid = value;
+            this.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+            if (value == 1) {
+                this.width = 73;
+                this.height = 73;
+            } else if (value == 2) {
+                this.percentHeight = 100;
+                this.percentWidth = 100;
+            } else if (value == 3) {
+                this.percentWidth = 100;
+                this.height = 35;
+            } else if (value == 4) {
+                this.width = 30;
+                this.height = 18;
+                this.setStyle("backgroundAlpha", 0);
+                this.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+            }
+        }
+
+        public function get text():String {
+            return _text;
+        }
+
+        public function set text(value:String):void {
+            if (_text.length > 0 && value.length == 1) {
+                _text = (this.parent.getChildIndex(this) + 1) + "";
+                return;
+            }
+
+            _text = value;
+        }
+
+
+        public function get cprogram():String {
+            return _cprogram;
+        }
+
+        public function set cprogram(value:String):void {
+            _cprogram = value;
+        }
+
+        public function get iid():int {
+            return _iid;
+        }
+
+        public function set iid(value:int):void {
+            _iid = value;
+            this.mydata.iid = value;
+        }
+
+        public function get ifuncregedit():int {
+            return _ifuncregedit;
+        }
+
+        public function set ifuncregedit(value:int):void {
+            ifuncregedits = 0;
+            if (_ifuncregedit > 0 && _funtypeid == 2) {//图表有此功能
+                ((this.binadbleObj as List).dataProvider as ArrayCollection).addItem(this.binableItem);
+            }
+
+            if (value > 0) {
+                binadbleButton = null;
+                if (_funtypeid == 1) {
+                    var sql:String = "select *,cname as label from ac_listcd where ifuncregedit=" + value;
+                    AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", getListcdBack, sql);
+                }
+            }
+            else {
+                funtypeid = 0;
+            }
+
+
+            _ifuncregedit = value;
+            this.mydata.ifuncregedit = value;
+        }
+
+        private function getListcdBack(event:ResultEvent):void {
+            var ac:ArrayCollection = event.result as ArrayCollection;
+            listDropDownList.dataProvider = ac;
+            if (ac.length > 0) {
+                if (_ifuncregedits == 0)
+                    listDropDownList.selectedIndex = 0;
+                else {
+                    for each(var item:Object in ac) {
+                        if (item.iid == _ifuncregedits)
+                            listDropDownList.selectedItem = item;
+                    }
+                }
+
+                if (listDropDownList.selectedIndex == -1)
+                    listDropDownList.selectedIndex = 0;
+            }
+        }
+
+        public function getListDropDownListSelect():Object {
+            if (funtypeid == 1 && listDropDownList.selectedItem)
+                return listDropDownList.selectedItem;
+            else
+                return null;
+        }
+
+        public function get selected():Boolean {
+            return _selected;
+        }
+
+        public function set selected(value:Boolean):void {
+            _selected = value;
+            if (_typeid == 1) {
+                if (value)
+                    this.alpha = 1;
+                else
+                    this.alpha = 0.5;
+            }
+            else if (_typeid == 3) {
+                if (value) {
+                    type3label.setStyle("color", "#ffffff");
+                    //removeButton.source = "yssoft/assets/smartButtonIcon/cha1.png";
+                    this.ccolor = "#0daad8";
+                } else {
+                    type3label.setStyle("color", "#9a9a9a");
+                    //removeButton.source = "yssoft/assets/smartButtonIcon/cha1.png";
+                    this.ccolor = "#ffffff";
+                }
+            }
+
+        }
+
+        public function get clickAble():Boolean {
+            return _clickAble;
+        }
+
+        public function set clickAble(value:Boolean):void {
+            _clickAble = value;
+            if (value)
+                this.addEventListener(MouseEvent.CLICK, bordercontainer1_clickHandler);
+            else {
+                this.removeEventListener(MouseEvent.CLICK, bordercontainer1_clickHandler);
+            }
+
+        }
+
+        public function get ccaption():String {
+            return _ccaption;
+        }
+
+        public function set ccaption(value:String):void {
+            _ccaption = value;
+            this.mydata.ccaption = value;
+        }
+
+        public function get iimage():int {
+            return _iimage;
+        }
+
+        public function set iimage(value:int):void {
+            _iimage = value;
+            this.mydata.iimage = value;
+            if (value == 0) {
+                this.ccolor = "#FFFFFF";
+                this.mydata.ccolor = "#FFFFFF";
+            }
+
+        }
+
+        public function get ino():int {
+            return _ino;
+        }
+
+        public function set ino(value:int):void {
+            _ino = value;
+            this.mydata.ino = value;
+        }
+
+        public function get mydata():Object {
+            return _mydata;
+        }
+
+        public function set mydata(value:Object):void {
+            _mydata = value;
+
+            //if(_mydata.ccolor)
+            ccolor = _mydata.ccolor;
+
+            //if(_mydata.ccaption)
+            ccaption = _mydata.ccaption;
+
+            //if(_mydata.iimage)
+            iimage = _mydata.iimage;
+
+            //if(_mydata.ifuncregedit)
+            ifuncregedit = _mydata.ifuncregedit;
+
+            //if(_mydata.iid)
+            iid = _mydata.iid
+        }
+
+
+        public function get ownerBox():Container {
+            return _ownerBox;
+        }
+
+        public function set ownerBox(value:Container):void {
+            _ownerBox = value;
+        }
+
+        public function get ccolor():String {
+            return _ccolor;
+        }
+
+        public function set ccolor(value:String):void {
+            _ccolor = value;
+            this.mydata.ccolor = value;
+            if (value)
+                this.setStyle("backgroundColor", value);
+        }
+
+        // 初始化拖动放置操作
+        private function mouseMoveHandler(event:MouseEvent):void {
+
+            if (event.buttonDown) {
+                var dragInitiator:SmartButton = SmartButton(event.currentTarget);
+                var ds:DragSource = new DragSource();
+                ds.addData(dragInitiator, 'SmartButton');
+                DragManager.doDrag(dragInitiator, ds, event);
+            }
+
+        }
+
+        // 当用户移动拖动代理到放置目标上。
+        private function dragEnterHandler(event:DragEvent):void {
+
+            var dropTarget:SmartButton = event.currentTarget as SmartButton;
+            if (event.dragSource.hasFormat('SmartButton')) {
+
+                var dropSource:SmartButton = event.dragSource.dataForFormat('SmartButton') as SmartButton;
+
+                if (dropSource == dropTarget)
+                    return;
+                if (dropSource.typeid == 1 && dropTarget.typeid == 1 && dropSource.ifuncregedit == 0 && dropTarget.ifuncregedit == 0)
+                    return;
+                if (dropSource.typeid == 2 && dropTarget.typeid == 2 && dropSource.text.length == 1 && dropTarget.text.length == 1)
+                    return;
+                if (dropSource.typeid != dropTarget.typeid)
+                    return;
+
+                // 接受放置。
+                DragManager.acceptDragDrop(dropTarget);
+                DragManager.showFeedback(DragManager.COPY);
+            }
+
+            if (event.dragSource.hasFormat('SetWidget')) {
+                if (dropTarget.typeid == 3) {//桌面设置左上角的 桌面标题按钮
+                    dropTarget.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                    return;
+                }
+
+                // 接受放置。
+                DragManager.acceptDragDrop(dropTarget);
+                DragManager.showFeedback(DragManager.COPY);
+            }
+
+            if (event.dragSource.hasFormat("items")) {
+                if (dropTarget.typeid == 3) {//桌面设置左上角的 桌面标题按钮
+                    dropTarget.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+                    return;
+                }
+
+                DragManager.acceptDragDrop(dropTarget);
+                DragManager.showFeedback(DragManager.COPY);
+            }
+
+        }
+
+        //当目标接受拖动对象，并且用户在画布容器上释放鼠标键。
+        private function dragDropHandler(event:DragEvent):void {
+            var dropTarget:SmartButton = event.currentTarget as SmartButton;
+            if (event.dragSource.hasFormat('SmartButton')) {
+                var dropSource:SmartButton = event.dragSource.dataForFormat('SmartButton') as SmartButton;
+                if (dropSource == dropTarget)
+                    return;
+                if (dropSource.typeid == 1 && dropTarget.typeid == 1 && dropSource.ifuncregedit == 0 && dropTarget.ifuncregedit == 0)
+                    return;
+                if (dropSource.typeid != dropTarget.typeid)
+                    return;
+
+                //桌面上的button  >0就是 桌面设置里的button
+                if (_text.length == 0) {
+                    var sourceIno:int = dropSource.ino;
+                    var targetIno:int = dropTarget.ino;
+
+                    var updateSql:String = "update ac_start set ino=" + targetIno +
+                            " where iid=" + dropSource.iid +
+                            " update ac_start set ino=" + sourceIno +
+                            " where iid=" + dropTarget.iid;
+
+                    AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function ():void {
+                        if (_ownerBox)
+                            _ownerBox.dispatchEvent(new Event("SmartButtonListChange"));
+                    }, updateSql);
+                } else if ((dropSource.typeid == 2 && dropTarget.typeid == 2) || (dropSource.typeid == 3 && dropTarget.typeid == 3)) {
+                    var dropTargetIndex:int = dropTarget.parent.getChildIndex(dropTarget);
+                    var dropSourceIndex:int = dropSource.parent.getChildIndex(dropSource);
+
+                    dropTarget.parent.setChildIndex(dropSource, dropTargetIndex);
+                    dropSource.parent.setChildIndex(dropTarget, dropSourceIndex);
+
+                    dropSource.text = dropSource.text;
+                    dropTarget.text = dropTarget.text;
+                }
+
+            } else if (event.dragSource.hasFormat('SetWidget')) {
+
+                //没有此句话，则 按钮还能拽到 上面的桌面标题上，是有问题的。
+                if (dropTarget.typeid == 3)
+                    return;
+
+                var dropSourceButton:Button = event.dragSource.dataForFormat('SetWidget') as Button;
+                dropTarget.text = dropSourceButton.label;
+                dropTarget.ifuncregedit = -1;
+                //if(_binadbleButton)
+                //	_binadbleButton.enabled = true;
+
+                dropTarget.binadbleButton = dropSourceButton;
+
+                //dropSourceButton.enabled = false;
+            } else if (event.dragSource.hasFormat("items")) {
+                // 定义自处理dragDrop事件。
+                event.preventDefault();
+
+                var item:Object = (event.dragSource.dataForFormat('items') as Array)[0];
+                if (item) {
+
+                    dropTarget.text = item.cname;
+                    if ((event.dragInitiator as List).id == "listViewList") {
+                        dropTarget.funtypeid = 1;
+                    } else if ((event.dragInitiator as List).id == "chartViewList") {
+                        dropTarget.funtypeid = 2;
+                        var ac:ArrayCollection = (event.dragInitiator as List).dataProvider as ArrayCollection;
+                        ac.removeItemAt(ac.getItemIndex(item));
+                    }
+
+                    dropTarget.ifuncregedit = item.ifuncregedit;
+                    dropTarget.binadbleObj = event.dragInitiator;
+                    dropTarget.binableItem = item;
+                }
+            }
+
+        }
+
+        protected function bordercontainer1_clickHandler(event:MouseEvent):void {
+            if (this.typeid == 1 && this.ifuncregedit > 0) {
+                CRMtool.opernMenuItemByIfuncregedit(ifuncregedit);
+            } else if (this.typeid == 1 && this.ifuncregedit == 0) {
+                var editTW:EditSmartButtonTitleWindow = new EditSmartButtonTitleWindow();
+                editTW.addEventListener("ButtonConfigChange", function (event:Event):void {
+                    if (_ownerBox)
+                        _ownerBox.dispatchEvent(new Event("SmartButtonListChange"));
+                });
+                editTW.myinit(_mydata);
+            }
+
+            if (this.typeid == 3) {
+                this.selected = !this.selected;
+            }
+        }
+
+        protected function removeButton_clickHandler(event:MouseEvent):void {
+            this.dispatchEvent(new Event("smartButtonClosed"));
+            if (_typeid == 1) {
+                var updateSql:String = "update ac_start set ifuncregedit=0,ccaption='',ccolor='',iimage=0 where iid=" + this.iid;
+
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function ():void {
+                    if (_ownerBox)
+                        _ownerBox.dispatchEvent(new Event("SmartButtonListChange"));
+                }, updateSql);
+            }
+            event.stopPropagation();
+        }
+
+        protected function bordercontainer1_rollOverHandler(event:MouseEvent):void {
+            if (this.ifuncregedit > 0 || _text.length > 1) {
+                removeButtonBox.visible = true;
+            }
+
+            if (this.typeid == 3) {
+                if ((this.parent as Container).getChildren().length == 1) {
+                    removeButtonBox.visible = false;
+                }
+            }
+        }
+
+        protected function bordercontainer1_rollOutHandler(event:MouseEvent):void {
+            removeButtonBox.visible = false;
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <!--
+            typeid 解释。
+            1：桌面左侧快捷按钮，依旧其设置界面的快速预览按钮。
+            2：桌面主体设置界面，右侧区域九宫格其中一个
+            3：桌面主体设置界面，左侧显示桌面标题按钮
+            4：桌面主题，最下方导航按钮其中一个
+
+            funtypeid 解释
+            1:列表 yssoft.comps.frame.FrameworkVBoxView
+            2:图表 yssoft.comps.frame.StatementsVBox
+        -->
+    </fx:Declarations>
+    <mx:VBox visible="{_typeid==2}" width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+        <s:Label text="{_text}"  fontSize="{_text.length==1?35:22}" color="#9a9a9a" fontWeight="bold" />
+    </mx:VBox>
+    <mx:HBox visible="{_ifuncregedit==-1}" width="100%" height="100%" paddingBottom="5" horizontalAlign="center" verticalAlign="bottom">
+        <s:Label text="行数:{numSet.value}" toolTip="显示行数" textAlign="left" color="#9a9a9a"/>
+        <s:HSlider id="numSet" value="{_ipage}" creationComplete="{_ipage=numSet.value}" change="{_ipage=numSet.value}" toolTip="显示行数" minimum="6" maximum="60" includeInLayout="{_ifuncregedit==-1}"/>
+    </mx:HBox>
+    <mx:HBox visible="{_ifuncregedit>0&amp;&amp;_funtypeid==1}" width="100%" height="100%" paddingBottom="5"
+             horizontalAlign="center" verticalAlign="bottom">
+        <s:DropDownList id="listDropDownList" includeInLayout="{_ifuncregedit>0&amp;&amp;_funtypeid==1}" width="80%"/>
+    </mx:HBox>
+    <mx:HBox visible="{_ifuncregedit==-1}" width="100%" height="100%" paddingLeft="4" paddingTop="4"
+             horizontalAlign="left" verticalAlign="top">
+        <s:Label text="常规" color="#9a9a9a"/>
+    </mx:HBox>
+    <mx:HBox visible="{_funtypeid==1}" width="100%" height="100%" paddingLeft="4" paddingTop="4"
+             horizontalAlign="left" verticalAlign="top">
+        <s:Label text="列表" color="#9a9a9a"/>
+    </mx:HBox>
+    <mx:HBox visible="{_funtypeid==2}" width="100%" height="100%"  paddingLeft="4" paddingTop="4"
+             horizontalAlign="left" verticalAlign="top">
+        <s:Label text="图表" color="#9a9a9a"/>
+    </mx:HBox>
+    <mx:VBox visible="{_typeid==3}" width="100%" height="100%" horizontalAlign="center" paddingTop="10">
+        <s:Label id="type3label" text="{_text}"  fontSize="15" color="#9a9a9a" fontWeight="bold"/>
+    </mx:VBox>
+    <mx:VBox visible="{_typeid==4}" width="{this.width}" height="{this.height}" backgroundAlpha="0" horizontalAlign="center" verticalAlign="middle" >
+        <s:Label id="type4label" visible="{_text!='*'}" includeInLayout="{_text!='*'}"  fontWeight="bold"
+                 text="{_text}"  color="{_selected==true?new uint('0xff8100'):new uint('0x9a9a9a')}"
+                 fontSize="13" />
+        <s:Image visible="{!type4label.visible}" includeInLayout="{!type4label.includeInLayout}" source="yssoft/assets/smartButtonIcon/shezhi.png"/>
+    </mx:VBox>
+    <mx:VBox visible="{_typeid==1}" width="100%" height="100%" paddingBottom="7" horizontalAlign="center" verticalAlign="bottom">
+        <s:Image id="img" source="yssoft/assets/smartButtonIcon/{_iimage}.png"/>
+        <s:Spacer height="10"/>
+        <s:Label width="{this.width}" text="{_ccaption}" color="#FFFFFF" textAlign="center"/>
+    </mx:VBox>
+    <mx:VBox id="removeButtonBox" visible="false" width="100%" height="100%" verticalAlign="top" horizontalAlign="right" paddingTop="1" paddingRight="2">
+        <s:Image id="removeButton" source="yssoft/assets/smartButtonIcon/cha{_typeid==1?'':'1'}.png" click="removeButton_clickHandler(event)"/>
+    </mx:VBox>
+</s:BorderContainer>

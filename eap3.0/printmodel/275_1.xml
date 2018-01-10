@@ -1,0 +1,232 @@
+<ReportSettings version="1.1">
+  <PageHeight>12</PageHeight>
+  <TopMargin>1</TopMargin>
+  <BottomMargin>1</BottomMargin>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>费用报销单</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>18</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>报销部门：</Value>
+          <Width>2.2</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>报销部门</BindingValue>
+          <Width>3.8</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>报销人员：</Value>
+          <Width>2.2</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>报销人员</BindingValue>
+          <Width>3.5</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>报销时间：</Value>
+          <Width>2.2</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <BindingValue>报销日期</BindingValue>
+          <Width>4.5</Width>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+      <Dynamic>true</Dynamic>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>5</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.8</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>日期</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>费用发生说明</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>附件数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>金额</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>附件数</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>金额</Value>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting"/>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>发生时间</BindingColumn>
+          <Format>yyyy-MM-dd</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>费用项目</BindingColumn>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>附单据数</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>费用金额</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableFooterSettings>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableFooterSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting">
+              <ColSpan>3</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableFooterSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=CurrencyCN(Sum(Fields!费用金额.Value))</Value>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>附单据数</BindingValue>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>费用总额</BindingValue>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表1参数.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+              <ColSpan>6</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+      <TableDetailSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批人</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理人</BindingColumn>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批时间</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理时间</BindingColumn>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>审批意见</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>处理意见</BindingColumn>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableDetailSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

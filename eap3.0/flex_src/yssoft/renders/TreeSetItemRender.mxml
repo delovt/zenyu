@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXTreeItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			import yssoft.models.ConstsModel;
+			override public function set data(value:Object):void {
+				super.data = value;
+				labelDisplay.setStyle("color",0x000000);
+				if(!treeListData)
+					return;
+				if(treeListData.hasChildren){ // 区分 当前节点是否为 叶子节点
+					var xmls:XMLList = new XMLList(treeListData.item);
+					var nodeLen:int=(xmls..node as XMLList).length();
+					labelDisplay.text=treeListData.label+"("+nodeLen+")";
+				}else{
+					if(String(treeListData.item.@iszc)=="yes" && (String(treeListData.item.@buse)=="0" || String(treeListData.item.@hasauth)=="no")){
+						labelDisplay.setStyle("color",0xff0000);
+						this.enabled=false;
+						treeListData.item.@pmenuauth="0";//没有权限
+					}else{
+						treeListData.item.@pmenuauth="1";// 有权限
+					}
+					
+					labelDisplay.text =  treeListData.label;//+""+String(treeListData.item.@pmenuauth);
+					
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup left="0" right="0" verticalCenter="0" verticalAlign="middle">
+		<s:Rect id="indentationSpacer" 
+				width="{treeListData.indent}" height="22" 
+				alpha="0">
+			<s:fill>
+				<s:SolidColor color="0xFFFFFF" />
+			</s:fill>
+		</s:Rect>
+		<s:Group id="disclosureGroup">
+			<s:BitmapImage source="{treeListData.disclosureIcon}" 
+						   width="16" height="16" 
+						   visible="{treeListData.hasChildren}" />
+		</s:Group>
+		<s:BitmapImage id="biicon" source="{treeListData.icon}" 
+					   width="16" height="16"/>
+		<s:Label id="labelDisplay"/>
+	</s:HGroup>
+</s:MXTreeItemRenderer>

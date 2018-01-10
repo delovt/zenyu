@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Accordion xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			  xmlns:s="library://ns.adobe.com/flex/spark" 
+			  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" headerHeight="32" 
+			  xmlns:comps="yssoft.comps.*" creationComplete="getListcd()" click="getListcd();"
+			  implements="yssoft.impls.ICRMWindow" xmlns:renders="yssoft.renders.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script source="../../scripts/Ab_FavoritesScript.as"/>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.controls.Alert;
+			import mx.controls.DateField;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.listset.ListcdWindow;
+			import yssoft.views.person.FavoritesTitle;
+			
+			private var _ifuncregedit:int;
+			
+			private var _csql1:String;
+			
+			public var parentForm:Object;
+			
+			[Bindable]
+			public var listxml:XML = 
+								<root>
+								  <node ipid="-1" findex="0" iid="1" cname="按制单时间">
+								    <node ipid="1" findex="1" iid="2" cname="今天"/>
+								    <node ipid="1" findex="2" iid="3" cname="本周"/>
+								    <node ipid="1" findex="3" iid="4" cname="本月"/>
+								    <node ipid="1" findex="4" iid="5" cname="本年"/>
+								    <node ipid="1" findex="5" iid="6" cname="自定义时间段"/>
+								  </node>
+								  <node ipid="-1" findex="0" iid="7" cname="按修改时间">
+								    <node ipid="7" findex="1" iid="8" cname="今天"/>
+								    <node ipid="7" findex="2" iid="9" cname="本周"/>
+								    <node ipid="7" findex="3" iid="10" cname="本月"/>
+								    <node ipid="7" findex="4" iid="11" cname="本年"/>
+								    <node ipid="7" findex="5" iid="12" cname="自定义时间段"/>
+								  </node>
+								</root>
+			
+			public function set csql1(value:String):void
+			{
+				this._csql1 = value;
+			}
+			
+			public function init(ifuncregedit:int):void
+			{
+				var obj:Object = new Object();
+				obj.ifuncregedit =ifuncregedit;
+				obj.iperson = CRMmodel.userId;
+				this._ifuncregedit= ifuncregedit;
+				this.parentForm = this.owner;
+				this.selectedIndex=0;
+				AccessUtil.remoteCallJava("ACListsetDest","getListcd",getListcdCallBackHandler,obj,null,false);
+			}
+			
+			private var _selectIndex:int=0;
+			
+			private function getListcd():void
+			{
+				var obj:Object = new Object();
+				obj.ifuncregedit =_ifuncregedit;
+				if(_selectIndex!=this.selectedIndex)
+				{
+					_selectIndex = this.selectedIndex;
+					if(this.selectedIndex==0)
+					{
+						AccessUtil.remoteCallJava("ACListsetDest","getListcd",getListcdCallBackHandler,obj,null,false);
+					}
+					else if(this.selectedIndex==1)
+					{
+						AccessUtil.remoteCallJava("favoritesDest","getFavorites",getListcdCallBackHandler,obj,null,false);
+					}
+					else if(this.selectedIndex==2)
+					{
+						if(this.tre_recentlyEdited == null) this.tre_recentlyEdited = new TreeCompsVbox();
+//						tre_recentlyEdited.treeCompsXml = listxml;
+						
+//						var sql:String ="select 1 iid,'按制单时间' cname,-1 ipid,0 findex union all "+
+//										"select 2 iid,'今天' cname,1 ipid,1 findex union all "+
+//										"select 3 iid,'本周' cname,1 ipid,2 findex union all "+
+//										"select 4 iid,'本月' cname,1 ipid,3 findex union all "+
+//										"select 5 iid,'本年' cname,1 ipid,4 findex union all "+
+//										"select 6 iid,'自定义时间段' cname,1 ipid,5 findex union all "+
+//										"select 7 iid,'按修改时间' cname,-1 ipid,0 findex union all "+
+//										"select 8 iid,'今天' cname,7 ipid,1 findex union all "+
+//										"select 9 iid,'本周' cname,7 ipid,2 findex union all "+
+//										"select 10 iid,'本月' cname,7 ipid,3 findex union all "+
+//										"select 11 iid,'本年' cname,7 ipid,4 findex union all "+
+//										"select 12 iid,'自定义时间段' cname,7 ipid,5 findex ";
+//						AccessUtil.remoteCallJava("ACListsetDest","recentlyEdited",getListcdCallBackHandler,sql,null,false);
+						
+					}
+				}
+
+
+			}
+			
+			private function getListcdCallBackHandler(event:ResultEvent):void
+			{
+				if(event.result!=null)
+				{
+					if(this.selectedIndex==0)
+					{
+						tre_listcd.treeCompsXml = new XML(event.result as String);
+					}
+					else if(this.selectedIndex==1)
+					{
+						this.tre_favorites.treeCompsXml =  new XML(event.result as String);
+					}
+					else if(this.selectedIndex==2)
+					{
+//						tre_recentlyEdited.treeCompsXml = XML(event.result as String);
+//						tre_recentlyEdited.treeCompsXml = listxml;
+					}
+				}
+			}
+			
+			private function openWindow():void
+			{
+				
+				if(this.selectedIndex==1)
+				{
+					var favo:FavoritesTitle = new FavoritesTitle();
+					favo.width=700;
+					favo.height = 500;
+					favo.ifuncregedit = _ifuncregedit;
+					favo.owner = this;
+					/* var mainApp:DisplayObject = FlexGlobals.topLevelApplication as DisplayObject;
+					PopUpManager.addPopUp(favo, mainApp);
+					PopUpManager.centerPopUp(favo); */
+					CRMtool.openView(favo);
+					/* ass.title ="我的收藏";
+					ass.winParam = "defaultParameters:ifuncregedit*"+_ifuncregedit+",fileds:favoritesArr,dest:favoritesDest,onNewMethod:addFavorites, onEditMethod:updateFavorites,onDeleteMethod:removeFavorites,onGet:getFavorites,count:1,LinkButtonArr:LBRITEM"; */
+				}
+				else if(this.selectedIndex==0)
+				{
+					var ass:ListcdWindow = new ListcdWindow();
+					ass.width=700;
+					ass.csql1 =_csql1;
+					ass.ifuncregedit =this._ifuncregedit;
+					ass.height = 500;
+					ass.owner = this;
+					/* ass.csql1 = _csql1;
+					ass.title ="视图查询";
+					ass.winParam = "defaultParameters:ifuncregedit*"+_ifuncregedit+",fileds:listcedArr,dest:ACListsetDest,onNewMethod:addListcd,onEditMethod:updateListcd,onDeleteMethod:removeListcd,onGet:getListcd,onTest:testSql,count:1,LinkButtonArr:LISTCD_LBRITEM"; */
+					/* var mainApp:DisplayObject = FlexGlobals.topLevelApplication as DisplayObject;
+					PopUpManager.addPopUp(ass, mainApp);
+					PopUpManager.centerPopUp(ass); */
+					CRMtool.openView(ass);
+				}
+				/*	ass.ifuncregedit = int(Number(this.tre_datadictonary.selectedItem.@iid));
+				ass.funcregeditCname =this.tre_datadictonary.selectedItem.@cname;
+				ass.csql1 = this.tnp_csql1.text;
+				ass.listcd_lbritem =ConstsModel.LISTCD_LBRITEM;
+				ass.deleteLable="这个视图？";
+				ass.title="视图维护"*/
+				
+			}
+			
+			public function listcdChange():void
+			{
+				if(this.tre_listcd.selectedItem)
+				{
+					var sql:String="select * from AC_listcd where iid="+int(this.tre_listcd.selectedItem.@iid);
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",call,sql);
+					
+				}
+//				else
+//				{
+//					CRMtool.tipAlert("请选择要操作的记录");
+//				}
+			}
+			
+			private function call(event:ResultEvent):void
+			{
+				var resultArr:ArrayCollection=event.result as ArrayCollection;
+				if(resultArr){
+					var sql:String = resultArr.getItemAt(0).csql;
+					AccessUtil.remoteCallJava("ACqueryclmDest","getAcQueryclmList",function(event:ResultEvent):void
+					{
+						onGetAcQueryclmListBack(sql,event);
+					},int(this._ifuncregedit));
+				}				
+			}
+			
+			private function onGetAcQueryclmListBack(sql:String,evt:ResultEvent):void{
+				/******************* 先排序 ***********************/
+				var arrDataList:ArrayCollection = evt.result as ArrayCollection;
+				var sort:Sort=new Sort();  
+				//按照优先序号升序排序  
+				sort.fields=[new SortField("iqryno")];  
+				arrDataList.sort=sort;
+				
+				var _commons:ArrayCollection = new ArrayCollection();
+				
+				var co:int=1;
+				var sortArr:ArrayCollection = new ArrayCollection();
+				/******************* 找出所有常用条件 ***********************/
+				for each(var obj:Object in arrDataList)
+				{
+					//找出常用条件
+					if(String(obj.bcommon)== "true")
+					{
+						_commons.addItem(obj);
+					}
+					
+					/******************* 封装排序 ***********************/
+					var sortObj:Object = new Object();
+					sortObj.isortno = co;
+					sortObj.cfiled=obj.cfield;
+					sortObj.isttype = obj.isttype;
+					sortObj.iid=obj.iid;
+					sortArr.addItem(sortObj);
+					co++;
+				}
+				
+				var c:int=0;
+				for each(var sortobj:Object in sortArr)
+				{
+					if(sortobj.isttype!=""||sortobj.isttype!="0")
+					{
+						if(c==0)
+						{
+							sql+=" order by ";
+						}
+						else
+						{
+							sql+=",";
+						}
+						var cfiled1:String = sortobj.cfiled as String;
+						var start:int = cfiled1.lastIndexOf(".")+1;
+						var end:int = cfiled1.length;
+						sql+=cfiled1.substring(start,end);
+						if(sortobj.isttype=="2")
+						{
+							sql+=" desc ";
+						}
+						c++;
+					}
+				}
+				parentForm.pageInitBack(sql);
+			}
+			
+			//窗体初始化
+			public function onWindowInit():void
+			{
+				this.selectedIndex=0;
+			}
+			//窗体打开
+			public function onWindowOpen():void
+			{
+				this.selectedIndex=0;
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void
+			{
+				
+			}
+			
+			//YJ Add 加入、移除我的收藏,0:加入，1：移除
+			private function onFavoritesPublic(flag:int):void{
+				
+				var strflag:String = "加入";
+				var cdetail:String = "";
+				
+				if(tre_favorites.selectedIndex == -1){CRMtool.tipAlert("请选择收藏目录!");return;}
+				cdetail = tre_favorites.selectedItem.@cdetail;
+				
+				if(flag==1){
+					if(cdetail == "") return;
+					strflag="移除";					
+					listuniidArr = this.parentForm.dgrd_person.getUnSelectRows();//获取未选中项
+				}
+					
+				listiidArr = this.parentForm.dgrd_person.getSelectRows();//获取选中项(加入时作为加入集合，移除时作为移除集合)
+				
+				if(listiidArr.length == 0){CRMtool.tipAlert("请选择需要"+strflag+"收藏的记录！");return;}
+				
+				favori_iid = tre_favorites.selectedItem.@iid;//选中收藏夹内码
+				favori_ifuncregedit = this._ifuncregedit;//赋值加入收藏夹中注册内码
+				
+				onFavorites(flag);
+			}
+			
+			
+			//YJ Add 我的收藏树菜单选择事件
+			private function onItemClick():void{
+			
+				var condition:String = tre_favorites.selectedItem.@cdetail;
+				if(condition == "") condition = "('')";
+				var strsql:String = _csql1 + " and "+parentForm.ctable+".iid in " + condition;
+				parentForm.listsql = strsql;
+				
+				parentForm.search(1);
+				
+			}
+			
+			//YJ Add 最近编辑树菜单选择事件
+			private function onEditClick():void{
+				
+				var ipid:int = tre_recentlyEdited.selectedItem.@ipid;
+				var index:int = tre_recentlyEdited.selectedItem.@findex;
+				var strsql:String = "";
+				
+				if(ipid==-1)return;
+				
+				var datestr:String = "";
+				
+				if(ipid == 1){//按制单日期
+					datestr = getDate(index,"dmaker",parentForm.ctable);
+					
+				}
+				else{//按修改日期
+					datestr = getDate(index,"dmodify",parentForm.ctable);
+					
+				}
+				if(datestr == "") return;
+				strsql = _csql1 + datestr;
+				
+				parentForm.listsql = strsql;
+				parentForm.search(1);
+			}
+			
+			//YJ Add 自定义日期查询
+			private function onSearchClick():void{
+				
+				if(this.beginDate.text == ""  || this.endDate.text == "") {CRMtool.tipAlert("请输入查询日期！");return;}
+				
+				var FormatDate:DateFormatter=new DateFormatter();
+				FormatDate.formatString="YYYY-MM-DD";
+				
+				var dbegin:Date = DateField.stringToDate(this.beginDate.text,FormatDate.formatString);
+				var dend:Date =  DateField.stringToDate(this.endDate.text,FormatDate.formatString);
+				var ipid:int = tre_recentlyEdited.selectedItem.@ipid;
+				var strsql:String = "";
+				
+				if(ObjectUtil.dateCompare(dbegin,dend)==1) {
+					CRMtool.tipAlert("开始日期不能大于结束日期！");
+					return;
+				}
+				
+				if(ipid == 1){//制单日期
+					strsql = _csql1+" and "+parentForm.ctable+".dmaker between '"+this.beginDate.text+"' and '"+this.endDate.text+"'";
+				}
+				else{//按修改日期
+					strsql = _csql1+" and "+parentForm.ctable+".dmodify between '"+this.beginDate.text+"' and '"+this.endDate.text+"'";
+					
+				}
+				
+				parentForm.listsql = strsql;
+				parentForm.search(1);
+				
+			}
+			
+			private function AddTreeNode(paramObj:Object):void
+			{
+				tre_favorites.AddTreeNode(paramObj);
+			}
+			
+			//lr add get  tree
+			public function getTree():TreeCompsVbox{
+				return this.tre_listcd;
+			}
+			
+			protected function tre_listcd_selectChangeHandler(event:Event):void
+			{
+				listcdChange();
+			}
+			
+			protected function tre_listcd_selectItemChangeHandler(event:Event):void
+			{
+				listcdChange();
+			}
+			
+		]]>
+	</fx:Script>
+
+	<!--<mx:VBox width="100%" label="属性分类">
+		
+	</mx:VBox>-->
+	<mx:VBox width="100%" height="100%" label="查询视图"  verticalGap="0">
+		<comps:TreeCompsVbox id="tre_listcd"  width="100%" height="100%"   click="listcdChange()" selectItemChange="tre_listcd_selectItemChangeHandler(event)"  selectChange="tre_listcd_selectChangeHandler(event)"/>
+		<comps:CrmDotLine width="100%"/>
+		<mx:VBox width="100%" height="30" verticalAlign="middle">
+			<mx:LinkButton label="维护" click="openWindow()"/>
+		</mx:VBox>
+	</mx:VBox>
+	<mx:VBox width="100%" height="100%" label="我的收藏" verticalGap="0">
+		<comps:TreeCompsVbox id="tre_favorites"  width="100%" height="100%" dropShadowVisible="false" itemClick="onItemClick()"/>
+		<comps:CrmDotLine width="100%"/>
+		<mx:HBox width="100%" height="30" verticalAlign="middle">
+			<mx:LinkButton label="维护" click="openWindow()"/>
+			<mx:LinkButton label="加入" click="onFavoritesPublic(0)"/>
+			<mx:LinkButton label="移除" click="onFavoritesPublic(1)"/>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:VBox width="100%" height="100%" label="最近编辑" verticalGap="0">
+		<mx:HBox width="100%" height="100%">
+			<comps:TreeCompsVbox width="100%" height="100%" id="tre_recentlyEdited" dropShadowVisible="false" itemClick="onEditClick()" treeCompsXml="{listxml}">
+			</comps:TreeCompsVbox>
+		</mx:HBox>
+		<mx:VBox height="135"  verticalAlign="bottom" id="vdate" width="100%" paddingBottom="10"  paddingLeft="10" paddingRight="10" visible="false">
+				<mx:VBox width="100%" styleName="content"  verticalGap="10" id="myBorder"  paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
+					<mx:HBox width="100%" verticalAlign="middle" >
+						<mx:Label text="从：" styleName="contentLabel"/>
+						<comps:DateControl id="beginDate" showShape="0" isStyle="true" width="100%"/>
+					</mx:HBox>
+					<mx:HBox width="100%" verticalAlign="middle" >
+						<mx:Label text="到：" styleName="contentLabel"/>
+						<comps:DateControl id="endDate" showShape="0"  isStyle="true" width="100%"/>
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="right" >
+						<mx:Button id="btnsearch" label="查询" click="onSearchClick()"/>
+					</mx:HBox>
+				</mx:VBox>
+		</mx:VBox>
+	</mx:VBox>
+</mx:Accordion>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+
+	
+		<!-- 查询人员管理公司信息，主要根据hr_persons 表,用于生成人员树 -->
+	<select id="getCmdPersonAndCorp" resultClass="java.util.HashMap" remapResults="true">
+		select distinct p.cname,p.iid as iid,-1 as ipid from hr_person p left join hr_persons ps on  p.iid = ps.iperson where p.iproperty = 2
+		union
+		select c.cname,ps.icorp as iid,ps.iperson as ipid from hr_corporation c,hr_persons ps where c.iid = ps.icorp
+	</select>
+	
+		<!-- 依据管理者iid，查询公司信息，主要根据hr_corporation 表 ，用于生成公司树-->
+	<select id="getAllCorpWithCmdPerson" parameterClass="int" resultClass="java.util.HashMap" remapResults="true">
+		select corp1.iid,corp1.ipid,corp1.cname,corp2.[state] from hr_corporation corp1 left join
+		(select c.iid,c.cname,1 as [state] from hr_corporation c,hr_person p,hr_persons ps 
+		where p.iid = ps.iperson and c.iid = ps.icorp and p.iid =#iid#) corp2 on corp1.iid=corp2.iid
+	</select>
+	
+	<!-- 删除人员管理的所有公司 -->
+	<delete id="delPsersons" parameterClass="int">
+		delete from hr_persons where iperson = #iperson#
+	</delete>
+	
+	<!-- 分配公司，向persons插入记录 -->
+	<insert id="addPersons" parameterClass="java.util.HashMap">
+		insert into hr_persons(icorp,iperson) 
+		values(#icorp#,#iperson#)
+	</insert>
+	
+	<!-- 重置管理员密码 -->
+	<update id="resetPassword" parameterClass="java.util.HashMap">
+		update hr_person set cusepassword = #cusepassword# where iid = #iid#
+	</update>
+</sqlMap>

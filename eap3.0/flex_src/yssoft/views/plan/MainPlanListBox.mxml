@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		 borderVisible="false" backgroundAlpha="0"
+		 >
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.formatters.DateFormatter;
+			
+			import yssoft.tools.CRMtool;
+			private var _dataProvider:ArrayCollection;
+			
+			//计划类型list
+			private var ctypeList:ArrayCollection;
+
+			public function get dataProvider():ArrayCollection
+			{
+				return _dataProvider;
+			}
+
+			public function set dataProvider(value:ArrayCollection):void
+			{
+				box.removeAllChildren();
+				_dataProvider = value;
+				if(value){
+					ctypeList = new ArrayCollection();
+					for each(var item:Object in value){
+						for each(var cl:Object in ctypeList){
+							if(item.ctype!=cl.ctype)
+								ctypeList.addItem(item);
+						}
+					}
+					
+					var ctype:String = "";
+					
+					var parentBox:MainPlanListItem;
+					
+					for each(var item:Object in value){
+						var df:DateFormatter = new DateFormatter();
+						df.formatString = "YYYY-MM-DD HH:NN";			
+						item.dmaker = df.format(item.dmaker);	
+						item.dmodify = df.format(item.dmodify);	
+						item.dsummary = df.format(item.dsummary);
+						item.dinstruction = df.format(item.dinstruction);	
+						
+						if(ctype!=item.ctype){
+							ctype = item.ctype;
+							var headItem:MainPlanListItem = new MainPlanListItem();
+							headItem.itype = 1;
+							headItem.mydata = item;
+							
+							var allSum:int = 0;//总数
+							var all1Sum:int = 0;//已完成总数
+							var all0Sum:int = 0;//未完成总数
+							var all2Sum:int = 0;//已取消总数
+							for each(var item2:Object in value){
+								if(item2.ctype==item.ctype){
+									allSum++;
+									if(item2.istatus==1)
+										all1Sum++;
+									else if(item2.istatus==2)
+										all2Sum++;
+									else
+										all0Sum++;
+								}
+							}
+							headItem.allSum = allSum;
+							headItem.all1Sum = all1Sum;
+							headItem.all0Sum = all0Sum;
+							headItem.all2Sum = all2Sum;
+							
+							headItem.owner = this;
+							parentBox = headItem;
+							box.addChild(headItem);
+						}
+						
+						var listItem:MainPlanListItem = new MainPlanListItem();
+						listItem.itype = 2;
+						listItem.mydata = item;
+						listItem.owner = this;
+						listItem.ownerBox = parentBox;
+						box.addChild(listItem);
+						
+						if(CRMtool.isStringNotNull(item.csummary)){
+							var csItem:MainPlanListItem = new MainPlanListItem();
+							csItem.itype = 3;
+							csItem.mydata = item;
+							csItem.owner = this;
+							csItem.ownerBox = listItem;
+							box.addChild(csItem);
+						}
+						
+						if(CRMtool.isStringNotNull(item.cinstruction)){
+							var cinItem:MainPlanListItem = new MainPlanListItem();
+							cinItem.itype = 4;
+							cinItem.mydata = item;
+							cinItem.owner = this;
+							cinItem.ownerBox = listItem;
+							box.addChild(cinItem);
+						}
+						
+ 						if(item.inIplans==1){
+							var cinItem:MainPlanListItem = new MainPlanListItem();
+							cinItem.itype = 5;
+							cinItem.mydata = item;
+							cinItem.owner = this;
+							cinItem.ownerBox = listItem;
+							box.addChild(cinItem);
+						} 
+					}
+					
+					for each(var listItem:MainPlanListItem in box.getChildren()){
+						listItem.ownerPlanMainView = this.owner as PlanMainView;
+					}
+					
+					box.height = this.height;
+					box.width = this.width;
+				}
+			}			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox id="box" width="100%" height="100%" paddingLeft="15" paddingRight="15"/>
+</s:BorderContainer>

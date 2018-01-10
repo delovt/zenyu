@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:comps="yssoft.comps.*"
+                width="100%" height="100%" creationComplete="getPostclassTreeXml();"
+                styleName="contentHDividedBox" implements="yssoft.impls.ICRMWindow">
+    <fx:Script>
+		<![CDATA[
+        import yssoft.models.ConstsModel;
+        ]]>
+	</fx:Script>
+    <fx:Script source="../../../yssoft/scripts/PostclassViewScript.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <!-- 角色树 -->
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <s:Label text="{ConstsModel.POSTCLASS_LABLE}" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_postclass" width="100%" height="100%" itemClick="selectedJob()"/>
+        </mx:HBox>
+    </mx:VBox>
+
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="centerbg4">
+        <mx:ApplicationControlBar width="100%" height="32" styleName="centertop">
+            <comps:LinkBarVboxComps id="lbr_Department" width="15%" height="25" dataProvider="{ConstsModel.LBRITEM}"
+                                    styleName="contentButtonBar" onSaveEvent="onSave(event)"
+                                    onDeleteEvent="onDelete(event);" onGiveUpEvent="onGiveUp(event)"
+                                    onNewEvent="onNew(event)"
+                                    onEditEvent="onEdit(event)"/>
+            <s:Spacer width="95%"/>
+        </mx:ApplicationControlBar>
+        <mx:VBox width="100%" height="100%" styleName="roleHbox">
+
+            <mx:VBox id="myBorder" width="100%" height="25%" styleName="content">
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="{ConstsModel.POSTCLASS_CCODE_LABLE}" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_ccode" height="100%" text="{this.tre_postclass.selectedItem.@ccode}"
+                                  styleName="contentTextInput"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label text="{ConstsModel.POSTCLASS_CNAME_LABLE}" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_cname"
+                                  text="{this.tre_postclass.selectedItem.@cname}" styleName="contentTextInput"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="{ConstsModel.POSTCLASS_CMEMO_LABLE}" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_cmemo" height="100%"
+                                  text="{this.tre_postclass.selectedItem.@cmemo}" styleName="contentTextInput"/>
+                </mx:HBox>
+            </mx:VBox>
+
+            <mx:VBox width="100%" height="100%">
+                <mx:HBox horizontalAlign="right" width="100%" height="2%" paddingBottom="5" paddingTop="5">
+                    <mx:LinkButton icon="{ConstsModel._ADDITIONICON}" click="addNewItem();" toolTip="增行"/>
+                    <mx:LinkButton icon="{ConstsModel._SUBTRACTIONICON}" click="deleteItem();" toolTip="删行"/>
+                    <mx:LinkButton icon="{ConstsModel._SAVEICON}" click="onSaveJob();" toolTip="保存"/>
+                </mx:HBox>
+                <mx:HBox width="100%" height="100%" cornerRadius="0">
+                    <mx:DataGrid id="dgrd_postclass" width="100%" height="100%" borderAlpha="1" borderVisible="true"
+                                 borderColor="#c4cccc" dataProvider="{postArr}" editable="true">
+                        <mx:columns>
+                            <mx:DataGridColumn headerText="{ConstsModel.POST_CCODE_LABLE}" dataField="ccode"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.POST_CNAME_LABLE}" dataField="cname"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.POST_IPOSTCLASS_LABLE}" dataField="ipostclass"
+                                               labelFunction="postclassNameFomart" editable="false"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.POST_ILEVEL_LABLE}" dataField="ilevel"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.POST_CWORK_LABLE}" dataField="cwork"/>
+                            <mx:DataGridColumn headerText="{ConstsModel.POST_IREALPERSON_LABLE}" dataField="irealperson"
+                                               editable="false"/>
+                        </mx:columns>
+                    </mx:DataGrid>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:VBox>
+</mx:HDividedBox>

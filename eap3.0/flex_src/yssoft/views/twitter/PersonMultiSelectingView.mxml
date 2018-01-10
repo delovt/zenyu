@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="700" height="500"
+                        creationComplete="getDepartmentTreeXml('');init()"
+                        close="PopUpManager.removePopUp(this);" xmlns:comps="yssoft.comps.*" title="人员选择"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+		]]>
+	</fx:Script>
+	<fx:Script source="../../scripts/PersonMultiSelectingViewScript.as" />
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" verticalGap="-1" >
+		
+		
+		<mx:VBox borderStyle="solid" borderColor="#c4cccc" borderAlpha="1" width="100%" height="100%" paddingLeft="10" paddingTop="10" paddingBottom="10" backgroundColor="#ffffff" paddingRight="10">
+			<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox" horizontalGap="0"  borderStyle="none">
+				<mx:VBox width="44%" height="100%"  verticalGap="10" borderStyle="none">
+					<mx:VBox width="100%" height="50%" styleName="lefttree" >
+						<mx:ApplicationControlBar width="100%" horizontalGap="0" height="32" dock="true">
+							<mx:Label text="部门查询" styleName="contentTitle"/>
+							<mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+								<s:TextInput id="tnp_cname"/>
+								<s:Button x="207" width="60" label="查询"
+										  click="getDepartmentTreeXml(this.tnp_cname.text);"/>
+							</mx:HBox>
+						</mx:ApplicationControlBar>
+						<mx:HBox width="100%" height="90%" styleName="lefttree1">
+							<comps:TreeCompsVbox width="100%" height="100%" id="tre_epartment" change="tre_epartment_changeHandler(event)" borderStyle="none"/>
+						</mx:HBox>
+					</mx:VBox>
+					<mx:VBox width="100%" height="50%"  styleName="lefttree"  >
+						<mx:ApplicationControlBar width="100%" height="32" dock="true">
+							<mx:Label text="部门所属人员" styleName="contentTitle"/>
+						</mx:ApplicationControlBar>
+						<mx:HBox width="100%" height="100%" styleName="lefttree1" >
+							<mx:List id="allUser" width="100%" height="100%" dataProvider="{epartmentUserArr}" allowMultipleSelection="true" labelField="cname" borderStyle="none"/>
+						</mx:HBox>
+					</mx:VBox>
+				</mx:VBox>
+				<mx:VBox width="11%" height="100%" verticalAlign="middle" verticalGap="2" horizontalAlign="center">
+					<mx:Button label="添加" click="add()"/>
+					<mx:Button label="全部添加" click="add('2')"/>
+					<mx:Button label="移除" click="remove()"/>
+					<mx:Button label="全部移除" click="remove('2')"/>
+				</mx:VBox>
+				<mx:VBox width="44%" height="100%" styleName="lefttree">
+					<mx:ApplicationControlBar width="100%" height="32" dock="true">
+						<mx:Label text="已选人员" styleName="contentTitle"/>
+					</mx:ApplicationControlBar>
+					<mx:HBox width="100%" height="100%" styleName="lefttree1" >
+						<mx:List id="roleUser" width="100%" dataProvider="{roleUserArr}" allowMultipleSelection="true" height="100%" labelField="cname" borderStyle="none"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HDividedBox>
+			
+		</mx:VBox>
+		<mx:HBox width="100%" height="38"  horizontalAlign="right" paddingRight="10" verticalAlign="middle">
+			<s:Button label="确定" click="addRoleUsr();"/>
+			<s:Button label="取消" click="PopUpManager.removePopUp(this);"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+</basic:BasicTitleWindow>

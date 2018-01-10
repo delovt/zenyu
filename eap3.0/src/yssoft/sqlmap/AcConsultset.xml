@@ -1,0 +1,52 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+    <select id="getAllAcConsultset" resultClass="java.util.HashMap">
+ Select  iid, ipid, ccode, cname, itype, ipage, cdataauth,'' as ctreesql, '' as cgridsql, '' as cconnsql, ifuncregedit, iheigh, iwidth, bdataauth, ballowmulti from ac_consultset 
+ order by ccode
+    </select>
+	<select id="getAcConsultsetByID" parameterClass="int" resultClass="yssoft.vos.AcConsultsetVo">
+ Select  iid, ipid, ccode, cname, itype, ipage, cdataauth, ctreesql, cgridsql, cconnsql, ifuncregedit, iheigh, iwidth, bdataauth, ballowmulti,cordersql from ac_consultset   
+ Where iid=#iid#
+    </select>
+    <select id="get_cname_AcConsultsetByID" parameterClass="int" resultClass="String">
+ Select cname from ac_consultset    
+ Where iid=#iid#
+    </select>
+      <select id="get_bdataauth_AcConsultsetByID" parameterClass="int" resultClass="java.util.HashMap">
+ Select bdataauth,ballowmulti,ifuncregedit from ac_consultset    
+ Where iid=#iid#
+    </select>
+    <select id="getAcConsultsetByCCode" parameterClass="String" resultClass="yssoft.vos.AcConsultsetVo">
+ Select  iid, ipid, ccode, cname, itype, ipage, cdataauth, ctreesql, cgridsql, cconnsql, ifuncregedit, iheigh, iwidth, bdataauth, ballowmulti from ac_consultset   
+ Where ccode=#ccode#
+    </select>
+	<insert id="addAcConsultset" parameterClass="yssoft.vos.AcConsultsetVo">
+ Insert Into ac_consultset(ipid , ccode , cname , itype , ipage , cdataauth , ctreesql , cgridsql , cconnsql , ifuncregedit , iheigh , iwidth, bdataauth, ballowmulti,cordersql) 
+ Values(#ipid# , #ccode# , #cname# , #itype# , #ipage# , #cdataauth# , #ctreesql# , #cgridsql# , #cconnsql# , #ifuncregedit# , #iheigh# , #iwidth#, #bdataauth#, #ballowmulti#,#cordersql#)
+        <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	<update id="updateAcConsultset" parameterClass="yssoft.vos.AcConsultsetVo">
+	begin
+         Update ac_consultset SET ipid=#ipid# ,  ccode=#ccode# ,  cname=#cname# ,  itype=#itype# ,  ipage=#ipage# , cdataauth=#cdataauth# ,  ctreesql=#ctreesql# ,  cgridsql=#cgridsql# ,  cconnsql=#cconnsql# ,  ifuncregedit=#ifuncregedit# ,  iheigh=#iheigh# ,  iwidth=#iwidth#, bdataauth=#bdataauth#, ballowmulti=#ballowmulti#,cordersql=#cordersql# Where iid=#iid#;
+         update ac_consultset set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+    end;          
+	</update>
+	<delete id="deleteAcConsultsetByID" parameterClass="int">
+ 		Delete From ac_consultset
+ 		Where iid=#iid# 
+	</delete>
+	<delete id="deleteAcConsultsetByID_Relevance_Object" parameterClass="int">
+ 		Delete From ac_consultset
+ 		Where iid=#iid# 
+	</delete>
+	<select id="getTestSql" parameterClass="String" resultClass="java.util.HashMap" remapResults="true">$sqlstr$</select>
+	
+	<!-- 孙东亚 -->
+    <select id="get_cname_AcConsultsetByID_Relevance_Object" parameterClass="int" resultClass="String">
+ 		Select cname from as_funcregedit    Where iid=#iid#
+    </select>
+	
+</sqlMap>
+

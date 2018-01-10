@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+	<!-- 获得当前人员的 相应可报销单据信息 -->
+	<select id="getExpenseNeedListWorkdiary" resultClass="java.util.HashMap"
+		parameterClass="int">
+	select source.iifuncregedit as ifuncregedit,source.iid
+	as
+	iinvoice,source.icustomer,-1 as ifeeitem,
+	as_funcregedit.cname as
+	ifuncregedit_Name,source.cname as iinvoice_Name,source.dbegin as
+	ddate,
+	cs_customer.cname as icustomer_Name,'差旅费' as
+	cfeeitem,source.ffee as
+	fexpense,source.cmemo as cuse,
+	'' as cmemo,0 as
+	inumber
+	from oa_workdiary source
+	left join as_funcregedit on source.iifuncregedit = as_funcregedit.iid
+	left join cs_customer on source.icustomer = cs_customer.iid
+	where source.dbegin is not null
+	and isnull(source.ffee,0)!=0 and
+	source.imaker = #iperson#
+	and source.iid not in (select iinvoice from OA_expenses where
+	ifuncregedit = source.iifuncregedit )
+	</select>
+
+	<select id="getExpenseNeedListPresupport" resultClass="java.util.HashMap"
+		parameterClass="int">
+		select source.iifuncregedit as ifuncregedit,source.iid
+		as
+		iinvoice,source.icustomer,-1 as ifeeitem,
+		as_funcregedit.cname as
+		ifuncregedit_Name,source.ccode as iinvoice_Name,source.dadate as
+		ddate,
+		cs_customer.cname as icustomer_Name,'差旅费' as
+		cfeeitem,source.ffee as
+		fexpense,source.cmemo as cuse,
+		'' as cmemo,0 as
+		inumber
+		from sa_presupport source
+		left join as_funcregedit on
+		source.iifuncregedit = as_funcregedit.iid
+		left join cs_customer on
+		source.icustomer = cs_customer.iid
+		where source.dadate is not null and
+		source.iaperson = #iperson#
+		and isnull(source.ffee,0)!=0
+		and source.iid not in (select iinvoice from
+		OA_expenses where
+		ifuncregedit = source.iifuncregedit )
+
+	</select>
+
+	<select id="getExpenseNeedListBill" resultClass="java.util.HashMap"
+		parameterClass="int">
+		select source.iifuncregedit as ifuncregedit,source.iid
+		as
+		iinvoice,source.icustomer,-1 as ifeeitem,
+		as_funcregedit.cname as
+		ifuncregedit_Name,source.ccode as iinvoice_Name,source.darrival as
+		ddate,
+		cs_customer.cname as icustomer_Name,'差旅费' as
+		cfeeitem,source.ffee as
+		fexpense,source.cmemo as cuse,
+		'' as cmemo,0 as
+		inumber,iresult
+		from sr_bill source
+		left join as_funcregedit on
+		source.iifuncregedit = as_funcregedit.iid
+		left join cs_customer on
+		source.icustomer = cs_customer.iid
+		where 
+		isnull(source.carrivaltel,'')!='' and
+		isnull(source.cdeparturetel,'')!='' and
+		darrival is not null and 
+		ddeparture is not null and
+		source.iengineer = #iperson#
+		and isnull(source.ffee,0)!=0
+		and source.iid not in (select iinvoice from OA_expenses where
+		ifuncregedit = source.iifuncregedit )
+	</select>
+	
+	<select id="getExpenseNeedListBill2" resultClass="java.util.HashMap"
+		parameterClass="int">
+		select source.iifuncregedit as ifuncregedit,source.iid
+		as
+		iinvoice,source.icustomer,-1 as ifeeitem,
+		as_funcregedit.cname as
+		ifuncregedit_Name,source.ccode as iinvoice_Name,source.darrival as
+		ddate,
+		cs_customer.cname as icustomer_Name,'差旅费' as
+		cfeeitem,source.ffee as
+		fexpense,source.cmemo as cuse,
+		'' as cmemo,0 as
+		inumber,iresult
+		from sr_bill source
+		left join as_funcregedit on
+		source.iifuncregedit = as_funcregedit.iid
+		left join cs_customer on
+		source.icustomer = cs_customer.iid
+		where 
+		darrival is not null and 
+		ddeparture is not null and
+		source.iengineer = #iperson#
+		and isnull(source.ffee,0)!=0
+		and source.iid not in (select iinvoice from OA_expenses where
+		ifuncregedit = source.iifuncregedit )
+	</select>
+
+	<select id="getExpenseNeedListProjects" resultClass="java.util.HashMap"
+		parameterClass="int">
+		select source.iifuncregedit as ifuncregedit,source.iid
+		as
+		iinvoice,sr_project.icustomer,-1 as ifeeitem,
+		as_funcregedit.cname as
+		ifuncregedit_Name,source.ccode as iinvoice_Name,source.ddate as
+		ddate,
+		cs_customer.cname as icustomer_Name,'差旅费' as cfeeitem,source.ffee as
+		fexpense,source.cmemo as cuse,
+		'' as cmemo,0 as inumber
+		from sr_projects
+		source
+		left join sr_project on source.iproject = sr_project.iid
+		left
+		join as_funcregedit on source.iifuncregedit = as_funcregedit.iid
+		left
+		join cs_customer on sr_project.icustomer = cs_customer.iid
+		where
+		isnull(source.carrivaltel,'')!='' and
+		isnull(source.cdeparturetel,'')!='' and
+		source.dbegin is not null and source.dend is not null and
+		source.iperson = #iperson#
+		and isnull(source.ffee,0)!=0
+		and source.iid not in (select iinvoice from
+		OA_expenses where
+		ifuncregedit = source.iifuncregedit )
+	</select>
+	
+		<select id="getExpenseNeedListProjects2" resultClass="java.util.HashMap"
+		parameterClass="int">
+		select source.iifuncregedit as ifuncregedit,source.iid
+		as
+		iinvoice,sr_project.icustomer,-1 as ifeeitem,
+		as_funcregedit.cname as
+		ifuncregedit_Name,source.ccode as iinvoice_Name,source.ddate as
+		ddate,
+		cs_customer.cname as icustomer_Name,'差旅费' as cfeeitem,source.ffee as
+		fexpense,source.cmemo as cuse,
+		'' as cmemo,0 as inumber
+		from sr_projects
+		source
+		left join sr_project on source.iproject = sr_project.iid
+		left
+		join as_funcregedit on source.iifuncregedit = as_funcregedit.iid
+		left
+		join cs_customer on sr_project.icustomer = cs_customer.iid
+		where
+<!-- 		source.dbegin is not null and source.dend is not null and -->
+		source.iperson = #iperson#
+		and isnull(source.ffee,0)!=0
+		and source.iid not in (select iinvoice from
+		OA_expenses where
+		ifuncregedit = source.iifuncregedit )
+	</select>
+	
+	<select id="getExpenseNeedListOvertime" resultClass="java.util.HashMap"
+		parameterClass="int">
+	select source.iifuncregedit as ifuncregedit,source.iid as
+	iinvoice,source.icustomer,-1 as ifeeitem,
+	as_funcregedit.cname as ifuncregedit_Name,source.ccode as iinvoice_Name,source.dbegin as
+	ddate,
+	cs_customer.cname as icustomer_Name,'差旅费' as cfeeitem,source.ffee as
+	fexpense,source.cdetail as cuse,
+	'' as cmemo,0 as inumber
+	from oa_overtime source
+	left join as_funcregedit on source.iifuncregedit = as_funcregedit.iid
+	left join cs_customer on source.icustomer = cs_customer.iid
+	where source.dbegin is not null and source.dend is not null and
+	source.iperson = #iperson#
+	and isnull(source.ffee,0)!=0
+	and source.iid not in (select iinvoice from OA_expenses where
+	ifuncregedit = source.iifuncregedit )
+	</select>
+	
+	<select id="selectJhtx_sum" resultClass="int" parameterClass="java.util.HashMap" >
+		select count(iid)  from oa_workplan where istatus=620 and bnomessage=0 and dmessage &lt; #nowDate# and imaker=#iperson#
+	</select>	
+	
+	<!-- 值班管理， 值班生效 -->
+	<update id="updateDutyState" parameterClass="java.util.HashMap">		
+		update oa_duty set istate=3 where istate=2;
+		update oa_duty set istate=2 where iid=#iid#;
+	</update>
+	
+	<!-- 值班管理， 值班失效-->
+	<update id="delDutyState" parameterClass="java.util.HashMap">		
+		begin
+			<!--update oa_duty set istate=2 where istate=3;-->
+			update oa_duty set istate=3 where iid=#iid#;
+		end;
+	</update>
+	
+	<select id="select_state" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from oa_duty where iid=#iid#
+	</select>
+	
+	<!-- 值班管理， 值班生效,更新值班角色 -->
+	<delete id="delDutyRoleUser" parameterClass="java.util.HashMap">
+		delete as_roleuser where irole=(
+		select top 1 cvalue from as_options where ctitle='技术值班对应角色')
+	</delete>
+	
+	<select id="queryDutyRole" resultClass="java.util.HashMap">
+		select top 1 cvalue from as_options where ctitle='技术值班对应角色'
+	</select>
+	
+	<insert id="add_Plan" parameterClass="java.util.HashMap">
+		insert into oa_plan 
+		(itype,iyear,imonth,iseason,iweek,cname,idepartment,iperson,dmaker,dbegin,dend)
+		select #itype#,#year#,#month#,#quarter#,#week#,#cname#,idepartment,#iperson#,#dmaker#,#dbegin#,#dend#
+		from hr_person where iid=#iperson#
+		
+<!-- 		 values -->
+<!-- 		(#itype#,#year#,#month#,#quarter#,#week#,#cname#,#idepartment#,#iperson#,#dmaker#)	 -->
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<insert id="add_Plans" parameterClass="java.util.HashMap">
+		insert into oa_plans
+		(iplan,ctype,cdetail,dmaker,dmodify,iquadrant,icustomer,dmessage,iplans) values
+		(#iplan#,#ctype#,#cdetail#,#dmaker#,#dmodify#,#iquadrant#,#icustomer#,#dmessage#,#iplans#)	
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<delete id="delPlans" parameterClass="java.util.HashMap">
+		delete oa_plans where iid =#iid#
+	</delete>
+	
+	<delete id="delPlan" parameterClass="java.util.HashMap">
+		delete oa_plan where iid =#iplan#
+	</delete>
+	
+	<select id="getPlans" resultClass="int" parameterClass="java.util.HashMap" >
+		select iid from oa_plans where iplan = #iplan#
+	</select>	
+	
+	<select id="getPlan" resultClass="java.util.HashMap" parameterClass="int" >
+		select oa_plan.*,h1.cname as iperson_cname,h2.cname as iinstruction_cname,hd.cname as idepartment_cname 
+		from oa_plan 
+		left join hr_person h1 on h1.iid = oa_plan.iperson 
+		left join hr_person h2 on h2.iid = oa_plan.iinstruction  
+		left join hr_department hd on hd.iid =  oa_plan.idepartment
+		where oa_plan.iid = #iplan# 
+	</select>
+
+	<select id="getPlansDetail" resultClass="java.util.HashMap"
+		parameterClass="int">
+		select oa_plans.*,oa_plan.iperson,hr_person.cname as
+		iinstruction_cname,oa_plan.itype from
+		(
+		select oa_plans.*,1 as inIplans from oa_plans where iid in (select
+		isnull(iplans,0) from oa_plans)
+		union
+		select oa_plans.*,0 as inIplans from oa_plans where iid not in (select
+		isnull(iplans,0) from oa_plans)
+		)
+		oa_plans left join oa_plan on
+		oa_plan.iid=iplan
+		left join hr_person on
+		hr_person.iid =
+		oa_plans.iinstruction where iplan=#iplan# order by
+		oa_plans.ctype,oa_plans.iquadrant,oa_plans.dmaker
+	</select>
+
+	<select id="getPlansCtypeListl" resultClass="java.util.HashMap"
+		parameterClass="int">
+		select distinct oa_plans.ctype from oa_plans left join oa_plan on
+		oa_plan.iid=iplan where iperson=(select iperson from oa_plan where iid=#iplan#) order by ctype
+	</select>
+	
+	<update id="updatePlans" parameterClass="java.util.HashMap">		
+		update oa_plans set ctype=#ctype#,cdetail=#cdetail#,dmodify=#dmodify#,iquadrant=#iquadrant#,icustomer=#icustomer#,dmessage=#dmessage# where iid=#iid#
+	</update>
+
+    <delete id="delMessage" parameterClass="java.util.HashMap">
+        delete as_communication where ifuncregedit=321 and itype=11 and iinvoice=#iinvoice#
+    </delete>
+
+    <insert id="addMessage" parameterClass="java.util.HashMap">
+        insert into as_communication (itype,isperson,irperson,ifuncregedit,iinvoice)
+        select 11,iperson,iperson,321,#iinvoice# from oa_plan where iid=(select iplan from oa_plans where iid=#iinvoice#)
+    </insert>
+
+    <!-- 通知主节点-->
+    <insert id="addNoticeNode" parameterClass="java.util.HashMap">
+        insert into oa_noticenode(inotice,inodetype,inodevalue,iifuncregedit) values(#inotice#,#inodetype#,#inodevalue#,#iifuncregedit#)
+        <selectKey resultClass="int" keyProperty="iid" >
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 通知子节点-->
+    <insert id="addNoticeNodes" parameterClass="java.util.HashMap">
+        insert into oa_noticenodes(inoticenode,iperson) values(#inoticenode#,#iperson#)
+        <selectKey resultClass="int" keyProperty="iid" >
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 参与调查人员 -->
+    <insert id="addinquiryp" parameterClass="java.util.HashMap">
+        insert into OA_inquiryp(iinquiry,itype,iperson,bmodify) values(#iid#,#itype#,#iperson#,0)
+        <selectKey resultClass="int" keyProperty="iid" >
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 调查答案 -->
+    <insert id="addInquiryd" parameterClass="java.util.HashMap">
+        insert into OA_inquiryd(iinquiry,iinquirys,iinquiryss,iperson,cname)
+        values(#iinquiry#,#iinquirys#,#iinquiryss#,#iperson#,#cname#);
+        <selectKey resultClass="int" keyProperty="iid" >
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 调查问题答案表 -->
+    <insert id="insertInquiryss" parameterClass="java.util.HashMap">
+        insert into oa_inquiryss(iinquirys,ino,cname,isource)
+        select #iinquirys#,max(ino)+1 ino,#cname#,2 from oa_inquiryss
+        where iinquirys = #iinquirys#
+        <selectKey resultClass="int" keyProperty="iid" >
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+    <!-- 更新调查人员标识 -->
+    <update id="updateInquiryp" parameterClass="java.util.HashMap">
+        update OA_inquiryp set bmodify=1,dmodify=GETDATE()
+        where iinquiry = #iinquiry# and iperson=#iperson#
+    </update>
+
+    <!-- 更新节点已读标识 -->
+    <update id="updatenoticenodes" parameterClass="java.util.HashMap">
+        update OA_noticenodes set bread=1,ddate=GETDATE() where iid in (
+        select ods.iid from OA_noticenode ode
+        join OA_noticenodes ods on ode.iid = ods.inoticenode
+        join OA_inquiry oi on ode.inotice = oi.iid
+        where ode.iifuncregedit=468 and ods.iperson=#iperson# and oi.iid=#iinquiry#)
+    </update>
+
+
+    <select id="getDepartmentPerson" resultClass="java.util.HashMap"
+            parameterClass="int">
+        select an.iid,an.cname,0 itype from hr_person an
+        where an.idepartment=#idepartment#
+    </select>
+
+    <select id="getNoticeNode" resultClass="java.util.HashMap"
+            parameterClass="int">
+        select * from oa_noticenode where inotice=#inotice# and iifuncregedit = 608
+    </select>
+
+    <delete id="delNoticeNode" parameterClass="int" >
+        delete OA_noticenode where inotice=#inotice# and iifuncregedit = 608
+    </delete>
+
+    <delete id="delQuestionNode" parameterClass="int" >
+        delete OA_noticenode where inotice=#inotice# and iifuncregedit = 468
+    </delete>
+
+
+</sqlMap>

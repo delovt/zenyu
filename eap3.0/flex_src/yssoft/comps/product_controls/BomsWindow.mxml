@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:basic="yssoft.comps.frame.module.Basic.*" width="650"
+			   height="400"
+			   creationComplete="iniWindow()" close="this.onCancle()">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.DataGrid;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.managers.PopUpManager;
+			
+			import yssoft.comps.frame.module.CrmEapDataGrid;
+			import yssoft.tools.CRMtool;
+			
+			public var type:String;
+			public var curDataGrid:CrmEapDataGrid;
+			public var iproductp:int;
+			
+			public var flied_value:String;
+			
+			private var _caption:String;//窗体标题属性
+			
+			public function set caption(value:String):void{
+				
+				this._caption = value;
+				
+			}
+			
+			private var _columnsArr:ArrayCollection;//DataGrid列头数据集
+			
+			public function set columnsArr(value:ArrayCollection):void{
+				
+				this._columnsArr = value;
+				
+			}
+			
+			private var _datasetArr:ArrayCollection;//DataGrid数据集
+			
+			public function set datasetArr(value:ArrayCollection):void{
+				
+				this._datasetArr = value;
+				
+			}
+			
+			private var _odatasetArr:ArrayCollection;//其他单据传入的数据集
+			
+			public function set odatasetArr(value:ArrayCollection):void{
+				
+				this._odatasetArr = value;
+				
+			}
+			
+			private var objArr:ArrayCollection ;
+			
+			/* 业务处理 */
+			
+			//窗体初始化
+			protected function iniWindow():void{
+				
+				this.title = this._caption;
+				iniColumns();
+				this.dg.dataProvider = this._datasetArr;
+			}
+			
+			private function iniColumns():Boolean{
+				
+				if(this._columnsArr.length == 0) {CRMtool.tipAlert("请配置列头信息！");return false;}
+				
+				//this.dg.InitColumns();//调用组件的初始化列头信息
+				
+				for(var i:int=0;i<this._columnsArr.length;i++){
+					
+					var obj:Object = this._columnsArr.getItemAt(i);
+					var dataField:String = obj.dataField;//字段名称
+					var headerText:String	= obj.headerText;//字段显示名称
+					
+					var column:DataGridColumn = new DataGridColumn();
+					column.dataField 	= dataField;
+					column.headerText	= headerText; 
+					
+					dg.columns = dg.columns.concat(column);
+				}
+				
+				return true;
+			}
+			
+			//关闭窗体
+			protected function onCancle():void{
+				
+				PopUpManager.removePopUp(this);
+				
+			}
+			
+			//确定
+			protected function onOK():void{
+				
+				//获取选中记录
+				var selectArr:ArrayCollection = this.dg.getSelectRows();
+				objArr= new ArrayCollection();
+				for(var i:int=0;i<selectArr.length;i++){
+					
+					var item:Object = selectArr.getItemAt(i);
+					var obj:Object = {};
+					
+					obj.iproductp = iproductp;
+					obj.iproduct = item.iid;
+					obj.iproduct_Name = item.linkpname;
+					obj.fquantity = 1;
+					//XZQWJ 2013-01-15 增加 子表关联
+					if(flied_value!=""){
+						var strArr:Array=flied_value.split("=");
+						obj[strArr[0].toString()]=strArr[1].toString();
+					}
+					if(type=="order"){
+						obj.fprice=0;
+						obj.fsum = 0; 
+						obj.fnetprice=0;
+						obj.iitem = 0;
+					}else{
+						obj.futprice=0;
+						obj.ifunconsults=0;
+						obj.ifunconsult=0;
+						obj.fprice=0;
+						obj.iifuncregedit=0;
+						obj.ifuncregedit=0
+						obj.iinvoice=0;
+						obj.iinvoices=0;
+					}
+					objArr.addItem(obj);
+					_odatasetArr.addItem(obj);	
+				}
+				this.onCancle();
+				if(selectArr.length>0){
+					var dataporArr:ArrayCollection = curDataGrid.dataProvider as ArrayCollection;
+					var tableListArr:ArrayCollection = curDataGrid.tableList;
+					if(tableListArr.length-dataporArr.length>0){
+						var l:int=objArr.length;
+						for(var i:int=0;i<l;i++){
+							dataporArr.addItem(objArr.getItemAt(i));
+						}
+					}
+				}
+				
+//				var d:DataGrid;
+				
+//				if(curDataGrid){
+//					//curDataGrid.editable = true;
+//				}
+			}
+			
+			
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<mx:VBox width="100%" height="100%">
+		
+		<mx:HBox width="100%" height="95%">
+			<basic:BasicMxDataGrid id="dg" isAllowMulti="true" width="100%" height="100%"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" height="10%" horizontalAlign="right">
+			<s:Button id="btnConfirm" label="确定" click="onOK()"/>
+			<s:Button id="btnCancle" label="取消" click="this.onCancle()"/>
+		</mx:HBox>
+		
+	</mx:VBox>
+	
+</basic:BasicTitleWindow>

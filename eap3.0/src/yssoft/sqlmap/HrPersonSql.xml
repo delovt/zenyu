@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 新增人员 -->
+	<insert id="add_person" parameterClass="java.util.HashMap">
+		insert into HR_person(ccode,cname,bjobstatus,busestatus,cusecode,idepartment,ipost,ijob1,ijob2,isex,dbirthday,ieducation,
+		cdiscipline,ctel,cmobile1,cmobile2 ,cemail,chaddress,chtel,cmemo,cusepassword) 
+		values(#ccode#,#cname#,#bjobstatus#,#busestatus#,#cusecode#,#idepartment#,#ipost#,#ijob1#,#ijob2#,#isex#,#dbirthday#,#ieducation#,
+		#cdiscipline#,#ctel#,#cmobile1#,#cmobile2# ,#cemail#,#chaddress#,#chtel#,#cmemo#,#cusepassword#)
+	   <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update_person" parameterClass="java.util.HashMap">
+		update HR_person set ccode=#ccode#,cname=#cname#,cnickname=#cnickname#,bjobstatus=#bjobstatus#,busestatus=#busestatus#,
+		cusecode=#cusecode#,idepartment=#idepartment#,ipost=#ipost#,ijob1=#ijob1#,ijob2=#ijob2#,
+		isex=#isex#,dbirthday=#dbirthday#,ieducation=#ieducation#,cdiscipline=#cdiscipline#,ctel=#ctel#,
+		cmobile1=#cmobile1#,cmobile2=#cmobile2#,cemail=#cemail#,chaddress=#chaddress#,chtel=#chtel#,cmemo=#cmemo#,csignature=#csignature#,cquestion=#cquestion#,canswer=#canswer#,
+		icallline = #icallline#,bcallout = #bcallout#,bisCloseOut = #bisCloseOut#,ilayout = #ilayout#,cqq=#cqq#
+		where iid=#iid#
+	</update>
+	<!-- 验证 账号 是否 唯一 -->
+	<select id="hr.check_zh_isonly" parameterClass="java.util.HashMap" resultClass="int">
+		select count(*) from hr_person where cusecode = #cusecode# and iid != #iid#
+	</select>
+	
+	<!-- 修改用户密码 -->
+	<update id="updat_user_pwd" parameterClass="java.util.HashMap">
+		update HR_person set cusepassword=#pwd# ,dpasswordchange =convert(varchar(10),getdate(),120) where iid=#iid#
+<!--		update hr_person set cusepassword=pwdencrypt(#pwd#) where iid = #iid# and pwdcompare(#oldpwd#,cusepassword)=1-->
+	</update>
+	
+		<!-- 重置用户密码 -->
+	<update id="reset_user_pwd" parameterClass="java.util.HashMap">
+		update HR_person set cusepassword=#pwd# ,dpasswordchange =convert(varchar(10),getdate(),120),block=0 where iid=#iid#
+<!--		update hr_person set cusepassword=pwdencrypt(#pwd#) where iid = #iid# -->
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="remove_person" parameterClass="string">
+		delete from HR_person where $iidStr$
+	</delete>
+	
+	<!-- 查询人员档案 -->
+	<select id="get_persons" parameterClass="string" resultClass="java.util.HashMap" remapResults="true">
+		$sql$
+	</select>
+	
+	<!-- 查询用户(查询条件) -->
+	<parameterMap class="map" id="personwbParams"> 
+		<!-- 自定义sql -->  
+		<parameter property="sql1" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql2" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql3" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql4" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql5" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql6" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+
+        <!-- 每页的大小(行数) -->
+		<parameter property="pagesize" javaType="int" jdbcType="int" mode="IN" /> 
+		<!-- 要显示的页 -->
+		<parameter property="curpage" javaType="int" jdbcType="int" mode="IN" />
+		 <!-- 排序语句 -->  
+		<parameter property="orderSql" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+		<!-- 主键 -->
+		<parameter property="keyfield" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+	</parameterMap>  
+	
+<!--	<select id="get_persons_sql" parameterClass="personwbParams" resultClass="java.util.HashMap" remapResults="true">-->
+<!--		select c.* from -->
+<!--		(-->
+<!--			  SELECT TOP $pagesize$ b.* FROM-->
+<!--			  (-->
+<!--			     SELECT TOP $topsize$ a.* FROM-->
+<!--			     (-->
+<!--			     	$sql$-->
+<!--			      ) a-->
+<!--			  ) b -->
+<!--		 ) c -->
+<!--		-->
+<!--		 	$orderSql$-->
+<!--		 -->
+<!--	</select>-->
+		
+		<procedure id="get_persons_sql"   parameterMap="personwbParams"  resultClass="java.util.HashMap" remapResults="true">   
+	    <![CDATA[    
+	         {call p_show(?,?,?,?,?,?,?,?,?,?)}
+	       ]]>   
+	</procedure> 
+	
+	
+	<!-- 查询用户(查询条件) -->
+	<parameterMap class="map" id="personCountParams"> 
+		<!-- 自定义sql -->  
+		<parameter property="sql1" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql2" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql3" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql4" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql5" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+        <!-- 自定义sql -->
+        <parameter property="sql6" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />
+	</parameterMap> 
+	
+	<procedure id="get_persons_sql_sum" resultClass="int" parameterMap="personCountParams" remapResults="true">
+		<![CDATA[   
+			{call p_show_count_basic(?,?,?,?,?,?)}
+		  ]]>
+	</procedure>
+	
+	<!--统计人员计划个数 liu lei -->
+	<select id="get_personplancount" parameterClass="String" resultClass="java.util.HashMap">
+           select distinct hr_person.iid,hr_person.ccode,hr_person.cname,oa_workplan.iperson 
+           from oa_workplan inner join hr_person on oa_workplan.iperson=hr_person.iid $condition$
+	</select>
+	<select id="get_personplannotin" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+            select distinct hr_person.iid,hr_person.ccode,hr_person.cname from hr_person 
+            where hr_person.iid not in (select distinct oa_workplan.iperson from oa_workplan where 1=1 $condition1$) $condition2$
+	</select>
+	
+	<!--统计人员日志个数 liu lei -->
+	<select id="get_personlogcount" parameterClass="String" resultClass="java.util.HashMap">
+           select distinct hr_person.iid,hr_person.ccode,hr_person.cname,oa_workdiary.iperson 
+           from oa_workdiary inner join hr_person on oa_workdiary.iperson=hr_person.iid $condition$
+	</select>
+	<select id="get_personlognotin" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+            select distinct hr_person.iid,hr_person.ccode,hr_person.cname from hr_person 
+            where hr_person.iid not in (select distinct oa_workdiary.iperson from oa_workdiary where 1=1 $condition1$) $condition2$
+	</select>
+	
+	<!-- 个人设置 首页显示 -->
+	<update id="updateHomePage"  parameterClass="java.util.HashMap"  >
+		update HR_person set ihfuncregedit=#ihfuncregedit#,idscreenlock=#idscreenlock#,iconfirmtype=#iconfirmtype#  where iid =#iid#
+	</update>
+	
+	<insert id="add_AS_communication" parameterClass="java.util.HashMap" >
+		begin 
+			insert into AS_communication (isperson,
+				irperson,
+				cdetail,
+				itype,
+				ifuncregedit,
+				iinvoice
+			)
+				select #isperson#,iid,#cdetail#,2,#ifuncregedit#,#iinvoice# from hr_person;
+		update AS_communication set dsend=(select dmaker from OA_notice where iid=#iinvoice#);
+		end;
+	</insert>
+	
+	
+	<!-- 页面初始化显示个人盈余业绩  SDY start-->
+	<select id="select_main_hrperson"  parameterClass="String" resultClass="java.util.HashMap" >
+		select hr_person.iid,hr_person.cname,department.iid as idepartment,department.cname as departname from  hr_person right join
+ 		(select iid,cname from hr_department where (ihead =#iperson# or icharge =#iperson# or ilead =#iperson#) ) department
+		on hr_person.idepartment = department.iid 
+	</select>
+	
+	<select id="select_main_department"  parameterClass="String" resultClass="java.util.HashMap" >
+ 		select * from (
+		select a.* from (select iid,cname,ipid from hr_department) a  right join 
+		(select iid,cname,ipid from hr_department where (ihead =#iperson# or icharge =#iperson# or ilead =#iperson#) ) b 
+		on a.iid = b.ipid
+		union all
+		select iid,cname,ipid from hr_department where (ihead =#iperson# or icharge =#iperson# or ilead =#iperson#) 
+		) view_depart where iid is not null  group by iid,cname,ipid  
+	</select>
+	<!-- end -->	
+	
+	<!-- 更新用户系统分项关联参数 sdy-->
+	<update id="update_person_option" parameterClass="java.util.HashMap">
+		begin
+	
+		<isNotEmpty property="ids_1">
+			update hr_person set bmorelogin=1  where iid in ($ids_1$);
+			update hr_person set bmorelogin=0  where iid not in ($ids_1$);
+		</isNotEmpty>
+		
+		<isNotEmpty property="ids_2">
+			update hr_person set bnotremove=1  where iid in ($ids_2$);
+			update hr_person set bnotremove=0  where iid not in ($ids_2$);
+		</isNotEmpty>
+		 
+		 update hr_person set ccode = 0 where iid = 0;
+		 	
+		end;
+	</update>
+	
+	<!-- 获取用户选项关联人员 sdy-->
+	<select id="select_options_condition"  parameterClass="string"  resultClass="java.util.HashMap" >
+		select hr_person.iid,hr_person.cname,hr_department.cname as departname from hr_person left join hr_department on hr_person.idepartment =hr_department.iid  where  $condition$ =1  
+	</select>
+	
+	
+	<!-- 获取用户预警个人参数列表 -->
+<!-- 	<select id="select_ems_lists" parameterClass="string" resultClass="java.util.HashMap" > -->
+<!-- 		select k.iid,k.cname ,k.buse ,k.fvalue , k.bperson ,k.bpersons ,k.idataauth,case when k.fvalues is not NULL then k.fvalues else k.fvalue end as fvalues  from ( -->
+<!-- 		select a.iid,a.cname ,b.buse ,a.fvalue , a.bperson ,b.bperson as bpersons ,b.idataauth,b.fvalue as fvalues from  AS_warnset a left join AS_warnsets b on a.iid = b.iwarnset  -->
+<!-- 		where a.iid not in (select distinct(a.iid) from AS_warnset a left join AS_warnsets b on a.iid = b.iwarnset  where b.iperson = #iperson#) and trim(a.csql) &lt;&gt; NULL -->
+<!-- 		union all  -->
+<!-- 		select a.iid,a.cname ,b.buse ,a.fvalue , a.bperson ,b.bperson as bpersons ,b.idataauth,b.fvalue as fvalues from  AS_warnset a left join AS_warnsets b on a.iid = b.iwarnset where b.iperson =  #iperson# and trim(a.csql) &lt;&gt; NULL  -->
+<!-- 		) k order by k.iid  -->
+<!-- 	</select> -->
+	
+	<!-- 获取用户预警个人参数列表 -->
+	<select id="select_ems_lists" parameterClass="string"
+	resultClass="java.util.HashMap">
+select * from(
+	select
+	AC_desktoplistcd.ccode,AC_desktoplistcd.cname,AC_desktoplistcd.bvisible,AC_desktoplistcd.ilistcd,
+	as_funcregedit.cname as funcname
+	from AC_desktoplistcd
+	left join ac_listcd on ac_listcd.iid = AC_desktoplistcd.ilistcd
+	left join as_funcregedit on ac_listcd.ifuncregedit=as_funcregedit.iid
+	where ac_listcd.bdesktop=1 and AC_desktoplistcd.iperson=#iperson#
+	union
+	select '无' as ccode,ac_listcd.cname,0 as bvisible,ac_listcd.iid as ilistcd,as_funcregedit.cname as funcname from ac_listcd
+	left join as_funcregedit on ac_listcd.ifuncregedit=as_funcregedit.iid
+	where bdesktop=1 and ac_listcd.iid not in (select ilistcd form from AC_desktoplistcd
+	where
+	iperson=#iperson#))AC_desktoplistcd order by ccode
+	</select>
+	
+	
+	<delete id="del_ems_data" parameterClass="int">
+		delete AC_desktoplistcd where iperson = #iperson#
+	</delete>
+	
+	<!-- 保存用户预警个人参数 -->
+	<insert id="insert_ems_data" parameterClass="java.util.HashMap">
+		insert into AC_desktoplistcd(ilistcd,ccode,cname,iperson,bvisible)
+		values (#ilistcd#,#ccode#,#cname#,#iperson#,#bvisible#)
+<!-- 		insert into AS_warnsets(icorp,iwarnset,iperson,buse,bportal,bmessage,bemail,bperson,idataauth,fvalue) -->
+<!-- 		values (null,#iwarnset#,#iperson#,#buse#,null,null,null,#bpersons#,#idataauth#,#fvalues#) -->
+	</insert>
+	
+		<!-- 全局查询 -->
+	<parameterMap class="map" id="searchParams"> 
+		<parameter property="ccondit" javaType="java.lang.String" jdbcType="nvarchar" mode="IN" />   
+		<parameter property="iperson" javaType="int" jdbcType="int" mode="IN" />
+	</parameterMap>  
+	
+	<procedure id="get_appliction_search_list" resultClass="java.util.HashMap" parameterMap="searchParams" remapResults="true">
+		<![CDATA[   
+			{call p_quicksearch (?,?)}
+		  ]]>
+	</procedure>
+</sqlMap>

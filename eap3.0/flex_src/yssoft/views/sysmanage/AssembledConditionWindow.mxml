@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="100%" height="100%" xmlns:comps="yssoft.comps.*"
+                        close="onSubmit()" title="条件设置" creationComplete="inidata();"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			
+			//注册程序内码
+			[Bindable]
+			public var _ifuncregedit:int;
+			
+			//下拉框
+			[Bindable]
+			private var _cfieldArr:ArrayCollection;
+			
+			//数组
+			[Bindable]
+			private var _advancedArr:ArrayCollection;
+			
+			
+			public function set cfieldArr(value:ArrayCollection):void
+			{
+				_cfieldArr = value;
+			}
+			
+			public function set advancedArr(value:ArrayCollection):void
+			{
+				this._advancedArr = value;
+			}
+			
+			//注册程序内码查询条件数据集
+			[Bindable]public var arrDataList:ArrayCollection = new ArrayCollection();
+			
+			//查询程序内码的查询条件
+			protected function inidata():void{
+				AccessUtil.remoteCallJava("ACqueryclmDest","getFWFConditionclmList",onGetAcQueryclmListBack,this._ifuncregedit);
+			}
+			
+			
+			private function onGetAcQueryclmListBack(evt:ResultEvent):void{
+				arrDataList = evt.result as ArrayCollection;
+	     	}
+			
+			override protected function onSubmit():void
+			{
+				if(callBack!=null){
+					this.callBack(CRMtool.getSql(_advancedArr,_cfieldArr),this.abc_advanced.advancedArr);
+				}
+				PopUpManager.removePopUp(this);
+			}
+			
+			public var callBack:Function;
+		]]>
+	</fx:Script>
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<comps:AssembledConditionVbox id="abc_advanced" width="100%" height="100%" advancedArr="{this._advancedArr}" 
+									  cfieldArr="{this._cfieldArr}" arrDataList="{arrDataList}"/>
+		<mx:HBox width="100%" height="38" paddingRight="10" verticalAlign="middle" horizontalAlign="right">
+			<s:Button label="确定" click="onSubmit()"/>
+		</mx:HBox>
+	</mx:VBox>
+
+</basic:BasicTitleWindow>

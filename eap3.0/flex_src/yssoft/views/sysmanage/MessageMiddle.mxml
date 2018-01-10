@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:comps="yssoft.comps.*"
+		 width="100%" height="100%"  creationComplete="init()">	
+
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.events.ModelChange;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.List;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.ItemClickEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import spark.components.supportClasses.ItemRenderer;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.HrPersonVo;
+			import yssoft.vos.ListclmVo;
+			import yssoft.vos.ListsetVo;
+			
+			public function getLogList():void
+			{
+				
+				var params:Object = {};
+				params.pagesize = 50;
+				params.curpage=1;
+				params.sqlid="get_persons_sql";
+				
+				params.message_person  = this.message_person.text;
+				params.message_title   = this.message_title.text;
+				
+				if(yread.selected && nread.selected)params.isread = null;
+				else if(nread.selected)params.isread = 0;
+				else params.isread = 1;
+				
+				if(this.startDate.text=="1900-01-01 00:00"){
+					params.startDate = "";
+				}else{
+					params.startDate  = this.startDate.text;
+				}
+				
+				if(this.endDate.text=="1900-01-01 00:00"){
+					params.endDate = "";
+				}else{
+					params.endDate  = this.endDate.text;
+				}
+				
+				
+				var sql:String =" select AS_communication.iid,hr_person.cname,convert(varchar,AS_communication.dsend,120) dsend,AS_communication.cdetail,AS_communication.isread from AS_communication  left join hr_person on AS_communication.isperson = hr_person.iid where 1=1 "
+				
+				if("admin" !=  CRMmodel.hrperson.cname ){
+					sql += " and hr_person.iid = "+CRMmodel.userId;	
+				}	
+				
+				if(null != params.isread){
+					sql +=" and AS_communication.isread ="+params.isread;
+				}
+				
+				if(params.message_person != "" && params.message_person != "undefined"){
+					sql+=" and AS_communication.isperson in (select iid from hr_person where cname like '%"+params.message_person+"%' )";
+				}
+				
+				if(params.message_title != "" && params.message_title != "undefined"){
+					sql+=" and AS_communication.cdetail like '%"+params.message_title+"%')";
+				}
+				
+				if(params.startDate != "" && params.startDate != "undefined" && params.endDate != "" && params.endDate != "undefined"  ){
+					sql+=" and convert(varchar(10),AS_communication.dsend,120) between '"+params.startDate+"' and '"+params.endDate+"'";
+				}
+				
+				//params.orderSql =" order by iid desc "; 
+				params.sql = sql;
+				this.pageBar.initPageHandler(params,callFun_product);
+			}
+			
+			private function callFun_product(list:ArrayCollection):void{
+				loadXL(list); 
+			}
+			
+			private function resetParams():void{
+				this.message_person.text="";
+				this.startDate.text ="";
+				this.endDate.text ="";
+				this.message_title.text ="";
+			}
+				 
+			public function rownum_DataGrid(objitem:Object,icol:int):String{
+				var iindex:int=dgrid.dataProvider.getItemIndex(objitem)+1;
+				return String(iindex);
+			}
+			
+			private function formatDetail(item:Object,icol:int):String{
+				
+				var str:String = item.cdetail;
+				return str.length <12?str:str.substr(0,12)+"....";
+			}
+			
+			
+			
+			//更新是否阅读
+			public function updateisLook(data:Object):void
+			{
+				var params:Object = new Object();
+				params.iid=data.iid;
+				params.isread=data.isread;
+				AccessUtil.remoteCallJava("MsgDest","update_msg_item",call_fun_1,params);
+			}
+			
+			private function call_fun_1(e:ResultEvent):void{
+				if(e.result !="suc")CRMtool.tipAlert("更新阅读状态失败!请联系管理员");
+			}
+			
+			
+			//初始化
+			private function init():void{
+				loadGridList();
+			}
+			
+			
+			[Bindable]
+			private var acListsetVo:ListsetVo=new ListsetVo();
+			
+			[Bindable]
+			private var acListclmVos:ArrayCollection = new ArrayCollection();
+			
+			private function loadGridList():void{
+				var acListclmVo:ListclmVo = new ListclmVo();
+				acListclmVo.ilist = 120; //获取list_set 表内设定的ID
+				acListclmVo.iperson = CRMmodel.userId;
+				AccessUtil.remoteCallJava("ACListsetDest","getListset",getAcConsultclmBack,acListclmVo);
+			}
+			
+			private function labelfun(item:Object,col:int):String{
+				if(item.isread ==0)return "未阅";
+				else return "已阅";
+			}
+			
+			private function getAcConsultclmBack(event:ResultEvent):void{
+				acListsetVo = event.result.acListsetVo as ListsetVo;
+				acListclmVos = new ArrayCollection();
+				acListclmVos = event.result.acListclmVos as ArrayCollection;
+				this.dgrid.InitColumns();
+				var num:int = 0;
+				for each(var acli:ListclmVo in acListclmVos)
+				{	
+					++num;
+					
+					if(acli.bshow)
+					{
+						var dgc_name:DataGridColumn = new DataGridColumn();
+						dgc_name.dataField = acli.cfield;
+						dgc_name.headerText = acli.cnewcaption;
+						if(num == acListclmVos.length){
+							dgc_name.labelFunction = labelfun;
+						}
+						switch(acli.ialign)
+						{
+							case 0:
+							{
+								dgc_name.setStyle("textAlign","left");
+								break;
+							}
+							case 1:
+							{
+								dgc_name.setStyle("textAlign","center");
+								break;
+							}	
+							case 2:
+							{
+								dgc_name.setStyle("textAlign","right");
+								break;
+							}
+							default:
+							{
+								break;
+							}
+						}
+						dgc_name.width =acli.icolwidth;
+						dgrid.columns =dgrid.columns.concat(dgc_name);
+					}
+				}
+			}
+			
+			
+			
+			private function loadXL(list:ArrayCollection):void{
+				var i:int;
+				i=1;
+				for each (var item:Object in list) 
+				{
+					item.sort_id=i++;	
+				}
+				this.dgrid.dataProvider = list;
+			}
+			
+			
+			private function onDouble():void{
+				if(null == dgrid.selectedItem){return;}
+				var detail:MessageDetailView = new MessageDetailView();
+				detail.leftContent = dgrid.selectedItem;
+				CRMtool.openView(detail);
+			}
+			
+			public function onGridClick(e:Event):void{
+				this.pageBar.selectedNum = this.dgrid.getSelectRows().length;
+			}
+			
+			
+			public function onOpenProduct(event:ItemClickEvent):void{
+				var type:String=event.item.name;
+				var paramObj:Object = new Object();
+				paramObj.itemType = type;
+				
+				if(type=="onQuery")
+				{
+					getLogList() ;
+				}
+				else if(type=="onReset")
+				{
+					resetParams() ;	
+				}else{
+				
+					if(this.dgrid.getSelectRows().length == 0){
+						return CRMtool.tipAlert("请选中您要操作的记录！");
+					}else{return }
+					
+					if(type =="onYRead")
+					{
+						paramObj.iid = 	getSelectRowStr();
+						paramObj.isread=1;
+						AccessUtil.remoteCallJava("MsgDest","update_msg_item",call_fun,paramObj);
+					}
+					else if(type =="onNRead")
+					{
+						paramObj.iid = 	getSelectRowStr();
+						paramObj.isread=0;
+						AccessUtil.remoteCallJava("MsgDest","update_msg_item",call_fun,paramObj);
+					}
+					else if(type == "onDelete")
+					{	
+						paramObj.iid = 	getSelectRowStr();
+						CRMtool.tipAlert1("确定要删除该记录吗?",null,"AFFIRM",function():void{
+							AccessUtil.remoteCallJava("MsgDest","del_message_middle_item",call_fun,paramObj);
+						});
+						
+					}
+				}
+			}
+			
+			
+			private function call_fun(e:ResultEvent):void{
+				if(e.result == "suc")CRMtool.tipAlert("操作成功！");
+				if(e.result == "fail")CRMtool.tipAlert("操作失败！");
+				getLogList();
+			}
+			
+			
+			private function getSelectRowStr():String
+			{
+				var arrC:ArrayCollection = this.dgrid.getSelectRows();
+				var ids:String ="";
+				for(var i:int=0;i<arrC.length;i++){
+					var obj:Object = arrC[i];
+					obj.iid
+					ids += (","+obj.iid);
+				}
+				
+				return ids.substr(1,ids.length);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<mx:HBox width="100%"  verticalAlign="bottom" height="38" >
+		<s:Spacer width="2" />
+		<mx:HBox height="100%" verticalAlign="middle">
+			<s:CheckBox id="nread" y="13" height="21" label="未阅" selected="true"/>
+			<s:Spacer width="3" />
+			<s:CheckBox id="yread" y="13" height="21" label="已阅"/>
+		</mx:HBox>
+		
+		<s:Label  width="55" height="21" text="     发起人"/>
+		<s:TextInput id="message_person"  width="100" height="30" />
+		<s:Label  width="30" height="21" text=" 标题"/>
+		<s:TextInput id="message_title"  width="100" height="30"/>
+		<s:Label  width="60" height="21" text=" 发起时间 "/>
+		<comps:DateControl id="startDate" y="22" width="142" height="30" editable="true"
+						   showShape="0"/>
+		<s:Label  height="21" text=" 至 "/>
+		<comps:DateControl id="endDate" width="142"  height="30"  editable="true"  showShape="0"/>
+		<s:Spacer width="5" />
+		
+		<comps:LinkBarVboxComps id="lbr_role" height="25" width="15%" buttonWidth="48"  dataProvider="{ConstsModel.MESSAGE_MIDDLE}" itemClick="onOpenProduct(event)"/>
+	</mx:HBox>
+	<s:Spacer height="2"/>
+	
+	
+	<comps:CRMDataGridForCheckBox allowMulti="true"  width="100%" height="100%" id="dgrid" horizontalScrollPolicy="auto" dataProvider="{}" 
+								  doubleClickEnabled="true" onGridClick="onGridClick(event)"  doubleClick="onDouble()" paddingTop="5" />
+	
+	<mx:HBox horizontalAlign="right" width="100%" verticalAlign="middle" height="38"  backgroundColor="#f7f7f7" >
+		<comps:PageBar paddingRight="10" id="pageBar" isshowbt="false" />	
+	</mx:HBox>
+</mx:VBox>

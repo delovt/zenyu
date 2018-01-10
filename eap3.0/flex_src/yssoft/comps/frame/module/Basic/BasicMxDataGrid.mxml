@@ -1,0 +1,426 @@
+<?xml version="1.0"?>
+<mx:DataGrid xmlns:mx="library://ns.adobe.com/flex/mx"
+             xmlns:fx="http://ns.adobe.com/mxml/2009"
+             creationComplete="creationCompleteHandler(event)"
+             updateComplete="updateCompleteHandler(event)"
+             itemClick="itemClickHandler(event)"
+             headerRelease="headerReleaseHandler(event)"
+             allowMultipleSelection="{isAllowMulti}"
+             horizontalScrollPolicy="auto"
+             borderVisible="false"
+        >
+    <fx:Metadata>
+        [Event(name="allCheckedEvent", type="flash.events.Event")]
+        [Event(name="allCheckedNoEvent", type="flash.events.Event")]
+        [Event(name="allCheckedChangeEvent", type="flash.events.Event")]
+        [Event(name="itemCheckedChangeEvent", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script><![CDATA[
+        /*
+         *刘睿制作，实现功能
+         *  1序号列
+         *  2复选框列
+         *  3行颜色控制
+         *  4过滤自己的数据集
+         *
+         *  其他：排序关闭方法来自磊哥
+         */
+
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.controls.dataGridClasses.DataGridColumn;
+        import mx.events.DataGridEvent;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+
+        import yssoft.comps.frame.module.Basic.datagrid.DataGridHeadCheckBox;
+        import yssoft.comps.frame.module.Basic.datagrid.DataGridItemCheckBox;
+        import yssoft.comps.frame.module.Basic.datagrid.DataGridItemLabel;
+        import yssoft.tools.CRMtool;
+
+        private var _rowColorFunction:Function;
+        private var _itemColorFunction:Function;
+        private var _isShowLineNum:Boolean = true;
+        private var _isAllowMulti:Boolean = false;
+        private var _isAllchecked:Boolean = false;
+
+        //是否记录当前编辑的单元格和选择的行
+        private var _isRecordEdit:Boolean = false;
+
+        //如果存在过滤函数，则在此数据集里，存放过滤之前的完整数据集
+        private var _allDataProvider = null;
+        private var _filterDataFunction:Function;
+        private var _isAfterFilter:Boolean = false;
+
+        //多选列是否可用
+        private var _isMultiColEnable:Boolean = true;
+
+        //选中行是否影响第一列的checkbox
+        private var _isSelectChangeCheck:Boolean = true;
+
+        //多选列是在第一行还是第二行
+        private var _isMultiColFirst:Boolean = true;
+
+        private var lineNumCol:DataGridColumn = new DataGridColumn();
+        private var checkBoxCol:DataGridColumn = new DataGridColumn();
+
+        override protected function drawRowBackground(s:Sprite, rowIndex:int, y:Number, height:Number, color:uint, dataIndex:int):void {
+            if (rowColorFunction && dataProvider && dataIndex < dataProvider.length) {
+                var item:Object = this.dataProvider.getItemAt(dataIndex);
+                color = uint(rowColorFunction.call(this, item, color));
+            }
+
+            super.drawRowBackground(s, rowIndex, y, height, color, dataIndex);
+        }
+
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+
+            initColumns();
+
+            initItemRenderer();
+
+            this.addEventListener("columnsChanged", function (event:Event):void {
+                initItemRenderer();
+            });
+        }
+
+        public function initItemRenderer():void {
+            for each(var dc:DataGridColumn in columns) {
+                if (dc.itemRenderer == null)
+                    dc.itemRenderer = new ClassFactory(DataGridItemLabel);
+            }
+        }
+
+        public function cleanColumns():void {
+            this.columns = new ArrayCollection([this.columns[0], this.columns[1]]).toArray();
+        }
+
+        private function initColumns():void {
+            if (!isMultiColFirst) {
+                initMultiCol();
+            }
+            initLineCol();
+            if (isMultiColFirst) {
+                initMultiCol();
+            }
+            //后添加的在前
+        }
+
+        private function initLineCol():void {
+
+            lineNumCol.labelFunction = lineNumColFunction;
+            lineNumCol.dataField = "sort_id";
+            lineNumCol.headerText = "序号";
+            lineNumCol.width = 46;
+            lineNumCol.editable = false;
+            lineNumCol.sortable = false;
+            lineNumCol.resizable = false;
+            lineNumCol.setStyle("textAlign", "center");
+            lineNumCol.editable = false;
+            var ac:ArrayCollection = new ArrayCollection(columns);
+            ac.addItemAt(lineNumCol, 0);
+            this.columns = ac.toArray();
+        }
+
+        private function initMultiCol():void {
+
+            checkBoxCol.width = 40;
+            checkBoxCol.sortable = false;
+            checkBoxCol.resizable = false;
+            checkBoxCol.itemRenderer = new ClassFactory(DataGridItemCheckBox);
+            checkBoxCol.headerRenderer = new ClassFactory(DataGridHeadCheckBox);
+            checkBoxCol.editable = false;
+            var ac:ArrayCollection = new ArrayCollection(columns);
+            ac.addItemAt(checkBoxCol, 0);
+            this.columns = ac.toArray();
+        }
+
+        private function itemClickHandler(event:ListEvent):void {
+            if (!isSelectChangeCheck)
+                return;
+
+            if (isAllowMulti) {//如果单击事件发生在复选框列，则不响应。
+                if (columns[event.columnIndex] == checkBoxCol && this.selectedItems.length == 1) {
+                    checkHeadCheckBox();
+                    return;
+                }
+
+            }
+
+            for each(var item:Object in collection) {
+                item.checked = false;
+            }
+            for each(var selitem:Object in this.selectedItems) {
+                selitem.checked = true;
+            }
+            if (isAllowMulti) {
+                this.updateList();
+                checkHeadCheckBox();
+                this.dispatchEvent(new Event("itemCheckedChangeEvent"))
+            }
+        }
+
+        private function checkHeadCheckBox():void {
+            var flag = true;
+            for each(var item:Object in collection) {
+                if (!item.checked)
+                    flag = false;
+            }
+            if (flag) {
+                _isAllchecked = true;
+                this.dispatchEvent(new Event("AllCheckedEvent"));
+            } else {
+                _isAllchecked = false;
+                this.dispatchEvent(new Event("AllCheckedNoEvent"));
+            }
+        }
+
+        public function getSelectRows():ArrayCollection {
+            var ac:ArrayCollection = new ArrayCollection();
+            for each(var item:Object in dataProvider) {
+                if (item.checked)
+                    ac.addItem(item);
+            }
+            return ac;
+        }
+
+        public function getUnSelectRows():ArrayCollection {
+            var ac:ArrayCollection = new ArrayCollection();
+            for each(var item:Object in dataProvider) {
+                if (!item.checked)
+                    ac.addItem(item);
+            }
+            return ac;
+        }
+
+        public function get rowColorFunction():Function {
+            return _rowColorFunction;
+        }
+
+        public function set rowColorFunction(value:Function):void {
+            _rowColorFunction = value;
+        }
+
+        public function get isShowLineNum():Boolean {
+            return _isShowLineNum;
+        }
+
+        public function set isShowLineNum(value:Boolean):void {
+            lineNumCol.visible = value;
+            _isShowLineNum = value;
+        }
+
+        public function get isAllowMulti():Boolean {
+            return _isAllowMulti;
+        }
+
+        public function set isAllowMulti(value:Boolean):void {
+            this.allowMultipleSelection = value;
+            checkBoxCol.visible = value;
+            _isAllowMulti = value;
+        }
+
+        [Bindable]
+        public function get isAllchecked():Boolean {
+            return _isAllchecked;
+        }
+
+        public function set isAllchecked(value:Boolean):void {
+            _isAllchecked = value;
+            if (value) {
+                for each(var item:Object in collection) {
+                    item.checked = true;
+                }
+                this.dispatchEvent(new Event("allCheckedEvent"));
+            } else {
+                for each(var item:Object in collection) {
+                    item.checked = false;
+                }
+                this.dispatchEvent(new Event("allCheckedNoEvent"));
+            }
+            this.dispatchEvent(new Event("allCheckedChangeEvent"));
+            this.updateList();
+        }
+
+        //排序方式 0:不排序 1：升序 2：降序
+        private var sortIndex:int = 0;
+        private var lastSortField:String = "";
+
+        private function headerReleaseHandler(event:DataGridEvent):void {
+
+            if (collection.sort &&
+                    this.columns[event.columnIndex].dataField == lastSortField) {
+                if (collection.sort.fields[0].descending == false) {
+                    sortIndex = 1;
+                    //collection.sort = null;
+                    //collection.refresh();
+                } else {
+                    sortIndex = 2;
+                }
+            } else {
+                sortIndex = 0;
+            }
+
+            lastSortField = this.columns[event.columnIndex].dataField;
+        }
+
+        private function lineNumColFunction(item:Object, column:DataGridColumn):String {
+            if (dataProvider) {
+                for (var i:int = 1; i <= dataProvider.length; i++) {
+                    if (dataProvider[i - 1] == item) {
+                        item.sort_id = i;
+                        return i + "";
+                    }
+                }
+
+            }
+            return "0";
+        }
+
+        private function updateCompleteHandler(event:FlexEvent):void {
+            if (sortIndex == 2) {
+                collection.sort = null;
+                sortIndex = 0;
+                lastSortField = "";
+                collection.refresh();
+            }
+            else {
+                /*if (sortIndex==0 &&collection&& collection.sort!=null)
+                 {
+                 collection.sort.fields[0].descending=false;
+                 sortIndex=1;
+                 collection.refresh();
+                 }*/
+            }
+        }
+
+        override public function set dataProvider(value:Object):void {
+
+            if (value && (value as ArrayCollection).length > 0) {
+                var flag:Boolean = true;
+                for each(var item:Object in value) {
+                    if (item.checked == null || item.checked == false)
+                        flag = false;
+                }
+
+                if (flag) {
+                    _isAllchecked = true;
+                    dispatchEvent(new Event("AllCheckedEvent"));
+                }
+            }
+
+            var selectIndex:int = this.selectedIndex;
+            var i = this.editedItemPosition;
+            super.dataProvider = value;
+
+            if (_isRecordEdit) {
+                if (i)
+                    this.editedItemPosition = i;
+
+                this.selectedIndex = selectIndex;
+            }
+        }
+
+        public function filterData(list:ArrayCollection=null):void {
+            if (filterDataFunction == null)
+                return;
+
+            if (dataProvider == null)
+                return;
+
+            if (_allDataProvider == null)
+                _allDataProvider = CRMtool.copyArrayCollection(dataProvider as ArrayCollection);
+
+            if(list!=null)
+                _allDataProvider = CRMtool.copyArrayCollection(list);
+
+            var afterFilterDataProvider:ArrayCollection = new ArrayCollection();
+            for each(var item:Object in _allDataProvider) {
+                if (filterDataFunction.call(this, item))
+                    afterFilterDataProvider.addItem(item);
+            }
+
+            dataProvider.removeAll();
+            dataProvider.addAll(afterFilterDataProvider);
+
+            isAfterFilter = true;
+        }
+
+        public function get itemColorFunction():Function {
+            return _itemColorFunction;
+        }
+
+        public function set itemColorFunction(value:Function):void {
+            _itemColorFunction = value;
+        }
+
+        public function get filterDataFunction():Function {
+            return _filterDataFunction;
+        }
+
+        public function set filterDataFunction(value:Function):void {
+            _filterDataFunction = value;
+            if (value == null && _allDataProvider != null) {
+                dataProvider.removeAll();
+                dataProvider.addAll(_allDataProvider);
+                isAfterFilter = false;
+            }
+        }
+
+        [Bindable]
+        public function get isAfterFilter():Boolean {
+            return _isAfterFilter;
+        }
+
+        public function set isAfterFilter(value:Boolean):void {
+            _isAfterFilter = value;
+        }
+
+        public function get allDataProvider():* {
+            return _allDataProvider;
+        }
+
+        public function set allDataProvider(value):void {
+            _allDataProvider = value;
+        }
+
+        public function get isRecordEdit():Boolean {
+            return _isRecordEdit;
+        }
+
+        public function set isRecordEdit(value:Boolean):void {
+            _isRecordEdit = value;
+        }
+
+        [Bindable]
+        public function get isMultiColEnable():Boolean {
+            return _isMultiColEnable;
+        }
+
+        public function set isMultiColEnable(value:Boolean):void {
+            _isMultiColEnable = value;
+        }
+
+        public function get isSelectChangeCheck():Boolean {
+            return _isSelectChangeCheck;
+        }
+
+        public function set isSelectChangeCheck(value:Boolean):void {
+            _isSelectChangeCheck = value;
+        }
+
+        public function get isMultiColFirst():Boolean {
+            return _isMultiColFirst;
+        }
+
+        public function set isMultiColFirst(value:Boolean):void {
+            _isMultiColFirst = value;
+        }
+        ]]></fx:Script>
+    <!--<mx:columns>-->
+    <!--<mx:DataGridColumn-->
+    <!--</mx:columns>-->
+    <fx:Declarations>
+    </fx:Declarations>
+</mx:DataGrid>

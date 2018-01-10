@@ -1,0 +1,192 @@
+﻿<ReportSettings version="1.1">
+  <TopMargin>1</TopMargin>
+  <BottomMargin>3</BottomMargin>
+  <CanGrow>true</CanGrow>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <Height>0.7</Height>
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>UFS/QP/2-D2/QR/02 实施日志</Value>
+          <Width>18</Width>
+          <Style>
+            <VerticalAlign>top</VerticalAlign>
+            <FontSize>13</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <Height>0.7</Height>
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>实施日志</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>19</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>5.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.2</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>6.1</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <Height>1</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>编号</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>编号</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>项目名称</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>项目名称</BindingValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>1.1</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>日期</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>日期</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>顾问签字</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>实施顾问</BindingValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>1.4</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>工 作 内 容</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>12</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>工作内容</BindingValue>
+          <Style>
+            <VerticalAlign>top</VerticalAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.8</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>客户确认</Value>
+          <Style>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>2.7</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>.                                           签字：               日期：</Value>
+          <Style>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>2</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注</Value>
+          <BindingValue>备注</BindingValue>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.7</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>说明：实施日志由每个顾问在每天工作结束后填写，并由客户相关人员确认后交实施方项目经理。</Value>
+          <Style>
+            <FontSize>9</FontSize>
+            <FontBold>true</FontBold>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

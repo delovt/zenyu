@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="150"
+                        close="PopUpManager.removePopUp(this)" creationComplete="ini()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.RadianVbox;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var parentForm:Object;
+			
+			private var iid:int;
+			
+			private function ini():void{
+				parentForm = this.owner;
+			}
+			
+			private function onEdit():void
+			{
+				iid = int(parentForm.curiid);
+				if(CRMtool.isStringNull(this.txt_cmnemonic.text))
+				{
+					CRMtool.tipAlert1("外部系统内码不能为空！！",this.txt_cmnemonic);
+				}
+				else
+				{
+					var paramObj:Object = new Object();
+					paramObj.tableName = parentForm.funcregeditObj.ctable;
+					paramObj.citemcode = this.txt_cmnemonic.text;
+					
+					var sql:String ="select * from "+parentForm.funcregeditObj.ctable+" where cmnemonic='"+this.txt_cmnemonic.text+"'";
+					//调用后台方法
+					AccessUtil.remoteCallJava("hrPersonDest","verificationSql",function(evt:ResultEvent):void{
+						var rArr:ArrayCollection = evt.result as ArrayCollection;
+						
+						if(rArr==null||rArr.length==0)
+						{
+							var paramObj:Object = new Object();
+							paramObj.iid = iid;
+							paramObj.cmnemonic=txt_cmnemonic.text;
+							paramObj.tableName = parentForm.funcregeditObj.ctable;
+							AccessUtil.remoteCallJava("csCustomerDest","updatecmnemonic",updatePrconfirmBack,paramObj);
+						}
+						else
+						{
+							CRMtool.tipAlert1("外部系统内码已经存在，请重新输入！！",this.txt_cmnemonic);
+						}
+					},sql,null,false);
+				}
+			}
+			
+			
+			private function updatePrconfirmBack(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				if(result=="fail")
+				{
+					CRMtool.tipAlert1("修改外部系统内码失败");
+				}
+				else
+				{
+					var objup:Object = new Object();
+					objup.cmnemonic=this.txt_cmnemonic.text;
+					for(var i:int=0;i<parentForm._frameArr.length;i++)
+					{
+						var obj:Object = parentForm._frameArr.getItemAt(i);
+						var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+						customerVbox.parametersObj = objup;
+						customerVbox.reset();
+					}
+					CRMtool.tipAlert1("修改外部系统内码成功");
+					PopUpManager.removePopUp(this);
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<mx:HBox width="100%" paddingLeft="30" paddingBottom="30" paddingRight="30" paddingTop="30" verticalAlign="middle" horizontalAlign="center">
+		<mx:Label text="外部系统内码"/>
+		<mx:TextInput id="txt_cmnemonic"/>
+		<mx:Button label="确定" click="onEdit()"/>
+	</mx:HBox>
+</basic:BasicTitleWindow>

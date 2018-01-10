@@ -1,0 +1,25 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+	<select id="abfile.selectFile" parameterClass="java.util.HashMap" resultClass="yssoft.vos.AbInvoiceatmVo">
+		select ab.*,p.cname pcname ,'1' enable from ab_invoiceatm ab
+		left join hr_person p on ab.iperson=p.iid
+		where ifuncregedit=#ifunid#  and (iinvoice=#iinvoice# or iinvoice = #iinvoices#)
+	</select>	
+	
+	<insert id="adfile.insertFile" parameterClass="yssoft.vos.AbInvoiceatmVo">
+		insert into ab_invoiceatm(ifuncregedit,iinvoice,iinvoices,cname,cextname,cdataauth,iperson,dupload,csysname)
+		values
+		(#ifuncregedit#,#iinvoice#,#iinvoices#,#cname#,#cextname#,#cdataauth#,#iperson#,convert(varchar(19),getdate(),120),#csysname#)
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+	</insert>
+	
+	<delete id="adfile.deleteFile" parameterClass="java.util.HashMap">
+		delete from ab_invoiceatm where iid=#iid#
+	</delete>
+	
+	<delete id="adfile,delteFiles" parameterClass="java.util.HashMap">
+		delete from ab_invoiceatm where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice#
+	</delete>
+</sqlMap>

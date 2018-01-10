@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="55" height="66"
+		 cornerRadius="5" creationComplete="ne_creationCompleteHandler(event)" mouseOver="ne_mouseOverHandler(event)" mouseDown="ne_dragStartHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.core.DragSource;
+		import mx.events.FlexEvent;
+		import mx.managers.DragManager;
+		import mx.managers.ToolTipManager;
+		import mx.rpc.events.ResultEvent;
+
+		import yssoft.evts.FWFChangeEvent;
+		import yssoft.models.ConstsModel;
+		import yssoft.tools.AccessUtil;
+		import yssoft.tools.CRMtool;
+		import yssoft.views.workfform.FWFDrawView;
+		import yssoft.views.workflow.PaintView;
+
+		private var _isHandlerNode:Boolean = false;//当前节点是否为 操作节点 false 为不是，true 是
+
+		public function set isHandlerNode(value:Boolean):void {
+			this._isHandlerNode = value;
+
+			if (value) {
+				this.setStyle("backgroundColor", 0xffff00);
+				this.setStyle("backgroundAlpha", 0.5);
+			}
+		}
+
+		public function get isHandlerNode():Boolean {
+			return this._isHandlerNode;
+		}
+
+		public var iid:int;   				// 内码 , 表中id
+		public var inodeid:String;			// 创建工程中，关联上下级是的 id
+		public var ipid:int;   			// 上级节点内码
+		public var ipnodeid:String;		// 创建过程中 上级节点id
+		public var ioainvoice:int; 		// oa协同单主表ID  ,即 关联的 流程图的 id
+		public var inodeattribute:int;  	// 节点属性  0并发、1竞争、2选择
+
+		public var inodevalue:int;			//节点值
+		public var bfinalverify:int;		//是否终审
+
+		public var baddnew:int = 1;		//是否允许加签
+		public var bsendnew:int = 1;		//是否允许转发
+
+		public var inodelevel:int;			//当前节点 所在的层级
+
+        public var iistatus:int = 0; //节点对应 单据状态
+		public var cnotice:String = '0'; 		//消息通知方式 	允许多选：0系统消息、1邮件消息、2短信消息
+		public var baddnode:int = 0;				//0不是加签节点，1是由加签生成的节点；用以区别正常工作流转，加签工作流转
+
+		public var ccomefield:String; // 当为角色时，-9 -10 ，对应的字段的名称
+
+		public var cexecsql:String;//注入执行sql
+
+		// 表单工作流中的节点
+
+		//public var bfinalverify:int;			//是否终审
+		public var iinvoset:int;				//主表内码
+
+		[Bindable]
+		private var _inodemode:int = 0; 	//节点处理类型,0知会、1审批 对应显示 最下面的 文字
+		public function get inodemode():int {
+			return _inodemode;
+		}
+
+		public function set inodemode(value:int):void {
+			_inodemode = value;
+			_inodemodestr = ConstsModel["WF_INODEMODE_" + value];
+			if (this.iNodeModel) {
+				this.iNodeModel.text = "[" + _inodemodestr + "]";
+			}
+		}
+
+		[Bindalbe]
+		private var _inodemodestr:String;
+
+		[Bindable]
+		private var _inodetype:int;//节点类型 0人员、1部门、2相对角色、3岗位、4职务 ,对应修改头像
+
+		public function get inodetype():int {
+			return _inodetype;
+		}
+
+		public function set inodetype(value:int):void {
+			_inodetype = value;
+			_headerIcon = ConstsModel["wf_inodetype_" + value];
+		}
+
+		[Bindable]
+		private var _istatus:int;				//节点处理状态 0待发送、1已发送、2未进入、3待处理、4暂存待办、5已处理, 对应显示 最下面的 小图标
+		public function set istatus(value:int):void {
+			_istatus = value;
+			if (iid && iid != 0) {// 新建的node ，没有状态
+				if (value != -1)
+					_nodeIcon = ConstsModel["wf_node_istatus_" + value];
+			}
+		}
+
+		public function get istatus():int {
+			return this._istatus;
+		}
+
+		// 显示 人员 或 部门的 名称
+		[Bindable]
+		private var _cname:String;
+		public function set cname(value:String):void {
+			this._cname = value;
+		}
+
+		public function get cname():String {
+			return this._cname;
+		}
+
+		//头像
+		[Bindable]
+		private var _headerIcon:Class = ConstsModel.wf_inodetype_0;
+
+		// 当前节点的处理状态 协同，知会等
+		[Bindable]
+		private var _nodeIcon:Class;
+
+		// 生成节点 xml 数据 str
+        // 生成节点 xml 数据 str
+        public function generateNodeXmlStr():String {
+            return "<node iid='" + iid + "' ipid='" + ipid + "' cname='" + cname + "' inodelevel='" + inodelevel + "' ioainvoice='"
+                    + ioainvoice + "' inodeattribute='" + inodeattribute + "' inodemode='" + inodemode + "' baddnew='"
+                    + baddnew + "' inodeid='" + inodeid + "' ipnodeid='" + ipnodeid + "' inodetype='"
+                    + inodetype + "' inodevalue='" + inodevalue + "' bsendnew='" + bsendnew + "' cnotice='"
+                    + cnotice + "' iistatus='" + iistatus + "' istatus='" + istatus + "' baddnode='" + baddnode + "' isHandlerNode='" + isHandlerNode + "' iinvoset='" + iinvoset + "' cexecsql='" + CRMtool.replaceToXMLMarkValues(cexecsql) + "' ccomefield='" + ccomefield + "'/>";
+        }
+
+		// 生成节点 xml 数据
+		public function generateNodeXml():XML {
+			return XML(generateNodeXmlStr());
+		}
+
+		//根据 用户的 id 来从 upload/header 目录下，下载 用户头像
+
+		private var loader:Loader;
+
+		private function ne_creationCompleteHandler(event:Event):void {
+			ToolTipManager.toolTipClass = HTMLToolTip; // 更改 tooptip ，来支持 html
+			if (_inodetype != 0) return;  // 只有 人员，才获取 图片
+			// 先从 缓存中取，如果有的话
+			var content:DisplayObject = CRMtool.getUserHeaderIconById(inodevalue);
+			if (content) {
+				headerIcon.source = content;
+				return;
+			}
+			if (_inodetype == 0) { //是人员，远程 获取 用户头像
+				loadUserHeaderIcon(inodevalue);
+			}
+
+			/* 				if(this.isHandlerNode){
+			 this.setStyle("backgroundColor",0xffff00);
+			 this.setStyle("backgroundAlpha",0.5);
+			 } */
+
+			if (this.ipnodeid == "startnode") {
+				if (this.parent && this.parent.parent && (this.parent.parent is FWFDrawView)) {
+					if (this.inodevalue == -1) {
+						this.cname = "发起人";
+					}
+				}
+				this.toolTip = this.cname;
+			}
+		}
+
+		/**
+		 * 根据用户iid 来获取头像
+		 */
+		private function loadUserHeaderIcon(iid:int):void {
+			var param:Object = {};
+			param.fileName = "" + iid;
+			param.fileType = "jpg";
+			param.downType = "0";
+			AccessUtil.remoteCallJava("FileDest", "downFile", loadHeaderIconCallBack, param, "图片下载中...", false);
+		}
+
+		private function loadHeaderIconCallBack(event:ResultEvent):void {
+			if (event.result) {
+				try {
+					var ba:ByteArray = event.result as ByteArray;
+					var loader:Loader = new Loader();
+					loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function (event:Event):void {
+						var sourceBMP:Bitmap = event.currentTarget.loader.content as Bitmap;
+						headerIcon.source = sourceBMP;
+						CRMtool.addUserHeaderIcon(inodevalue, sourceBMP);
+					});
+					loader.loadBytes(ba);
+				} catch (e:Error) {
+					Alert.show("---获取工作流节点头像出错---");
+				}
+			}
+		}
+
+		//拖动
+		protected function ne_dragStartHandler(event:MouseEvent):void {
+			var ds:DragSource = new DragSource();
+			ds.formats.push("node_delete");
+			DragManager.doDrag(this, ds, event);
+
+			if (!(this.parent is PaintView) && this.inodeid != "startnode") {
+				// 释放事件
+				/* 					if(this.stage.hasEventListener(FWFChangeEvent.SOURCEOBJECTCHANGE)){
+				 this.stage.removeEventListener(FWFChangeEvent.SOURCEOBJECTCHANGE,null);
+				 } */
+				this.stage.dispatchEvent(new FWFChangeEvent(FWFChangeEvent.SOURCEOBJECTCHANGE, this));
+			}
+		}
+
+		// tooltop
+		private function ne_mouseOverHandler(event:MouseEvent):void {
+			if (CRMtool.isStringNotNull(this.toolTip)) {
+				return;
+			}
+			if (this.iid == 0 || this.inodetype == 0) { // 新增 和 类型为人员 不予提示
+				return;
+			}
+
+			var details:ArrayCollection;
+
+			if (this.parent is PaintView) {
+				details = (this.parent as PaintView).wfNodeDetail;
+			}
+
+			if (this.parent.parent is FWFDrawView) {
+				details = (this.parent.parent as FWFDrawView).wfNodeDetail
+			}
+			if (details == null || details.length == 0) {
+				return;
+			}
+
+			this.toolTip = getDetailNodesInfo(details, this.inodeid);
+			var s:String = toolTip;
+
+		}
+
+		// 查找相关的 节点信息
+		private function getDetailNodesInfo(ac:ArrayCollection, inodeid:String):String {
+			var tt:String = "";
+			var gs:int = 0;
+			//for(var i:int=ac.length-1;i>=0;i--){
+			for each(var item:Object in ac) {
+				//var item:Object = ac.getItemAt(i);
+				if (item.inodeid == inodeid) {
+					gs = gs + 1;
+					var itemcname:String = item.cname as String;
+
+					//调整 文字对齐的样式 建议在这里改。
+					//itemcname = "\t"+itemcname+"\t";
+
+					tt += itemcname + "\t[" + getIstatusTxt(item.istatus) + "]\n";
+				}
+			}
+			//Alert.show(tt);
+			return "<font color='#018ccf'>协同人员数：[" + gs + "]</font>\n" + tt;
+		}
+
+		private function getIstatusTxt(istatus:String):String {
+			switch (istatus) {
+				case "0" :
+					return "<font color='#ff0000'>未到达</font>";
+					break;
+				case "1" :
+					return "已发送";
+					break;
+				case "2" :
+					return "<font color='#ffff00'>未到达</font>";
+					break;
+				case "3" :
+					return "<font color='#ff0000'>待办</font>";
+					break;
+				case "4" :
+					return "暂存待办";
+					break;
+				case "5" :
+					return "<font color='#549C00'>已办</font>";
+					break;
+			}
+			return "未知";
+		}
+
+		[Bindable]
+		public var fwfcondition:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var fwfentry:ArrayCollection = new ArrayCollection();
+
+		protected function text1_creationCompleteHandler(event:FlexEvent):void {
+			// TODO Auto-generated method stub
+			if (this.headertx.text == "") {
+				if (this.inodetype == 0 && this.inodevalue == 0)
+					this.headertx.text = "人员无效";
+			}
+		}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<!--	<fx:Metadata>
+		[Event(name="fwfnodechange",type="yssoft.evts.FWFChangeEvent")]
+	</fx:Metadata>-->
+	<mx:Text id="headertx" text="{_cname}" height="18" left="0" top="0" right="0" textAlign="center" toolTip="{_cname}" creationComplete="text1_creationCompleteHandler(event)"/>
+	<s:Image id="headerIcon" left="0" right="0" top="18" bottom="18" source="{_headerIcon}"/>
+	<s:Image bottom="18" source="{_nodeIcon}" right="0" depth="100"/>
+	<mx:Text id="iNodeModel" text="[{_inodemodestr}]" height="18" left="0" bottom="0" right="0" textAlign="center"/>
+</mx:Canvas>

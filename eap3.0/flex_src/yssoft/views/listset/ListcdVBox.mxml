@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" height="100%" implements="yssoft.impls.IOperating"
+		   styleName="roleHbox"  xmlns:comps="yssoft.comps.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.sysmanage.FuncregeditView;
+			import yssoft.vos.ElementVo;
+			import yssoft.vos.ListcdVo;
+			import yssoft.vos.SubElementsVo;
+			private var _ifuncregedit:int;
+			
+			private var _funcregeditCname:String;
+			
+			private var listcdVo:ListcdVo;
+			
+			private var _csql1:String;
+			
+			[Bindable]
+			private var elementArr:ArrayCollection;
+			
+			//添加节点树
+			private var _addTreeNode:Function;
+			
+			//删除节点树
+			private var _DeleteTreeNode:Function;
+			
+			private var item:String="";
+			
+			public function set DeleteTreeNode(value:Function):void
+			{
+				_DeleteTreeNode = value;
+			}
+			
+			public function set addTreeNode(value:Function):void
+			{
+				this._addTreeNode = value;
+			}
+			
+			[Bindable]
+			private var elementArr1:ArrayCollection = new ArrayCollection([
+				new ElementVo("",new ArrayCollection([
+					new SubElementsVo(7,"csql")
+				]))
+			]);
+			
+			//测试结果
+			private var isFail:Boolean=false;
+			
+			public function set funcregeditCname(value:String):void
+			{
+				this._funcregeditCname= value;
+				elementArr = new ArrayCollection([
+					new ElementVo("关联功能：",new ArrayCollection([
+						new SubElementsVo(2,"ifuncregedit"),
+					])),
+					new ElementVo("视图编码：",new ArrayCollection([
+						new SubElementsVo(2,"ccode")
+					])),
+					new ElementVo("视图名称：",new ArrayCollection([
+						new SubElementsVo(2,"cname")
+					])),
+				]);
+				
+			}
+			
+			public function set csql1(value:String):void
+			{
+				this._csql1 =value;
+			}
+			
+			public function set ifuncregedit(value:int):void
+			{
+				this._ifuncregedit = value;
+			}
+			
+			private var _getListcd:Function;
+			
+			public function set getListcd(value:Function):void
+			{
+				this._getListcd = value;
+			}
+			
+			
+			//新增
+			public function onSave(selectedItem:Object,getIpid:Function):void
+			{
+				listcdVo = new  ListcdVo();
+				listcdVo = getItem(selectedItem,getIpid);
+				if(!check())
+				{
+					return;
+				}
+				if(item=="onNew")
+				{
+					AccessUtil.remoteCallJava("ACListsetDest","addListcd",saveTreecallBackHandler,listcdVo); 
+				}
+				else
+				{
+					AccessUtil.remoteCallJava("ACListsetDest","updateListcd",saveTreecallBackHandler,listcdVo);
+				}
+			}
+			
+			private function getItem(selectedItem:Object,getIpid:Function):ListcdVo
+			{
+				var listcdVo:ListcdVo = new ListcdVo();
+				if(item=="onEdit")
+				{
+					listcdVo.iid = int(Number(selectedItem.@iid));
+					listcdVo.oldCcode =selectedItem.@ccode;
+				}
+				var result:Object = vbx_radian.getResult();
+				listcdVo.ccode = result.ccode;
+				listcdVo.cname = result.cname;
+				listcdVo.ifuncregedit = _ifuncregedit;
+				listcdVo.ipid = getIpid(result.ccode);
+				
+				var result1:Object = vbx_radian1.getResult();
+				var myPattern:RegExp = /\'/g;
+				var sql:String = result1.csql;
+				listcdVo.csql =sql.replace(myPattern,'"');
+				
+				
+				return listcdVo;
+			}
+			
+			
+			private function check():Boolean
+			{
+				var result:Object = vbx_radian.getResult();
+				var result1:Object = vbx_radian1.getResult();
+				
+				if(CRMtool.isStringNull(result.ccode))
+				{
+					CRMtool.tipAlert("请输入视图编码!!");
+					return false;
+				}
+				else if(CRMtool.isStringNull(result.cname))
+				{
+					CRMtool.tipAlert("请输入视图视图名称!!");
+					return false;
+				}
+				else if(CRMtool.isStringNull(result1.csql))
+				{
+					CRMtool.tipAlert("请输入条件语句!!");
+					return false;
+				}
+				else if(!isFail)
+				{
+					CRMtool.tipAlert("请验证条件语句，在保存!!");
+					return false;
+				}
+				return true;
+			}
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 保存后执行操作
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			private function saveTreecallBackHandler(event:ResultEvent):void
+			{
+				if(event.result.toString()!="fail")
+				{
+					var result:String = event.result as String;
+					if(item =="onNew")
+					{
+						listcdVo.iid =int(Number(event.result));
+					/* 	this.tre_listcd.AddTreeNode(listcdVo); */
+						_addTreeNode(listcdVo,item);
+						CRMtool.tipAlert("新增查询条件配置成功");
+					}
+					else if(item=="onDelete")
+					{
+						_DeleteTreeNode(listcdVo);
+						/* this.tre_listcd.DeleteTreeNode(); */
+						/* _DeleteTreeNode(); */
+						CRMtool.tipAlert("删除查询条件配置成功");
+					}
+					else if(item=="onEdit")
+					{
+						
+						/* this.tre_listcd.EditTreeNode(listcdVo); */
+						_addTreeNode(listcdVo,item);
+						CRMtool.tipAlert("修改查询条件配置成功");
+					}
+					CRMtool.containerChildsEnabled(this,false);
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.FAIL);
+				}
+			}
+			
+			//删除
+			public function onDelete(selectedItem:Object):void
+			{
+				item="onDelete";
+				AccessUtil.remoteCallJava("ACListsetDest","removeListcd",saveTreecallBackHandler,int(Number(selectedItem.@iid)));
+			}
+			
+			//修改
+			public function onEdit():void
+			{
+				item="onEdit";
+				vbx_radian.endi();
+				CRMtool.containerChildsEnabled(this,true);
+			}
+			
+			//查询
+			public function onGet():void
+			{
+				AccessUtil.remoteCallJava("ACListsetDest","getListcd",getListcdCallBackHandler,_ifuncregedit);
+			}
+			
+			private function getListcdCallBackHandler(event:ResultEvent):void
+			{
+				_getListcd(event.result as String);
+				CRMtool.containerChildsEnabled(this,false);
+				//回车替代TAB键
+				CRMtool.setTabIndex(this);
+			}
+			
+			//放弃
+			public function onGiveUp(selectedItem:Object,treeCompsXml:XML):void
+			{
+				if(treeCompsXml!=null&&treeCompsXml.length()>1&&selectedItem!=null)
+				{
+					var parametersObj:Object = new Object();
+					parametersObj.ccode = selectedItem.@ccode;
+					parametersObj.cname= selectedItem.@cname;
+					vbx_radian.parametersObj = parametersObj;
+					vbx_radian.reset();
+					
+					var parametersObj1:Object = new Object();
+					parametersObj1.csql =selectedItem.@csql;
+					vbx_radian1.parametersObj = parametersObj1;
+					vbx_radian1.reset();
+				}
+				else
+				{
+					var parametersObj2:Object = new Object();
+					parametersObj2.ifuncregedit = this._funcregeditCname;
+					vbx_radian.parametersObj = parametersObj2;
+					vbx_radian.clean();
+					vbx_radian.reset();
+					vbx_radian1.clean();
+				}
+				CRMtool.containerChildsEnabled(this,false);
+			}
+			
+			//测试
+			public function onTest():void
+			{
+				item="onTest";
+				var result1:Object = vbx_radian1.getResult();
+				var csql:String = result1.csql;
+				if(CRMtool.isStringNotNull(csql))
+				{
+					var sql:String =_csql1+csql;
+					AccessUtil.remoteCallJava("ACListsetDest","testSql",verificationSqlBack,sql);
+				}
+			}
+			
+			private function verificationSqlBack(event:ResultEvent):void
+			{
+				
+				if(event.result=="fail")
+				{
+					isFail = false;
+					CRMtool.tipAlert("SQL语法错误！！");
+				}
+				else
+				{
+					isFail = true;
+					CRMtool.tipAlert("验证成功！！");
+				}
+				
+			}
+			
+			public function onNew():void
+			{
+				item="onNew";
+				var parametersObj2:Object = new Object();
+				parametersObj2.ifuncregedit = this._funcregeditCname;
+				vbx_radian.parametersObj = parametersObj2;
+				vbx_radian.clean();
+				vbx_radian.reset();
+				vbx_radian.endi();
+				vbx_radian1.clean();
+				CRMtool.containerChildsEnabled(this,true);
+			}
+		]]>
+	</fx:Script>
+	
+	<comps:RadianVbox id="vbx_radian" width="100%" cou="1" elementArr="{elementArr}" height="20%" />
+	<mx:Label text="条件语句" paddingLeft="20" paddingTop="10" paddingRight="20" styleName="contentTitle"></mx:Label>
+	<comps:RadianVbox id="vbx_radian1" width="100%" cou="1" elementArr="{elementArr1}" height="50%" />
+</mx:VBox>

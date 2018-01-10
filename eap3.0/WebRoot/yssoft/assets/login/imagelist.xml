@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<images>
+	<image url="yssoft/assets/login/new1.png" info="new1.png" backgroundColor="0389cf"/>
+	<image url="yssoft/assets/login/new2.png" info="new2.png" backgroundColor="66c010"/>
+	<image url="yssoft/assets/login/new3.png" info="new3.png" backgroundColor="f09831"/>
+	
+	
+	<!-- <image url="yssoft/assets/login/login_1.jpg" info="login_1.jpg" backgroundColor="0473c1"/>-->
+	<!-- <image url="yssoft/assets/login/image2.jpg" info="login_2.jpg" backgroundColor="7ca70f"/>-->
+	<!-- <image url="yssoft/assets/login/login_3.png" info="login_3.jpg" backgroundColor="f49d10"/>-->
+<!-- 		<image url="yssoft/assets/login/login_1.png" info="logo_img03.jpg" /> -->
+<!-- 	<image url="yssoft/assets/login/login_2.png" info="logo_img03.jpg" /> -->
+<!-- 	<image url="yssoft/assets/login/login_3.png" info="logo_img03.jpg" /> -->
+</images>

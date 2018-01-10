@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" horizontalScrollPolicy="off"  verticalScrollPolicy="off"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 styleName="newbg"
+		 paddingBottom="3" paddingLeft="3"  paddingTop="3" paddingRight="3" verticalGap="0">
+	<fx:Script>
+		<![CDATA[
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(CRMtool.isStringNull(this.cnote.text)){
+					CRMtool.tipAlert("便签内容不能为空",this.cnote);
+					return;
+				}
+				update_note();
+			}
+			private function update_note():void{
+				var param:Object={};
+				param.cnode=StringUtil.trim(this.cnote.text);
+				param.iperson=CRMmodel.userId;
+				AccessUtil.remoteCallJava("UserDest","update_note",callBack,param,null,false);
+			}
+			private function callBack(event:ResultEvent):void{
+				//CRMtool.tipAlert(event.result as String);
+				CRMmodel.hrperson.cnote=StringUtil.trim(this.cnote.text);
+			}
+			
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.cnote.text="";
+				this.cnote.setFocus();
+				update_note();
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:ApplicationControlBar styleName="menu_noskin" horizontalGap="13"  verticalAlign="middle" width="100%" height="36" dock="true"  paddingLeft="10">
+		<mx:Image source="yssoft/assets/images/icon_0.png"/>
+		<s:Label styleName="shouyelabel" text="便签记录"/> 
+	</mx:ApplicationControlBar>
+	<mx:HBox paddingLeft="5" backgroundColor="#ffffff" borderStyle="none"  paddingRight="5" paddingTop="2" paddingBottom="2" width="100%" height="100%">
+		<mx:TextArea borderStyle="none" paddingLeft="4" paddingRight="4"  id="cnote" width="100%" height="100%" text="{CRMmodel.hrperson.cnote}"/>
+	</mx:HBox>
+	<mx:HBox width="100%" height="28" verticalAlign="middle" horizontalGap="0" horizontalAlign="right">
+		<mx:LinkButton styleName="LinkButtonnew"  label="保存" click="button1_clickHandler(event)"/>
+		<mx:LinkButton styleName="LinkButtonnew"  label="清空" click="button2_clickHandler(event)"/>
+	</mx:HBox>
+</mx:VBox>

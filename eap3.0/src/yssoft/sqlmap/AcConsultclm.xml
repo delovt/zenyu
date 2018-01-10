@@ -1,0 +1,29 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+	<select id="getAcConsultclmByPID" parameterClass="int" resultClass="yssoft.vos.AcConsultclmVo">
+ Select  iid, iconsult, cfield, ccaption, cnewcaption, ifieldtype, cformat, icolwidth, ialign, bshow, ino, bsearch from ac_consultclm  
+ Where iconsult=#iconsult#
+ 	</select>
+	<select id="getAcConsultclmByID" parameterClass="int" resultClass="yssoft.vos.AcConsultclmVo">
+ Select  iid, iconsult, cfield, ccaption, cnewcaption, ifieldtype, cformat, icolwidth, ialign, bshow, ino, bsearch from ac_consultclm  
+ Where iid=#iid# 
+	</select>
+	<select id="getAcConsultclmByCCode" parameterClass="String" resultClass="yssoft.vos.AcConsultclmVo">
+ Select  cfield, ccaption, cnewcaption, ifieldtype, cformat, icolwidth, ialign, bshow, ino, bsearch from ac_consultclm   
+ Where iconsult=(select iid from ac_consultset where ccode=#ccode#) 
+	</select>
+	<insert id="addAcConsultclm" parameterClass="yssoft.vos.AcConsultclmVo">
+ Insert Into ac_consultclm(iconsult , cfield , ccaption , cnewcaption , ifieldtype , cformat , icolwidth , ialign , bshow , ino , bsearch)  
+ Values(#iconsult# , #cfield# , #ccaption# , #cnewcaption# , #ifieldtype# , #cformat# , #icolwidth# , #ialign# , #bshow# , #ino# , #bsearch#)
+        <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	<update id="updateAcConsultclm" parameterClass="yssoft.vos.AcConsultclmVo">
+ Update ac_consultclm SET  iconsult=#iconsult# ,  cfield=#cfield# ,  ccaption=#ccaption# ,  cnewcaption=#cnewcaption# ,  ifieldtype=#ifieldtype# ,  cformat=#cformat# ,  icolwidth=#icolwidth# ,  ialign=#ialign# ,  bshow=#bshow# ,  ino=#ino# ,  bsearch=#bsearch# Where iid=#iid# 
+	</update>
+	<delete id="deleteAcConsultclmByPID" parameterClass="int">
+ Delete From ac_consultclm 
+ Where iconsult=#iconsult# 
+	</delete>
+</sqlMap>

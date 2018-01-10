@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                width="100%" height="100%" creationComplete="init()" xmlns:comps1="yssoft.comps.dataGridForCheckBox.*"
+                xmlns:comps="yssoft.comps.*">
+    <fx:Script source="../../../yssoft/scripts/BudgetMianScript.as"/>
+
+    <!-- 右边 -->
+    <mx:VBox width="100%" height="100%" styleName="contentVBox">
+        <mx:ApplicationControlBar width="100%" height="32">
+            <comps:LinkBarVboxComps id="lbr_role" height="25" width="15%" dataProvider="{ConstsModel.PERSONLBRITEM}"
+                                    itemClick="onOpenBudget(event)"/>
+            <mx:PopUpMenuButton label="更多操作" height="25" dataProvider="{menuData}" itemClick="onClick(event);"/>
+
+            <s:Spacer width="97%"/>
+            <mx:Label height="0" visible="false" id="val" color="red" fontWeight="bold"/>
+            <comps:CrmTextInput id="tnp_bjobstatus" search="search();"/>
+        </mx:ApplicationControlBar>
+
+
+        <mx:VBox width="100%" height="100%">
+            <mx:VBox width="100%" height="100%">
+                <comps:CRMDataGridForCheckBox allowMulti="true" width="100%" height="100%" id="dgrid"
+                                              horizontalScrollPolicy="auto" dataProvider="{budgetArr}"
+                                              doubleClickEnabled="true" onGridClick="onGridClick(event)"
+                                              doubleClick="onDouble()"/>
+
+
+                <mx:HBox width="100%" height="33" horizontalAlign="right" verticalAlign="middle">
+                    <comps:PageBar paddingRight="10" id="pageBar"/>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:VBox>
+</mx:HDividedBox>

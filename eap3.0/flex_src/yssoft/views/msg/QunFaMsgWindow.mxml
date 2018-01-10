@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        creationComplete="titlewindow1_creationCompleteHandler(event)"
+                        width="400" height="300" title="群发系统消息" xmlns:comps="yssoft.comps.*"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import flash.debugger.enterDebugger;
+			
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.LoginTool;
+			
+			protected function titlewindow1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+/* 				msg.linkTextInput.visible=false;
+				msg.linkTextInput.includeInLayout=false;
+				
+				msg.bulletButton.visible=false;
+				msg.bulletButton.includeInLayout=false; */
+				
+				//msg.alignButtons.visible=false;
+				//msg.alignButtons.includeInLayout=false;
+				
+				if(this.currentState=="send")
+					this.msg.setFocus();
+			}
+			
+			
+			//发送消息
+			private var msgBody:Object;
+			private function sendMsg():void{
+				if( ! LoginTool.stringIsNull(this.msg.text)){
+					LoginTool.tipAlert("内容不能为空");
+					return;
+				}
+				msgBody={};
+				msgBody.itype=3; //系统消息
+				msgBody.isperson=CRMmodel.userId;
+				msgBody.ispersonname=CRMmodel.hrperson.cname;
+				msgBody.irperson=0;
+				msgBody.irpersonname=""
+				msgBody.cdetail=this.msg.htmlText;
+				msgBody.dsend=LoginTool.getFormatDateString();
+				msgBody.isonline="1";
+				AccessUtil.remoteCallJava("MsgDest","sendMsg",msgCallBack,msgBody,null,false);
+			}
+			private function msgCallBack(event:ResultEvent):void{
+				if((event.result as String)=="suc"){
+					this.msg.htmlText="";
+					onCloseHandler();
+				}else{
+					LoginTool.showAlert("消息发送失败");
+				}
+			}
+			
+			private function resetHandler():void{
+				this.msg.setFocus();
+			}
+			
+			protected function msg_keyDownHandler(event:KeyboardEvent):void
+			{
+				if(event.ctrlKey&&event.keyCode==Keyboard.ENTER){
+					sendMsg();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<basic:states>
+		<s:State name="send"/>
+		<s:State name="js"/>
+	</basic:states>
+	<basic:layout>
+		<s:VerticalLayout gap="0"/>
+	</basic:layout>
+<!--	<comps:CRMRichTextEditor id="msg" width="100%" height="100%" includeIn="send" itemCreationPolicy="immediate">
+		
+	</comps:CRMRichTextEditor>-->
+	<mx:TextArea id="msg"  width="100%" height="100%" includeIn="send" itemCreationPolicy="immediate" keyDown="msg_keyDownHandler(event)"/>
+	<mx:TextArea id="jsmsg" width="100%" height="100%" editable="false" includeIn="js" itemCreationPolicy="immediate"/>
+	<s:HGroup width="100%" height="38" verticalAlign="middle" horizontalAlign="right" paddingRight="10" >
+		<s:Button id="closebt" label="关闭" includeIn="js" click="onCloseHandler()"/>
+		<s:Button id="sendbt" label="发送" click="sendMsg()"  includeIn="send"/>
+		<s:Button id="resetbt" label="重置" click="resetHandler()" includeIn="send"/>
+	</s:HGroup>
+</basic:BasicTitleWindow>

@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 borderVisible="{showBorder}" borderStyle="{borderStyle}" width="100%" height="100%">
+	<fx:Metadata>
+		[Event(name="searchChange",type="flash.events.Event")]
+		[Event(name="valueChange",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+		import hlib.StringUtil;
+
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.core.UIComponent;
+		import mx.events.FlexEvent;
+		import mx.rpc.events.ResultEvent;
+
+		import yssoft.comps.ConsultList;
+		import yssoft.comps.ConsultTree;
+		import yssoft.comps.ConsultTreeList;
+		import yssoft.tools.AccessUtil;
+		import yssoft.tools.CRMtool;
+		import yssoft.vos.AcConsultsetVo;
+
+		//是否显示图标按钮
+		[Bindable]
+		public var visibleIcon:Boolean;
+		//参照设置
+		public var acConsultsetVo:AcConsultsetVo;
+
+		//自定义一个 text 属性
+		[Bindable]
+		private var _text:String;
+
+		public function set text(value:String):void {
+			this._text = value;
+		}
+
+		public function get text():String {
+			return this._text;
+		}
+
+		//参照主键
+		private var _iid:int;
+		public function get iid():int {
+			return _iid;
+		}
+
+		public function set iid(value:int):void {
+			_iid = value;
+		}
+
+		//lr add 标题
+		private var _clabel:String;
+
+
+		//添加value属性
+		private var _value:String;
+		public function get value():String {
+			return _value;
+		}
+
+		[Bindable]
+		public var isvalue:Boolean = true;
+
+		public function set value(value:String):void {
+			_value = value;
+			if (int(value) > 0 && isvalue) {
+				get_cname_AcConsultsetByID(int(_value));
+			}
+		}
+
+		//表、树表是否允许多选
+		private var _allowMulti:Boolean = false;
+		public function get allowMulti():Boolean {
+			return _allowMulti;
+		}
+
+		public function set allowMulti(value:Boolean):void {
+			_allowMulti = value;
+		}
+
+		//是否可以编辑
+		[Bindable]
+		public var editable:Boolean = false;
+
+		[Bindable]
+		public var borderStyle:String;
+
+		//返回值绑定字段名
+		private var _bindValueField:String;
+		public function get bindValueField():String {
+			return _bindValueField;
+		}
+
+		public function set bindValueField(value:String):void {
+			_bindValueField = value;
+		}
+
+		//返回文字绑定字段名
+		private var _bindLabelField:String;
+		public function get bindLabelField():String {
+			return _bindLabelField;
+		}
+
+		public function set bindLabelField(value:String):void {
+			_bindLabelField = value;
+		}
+
+		//是否返回所有列数据至data属性
+		private var _bindDataEnabled:Boolean = false;
+		public function get bindDataEnabled():Boolean {
+			return _bindDataEnabled;
+		}
+
+		public function set bindDataEnabled(value:Boolean):void {
+			_bindDataEnabled = value;
+		}
+
+		//显示边框否
+		[Bindable]
+		public var showBorder:Boolean = false;
+
+		//树参照只允许参照末节点
+		private var _onlyGetEndNode:Boolean = true;
+		public function get onlyGetEndNode():Boolean {
+			return _onlyGetEndNode;
+		}
+
+		public function set onlyGetEndNode(value:Boolean):void {
+			_onlyGetEndNode = value;
+		}
+
+
+		public function onSearch():void {
+			AccessUtil.remoteCallJava("ConsultDest", "getAcConsultsetByID", onSearch_callBackHandler, iid);
+		}
+
+		public function onSearch_callBackHandler(event:ResultEvent):void {
+			var arr:ArrayCollection = event.result as ArrayCollection;
+			this.acConsultsetVo = arr[0] as AcConsultsetVo;
+			switch (acConsultsetVo.itype.toString()) {
+				//树参照
+				case "0":
+				{
+					new ConsultTree(getSelectTreeRows, iid, this.onlyGetEndNode, this.tnp_text.text);
+					break;
+				}
+				//表	参照
+				case "1":
+				{
+					new ConsultList(getSelectListRows, iid, this.allowMulti, null, null, this.tnp_text.text);
+					break;
+				}
+				//树表参照
+				case "2":
+				{
+					new ConsultTreeList(getSelectListRows, iid, this.allowMulti);
+					break;
+				}
+			}
+		}
+
+		public function getSelectListRows(list:ArrayCollection):void {
+			if (this.bindDataEnabled) {
+				this.data = list;
+			}
+			this._value = list.getItemAt(0)[StringUtil.Trim(String(this.bindValueField))].toString();
+			this.tnp_text.text = list.getItemAt(0)[this.bindLabelField].toString();
+			tnp_text_str = list.getItemAt(0)[this.bindLabelField].toString();
+			this.dispatchEvent(new Event("searchChange", false, true));
+		}
+
+		public function getSelectTreeRows(tree:XML):void {
+			if (this.bindDataEnabled) {
+				this.data = tree;
+			}
+			if (this.bindValueField) {
+				this._value = tree.attribute(this.bindValueField)[0].toString();
+			} else {
+				this._value = tree.attribute("iid")[0].toString();
+			}
+
+			if (this.bindLabelField) {
+				tnp_text_str = tree.attribute(this.bindLabelField)[0].toString();
+			} else {
+				tnp_text_str = tree.attribute("cname")[0].toString();
+			}
+
+			//this.tnp_text.text=tree.attribute(this.bindLabelField)[0].toString();
+			//tnp_text_str=tree.attribute(this.bindLabelField)[0].toString();
+			this.dispatchEvent(new Event("searchChange", false, true));
+			//sdy
+			/* if(_isBudgetParent && _isBudgetGridRow){
+			 this.parentDocument.onChanageCrmText();
+			 } */
+
+		}
+
+		public function get_cname_AcConsultsetByID(consultvalue:int):void {
+			if (_isBudgetParent) {
+				AccessUtil.remoteCallJava("BmBudgetDest", "get_cname_bmitem", AcConsultset_callBackHandler, consultvalue);
+			}
+			else if (_isChanageAcFuncregedit) {
+				AccessUtil.remoteCallJava("ConsultDest", "deleteAcConsultsetByID_Relevance_Object", AcConsultset_callBackHandler, consultvalue,null,false);
+			}
+			else if (_isAcConsultset) {
+				AccessUtil.remoteCallJava("ConsultDest", "get_cname_AcConsultsetByID", AcConsultset_callBackHandler, consultvalue);
+			}
+		}
+
+		public function AcConsultset_callBackHandler(event:ResultEvent):void {
+			if (event.result != null) {
+				//this.tnp_text.text=event.result.toString();
+				tnp_text_str = event.result.toString();
+			}
+		}
+
+		[Binable]
+		private var _isAcConsultset:Boolean = false;  //是否为参照翻译
+		public function set isAcConsultset(val:Boolean):void {
+			this._isAcConsultset = val;
+		}
+
+		[Binable]
+		private var _isBudgetParent:Boolean = false;  //是否为预算页面调用
+		public function set isBudgetParent(val:Boolean):void {
+			this._isBudgetParent = val;
+		}
+
+		[Binable]
+		private var _isBudgetGridRow:Boolean = true; //默认预算gridRow对象，允许调用自动加载行
+		public function set isBudgetGridRow(val:Boolean):void {
+			this._isBudgetGridRow = val;
+		}
+
+		[Binable]
+		private var _isChanageAcFuncregedit:Boolean = false;  //是否为注册表翻译
+		public function set isChanageAcFuncregedit(val:Boolean):void {
+			this._isChanageAcFuncregedit = val;
+		}
+
+		[Bindable]
+		private var _tnp_text_str:String = ""; // 参照名称
+
+		protected function tnp_text_changeHandler(event:Event):void {
+			if (CRMtool.isStringNull(this.tnp_text.text)) {
+				this._value = "";
+				this._tnp_text_str = "";
+				this.dispatchEvent(new Event("valueChange", false, true));
+			}
+			else {
+				this.value = this.tnp_text.text;
+			}
+		}
+
+		public function set tnp_text_str(value:String):void {
+			this._tnp_text_str = value;
+            if(CRMtool.isStringNull(value))
+                this.value = "";
+		}
+
+		public function get tnp_text_str():String {
+			return tnp_text.text;
+		}
+
+		public function get clabel():String {
+			return _clabel;
+		}
+
+		public function set clabel(value:String):void {
+			_clabel = value;
+		}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:HBox width="100%" height="100%" verticalAlign="middle" paddingRight="5">
+		<mx:TextInput change="tnp_text_changeHandler(event)" id="tnp_text" width="100%" height="100%" borderVisible="false" text="{_tnp_text_str}"
+					  editable="{this.editable}" restrict="^'">
+		</mx:TextInput>
+		<s:Image id="tnp_button" click="onSearch()" skinClass="spark.skins.spark.ImageSkin"
+				 source="@Embed('../assets/images/search.png')" mouseChildren="false" visible="{this.visibleIcon}" buttonMode="{this.visibleIcon}">
+		</s:Image>
+	</mx:HBox>
+</mx:Canvas>

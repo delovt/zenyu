@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx" width="231" height="100%"
+          borderStyle="solid" borderColor="#c4cccc" borderAlpha="1"
+          dropShadowVisible="false" horizontalScrollPolicy="off" verticalScrollPolicy="off" doubleClickEnabled="true"
+          doubleClick="doubleClickHandle()" click="clickhandle()" initialize="ini()" >
+    <fx:Script>
+		<![CDATA[
+        import hlib.StringUtil;
+
+        import mx.controls.Alert;
+
+        import org.alivepdf.layout.Unit;
+
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        private var _infoXml:XML = <node/>;
+
+        private var _lineShow:Boolean;
+        private var _number:String = "";
+        private var _no:String;
+        private var _defaultColor:uint;
+        private var _bdefault:Boolean = false;
+//        private var ctype:String = "";
+
+        public function get bdefault():Boolean {
+            return _bdefault;
+        }
+
+        public function set bdefault(value:Boolean):void {
+            _bdefault = value;
+        }
+
+        public function get lineShow():Boolean {
+            return _lineShow;
+        }
+
+        public function set lineShow(value:Boolean):void {
+            _lineShow = value;
+        }
+
+        public function get number():String {
+            return _number;
+        }
+
+        public function set number(value:String):void {
+            _number = value;
+        }
+
+        public function get no():String {
+            return _no;
+        }
+
+        public function set no(value:String):void {
+            _no = value;
+        }
+
+        public function get defaultColor():uint {
+            return _defaultColor;
+        }
+
+        public function  set defaultColor(value:uint):void {
+            _defaultColor = value;
+        }
+
+        private function ini():void {
+        }
+
+        public function set infoXml(value:XML):void {
+            this._infoXml = value;
+//            ctype = (String(_infoXml.node.@ctellin)==null || String(_infoXml.node.@ctellin)=='')?"呼出":"呼入";
+            if (value) {
+                //clinestate=
+                if (String(_infoXml.node.@clinestate) != "挂机" && String(_infoXml.node.@clinestate) != "待机") {
+                    this.setStyle("statusStyleName", "cc_enable");
+                } else {
+                    this.setStyle("statusStyleName", "cc_normal");
+                }
+            }
+        }
+
+
+        public function get infoXml():XML {
+            return this._infoXml;
+        }
+
+        public function doubleClickHandle():void {
+//            双击打开可能造成记录冗余
+//            this.dispatchEvent(new Event("CC_ItemDoubleClick"));
+        }
+
+        public function clickhandle():void {
+            return;
+        }
+        ]]>
+	</fx:Script>
+    <fx:Style>
+        @namespace s "library://ns.adobe.com/flex/spark";
+        @namespace mx "library://ns.adobe.com/flex/mx";
+
+        .cc_normal {
+            color: #333333;
+            fontWeight: bold;
+        }
+
+        .cc_enable {
+            color: #ff0000;
+        }
+    </fx:Style>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:VBox width="100%" verticalAlign="middle"  height="100%" paddingBottom="12" paddingLeft="10"
+             paddingRight="0" paddingTop="5"
+             doubleClick="doubleClickHandle()">
+        <mx:HBox width="100%">
+            <mx:Label text="本机号码：{number}" color="#018ccf" doubleClick="doubleClickHandle()"/>
+            <s:Spacer width="90%"/>
+            <mx:Label id="lb_default" text="（默认）" color="#018ccf" visible="{bdefault}"/>
+            <mx:Label text="{no}" color="#018ccf"/>
+        </mx:HBox>
+
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+            <!--<mx:Label text="{(String(_infoXml.node.@ctellin)==null || String(_infoXml.node.@ctellin)=='')?'去电：':'来电：'}"/>-->
+            <mx:Image source="yssoft/assets/images/telephone.png"/>
+            <mx:Label id="callphone"
+                      text="{(String(_infoXml.node.@ctellin)==null || String(_infoXml.node.@ctellin)=='')?_infoXml.node.@ctellout:_infoXml.node.@ctellin}"
+                      color="{(String(_infoXml.node.@ctellin)==null || String(_infoXml.node.@ctellin)=='')?255:16711680}"
+                      fontWeight="bold" fontSize="16" truncateToFit="true" maxWidth="140"/>
+        </mx:HBox>
+
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+            <!--<mx:Label text="时间："/>-->
+            <mx:Image source="yssoft/assets/images/clock.png"/>
+            <mx:Label text="{_infoXml.node.@cbegintime}" color="#018ccf" truncateToFit="true" maxWidth="140"/>
+        </mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+            <!--<mx:Label text="客户："/>-->
+            <mx:Image source="yssoft/assets/images/star.png"/>
+            <mx:Label id="txt_ccustname" width="173" maxWidth="165" color="#018ccf"
+                      text="{_infoXml.node.@ccustname}" toolTip="{_infoXml.node.@ccustname}"
+                      truncateToFit="true"/>
+        </mx:HBox>
+        <mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
+            <!-- <mx:Label text="人员："/>-->
+            <mx:Image source="yssoft/assets/images/status_online.png"/>
+            <mx:Label text="{_infoXml.node.@ccustperson
+					  +(CRMtool.isStringNotNull(_infoXml.node.@ccustperson)?' • ':'')
+					  +_infoXml.node.@ccustpersondepart
+					  +(CRMtool.isStringNotNull(_infoXml.node.@ccustpersondepart)?' • ':'')
+					  +_infoXml.node.@ccustpersonpost}" color="#018ccf" truncateToFit="true" maxWidth="140"
+                      toolTip="{_infoXml.node.@ccustperson+' • '+_infoXml.node.@ccustpersondepart+' • '+_infoXml.node.@ccustpersonpost}"/>
+        </mx:HBox>
+    </mx:VBox>
+    <!--<mx:Image source="yssoft/assets/images/fenge_1.png" visible="{lineShow}" includeInLayout="{lineShow}"/>-->
+</mx:Canvas>

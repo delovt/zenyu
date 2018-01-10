@@ -1,0 +1,59 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+    <!-- 按照菜单的父节点查询 -->
+	<select id="get_all_AsMenu" parameterClass="yssoft.vos.AsMenuVo" resultClass="java.util.HashMap">
+      Select  iid, ipid, ccode, cname, iimage, itype, cprogram, ifuncregedit, iopentype, bshow, cparameter,irfuncregedit,crname,imenup from as_menu where 1=1
+        <isNotEqual prepend="and" property="iid" compareValue="0">
+			iid= #iid#
+		</isNotEqual>
+		<isNotEmpty prepend="and" property="ccode">
+			ccode= #ccode#
+		</isNotEmpty>
+        <isNotEmpty prepend="and" property="imenup">
+            imenup= #imenup#
+        </isNotEmpty>
+		<isNotEqual prepend="and" property="ipid" compareValue="0">
+			ipid= #ipid#
+		</isNotEqual>
+		order by ccode
+	</select>
+	
+	<parameterMap class="java.util.HashMap" id="menuMap"> 
+		<!-- 自定义sql -->  
+		<parameter property="iperson" javaType="int" jdbcType="int" mode="IN" />   
+	</parameterMap> 
+	
+	<procedure id="get_auth_AsMenu" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" remapResults="true">
+ 		<![CDATA[    
+ 			{call pr_menuauth(#iperson#,#allowcount#)}
+ 		  ]]> 
+	</procedure> 
+	
+	<!-- 根据用户id 来获取用户权限菜单 lc 添加 -->
+    <procedure id="get_person_auth_AsMenu" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" remapResults="true">
+        <![CDATA[
+ 			{call pr_menupersonauth(#iperson#,#allowcount#)}
+ 		  ]]>
+    </procedure>
+
+    <!-- 新增菜单 -->
+    <insert id="add_AsMenu" parameterClass="yssoft.vos.AsMenuVo">
+      Insert Into as_menu(ipid , ccode , cname , iimage , itype , cprogram , ifuncregedit , iopentype, bshow, cparameter,irfuncregedit,crname,imenup)
+      Values(#ipid# , #ccode# , #cname# , #iimage# , #itype# , #cprogram# , #ifuncregedit# , #iopentype#, #bshow#, #cparameter#,#irfuncregedit#,#crname#,#imenup#)
+      <selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	<!-- 修改菜单 -->
+	<update id="update_AsMenu" parameterClass="yssoft.vos.AsMenuVo">
+	  begin
+          Update as_menu SET ipid=#ipid# ,  ccode=#ccode# ,  cname=#cname# ,  iimage=#iimage# ,  itype=#itype# ,  cprogram=#cprogram# ,  ifuncregedit=#ifuncregedit# ,  iopentype=#iopentype#,  bshow=#bshow#, cparameter=#cparameter#,irfuncregedit=#irfuncregedit#,crname=#crname# Where iid=#iid#;
+          update as_menu set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where ccode like #oldCcode#+'%';
+      end; 
+	</update>
+	<!-- 删除菜单 -->
+	<delete id="delete_AsMenu" parameterClass="int">
+      Delete From as_menu
+      Where iid=#iid# 
+	</delete>
+</sqlMap>

@@ -1,0 +1,2087 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+         xmlns:frameui="yssoft.frameui.*" width="100%"
+         height="100%" horizontalGap="0"
+         xmlns:comps="yssoft.comps.*"
+         updateComplete="hdividedbox1_updateCompleteHandler(event)"
+         creationComplete="init();getListStyle();initColorSetChange();getBWorkFlowModify();initButtonByAuth()"
+         backgroundColor="#Ffffff"
+         xmlns:frame="yssoft.comps.frame.*" implements="yssoft.impls.ICRMWindow,yssoft.interfaces.IMainViewStackSearch"
+         xmlns:side="yssoft.frameui.side.*" horizontalScrollPolicy="off">
+    <fx:Script source="../../scripts/MgroupViewHandle.as"/>
+    <fx:Script source="../../scripts/ListMoreHandle.as"/>
+    <fx:Metadata>
+        [Event(name="modelStretch", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+			
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.controls.CheckBox;
+			import mx.controls.DataGrid;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.formatters.NumberBaseRoundType;
+			import mx.formatters.NumberFormatter;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import myreport.ReportEngine;
+			import myreport.data.report.CaptionCellSetting;
+			import myreport.data.report.CaptionRowSetting;
+			import myreport.data.report.ReportSettings;
+			import myreport.data.report.TableCellSetting;
+			import myreport.data.report.TableColumnSetting;
+			import myreport.data.report.TableRowSetting;
+			
+			import yssoft.comps.CRMMoreListMsgUI;
+			import yssoft.comps.frame.module.Basic.BasicLabel;
+			import yssoft.comps.frame.module.Basic.datagrid.ListItemColor;
+			import yssoft.evts.GetPageComplete;
+			import yssoft.evts.onItemDoubleClick;
+			import yssoft.frameui.formopt.OperDataAuth;
+			import yssoft.tools.LoginTool;
+			import yssoft.views.NewCommunication;
+			import yssoft.views.homeView.Widget;
+			import yssoft.views.sysmanage.AssemblyQueryclmView;
+            import yssoft.views.sysmanage.SelectOrderModel;
+            import yssoft.vos.ListsetVo;
+
+        [Bindable]
+        public var favoritesFlag:int = 0;//收藏夹中需要用到,YJ Add (0:点击了列表中的查询，1：点击了收藏夹中的查询)
+        [Bindable]
+        public var menu:Menu = new Menu();
+        //菜单传参
+        [Bindable]
+        public var winParam:Object = new Object();
+
+        [Bindable]
+        public var itemObj:Object;
+
+        [Bindable]
+        public var acListsetVo:ListsetVo = new ListsetVo();
+
+        [Bindable]
+        public var acListclmVos:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        private var _personArr:ArrayCollection = new ArrayCollection();
+        [Bindable]
+        private var copyAc:ArrayCollection = new ArrayCollection();
+
+        public var sideChildSql:String;
+
+        [Bindable]
+        public function get personArr():ArrayCollection {
+            return _personArr;
+        }
+
+        //汇总视图前，纪录一下当前数据
+        private var backList:ArrayCollection;
+
+        public function set personArr(value:ArrayCollection):void {
+            _personArr = value;
+            if (value) {
+                copyAc = new ArrayCollection(CRMtool.ObjectCopy(value.toArray()));
+                doSum();
+                doRowColor();
+            }
+
+        }
+
+        private function doRowColor():void {
+            for each(var item:Object in personArr) {
+                rowColorFuncion(item);
+            }
+        }
+
+
+        //求和的列们
+        private var bSumColumnAC:ArrayCollection = new ArrayCollection();
+
+        //显示的求和结果
+        [Bindable]
+        private var sumText:String;
+
+        private var bsumSql:String;
+
+        private function doSum():void {
+
+            for each(var col:Object in bSumColumnAC) {
+                var x:Number = 0;
+                for each(var item:Object in _personArr) {
+                    //if(col.cfield==item.)
+                    x += item[col.cfield];
+                }
+                col.cruvalue = x;
+            }
+            showSum();
+        }
+
+        public function showSum():void {
+            sumText = "";
+            for each(var bsumColumObj:Object in bSumColumnAC) {
+                if (bsumColumObj.cruvalue == null)
+                    bsumColumObj.cruvalue = 0;
+                if (bsumColumObj.sumvalue == null)
+                    bsumColumObj.sumvalue = 0;
+
+                var cruvalue:Number = bsumColumObj.cruvalue;
+                var sumvalue:Number = bsumColumObj.sumvalue;
+
+                sumText += bsumColumObj.caption + "：" + CRMtool.formatFloatString(cruvalue) + "/" + CRMtool.formatFloatString(sumvalue) + "  ";
+
+            }
+        }
+
+
+        private var _outifuncregedit:int = 0;
+
+        [Bindable]
+        private var menuData:ArrayCollection = new ArrayCollection([
+            {label: "数据删除", name: "onDelete"        },
+            {label: "数据导出", name: "onExcelExport"    },
+            {label: "客商并户", name: "onCusMerge"        },
+            {label: "列表设置", name: "onSetup"            }
+        ]);
+        [Bindable]
+        private var menuData2:ArrayCollection = new ArrayCollection([
+            {label: "数据删除", name: "onDelete"        },
+            {label: "数据导出", name: "onExcelExport"    },
+            {label: "列表设置", name: "onSetup"            },
+            {label: "批量提交", name: "patchCoopHandler"    }
+        ]);
+
+
+        private var onNew:Object = {label: "增加", name: "onNew"        };
+        private var onEdit:Object = {label: "修改", name: "onEdit"    };
+        [Bindable]
+        public var basicButton:ArrayCollection = new ArrayCollection([
+            {label: "浏览", name: "onBrowse"    },
+            onNew,
+            onEdit
+        ]);
+
+        [Bindable]
+        private var _ownerWidget:Widget;
+
+
+        public function get ownerWidget():Widget {
+            return _ownerWidget;
+        }
+
+        public function set ownerWidget(value:Widget):void {
+            _ownerWidget = value;
+        }
+
+        private var _checkboxArray:ArrayCollection = new ArrayCollection();
+
+        public var newdelinfoArr:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        public var _iifun:int = 0;
+
+        public function set iifun(value:int):void {
+            this._iifun = value;
+        }
+
+        //YJ Add
+        private var _listsql:String = "";//列表配置中的sql
+        private var _ctable:String = "";//功能注册中的表名
+
+        private var newFlagPoint:int = 0;
+
+        private var itemCount:int = 0;
+
+        private var count:int = 0;
+
+
+        //权限类对象
+        public var auth:OperDataAuth;
+        //权限条件
+        private var authSql:String = "";
+
+        private var authReturnFlag:Boolean = false;
+
+        public function set listsql(value:String):void {
+
+            _listsql = value;
+
+        }
+
+        public function get listsql():String {
+
+            return this._listsql;
+
+        }
+
+        public function set ctable(value:String):void {
+
+            _ctable = value;
+        }
+
+        public function get ctable():String {
+            return _ctable;
+        }
+
+        //End
+
+
+        //窗体初始化
+        public function onWindowInit():void {
+
+        }
+
+        //窗体打开
+        public function onWindowOpen():void {
+            if (winParam is String) {
+                itemObj = CRMtool.getObject(winParam);
+            }
+            else {
+                itemObj = winParam;
+            }
+            /* 	acListsetVo =new ListsetVo();
+             acListclmVos = new ArrayCollection();
+             personArr = new ArrayCollection();
+             /* checkBoxHbox.removeAllChildren();
+             _checkboxArray= new ArrayCollection();
+             this.tnp_bjobstatus.text="";
+             bsumColoumArr = new ArrayCollection();
+             bsumSql ="";
+             itemObj=null;
+             count=0;
+             this.getSum.width=0;
+             this.lSum.text="";
+
+             this.init(); */
+
+            if (itemObj && itemObj.outifuncregedit)
+                outifuncregedit = itemObj.outifuncregedit;
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+
+        }
+
+        //页面初始化
+        public function init():void {
+            if (itemObj == null) {
+                //YJ Modify 移动
+                if (winParam is String)
+                    itemObj = CRMtool.getObject(winParam);
+                else itemObj = winParam;
+
+                if (itemObj && itemObj.outifuncregedit)
+                    outifuncregedit = itemObj.outifuncregedit;
+            }
+            else {
+                if (itemObj && itemObj.outifuncregedit)
+                    outifuncregedit = itemObj.outifuncregedit;
+
+                //					this.ppb.visible = false;
+                //					this.ppb.width=0;
+                count = 0;
+                if (itemObj.hasOwnProperty("onBack") || itemObj.hasOwnProperty("widget")) {
+                    personArr = null;
+                    this.customerVBox.visible = false;
+                    this.onBack.visible = true;
+                    this.onBack.width = 50;
+                    this.customerVBox.includeInLayout = false;
+                    jiange.visible = false;
+                    jiange.includeInLayout = false;
+
+                    applicationControlBar.visible = false;
+                    applicationControlBar.includeInLayout = false;
+
+                    if (itemObj.hasOwnProperty("widget")) {
+                        //footBox.visible = false;
+                        //footBox.includeInLayout = false;
+                        footBox.height = 30;
+                    }
+
+                    dgrd_person.isAllowMulti = false;
+                    myBox.percentWidth = 100;
+                    //this.onBack.addEventListener(MouseEvent.CLICK,itemObj.onBack);
+                }
+            }
+            //YJ Add 初始化更多操作菜单
+            iniListMoreMenuBefore();
+            //				if(itemObj.ifuncregedit == 48)//如果是客商档案管理列表，将客商合并功能加入
+            //					menu.dataProvider = this.menuData;//包含客商合并功能的记录集
+            //				else
+            //					menu.dataProvider = this.menuData2;//其他列表的记录集
+            //
+            //				menu.variableRowHeight = true;
+            //				menu.addEventListener(MenuEvent.CHANGE,onClick);
+            //				this.ppb.popUp = menu;
+
+            //YJ Add End
+
+            var acListclmVo:ListclmVo = new ListclmVo();
+
+            var ifuncregedit:int = int(itemObj.ifuncregedit);
+            acListclmVo.ilist = int(itemObj.ifuncregedit);
+            acListclmVo.iperson = CRMmodel.userId;
+
+            //初始化权限
+            authReturnFlag = false;
+            auth = new OperDataAuth();
+
+            //****注操作权限功能注册内码分开，数据权限功能注册内码以单据为准****//
+            //---------------加载操作权限 刘磊 20111014 begin---------------//
+            var params:Object = new Object();
+            params.ifuncregedit = itemObj.ifuncregedit;
+            params.iperson = CRMmodel.userId;
+            auth.get_funoperauth(params);
+            //---------------加载操作权限 刘磊 20111014 end---------------//
+
+            //---------------加载数据权限 刘磊 20111015 begin---------------//
+            auth.addEventListener("onGet_FundataauthSucess", setcondition);
+            var params2:Object = new Object();
+            params2.ifuncregedit = itemObj.outifuncregedit;
+            params2.iperson = CRMmodel.userId;
+            auth.get_fundataauth(params2);
+            //---------------加载数据权限 刘磊 20111015 end---------------//
+            CRMtool.getListset(acListclmVo, function (_obj) {
+                getAcConsultclmBack(_obj, ifuncregedit);
+            });
+        }
+
+        //lr 检查功能按钮  判断按钮是否启用  实现灰化
+        private function initButtonByAuth():void {
+            if (itemObj.ifuncregedit > 0) {
+
+                CRMtool.getAuthcontent(itemObj.ifuncregedit, function (_obj) {
+                    var ac:ArrayCollection = _obj.list as ArrayCollection;
+                    for each(var item:Object in ac) {
+                        if (item.ccode.indexOf(".02") + 3 == item.ccode.length) {
+                            if (true != CRMtool.getBoolean(item.buse + "") && (basicButton.getItemIndex(onNew) != -1)) {
+                                (lbr_role.getChildAt(basicButton.getItemIndex(onNew)) as mx.controls.Button).enabled = false;
+                            }
+                        }
+                        if (item.ccode.indexOf(".03") + 3 == item.ccode.length) {
+                            if (true != CRMtool.getBoolean(item.buse + "") && (basicButton.getItemIndex(onEdit) != -1)) {
+                                (lbr_role.getChildAt(basicButton.getItemIndex(onEdit)) as mx.controls.Button).enabled = false;
+                            }
+                        }
+                    }
+                });
+
+
+                var sql:String = " select buse from as_authcontent  where ccode='" + itemObj.ifuncregedit + ".02'";
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac.length > 0) {
+                        if ("true" == ac[0].buse + "") {
+                            //增加按钮启用
+                        } else {
+                            if (basicButton.getItemIndex(onNew) != -1)
+                                (lbr_role.getChildAt(basicButton.getItemIndex(onNew)) as mx.controls.Button).enabled = false;
+                        }
+                    }
+                }, sql, null, false);
+            }
+        }
+
+        var listStyleAc:ArrayCollection;
+
+        private function getListStyle():void {
+            var sql:String = "select * from AC_liststyle where ifuncregedit=" + itemObj.ifuncregedit;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                listStyleAc = event.result as ArrayCollection;
+            }, sql, null, false);
+        }
+
+        private function initColorSetChange():void {
+            this.addEventListener("colorSetChange", function (event:Event):void {
+                getListStyle();
+            });
+        }
+
+
+        private function rowColorFuncion(item:Object, color:uint = 0x000000):uint {
+            item.rowTextColor = null;
+            if (listStyleAc && listStyleAc.length > 0) {
+                for each(var obj:Object in listStyleAc) {
+                    if (obj.itype == 0) {
+                        var csql:String = obj.csql;
+                        var cfield:String = obj.cfield;
+                        var cbcolor:String = obj.cbcolor;
+                        var cfcolor:String = obj.cfcolor;
+
+                        var x:String = item[cfield];
+                        for each(var clm:ListclmVo in me.acListclmVos) {
+                            while (csql.search("@" + clm.cfield + "@") > -1) {
+                                csql = csql.replace(("@" + clm.cfield + "@"), item[clm.cfield]);
+                            }
+                        }
+                        csql = CRMtool.replaceSystemValues(csql);
+
+                        var flag:Boolean = CRMtool.calljs("eval", csql);
+                        if (flag) {
+                            if (CRMtool.isStringNotNull(cfcolor))
+                                item.rowTextColor = new uint("0x" + obj.cfcolor);
+
+                            if (CRMtool.isStringNotNull(cbcolor))
+                                return new uint("0x" + obj.cbcolor);
+                        }
+                    }
+                }
+                return color;
+            }
+            return color;
+        }
+
+        private function itemColorFuncion(item:Object, dataField:String):ListItemColor {
+            if (listStyleAc && listStyleAc.length > 0) {
+                for each(var obj:Object in listStyleAc) {
+                    if (obj.itype == 1) {
+                        var csql:String = obj.csql;
+                        var cfield:String = obj.cfield;
+
+                        if (cfield == dataField) {
+                            for each(var clm:ListclmVo in me.acListclmVos) {
+                                while (csql.search("@" + clm.cfield + "@") > -1) {
+                                    csql = csql.replace(("@" + clm.cfield + "@"), item[clm.cfield]);
+                                }
+                            }
+                            csql = CRMtool.replaceSystemValues(csql);
+                            var flag:Boolean = CRMtool.calljs("eval", csql);
+                            if (flag) {
+                                var itemColor:ListItemColor = new ListItemColor();
+                                var cbcolor:String = obj.cbcolor;
+                                var cfcolor:String = obj.cfcolor;
+                                if (CRMtool.isStringNull(cbcolor))
+                                    itemColor.itemBackgroundColor = uint.MAX_VALUE;
+                                else
+                                    itemColor.itemBackgroundColor = new uint("0x" + cbcolor);
+
+                                if (CRMtool.isStringNull(cfcolor))
+                                    itemColor.itemTextColor = uint.MAX_VALUE;
+                                else
+                                    itemColor.itemTextColor = new uint("0x" + cfcolor);
+                                return itemColor;
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+            return null;
+        }
+
+        //获得数据权限条件串
+        private function setcondition(evt:Event):void {
+            authReturnFlag = true;
+            authSql = auth.getdataauthcondition("01", itemObj.outifuncregedit, CRMmodel.userId, CRMmodel.hrperson.idepartment, itemObj.ctable, 1);
+
+            if (itemObj.ifuncregedit == 282) {
+                var auth2:OperDataAuth = new OperDataAuth();
+                auth2.addEventListener("onGet_FundataauthSucess", function (evt:Event):void {
+                    var orderAuthSql = auth2.getdataauthcondition("01", 44, CRMmodel.userId, CRMmodel.hrperson.idepartment, "cs_customer", 1);
+                    authSql = " and sc_order.icustomer in (select iid from cs_customer where 1=1 " + orderAuthSql + ")";
+                });
+                auth2.get_fundataauth({ifuncregedit: 44, iperson: CRMmodel.userId});
+            }
+        }
+
+        private var datefields:Array = new Array();
+
+        private function getFloatText(item:Object, column:DataGridColumn):String {
+            var strdate:String;
+            if (item[column.dataField] != null && item[column.dataField] != "" && item[column.dataField] != "0") {
+                strdate = item[column.dataField].toString();
+
+                var formater:NumberFormatter = new NumberFormatter();
+                formater.precision = 2;
+                formater.rounding = NumberBaseRoundType.UP;
+                formater.decimalSeparatorFrom = ".";
+                formater.decimalSeparatorTo = ".";
+                formater.useThousandsSeparator = true;
+                return formater.format(strdate);
+            }
+            else {
+                return "";
+            }
+        }
+
+        private function getIntText(item:Object, column:DataGridColumn):String {
+            var strdate:String;
+            if (item[column.dataField] != null && item[column.dataField] != "" && item[column.dataField] != "0") {
+                strdate = item[column.dataField].toString();
+
+                var formater:NumberFormatter = new NumberFormatter();
+                formater.decimalSeparatorFrom = ".";
+                formater.decimalSeparatorTo = ".";
+                formater.useThousandsSeparator = true;
+                return formater.format(strdate);
+            }
+            else {
+                return "";
+            }
+        }
+
+        private function getAcConsultclmBack(_obj:Object, ifuncregedit:int):void {
+            acListsetVo = _obj.acListsetVo as ListsetVo;
+            acListclmVos = _obj.acListclmVos as ArrayCollection;
+            //YJ Add
+            if (acListsetVo != null) {
+                var myPattern:RegExp = /\'/g;
+                listsql = acListsetVo.csql1.replace(myPattern, "\"");
+                ctable = acListsetVo.ctable;
+                //LL add 若为普通报表则隐藏增加、浏览、修改
+                if (acListsetVo.itype == 2) {
+                    basicButton.removeAll();
+                }
+            }
+            //End
+
+            //YJ Add 汇总视图初始化信息
+            iniGroupViewInfo(acListclmVos);
+            this.strsql = _listsql;
+
+//            this.dgrd_person.InitColumns();
+            datefields.splice();
+            this.bSumColumnAC.removeAll();
+            dgrd_person.cleanColumns();
+//			dgrd_person.initColumns();
+            bsumSql = "";
+            var i = 0;
+            for each(var acli:ListclmVo in acListclmVos) {
+
+                if (acli.bsum && (acli.ifieldtype == 1 || acli.ifieldtype == 2)) {
+                    var bsumColou:Object = new Object();
+                    bsumColou.cfield = acli.cfield;
+                    bsumColou.caption = acli.cnewcaption;
+                    bsumColou.cruvalue = 0;
+                    bsumColou.sumvalue = 0;
+                    bSumColumnAC.addItem(bsumColou);
+
+                    if (i > 0) {
+                        bsumSql += ",";
+                    }
+                    i++;
+                    bsumSql += "sum(" + acli.cfield + ") as " + acli.cfield;
+                }
+
+                if (!itemObj.hasOwnProperty("relatedSql")) {
+                    if (acli.bshow) {
+                        var dgc_name:DataGridColumn = new DataGridColumn();
+                        dgc_name.dataField = acli.cfield;
+
+                        //dgc_name.
+                        //添加超链接列 刘磊 20111203 begin
+                        /* if (acli.bsearch)
+                         {
+                         dgc_name.itemRenderer=new ClassFactory(DGLinkButton);
+                         } */
+                        // end
+
+                        dgc_name.headerText = acli.cnewcaption;
+                        if (acli.ifieldtype == 3) {
+                            datefields.push(acli.cfield);
+                            dgc_name.labelFunction = CRMtool.formatDate;
+                        } else if (acli.ifieldtype == 6) {
+                            datefields.push(acli.cfield);
+                            dgc_name.labelFunction = CRMtool.formatDateHHNNSS;
+                        }
+                        else if (acli.ifieldtype == 2) {
+                            dgc_name.labelFunction = getFloatText;
+                        }
+                        else if (acli.ifieldtype == 1) {
+                            dgc_name.labelFunction = getIntText;
+                        }
+
+                        switch (acli.ialign) {
+                            case 0:
+                            {
+                                dgc_name.setStyle("textAlign", "left");
+                                break;
+                            }
+                            case 1:
+                            {
+                                dgc_name.setStyle("textAlign", "center");
+                                break;
+                            }
+                            case 2:
+                            {
+                                dgc_name.setStyle("textAlign", "right");
+                                break;
+                            }
+                            default:
+                            {
+                                break;
+                            }
+                        }
+                        dgc_name.width = acli.icolwidth;
+                        dgrd_person.columns = dgrd_person.columns.concat(dgc_name);
+                    }
+                }
+                else {
+                    if (acli.blinkfun) {
+                        var dgc_name:DataGridColumn = new DataGridColumn();
+                        dgc_name.dataField = acli.cfield;
+
+                        //添加超链接列 刘磊 20111203 begin
+                        /* if (acli.bsearch)
+                         {
+                         dgc_name.itemRenderer=new ClassFactory(DGLinkButton);
+                         } */
+                        // end
+
+                        dgc_name.headerText = acli.cnewcaption;
+                        if (acli.ifieldtype == 3) {
+                            datefields.push(acli.cfield);
+                            dgc_name.labelFunction = CRMtool.formatDate;
+                        }
+                        else if (acli.ifieldtype == 2) {
+                            dgc_name.labelFunction = getFloatText;
+                        }
+                        else if (acli.ifieldtype == 1) {
+                            dgc_name.labelFunction = getIntText;
+                        }
+
+                        dgc_name.itemRenderer = new ClassFactory(BasicLabel); //lr add
+
+                        switch (acli.ialign) {
+                            case 0:
+                            {
+                                dgc_name.setStyle("textAlign", "left");
+                                break;
+                            }
+                            case 1:
+                            {
+                                dgc_name.setStyle("textAlign", "center");
+                                break;
+                            }
+                            case 2:
+                            {
+                                dgc_name.setStyle("textAlign", "right");
+                                break;
+                            }
+                            default:
+                            {
+                                break;
+                            }
+                        }
+                        dgc_name.width = acli.icolwidth;
+                        dgrd_person.columns = dgrd_person.columns.concat(dgc_name);
+                    }
+                }
+
+            }
+
+            if (itemObj.hasOwnProperty("isShowLefttree") && itemObj.isShowLefttree == "1") {
+                this.currentState = "treeState";
+            }
+            else {
+                this.currentState = "State1";
+            }
+
+            if (itemObj.hasOwnProperty("relatedSql")) {
+                search(0, ifuncregedit);
+            }
+
+
+            /* if(itemObj.hasOwnProperty("checkboxArr"))
+             {
+             this.checkboxView.visible = true;
+             this.checkboxView.percentWidth=10;
+             var checkboxArr:ArrayCollection = ConstsModel[itemObj.checkboxArr] as ArrayCollection;
+
+             for(var i:int=0;i<checkboxArr.length;i++)
+             {
+             var checkBoxData:Object = checkboxArr.getItemAt(i) as Object;
+             var checkBox:CheckBox = new CheckBox();
+             checkBox.label = checkBoxData.lable;
+             if(checkBoxData.isSelected=="true")
+             {
+             checkBox.selected = true;
+             }
+             this.checkBoxHbox.addChild(checkBox);
+
+             var _checkBoxObject:Object = new Object();
+             _checkBoxObject.checkBox = checkBox;
+             _checkBoxObject.cfield = checkBoxData.cfield;
+             _checkBoxObject.value = checkBoxData.value;
+             this._checkboxArray.addItem(_checkBoxObject);
+             }
+             } */
+
+            //customAcc.init(itemObj.ifuncregedit);
+            if (frameListSide.ifuncregedit == 0)
+                frameListSide.ifuncregedit = itemObj.ifuncregedit;
+        }
+
+        //最后一次查询所执行sql
+        private var querySql:String = "";
+        private var bworkflowmodify:Boolean = false;//发起工作流后允许修改
+        //新增修改删除
+        public function onOpenPerson(event:ItemClickEvent):void {
+            var type:String = event.item.name;
+
+            if (type == "onBrowse" || type == "onEdit") {
+                var ac:ArrayCollection = this.dgrd_person.getSelectRows();
+                if (ac.length > 0) {
+                    var len:int = ac.length;
+                    var sql:String = ",";
+
+                    //wxh add 比较是否存在完全重复的记录
+                    //lr modify 优化算法
+                    for each(var item:Object in ac) {
+                        if (sql.search("," + item.iid + ",") == -1)
+                            sql = sql + item.iid + ",";
+                        else
+                            len--;
+                    }
+
+                    sql = sql.substring(1, sql.length - 1); //lr 去掉第一个和最后一个逗号
+                    sql = "select iid from " + itemObj.ctable + " where iid in (" + sql + ")";
+
+                    AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (e:ResultEvent):void {
+                        var re:ArrayCollection = e.result as ArrayCollection;
+                        if (re.length < len) {
+                            CRMtool.showAlert("您所选的记录有些已不存在，请刷新列表。");
+                            return;
+                        } else {
+                            operrecord(type);
+                        }
+                    }, sql, null, false);
+                }
+            } else {
+                operrecord(type);
+            }
+        }
+
+        //判断对应卡片，发起工作流后是否允许修改
+        private function getBWorkFlowModify():void {
+            var sql:String = "select bworkflowmodify from as_funcregedit where iid=" + outifuncregedit;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (e:ResultEvent):void {
+                var re:ArrayCollection = e.result as ArrayCollection;
+                if (re.length > 0) {
+                    bworkflowmodify = re[0].bworkflowmodify;
+                }
+            }, sql, null, false);
+        }
+
+        public function operrecord(type:String):void {
+            //--------------权限控制 刘磊20111014 begin--------------//
+            var operid:String = auth.getOperidByName(type);
+            var warning:String = auth.reuturnwarning(operid);
+            if (warning != null) {
+                if (warning == "hasWorkFlow") {
+                    if (bworkflowmodify == false) {
+                        warning = "请撤消该单据对应的工作流后再执行此操作！";
+                        CRMtool.showAlert(warning);
+                        return;
+                    }
+                } else {
+                    CRMtool.showAlert(warning);
+                    return;
+                }
+            }
+
+            itemObj.operauthArr = auth.operauthArr;
+            itemObj.dataauthArr = auth.dataauthArr;
+            //--------------权限控制 刘磊20111014 end--------------//
+
+
+            if (itemObj.hasOwnProperty("onBack") || itemObj.hasOwnProperty("widget")) {
+                //	itemObj.parent = itemObj.parent;
+            } else {
+                itemObj.parent = this;
+            }
+
+            if (type == "onNew" || type == "onEdit" || type == "onBrowse") {
+                itemObj.operId = "onListNew";
+                itemObj.itemType = type;
+                if (this.dgrd_person.getSelectRows().length > 0 && type != "onNew") {
+                    /************************** 去重 add by zhong_jing begin *********************************/
+                    var personArr:ArrayCollection = new ArrayCollection();
+                    for each(var item:Object in this.dgrd_person.getSelectRows()) {
+                        personArr.addItem(item.iid);
+                    }
+                    var nac:ArrayCollection = new ArrayCollection();
+                    for each(var itemObje:String in personArr) {
+                        if (nac.contains(itemObje))
+                            continue;
+                        nac.addItem(itemObje);
+                    }
+
+                    var personArray:ArrayCollection = new ArrayCollection();
+                    for each(var iid:String in nac) {
+                        for each(var personObj:Object in this.dgrd_person.getSelectRows()) {
+                            if (personObj.iid == iid) {
+                                personArray.addItem(personObj);
+                                break;
+                            }
+                        }
+                    }
+
+                    itemObj.personArr = personArray;
+                    /************************** 去重 add by zhong_jing end *********************************/
+                } else {
+                    itemObj.personArr = new ArrayCollection();
+                }
+                if (type == "onEdit" || type == "onBrowse") {
+                    if (this.dgrd_person.getSelectRows().length == 0) {
+                        if (type == "onEdit") {
+                            CRMtool.tipAlert("请选择要修改的记录");
+                        } else {
+                            CRMtool.tipAlert("请选择要浏览的记录");
+                        }
+                        return;
+                    }
+                }
+                if (type == "onEdit") {
+                    itemObj.operId = "onListEdit";
+                }
+                if (type == "onBrowse") {
+                    itemObj.operId = "onListDouble";
+                }
+                var flagStr:String = "";
+                for each (var obj:Object in itemObj.personArr) {
+                    flagStr = flagStr + obj.iid;
+                }
+                if (type == "onNew") {
+                    flagStr = "" + newFlagPoint;
+                    newFlagPoint++;
+                }
+                itemObj.deleterefresh = deleterefresh;
+                itemObj.formTriggerType = "fromList";
+
+                if (outifuncregedit == 0) { //非传统列表，不存在对应打开单据
+                    var iifuncregeditList:ArrayCollection = new ArrayCollection();
+                    //过滤数据集包含的功能内码
+                    for each(var item:Object in personArray) {
+                        var itemiifuncregedit:int = item.iifuncregedit;
+                        if (itemiifuncregedit) {
+                            var flag:Boolean = true;
+                            for each(var iifuncregedit:int in iifuncregeditList) {
+                                if (iifuncregedit == itemiifuncregedit)
+                                    flag = false;
+                            }
+                            if (flag) {
+                                iifuncregeditList.addItem(itemiifuncregedit);
+                            }
+                        }
+                    }
+
+                    if (iifuncregeditList.length > 0) { //包含功能内码
+                        var coreList:ArrayCollection = new ArrayCollection();
+                        for each(var iifuncregedit:int in iifuncregeditList) {
+                            var itemList:ArrayCollection = new ArrayCollection();
+                            var core:Object = new Object();
+                            for each(var item:Object in personArray) {
+                                var itemiifuncregedit:int = item.iifuncregedit;
+                                if (itemiifuncregedit) {
+                                    if (itemiifuncregedit == iifuncregedit) {
+                                        itemList.addItem(item);
+                                        flagStr = flagStr + item.iid;
+                                    }
+                                }
+                            }
+                            core.outifuncregedit = iifuncregedit;
+                            core.personArr = itemList;
+                            core.type = type;
+                            core.flagStr = flagStr;
+                            coreList.addItem(core);
+                        }
+                        if (coreList.length > 0) {
+                            var core:Object = coreList.getItemAt(0);
+                            itemObj.outifuncregedit = core.outifuncregedit;
+                            itemObj.personArr = core.personArr;
+                            coreList.removeItemAt(0);
+                            itemObj.coreList = coreList;
+                            CRMtool.openMenuItemFormOther('yssoft.frameui.FrameCore', itemObj, "加载中...", type + outifuncregedit + flagStr + new Date());
+                        }
+                    }
+
+                } else if (outifuncregedit == 162){
+                    if(type == "onNew"){
+                        var ass:SelectOrderModel = new SelectOrderModel();
+                        ass.width = 350;
+                        ass.height = 150;
+                        ass.owner = this;
+                        ass.oitemObj = itemObj;
+                        ass.otype = type;
+                        ass.oflagStr = flagStr;
+                        CRMtool.openView(ass);
+                    } else {
+                        var iifuncregeditList:ArrayCollection = new ArrayCollection();
+                        //过滤数据集包含的功能内码
+                        for each(var item:Object in personArray) {
+                            var itemiifuncregedit:int = item.iifuncregedit;
+                            if (itemiifuncregedit) {
+                                var flag:Boolean = true;
+                                for each(var iifuncregedit:int in iifuncregeditList) {
+                                    if (iifuncregedit == itemiifuncregedit)
+                                        flag = false;
+                                }
+                                if (flag) {
+                                    iifuncregeditList.addItem(itemiifuncregedit);
+                                }
+                            }
+                        }
+                        if (iifuncregeditList.length > 0) { //包含功能内码
+                            var coreList:ArrayCollection = new ArrayCollection();
+                            for each(var iifuncregedit:int in iifuncregeditList) {
+                                var itemList:ArrayCollection = new ArrayCollection();
+                                var core:Object = new Object();
+                                for each(var item:Object in personArray) {
+                                    var itemiifuncregedit:int = item.iifuncregedit;
+                                    if (itemiifuncregedit) {
+                                        if (itemiifuncregedit == iifuncregedit) {
+                                            itemList.addItem(item);
+                                            flagStr = flagStr + item.iid;
+                                        }
+                                    }
+                                }
+                                core.outifuncregedit = iifuncregedit;
+                                core.personArr = itemList;
+                                core.type = type;
+                                core.flagStr = flagStr;
+                                coreList.addItem(core);
+                            }
+                            if (coreList.length > 0) {
+                                var core:Object = coreList.getItemAt(0);
+                                itemObj.outifuncregedit = core.outifuncregedit;
+                                itemObj.personArr = core.personArr;
+                                coreList.removeItemAt(0);
+                                itemObj.coreList = coreList;
+                                CRMtool.openMenuItemFormOther('yssoft.frameui.FrameCore', itemObj, "加载中...", type + outifuncregedit + flagStr + new Date());
+                            }
+                        }
+                    }
+
+                } else {//传统列表，存在对应打开单据
+                    CRMtool.openMenuItemFormOther('yssoft.frameui.FrameCore', itemObj, "加载中...", type + outifuncregedit + flagStr + new Date());
+                }
+
+
+            }
+        }
+
+        private function onResult(event:ItemClickEvent):void {
+            var type:String = event.item.name;
+            if (type == "onQuery") {
+                this.tnp_bjobstatus.text = "";
+                //居中显示
+                var ass:AssemblyQueryclmView = new AssemblyQueryclmView();
+                ass.ifuncregedit = int(itemObj.ifuncregedit);
+                ass.width = 700;
+                ass.height = 500;
+                ass.owner = this;
+                /* var mainApp:DisplayObject = FlexGlobals.topLevelApplication as DisplayObject;
+                 PopUpManager.addPopUp(ass, mainApp);
+                 PopUpManager.centerPopUp(ass); */
+                CRMtool.openView(ass);
+            }
+            else {
+                refreshGrid();
+            }
+        }
+
+        public function refreshGrid():void {
+            if (pageBarSearchObj)
+                pageBarSearch(pageBarSearchObj);
+            else {
+                search(0);
+            }
+        }
+
+        public function deleterefresh(iid:int):void {
+            for (var i:int = 0; i < this.personArr.length; i++) {
+                if (this.personArr.getItemAt(i).iid == iid) {
+                    this.personArr.removeItemAt(i);
+                }
+            }
+        }
+
+
+        //批量删除文件
+        private function delbatch():void {
+            itemCount = 0;
+            count = 0;
+            for (var i:int = 0; i < items.length; i++) {
+                var obj:Object = items.getItemAt(i);
+                auth.get_beforedelinfo(itemObj.outifuncregedit, int(obj.iid));
+            }
+            auth.addEventListener("onGet_beforedelinfoSucess", function (event:onItemDoubleClick):void {
+                        var iid:int = int(event.param);
+                        itemCount++;
+                        if (auth.delinfoArr == null || auth.delinfoArr.length == 0) {
+                        }
+                        else {
+                            for (var i:int = 0; i < items.length; i++) {
+                                var paramObj:Object = items.getItemAt(i);
+                                if (int(paramObj.iid) == iid) {
+                                    var newdelinfoObj:Object = new Object();
+                                    newdelinfoObj.title = "禁止删除操作：选中记录已被以下单据使用！";
+                                    newdelinfoObj.delinfoArr = auth.delinfoArr;
+                                    newdelinfoArr.addItem(newdelinfoObj);
+                                }
+                            }
+                            count++;
+                        }
+
+                        if (itemCount == dgrd_person.getSelectRows().length) {
+                            if (count == 0) {
+                                if (items.length > 0) {
+                                    CRMtool.tipAlert1("确定要删除选中记录吗?", null, "AFFIRM", function ():void {
+                                        onDeletePerson()
+                                    });
+                                }
+                                else {
+                                    CRMtool.tipAlert("请选择要删除的记录！！");
+                                }
+                            }
+                            else {
+                                //居中显示
+                                var ass:CRMMoreListMsgUI = new CRMMoreListMsgUI();
+                                ass.newdelinfoArr = newdelinfoArr;
+                                ass.width = 700;
+                                ass.height = 500;
+                                CRMtool.openView(ass);
+                            }
+                        }
+                    }
+            );
+        }
+
+        private var items:ArrayCollection;
+
+        //点击下拉按钮
+        public function onClick(event:MenuEvent):void {
+            if (event.item.name == "onDelete") {
+                //--------------权限控制 刘磊20111014 begin--------------//
+                var warning:String = auth.reuturnwarning("04");
+                if (warning != null) {
+                    CRMtool.showAlert(warning);
+                    return;
+                }
+                //--------------权限控制 刘磊20111014 end--------------//
+
+                newdelinfoArr = new ArrayCollection();
+                items = new ArrayCollection();
+                items = this.dgrd_person.getSelectRows();
+                //--------------批量删除数据权限控制 刘磊20111219 begin--------------//
+                var arriid:Array = new Array();
+                for (var i:int = 0; i < items.length; i++) {
+                    arriid.push(items.getItemAt(i).iid);
+                }
+                auth.getdelbatch("04", itemObj.outifuncregedit, CRMmodel.userId, CRMmodel.hrperson.idepartment, arriid);
+                auth.addEventListener("onGet_getdelbatchSucess", function (evt:Event):void {
+                    if (auth.allowdelArr == null || auth.allowdelArr.length == 0) {
+                        CRMtool.tipAlert("您无删除这些记录的数据权限！");
+                        return;
+                    }
+                    var find:Boolean = true;
+                    for (var i:int = 0; i < items.length; i++) {
+                        var paramObj:Object = items.getItemAt(i);
+                        var item:Boolean = false;
+                        for (var j:int = 0; j < auth.allowdelArr.length; j++) {
+                            if (int(paramObj.iid) == int(auth.allowdelArr.getItemAt(j).iinvoice)) {
+                                item = true;
+                                break;
+                            }
+                        }
+                        if (!item) {
+                            CRMtool.tipAlert("禁止删除操作：【序号：" + paramObj.sort_id + "】这个单据无删除数据权限！");
+                            find = false;
+                            break;
+                        }
+                    }
+                    if (find) {
+                        delbatch();
+                    }
+                })
+                //--------------批量删除数据权限控制 刘磊20111219 end--------------//
+            }
+            else if (event.item.name == "onSetup") {
+                var ass:ConsultsetSet = new ConsultsetSet();
+                ass.iid = int(itemObj.ifuncregedit);
+                ass.isShow = true;
+                /* 		if(this.winParam=="1")
+                 {
+                 ass.iid = 13;
+                 }
+                 else
+                 {
+                 ass.iid =44;
+                 } */
+                ass.isShowList = 1;
+                ass.width = 700;
+                ass.height = 500;
+                ass.owner = this;
+                //var mainApp:DisplayObject = FlexGlobals.topLevelApplication as DisplayObject;
+                //PopUpManager.addPopUp(ass, mainApp);
+                //PopUpManager.centerPopUp(ass);
+                CRMtool.openView(ass);
+            }
+            else if (event.item.name == "onExcelExport") {
+                //--------------权限控制 刘磊20111014 begin--------------//
+                var warning:String = auth.reuturnwarning("06");
+                if (warning != null) {
+                    CRMtool.showAlert(warning);
+                    return;
+                }
+                //--------------权限控制 刘磊20111014 end--------------//
+                //YJ Add
+                /*
+                 YJ Add 列表数据导出至Excel
+                 前台传入参数说明：arr(数据集)，
+                 columnArr(列数据集，包括字段、字段标题)
+                 title(Excel标题)，
+                 flag(Excel是否显示序号,0--显示，1--不显示)
+
+                 */
+
+                if (this.dgrd_person.getSelectRows().length == 0) {
+                    CRMtool.tipAlert("请选择要导出的记录！！");
+                    return;
+                }
+                var objvalue:Object = {};
+                var title:String = "管理档案";
+                var columnArr:ArrayCollection = new ArrayCollection();//记录字段名称和标题的记录集
+                objvalue.arr = this.personArr;//数据集
+
+                if (itemObj.title != null)
+                    title = itemObj.title;
+                objvalue.title = title;//标题
+
+                objvalue.flag = 0;//是否显示序号
+
+                for each(var acli:ListclmVo in acListclmVos) {
+
+                    if (acli.bshow == true)
+                        columnArr.addItem({"cfld": acli.cfield, "cfldcaption": acli.ccaption, "width": acli.icolwidth});//获取列数据集
+
+                }
+
+                objvalue.fieldsList = columnArr;
+
+                AccessUtil.remoteCallJava("ExcelHadleDest", "writeExcel", onWriteExcelBack, objvalue);//调用后台的导出方法
+            }
+            else if (event.item.name == "onCusMerge") {   //YJ Add 客商合并
+
+                //--------------权限控制 刘磊20111125 begin--------------//
+                var warning:String = auth.reuturnwarning("60");
+                if (warning != null) {
+                    CRMtool.showAlert(warning);
+                    return;
+                }
+                //--------------权限控制 刘磊20111125 end--------------//
+
+                if (this.dgrd_person.getSelectRows().length == 0) {
+                    CRMtool.tipAlert("请选择要合并的客商！！");
+                    return;
+                }
+
+                var cusmerge:view_customermerge = new view_customermerge();
+                cusmerge.cusArr = this.dgrd_person.getSelectRows();
+                CRMtool.openView(cusmerge);
+            } else if (event.item.name == "patchCoopHandler") {
+                patchCoopHandler();
+            }
+        }
+
+
+        private function Get_beforedelinfo(event:Event, obj:Object):void {
+
+        }
+
+        //删除
+        public function onDeletePerson():void {
+            var items:ArrayCollection = this.dgrd_person.getSelectRows();
+            var sql:String = " iid in (";
+            var sql2:String = "(";
+            for (var i:int = 0; i < items.length; i++) {
+                var obj:Object = items.getItemAt(i);
+                if (i > 0) {
+                    sql += ",";
+                    sql2 += ",";
+                }
+                sql += obj.iid;
+                sql2 += obj.iid;
+            }
+            sql += ") ";
+            sql2 += ") ";
+            var obj:Object = new Object();
+            obj.userId = CRMmodel.userId;  //---------->  SDY add 用户ID
+
+            //少传参数
+            obj.ifuncregedit = this.itemObj.ifuncregedit;
+
+            obj.ctable = this.itemObj.ctable;
+            obj.sql = StringUtil.trim(sql);
+            obj.sql2 = StringUtil.trim(sql2);
+            obj.iids = items;
+            obj.subTabName = itemObj.subTabName;
+
+            AccessUtil.remoteCallJava("hrPersonDest", "deletePm", savePerson, obj, "删除处理中...");
+        }
+
+        private function savePerson(event:ResultEvent):void {
+            if (event.result || event.result.toString() != "fail") {
+                var rows:ArrayCollection = this.dgrd_person.getSelectRows();
+                for (var j:int = 0; j < rows.length; j++) {
+                    for (var i:int = 0; i < this.personArr.length; i++) {
+                        if (rows[j].iid == this.personArr.getItemAt(i).iid) {
+                            //删除相关表记录
+                            auth.pr_execdellinktable(this.personArr.getItemAt(i).iid, itemObj.outifuncregedit);
+                            this.personArr.removeItemAt(i);
+                            break;
+                        }
+                    }
+                }
+                this.dgrd_person.getSelectRows().removeAll();
+                CRMtool.tipAlert("删除成功!!");
+            }
+            else {
+                CRMtool.tipAlert(ConstsModel.FAIL);
+            }
+        }
+
+        public function searchFromMain(s:String):void {
+
+            if (cbGroupView.selected) {
+                CRMtool.showAlert("汇总视图下，不支持搜索查询功能。");
+                return;
+            }
+
+            this.tnp_bjobstatus.text = s;
+            search(0);
+        }
+
+        //快速查询
+        //YJ Add 参数说明：flag=0(列表中的查询),flag=1(我的收藏中的查询)
+        public function search(flag:int = 0, ifuncregedit:int = 0):void {
+            if (cbGroupView.selected) {
+                iniGroupView();
+            } else {
+                if (ifuncregedit == 0) {
+                    ifuncregedit = int(itemObj.ifuncregedit);
+                }
+                AccessUtil.remoteCallJava("ACqueryclmDest", "getAcQueryclmList", function (event:ResultEvent):void {
+                    onGetAcQueryclmListBack(flag, event, ifuncregedit);
+                }, ifuncregedit, "正在获取数据");
+            }
+        }
+
+        //本地 datagrid 数据搜索  lr add
+        public function localSearchDataGrid():void {
+            if (CRMtool.isStringNull(tnp_bjobstatus.text))
+                return;
+
+            for each(var item:Object in dgrd_person.dataProvider) {
+                if (item) {
+                    var objInfo:Object = ObjectUtil.getClassInfo(item);
+                    var fieldName:Array = objInfo["properties"] as Array;
+                    for each (var q:QName in fieldName) {
+                        if ((item[q.localName] + "").search(tnp_bjobstatus.text) > -1) {
+                            if (!item.checked) {
+                                item.checked = true;
+                                dgrd_person.scrollToIndex(dgrd_person.dataProvider.getItemIndex(item));
+                                dgrd_person.selectedItem = item;
+                                return;
+                            }
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        private function onGetAcQueryclmListBack(flag:int, evt:ResultEvent, ifuncregedit:int):void {
+            var arrDataList:ArrayCollection = evt.result as ArrayCollection;
+
+            //--------------权限控制 刘磊20111014 begin--------------//
+            if (authReturnFlag) {
+                var warning:String = auth.reuturnwarning("01");
+                if (warning != null) {
+                    CRMtool.showAlert(warning);
+                    return;
+                }
+            }
+            //else	return;
+            //--------------权限控制 刘磊20111014 end--------------//
+
+            var sql:String = "";
+
+            if (flag == 0) {
+                this.favoritesFlag = 0;
+                var myPattern:RegExp = /\'/g;
+                /* sql = acListsetVo.csql1.replace(myPattern,"\""); */
+                if (itemObj.hasOwnProperty("relatedSql") && itemObj.relatedSql && (itemObj.relatedSql + "").length > 0) {
+                    var relatedSql:String = itemObj.relatedSql;
+
+                    relatedSql = CRMtool.replaceSystemValues(relatedSql);
+
+                    sql = "select * from (" + acListsetVo.csql1 + ") " + itemObj.ctable + " where 1=1 " + relatedSql + authSql;
+                    itemObj.relatedSql = "";
+                    this.tnp_bjobstatus.text = "";
+                }
+                else {
+                    sql = "select * from (" + acListsetVo.csql1 + ")" + itemObj.ctable + " where 1=1 " + authSql;
+                }
+            }
+            else if (flag == 1) {
+                //修改
+                this.favoritesFlag = 1;
+                sql = "select * from (" + this._listsql + ") " + itemObj.ctable + " where 1=1 " + authSql;
+                this.tnp_bjobstatus.text = "";
+            } else if (flag == 3) {//lr add 列表助手查询
+                sql = "select * from (" + acListsetVo.csql1 + ") " + itemObj.ctable + " where 1=1 " + sideChildSql + authSql;
+                this.tnp_bjobstatus.text = "";
+            }
+
+
+            /* if(sql.lastIndexOf("where")==-1)
+             {
+             sql+=" where 1=1";
+             } */
+
+            var beraStr:String = "";
+            var count:int = 0;
+            var bsearch:Boolean = false;
+            for each(var listclmVo:ListclmVo in this.acListclmVos) {
+                if (listclmVo.bsearch) {
+                    if (!bsearch) {
+                        bsearch = true;
+                    }
+                    if (count > 0) {
+                        beraStr += " or ";
+                    }
+
+                    if (CRMtool.isStringNotNull(this.tnp_bjobstatus.text)) {
+                        /* beraStr+=itemObj.ctable+"."; */
+                        beraStr += listclmVo.cfield + " like '%" + this.tnp_bjobstatus.text + "%'";
+                        count++;
+                    }
+                }
+            }
+
+
+            if (beraStr != "") {
+                if (sql.indexOf("@childsql") != -1) {
+                    sql = sql.replace("@childsql", " and (" + beraStr + ")");
+                }
+                else {
+                    sql += " and (" + beraStr + ")";
+                }
+            }
+            if (!bsearch) {
+                val.visible = true;
+                val.height = 20;
+                val.text = "您没有设置快速查询条件!";
+                disappearInfo();
+            }
+            else {
+                if (this.checkboxView.visible) {
+                    var sql2:String = "";
+                    var cfield:String = null;
+                    var size:int = 1;
+                    for (var i:int = 0; i < this._checkboxArray.length; i++) {
+                        var obj:Object = this._checkboxArray.getItemAt(i) as Object;
+                        var checkBox:CheckBox = obj.checkBox;
+                        /* _checkBoxObject.cfield; */
+                        if (i == 0) {
+                            cfield = obj.cfield;
+                        }
+
+                        if (checkBox.selected) {
+                            if (size > 1) {
+                                sql2 += ",";
+                            }
+                            sql2 += "'" + obj.value + "'";
+                            size++;
+                        }
+                    }
+                    if (sql2 != "") {
+                        sql += " and " + cfield + " in(" + sql2 + ")";
+                    }
+                }
+
+                /******************* 先排序 ***********************/
+                var sort:Sort = new Sort();
+                //按照优先序号升序排序
+                sort.fields = [new SortField("iqryno")];
+                arrDataList.sort = sort;
+
+                var _commons:ArrayCollection = new ArrayCollection();
+
+                var co:int = 1;
+                var sortArr:ArrayCollection = new ArrayCollection();
+                /******************* 找出所有常用条件 ***********************/
+                for each(var obj:Object in arrDataList) {
+                    //找出常用条件
+                    if (String(obj.bcommon) == "true") {
+                        _commons.addItem(obj);
+                    }
+
+                    /******************* 封装排序 ***********************/
+                    var sortObj:Object = new Object();
+                    sortObj.isortno = co;
+                    sortObj.cfiled = obj.cfield;
+                    sortObj.isttype = obj.isttype;
+                    sortObj.iid = obj.iid;
+                    sortArr.addItem(sortObj);
+                    co++;
+                }
+
+                var c:int = 0;
+                for each(var sortobj:Object in sortArr) {
+                    if (sortobj.isttype != "" || sortobj.isttype != "0") {
+                        if (c == 0) {
+                            sql += " order by ";
+                        }
+                        else {
+                            sql += ",";
+                        }
+                        var cfiled1:String = sortobj.cfiled as String;
+                        var start:int = cfiled1.lastIndexOf(".") + 1;
+                        var end:int = cfiled1.length;
+                        sql += cfiled1.substring(start, end);
+                        if (sortobj.isttype == "2") {
+                            sql += " desc ";
+                        }
+                        c++;
+                    }
+                }
+
+                this.strsql = sql;
+                var paramObj:Object = new Object();
+                paramObj.pagesize = this.acListsetVo.ipage;
+                paramObj.curpage = 1;
+                paramObj.sqlid = "get_persons_sql";
+                if (sql.lastIndexOf(" order by ") != -1) {
+                    var end:int = sql.lastIndexOf(" order by ");
+                    var len:int = sql.length;
+                    paramObj.sql = sql.substring(0, end);
+                    paramObj.orderSql = sql.substring(end, len);
+                }
+                else {
+                    paramObj.sql = sql;
+                    paramObj.orderSql = null;
+                }
+
+                paramObj.ifuncregedit = ifuncregedit;
+                pageBarSearch({paramObj: paramObj, sql: sql});
+            }
+        }
+
+        /**提示消息消失*/
+        private function disappearInfo():void {
+            setTimeout(function ():void {
+                val.visible = false;
+                val.height = 0;
+                val.text = "";
+            }, 2000);
+        }
+
+        public function pageCallBack(list:ArrayCollection, sql:String):void {
+            dgrd_person.isAllchecked = false;
+            for each (var item:Object in list) {
+                var objInfo:Object = ObjectUtil.getClassInfo(item);
+                var fieldName:Array = objInfo["properties"] as Array;
+                for each(var q:QName in fieldName) {
+                    //q.localName 属性名称，value对应的值
+                    if (item[q.localName] == null) {
+                        item[q.localName] = "";
+                    }
+                }
+            }
+            personArr = list;
+
+            if (StringUtil.trim(bsumSql) != "" && sql != "") {
+                var newBsumSql:String = " select " + StringUtil.trim(bsumSql) + " from (" + sql + ") c";
+
+                //调用后台方法
+                AccessUtil.remoteCallJava("hrPersonDest", "verificationSql", function (evt:ResultEvent):void {
+                    var rArr:ArrayCollection = evt.result as ArrayCollection;
+
+                    if (rArr && rArr.length == 1) {
+                        //找到当前记录
+                        var rObj:Object = rArr.getItemAt(0);
+
+                        for each(var col:Object in bSumColumnAC) {
+                            col.sumvalue = rObj[col.cfield];
+                        }
+                    }
+                    showSum();
+
+                }, newBsumSql, "正在获取数据");
+            }
+        }
+
+        //查询
+        public function pageInitBack(sql1:String):void {
+            if (CRMtool.isStringNull(acListsetVo.csql1)) {
+                return;
+            }
+            querySql = sql1;
+            var sql:String = "select * from (" + acListsetVo.csql1 + ")" + itemObj.ctable + " where 1=1 " + authSql;
+
+            /* if(sql.lastIndexOf("where")==-1)
+             {
+             sql+=" where 1=1 ";
+             }
+             */
+            if (this.checkboxView.visible) {
+                var sql2:String = "";
+                var cfield:String = null;
+                var size:int = 1;
+                for (var i:int = 0; i < this._checkboxArray.length; i++) {
+                    var obj:Object = this._checkboxArray.getItemAt(i) as Object;
+                    var checkBox:CheckBox = obj.checkBox;
+                    /* _checkBoxObject.cfield; */
+                    if (i == 0) {
+                        cfield = obj.cfield;
+                    }
+
+                    if (checkBox.selected) {
+                        if (size > 1) {
+                            sql2 += ",";
+                        }
+                        sql2 += "'" + obj.value + "'";
+                        size++;
+                    }
+                }
+                if (sql2 != "") {
+                    sql += " and " + itemObj.ctable + "." + cfield + " in(" + sql2 + ")";
+                }
+            }
+
+            if (sql.indexOf("@childsql") != -1) {
+                sql = sql.replace("@childsql", sql1);
+            }
+            else {
+                if (CRMtool.isStringNotNull(sql1)) {
+                    sql += sql1;
+                }
+            }
+
+            this.strsql = sql;
+
+            var paramObj:Object = new Object();
+            paramObj.pagesize = this.acListsetVo.ipage;
+            paramObj.curpage = 1;
+            paramObj.sqlid = "get_persons_sql";
+            if (itemObj.ifuncregedit) {
+                paramObj.ifuncregedit = itemObj.ifuncregedit;
+            }
+
+            if (sql.lastIndexOf(" order by ") != -1) {
+                var end:int = sql.lastIndexOf(" order by ");
+                var len:int = sql.length;
+                paramObj.sql = sql.substring(0, end);
+                paramObj.orderSql = sql.substring(end, len);
+            }
+            else {
+                paramObj.sql = sql;
+            }
+
+            pageBarSearch({paramObj: paramObj, sql: sql});
+        }
+
+        var pageBarSearchObj;
+
+        private function pageBarSearch(obj:Object):void {
+            pageBarSearchObj = obj;
+
+            var paramObj = obj.paramObj;
+            var sql = obj.sql;
+            //wxh add
+            this.message.text = "";
+            this.myDesktop.styleName = "popupbuttonskin_query_gray";
+            this.pageBar.initPageHandler(paramObj, function (list:ArrayCollection):void {
+                if (sql.lastIndexOf(" order by ") != -1) {
+                    pageCallBack(list, sql.substring(0, sql.lastIndexOf(" order by ")))
+                }
+                else {
+                    pageCallBack(list, sql)
+                }
+            });
+        }
+
+
+        //双击
+        /* 			public function onDouble():void
+         {
+         if(this.dgrd_person.getSelectRows().length>0)
+         {
+         itemObj.personArr =this.dgrd_person.getSelectRows();
+         itemObj.operId="onListDouble";
+         CRMtool.openMenuItemFormOther('yssoft.comps.frame.FrameworkRecord',itemObj,"",'');
+
+         }
+         else
+         {
+         CRMtool.tipAlert("请选择要操作的记录");
+         }
+
+         } */
+
+        public function onGridClick(event:Event):void {
+            //返回当前单据是否具有修改或删除数据权限提示集合
+            if (this.dgrd_person.getSelectRows().length > 0) {
+                auth.loadfloweditwarning(itemObj.outifuncregedit, this.dgrd_person.getSelectRows()[0].iid);
+                auth.loadflowdelwarning(itemObj.outifuncregedit, this.dgrd_person.getSelectRows()[0].iid);
+                auth.loadeditwarning(itemObj.outifuncregedit, CRMmodel.userId, CRMmodel.hrperson.idepartment, this.dgrd_person.getSelectRows()[0].iid);
+                auth.loaddelwarning(itemObj.outifuncregedit, CRMmodel.userId, CRMmodel.hrperson.idepartment, this.dgrd_person.getSelectRows()[0].iid);
+            }
+            sumChecked();
+        }
+
+        //列表设置返回刷新页面
+        public function refreshStyle():void {
+            if (winParam != null && (winParam.hasOwnProperty("fileds") || (winParam is String && winParam.toString() != ""))) {
+                itemObj = null;
+            }
+
+            count = 0;
+            this.init();
+        }
+
+        protected function dgrd_person_doubleClickHandler(event:MouseEvent):void {
+            //LL add 若普通报表禁止双击打开浏览
+            if (acListsetVo.itype == 2) {
+                return;
+            }
+            if (String(event.target.parent).indexOf("DataGridHeader") > -1 || String(event.target.parent).indexOf("CheckBox") > -1) {
+                return;
+            }
+
+            if (cbGroupView.selected) {
+                return;
+            }
+
+            if (!itemObj.hasOwnProperty("title")) {
+                itemObj.title = itemObj.outtitle;
+            }
+
+            var selectItem:Object = dgrd_person.selectedItem;
+
+            if (selectItem == null)
+                return;
+
+            if (selectItem.iid > 0) {
+                var sql:String = "select iid from " + itemObj.ctable + " where iid=" + selectItem.iid;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (e:ResultEvent):void {
+                    var ac:ArrayCollection = e.result as ArrayCollection;
+                    if (ac && ac.length > 0) {
+                        operrecord('onBrowse');
+                    } else {
+                        CRMtool.showAlert("您选择的记录已经被删除，请刷新列表。");
+                        return;
+                    }
+                }, sql, null, false);
+            }
+        }
+
+        // 单据批量提交
+        public function patchCoopHandler():void {
+            items = this.dgrd_person.getSelectRows();
+            if (items == null || items.length == 0) {
+                CRMtool.showAlert("请选择后，再操作！！");
+                return;
+            }
+            // 获取并验证 对应的单据的功能注册码
+            if (this.itemObj == null || itemObj.hasOwnProperty("outifuncregedit") == false || itemObj.outifuncregedit == null || itemObj.outifuncregedit == "" || itemObj.outifuncregedit == 0 || itemObj.outifuncregedit == "0") {
+                CRMtool.showAlert("单据注册码获取不到");
+                return;
+            }
+
+            // 获取 单据iid集合
+            var iinvoices:String = "";
+            for each(var item:Object in items) {
+                if (item.hasOwnProperty("iid")) {
+                    iinvoices += item.iid + ",";
+                }
+            }
+
+            if (StringUtil.trim(iinvoices) == "") {
+                CRMtool.showAlert("获取不到有效的单据信息，请确认后在操作");
+                return;
+            }
+            iinvoices = iinvoices.substr(0, iinvoices.length - 1);
+
+            LoginTool.tipAlert("单据批量提交，可能耗时比较长，请确认?", null, "AFFIRM", function ():void {
+                surePatchCoopHandler(iinvoices);
+            });
+
+        }
+
+        public function surePatchCoopHandler(iinvoices:String):void {
+            Alert.show("[" + iinvoices + "]");
+            var params:Object = {};
+            params.ifuncregedit = "" + itemObj.outifuncregedit;
+            params.iinvoices = iinvoices;
+            ;
+            params.ipersonid = "" + CRMmodel.userId;
+            AccessUtil.remoteCallJava("WorkFlowDest", "patchCoopHandler", patchCallBack, params);
+        }
+
+        private function patchCallBack(event:ResultEvent):void {
+            if (event.result) {
+                var ret:Object = event.result;
+                if (ret.hasOwnProperty("error")) {
+                    Alert.show("" + ret.error);
+                } else {
+                    Alert.show("" + ret.suc);
+                }
+            }
+        }
+
+        //lr add  取查询视图的 树
+        /* 			public function getQueryViewTree():TreeCompsVbox{
+         return customAcc.getTree();
+         } */
+
+
+        //从主页  预警中进入列表  自动选择相关查询  lr
+        protected function customAcc_updateCompleteHandler():void {
+            /* 				if(itemObj&&this.itemObj.formTriggerType=="fromOther"&&getQueryViewTree().dataProvider){
+             var ilistcd:int = itemObj.ilistcd;
+             var treeXML:XMLList = getQueryViewTree().dataProvider[0].descendants("*") as XMLList;
+             var xlist:XML=treeXML.(@iid==ilistcd)[0];
+             getQueryViewTree().selectedItem = xlist;
+             }  */
+
+            if (itemObj && frameListSide.searchView) {
+                if (this.itemObj.formTriggerType == "fromWarn") {
+                    var ilistcd:int = itemObj.ilistcd;
+                    frameListSide.searchView.setListSelectItem(ilistcd);
+                    frameListSide.searchSearchViewDate(ilistcd);
+                }
+
+                if (this.itemObj.formTriggerType == "fromPlan") {
+                    var ilistcd:int = itemObj.ilistcd;
+                    frameListSide.searchView.setListSelectItem(ilistcd);
+                    frameListSide.searchSearchViewDate(ilistcd);
+                }
+            }
+            if (itemObj && this.itemObj.formTriggerType == "fromHome") {
+                pageInitBack("");
+            }
+        }
+
+        //lr
+        protected function hdividedbox1_updateCompleteHandler(event:FlexEvent):void {
+            //customAcc_updateCompleteHandler();
+        }
+
+        public function refreshObj(newArr:ArrayCollection):void {
+            this.message.text = "";
+            this.myDesktop.styleName = "popupbuttonskin_query_gray";
+            _personArr = newArr;
+            doSum();
+            doRowColor();
+        }
+
+        private function onTabsChange():void {
+            var isFind:Boolean = false;
+            //先找出所有列
+            for each(var listclmVo:ListclmVo in this.acListclmVos) {
+                if (Boolean(listclmVo.bfilter)) {
+                    isFind = true;
+                    break;
+                }
+            }
+            if (!isFind) {
+                CRMtool.tipAlert("请先配置智能过滤列");
+                return;
+            }
+
+            if (copyAc.length == 0) {
+                CRMtool.tipAlert("没有结果，无需智能过滤");
+                return;
+            }
+
+            if (cbGroupView.selected) {
+                CRMtool.tipAlert("汇总视图下，无法使用智能过滤");
+                return;
+            }
+
+            var fw:FilterWindow = new FilterWindow();
+            fw.acListclmVos = acListclmVos;
+            fw.dataArr = copyAc;
+            fw.refreshFunction = refreshObj;
+            fw.framework = this;
+            fw.owner = myDesktop;
+            fw.dgrd_person = dgrd_person;
+            fw.width = dgrd_person.width - (CRMmodel.alertShadowMargin * 2);
+            fw.height = 310;
+
+            fw.open();
+        }
+
+        public function get outifuncregedit():int {
+            return _outifuncregedit;
+        }
+
+        public function set outifuncregedit(value:int):void {
+            _outifuncregedit = value;
+            if (value == 0 && basicButton.getItemIndex(onNew) != -1) {
+                (lbr_role.getChildAt(basicButton.getItemIndex(onNew)) as mx.controls.Button).enabled = false;
+            }
+        }
+
+        protected function pageBar_getPageCompleteHandler(event:GetPageComplete):void {
+            if (ownerWidget) {
+                ownerWidget.subTitle = event.pageNum + "";
+                ownerWidget.listVbox.visible = true;
+            }
+        }
+
+        private function sumChecked():void {
+            this.pageBar.selectedNum = this.dgrd_person.getSelectRows().length;
+        }
+
+
+        private function previewReport():void {
+            //预览
+            var style:ReportSettings = DataGridToMyReport(dgrd_person, CRMtool.getCrmLinkBarLable(this));
+            var _param:Object = new Object();
+            _param.style = style;
+            _param.itemType = "onBrowse";
+            CRMtool.openMenuItemFormOther("yssoft.views.printreport.PrintPreview", _param, "打印预览");
+        }
+
+        private function PrintReport():void {
+            //直接打印
+            var style:ReportSettings = DataGridToMyReport(dgrd_person, CRMtool.getCrmLinkBarLable(this));
+            ReportEngine.PrintAsync(new XML(style.ToXML()), style.TableData, style.ParameterData);
+        }
+
+        /**
+         *lzx
+         * 封装的转换方法，实现DataGid转成报表样式
+         *
+         * @param grid: 表格控件(传入前确保表格控件已经设置数据源)
+         * @param title：报表标题
+         */
+        private function DataGridToMyReport(grid:DataGrid, title:String):ReportSettings {
+            var style:ReportSettings = new ReportSettings();
+            //数据源
+            style.TableData = grid.dataProvider as ArrayCollection;
+            var params:Dictionary = new Dictionary();
+            params.Title = title;
+            style.ParameterData = params;
+
+            //报表样式
+            style.TableHeaderRepeat = true;//表格头重复
+            style.TableFooterRepeat = true;//表格尾重复
+            style.AutoWidth = true;//报表宽度自动递增
+            //style.PageByColumn  = true;//分栏打印
+            style.SetUnit("px");
+
+            //标题
+            var captionRow:CaptionRowSetting = new CaptionRowSetting();
+            var caption:CaptionCellSetting = new CaptionCellSetting();
+
+
+            var reportWidth:Number = 0;
+            //表格
+            var headerRow:TableRowSetting = new TableRowSetting();
+            var contentRow:TableRowSetting = new TableRowSetting();
+            var gridColumns:Array = grid.columns;
+            for each(var gridCol:DataGridColumn in gridColumns) {
+                if (!gridCol.visible)
+                    continue;
+                //添加列
+                var column:TableColumnSetting = new TableColumnSetting();
+                column.Width = gridCol.width;
+                if (gridCol.headerText != null) {
+                    reportWidth += gridCol.width;
+                    style.TableColumnSettings.push(column);
+                }
+
+                //添加表格头单元格
+                var headerCell:TableCellSetting = new TableCellSetting();
+                headerCell.Style.FontBold = true;
+                headerCell.Style.TextAlign = "center";
+                headerCell.Value = gridCol.headerText;
+                if (gridCol.headerText != null) {
+                    headerRow.TableCellSettings.push(headerCell);
+                }
+
+                //添加表格主体单元格
+                var contentCell:TableCellSetting = new TableCellSetting();
+                if (gridCol.dataField == "sort_id") {
+                    //contentCell.Value = "=Fields!sort_id.Value";
+                    contentCell.Value = "=RowNumber()";
+                } else {
+                    contentCell.Value = "=Fields!" + gridCol.dataField + ".Value";
+                }
+
+                if (gridCol.headerText != null) {
+                    if (gridCol.dataField != null) {
+                        if (gridCol.dataField.search("dmaker") > -1 || gridCol.dataField.search("dmodify") > -1 || gridCol.dataField.search("date") > -1 || gridCol.dataField.search("dbegin") > -1 || gridCol.dataField.search("dend") > -1) {
+                            contentCell.Format = "D";
+                        }
+                    }
+
+                    contentRow.TableCellSettings.push(contentCell);
+                }
+
+            }
+            caption.Width = reportWidth;
+            caption.Style.FontBold = true;
+            caption.Style.FontSize = 16;
+            caption.Style.TextAlign = "center";
+            caption.Value = title;
+            //caption.Value = "=@Title";
+            captionRow.CaptionCellSettings.push(caption);
+            style.PageHeaderSettings.push(captionRow);
+            style.TableHeaderSettings.push(headerRow);
+            style.TableDetailSettings.push(contentRow);
+            return style;
+        }
+
+        protected function btn_print_clickHandler(event:MouseEvent):void {
+            // TODO Auto-generated method stub
+            var warning:String = auth.reuturnwarning("05");
+            if (warning != null) {
+                CRMtool.showAlert(warning);
+                return;
+            }
+
+            previewReport();
+        }
+			//多方通话弹出窗体
+			protected function btn_phone_clickHandler(event:MouseEvent):void
+			{
+				var ac:ArrayCollection = new ArrayCollection();
+				ac = this.dgrd_person.getSelectRows();
+				if(ac.length == 0){CRMtool.tipAlert("请选择参与多方通话的人员！");return;}
+				var arrchar:Array=[",","/","、"];
+				for each(var acobj:Object in ac){
+					for(var a:String in arrchar){
+						if((acobj.cmobile.toString()).indexOf(arrchar[a],0)>-1){
+							var inum:Number=(acobj.cmobile.toString()).indexOf(arrchar[a],0);
+							acobj.cmobile=(acobj.cmobile.toString()).substring(0,inum);
+							break;
+						}
+					}
+				}
+
+				var communication:NewCommunication = new NewCommunication();
+				communication.dgDataSet= ac;//原始数据集
+				communication.width = 800;			
+				communication.height = 500;
+				CRMtool.openView(communication,true,null,false);
+								
+				communication.addEventListener("onSubmit",function(event:Event):void {
+					if(communication.dgDataSet.length == 0) {
+						CRMtool.showAlert("请选择联系人员！");
+						return;
+					}
+					var param:Object = new Object();
+					param.user = CRMmodel.hrperson;
+					param.personlist = communication.newdgDataSet;
+					
+					AccessUtil.remoteCallJava("LotCommunicate", "communicate", function (event:ResultEvent):void {
+						CRMtool.showAlert("多方会议通话中....");
+					}, param,"多方会议通话中....");
+				});
+				
+			}
+			
+		]]>
+	</fx:Script>
+    <mx:states>
+        <s:State name="State1"/>
+        <s:State name="treeState"/>
+        <s:State name="checkBoxState"/>
+    </mx:states>
+    <!-- 角色树 -->
+    <mx:VBox width="257" height="100%" id="customerVBox" styleName="coreBorder"
+             paddingLeft="-1" paddingTop="-1" paddingBottom="-1" paddingRight="-2" horizontalScrollPolicy="off"
+             enabled="{!cbGroupView.selected}">
+        <!--<customer:CusomerAccordion width="100%" id="customAcc" includeIn="State1" owner="{this}" csql1="{acListsetVo.csql1}"/>-->
+        <side:FrameListSide id="frameListSide" width="100%" height="100%" includeIn="State1" parentBox="{this}"
+                            ilistcd="{itemObj.ilistcd}" close="false" owner="{this}"/>
+        <frame:LeftTreeVbox width="100%" owner="{this}" itemObj="{this.itemObj}" includeIn="treeState"/>
+    </mx:VBox>
+    <!--用于控制组件的伸缩-->
+    <frameui:FoldGapBox id="jiange" targetBox="{customerVBox}"/>
+    <!-- 右边 -->
+    <mx:VBox width="100%" height="100%" styleName="centerbg03" id="myBox">
+        <mx:ApplicationControlBar id="applicationControlBar" width="100%" height="32" styleName="centertop1">
+            <mx:HBox horizontalAlign="left" height="100%" verticalAlign="middle">				
+                <comps:LinkBarVboxComps id="lbr_role" height="25" buttonWidth="47" dataProvider="{basicButton}"
+                                        itemClick="onOpenPerson(event);" enabled="{!cbGroupView.selected}" visible="{itemObj.ifuncregedit!=484}" includeInLayout="{itemObj.ifuncregedit!=484}"/>
+
+                <comps:LinkBarVboxComps id="lbr_ref" height="25" buttonWidth="47" dataProvider="{ConstsModel.REFRAN}"
+                                        itemClick="onResult(event);" enabled="{!cbGroupView.selected}"/>
+				<mx:Button id="btn_phone" height="25" label="多方通话" click="btn_phone_clickHandler(event)" visible="{itemObj.ifuncregedit==484}"  includeInLayout="{itemObj.ifuncregedit==484}"/>
+                <mx:Button id="btn_print" width="47" height="25" label="打印" click="btn_print_clickHandler(event)" visible="{itemObj.ifuncregedit!=484}" includeInLayout="{itemObj.ifuncregedit!=484}"/>
+                <!--<mx:ButtonBar id="bbForPrint" height="25" buttonWidth="47" dataProvider="{bbForPrintItems}" itemClick="bbForPrint_itemClickHandler(event)"/>-->
+                <!--YJ Add 更多操作-->
+                <mx:HBox id="hb_morehandle" visible="false" enabled="{!cbGroupView.selected}"/>
+
+                <!--<mx:VBox height="100%">
+                    <s:Spacer height="10%"/>
+                    <mx:CheckBox id="cbGroupView" label="汇总视图" click="oncbGroupView_click()"/>
+                    </mx:VBox>-->
+
+                <s:ToggleButton id="cbGroupView" height="25" label="汇总视图" click="oncbGroupView_click()" visible="{itemObj.ifuncregedit!=484}" includeInLayout="{itemObj.ifuncregedit!=484}"/>
+                <mx:HBox width="100%" horizontalAlign="right">
+                    <mx:Label height="0" visible="false" id="val" color="red" fontWeight="bold"/>
+                    <comps:CrmTextInput id="tnp_bjobstatus" visible="false" includeInLayout="false" search="search(0)"/>
+                </mx:HBox>
+            </mx:HBox>
+
+            <mx:Spacer width="100%"/>
+            <mx:HBox height="16">
+                <mx:Label id="message" text="{}" height="100%" textAlign="center" visible="{!cbGroupView.selected}"/>
+
+            </mx:HBox>
+            <mx:Button id="myDesktop" width="22" height="22" click="onTabsChange()"
+                       styleName="popupbuttonskin_query_gray" toolTip="智能过滤"
+                       visible="{!cbGroupView.selected}"/>
+            <s:Button visible="false" label="返回" id="onBack" width="0" height="25"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox id="hbx_person" width="100%" height="100%" paddingLeft="1" paddingRight="1">
+            <!--            <basic:BasicMxDataGrid/>-->
+            <basic:BasicMxDataGrid isAllowMulti="true" width="100%" height="100%" id="dgrd_person"
+                                   horizontalScrollPolicy="auto" dataProvider="{_personArr}"
+                                   itemClick="onGridClick(event)" rowColorFunction="rowColorFuncion"
+                                   itemColorFunction="itemColorFuncion"
+                                   itemRenderer="yssoft.comps.frame.module.Basic.BasicMxLabel"
+                                   allCheckedChangeEvent="sumChecked()"
+                                   doubleClick="dgrd_person_doubleClickHandler(event)"
+                                   variableRowHeight="false"
+                                   lockedColumnCount="{acListsetVo.ifixnum>0?acListsetVo.ifixnum:3}"
+                                   doubleClickEnabled="true">
+            </basic:BasicMxDataGrid>
+        </mx:HBox>
+        <mx:HBox id="footBox" width="100%" height="32" horizontalGap="0">
+            <mx:HBox width="0" height="100%" id="checkboxView" paddingLeft="10" visible="false" verticalAlign="middle"
+                     horizontalAlign="left">
+                <mx:Label text="状态："/>
+                <!--	<mx:HBox width="100%" height="100%" id="checkBoxHbox" verticalAlign="middle">
+
+                    </mx:HBox>-->
+            </mx:HBox>
+            <mx:HBox width="{footBox.width-pageBarBox.width-checkboxView.width-10}" height="100%" paddingLeft="10"
+                     id="getSum" verticalAlign="middle"
+                     horizontalAlign="left">
+                <s:Label id="lSum" text="{sumText}" width="100%" maxDisplayedLines="1" toolTip="{sumText}"/>
+            </mx:HBox>
+
+            <mx:HBox id="pageBarBox" height="100%" verticalAlign="middle" horizontalAlign="right">
+                <comps:PageBar paddingRight="10" id="pageBar" selectedNum="{dgrd_person.getSelectRows().length}"
+                               visible="{!cbGroupView.selected}"
+                               showLoad="true" getPageComplete="pageBar_getPageCompleteHandler(event)" height="100%"/>
+            </mx:HBox>
+        </mx:HBox>
+    </mx:VBox>
+</mx:HBox>

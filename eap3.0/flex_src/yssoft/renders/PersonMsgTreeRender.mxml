@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				if(data.hasOwnProperty("@isonline")){
+					if(data.@isonline=="0"){
+						lb.text = "[离线]"+data.@cname;
+					}else{
+						lb.text = "[在线]"+data.@cname;
+					}
+				}else{
+					lb.text = data.@cname;
+				}
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Label id="lb" text="1222222222"/>
+	
+</s:ItemRenderer>

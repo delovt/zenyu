@@ -1,0 +1,86 @@
+<html>
+
+<head>
+  <title>3.2.5 、参照配置 - 综合业务管理软件_帮助手册</title>
+  <meta http-equiv=Content-Type content="text/html; charset=x-cp20936">
+  <meta name="GENERATOR" content="Macrobject Word-2-CHM">
+  <link rel="stylesheet" href="Word2Chm.css" type="text/css">
+  <link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+
+<body lang=ZH-CN link=blue vlink=purple style='text-justify-trim:punctuation'>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td class="moHeader">&nbsp;3.2.5 、参照配置</td>
+    </tr>
+  </table>
+  
+  <p></p>
+
+<div class=Section1 style='layout-grid:15.6pt'>
+
+
+
+<p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+line-height:125%;font-family:宋体;color:#F79646'>【功能概述】</span></b></p>
+
+<p class=MsoNormal><span lang=EN-US style='font-size:12.0pt;font-family:宋体'>&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:12.0pt;font-family:宋体'>配置表单中、查询中参照项的项目，供实施开发人员使用。</span></p>
+
+<p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+line-height:125%;font-family:宋体;color:#F79646'>【操作说明】</span></b></p>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 align=left
+ style='border-collapse:collapse;border:none;margin-left:6.75pt;margin-right:
+ 6.75pt'>
+ <tr>
+  <td width=159 valign=top style='width:119.55pt;border:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>1</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、通用区</span></p>
+  </td>
+  <td width=402 valign=top style='width:301.15pt;border:solid #7F7F7F 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>公共按钮：</span></b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>同通用表单操作事件；</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>功能编码：</span></b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>同通用点位分隔编码说明；</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=159 valign=top style='width:119.55pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>2</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、表单区</span></p>
+  </td>
+  <td width=402 valign=top style='width:301.15pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>树<span lang=EN-US>SQL:</span></span></b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>编写形成树的<span
+  lang=EN-US>SQL</span>语句，一定要有<span lang=EN-US>iid,ccode,cname,ipid</span>字段。</span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>列<span lang=EN-US>SQL:</span></span></b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>普通<span lang=EN-US>SQL</span>语句，一定要有<span
+  lang=EN-US>iid</span>字段，必须写<span lang=EN-US>where 1=1</span>。另外要从表单中的某个值进行查询，必须写<span
+  lang=EN-US>@childsql</span>；如果需要传入固定条件，加入<span lang=EN-US>@condition</span>；如果是左树右表参照，一定要加<span
+  lang=EN-US>@join</span></span></p>
+  <p class=MsoNormal align=left style='text-align:left;line-height:125%'><b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>树关联<span lang=EN-US>SQL:</span></span></b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体'>左树右表参照时要用到的，作用是选择左边的树作为条件，来查询右边的表信息。</span></p>
+  </td>
+ </tr>
+</table>
+
+
+</div>
+  <p></p>
+
+</body>
+
+</html>

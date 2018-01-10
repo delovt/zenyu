@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml">
+
+
+    <mx:Script>
+  <![CDATA[
+        import mx.controls.Alert;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.tools.CRMtool;
+
+        //引入远程调用的事件处理
+        //向WebService发送请求
+        private var _info:String = "";
+
+        public function get info():String {
+            return _info;
+        }
+
+        public function set info(value:String):void {
+            _info = value;
+        }
+
+        public function search():void {
+            if(CRMtool.isStringNotNull(info)){
+                sendCount();
+            }
+
+        }
+        private function sendCount():void {
+            ws.getMobileCodeInfo(info).send();
+        }
+
+        //显示结果的处理函数
+        private function showResult(rs:ResultEvent):void {
+            //得到返回的结果
+            var rsStr:String = new String(rs.result);
+
+            if(rsStr.indexOf("http") != -1) {
+                rsStr = "未知";
+            } else {
+                var rsStrs:Array = rsStr.split(" ");
+                rsStr = rsStrs[1];
+            }
+            cellphoneNumberInfoText.text = rsStr;
+        }
+
+        private function faultResult(faultmessage:FaultEvent):void {
+
+            var faultStr:String = new String(faultmessage.message);
+
+            cellphoneNumberInfoText.text = "暂未查到归属地";
+        }
+        ]]>
+ </mx:Script>
+    <!-- 引入WebService标签，设定wsdl。不使用代理名称-->
+    <!--此 WebService由网站：http://www.webxml.com.cn/提供。该网站内还有其它免费web服务 -->
+    <mx:WebService
+            id="ws"
+            wsdl="http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx?WSDL"
+            useProxy="false"
+            showBusyCursor="true"
+            result="showResult(event)" fault="faultResult(event)">
+
+        <mx:operation name="getMobileCodeInfo">
+        </mx:operation>
+    </mx:WebService>
+
+    <mx:Label text="" id = "cellphoneNumberInfoText"/>
+
+</mx:Box>

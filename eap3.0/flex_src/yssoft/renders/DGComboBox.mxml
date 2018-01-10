@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MXDataGridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" 
+						  focusEnabled="true" width="100%" xmlns:module="yssoft.comps.frame.module.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.comps.frame.module.CrmEapComboBox;
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.tools.CRMtool;
+			private var _singleType:Object;
+			
+			public var subTableAssignment:Function;
+			
+			public var paramForm:CrmEapRadianVbox;
+			
+			private var consultti:CrmEapComboBox;
+			
+			public function set singleType(value:Object):void
+			{
+				_singleType=value;
+			}
+			
+			public function get singleType():Object
+			{
+				return this._singleType;
+			}
+			
+			
+			override public function set data(value:Object):void{
+				
+				super.data=value;
+				var cfield:String=dataGridListData.dataField as String;
+				var val:String = ""; 
+				var cfield1:String = dataGridListData.dataField+"_enabled";
+				if(this.consultti==null)
+				{
+					consultti= new CrmEapComboBox();
+					consultti.percentWidth =100;
+					consultti.conditionSqlFunction=this.conditionSqlFunction;
+					consultti.text=data[dataGridListData.dataField];
+					consultti.dataObj=value;
+					consultti.paramForm=this.paramForm;
+					this.consultti.singleType=this._singleType;
+					consultti.addEventListener("valueChange",change);
+					consultti.setFocus();
+					this.myBox.addChild(consultti);
+				}
+				
+				
+				
+				 if(value.hasOwnProperty(cfield1))
+				 {
+					 if(data[cfield1]==1)
+					 {
+						 consultti.enabled = true;
+					 }
+					 else
+					 {
+						 consultti.enabled = false;
+					 }
+				 }
+				if(cfield.indexOf("_Name")!=-1)
+				{
+					var cfields:String = cfield.substring(0,cfield.indexOf("_Name"));
+					val=String(value[cfields]);
+					consultti.text=String(value[cfields]);
+				}
+				else
+				{
+					 val=value[cfield];
+				}
+			}
+			
+			private var _data_iconsult:String;
+			public function get data_iconsult():String{
+				if(null!=consultti.selectedItem)
+				{
+					return consultti.selectedItem[this._singleType.cconsultswfld];
+				}
+				else
+				{
+					return null;
+				}
+			}
+			public function set data_iconsult(val:String):void{
+				this._data_iconsult=val;
+			}
+			
+			private function change(event:Event):void
+			{
+				var cfield:String =dataGridListData.dataField as String;
+				data[cfield]=consultti.selectedItem[this._singleType.cconsultswfld];
+				if(cfield.indexOf("_Name")!=-1)
+				{
+					var cfields:String = cfield.substring(0,cfield.indexOf("_Name"));
+					var cconsultbkfld:String=_singleType.cconsultbkfld;
+					data[cfields]=consultti.selectedItem[cconsultbkfld];
+					subTableAssignment(cfields,data[cfields],data);
+					dataGridListData.owner.initialize();
+				}
+				var ctable:String=singleType.ctable;
+				subTableAssignment(cfield,ctable,data[cfield],data,true,dataGridListData.owner);
+			}
+			
+			public function grayedOutFun(obj:Object):void
+			{
+				var value:String =obj.value as String;
+				var valueArr:Array = value.split(",");
+				
+				//设置可选
+				var objInfo:Object = ObjectUtil.getClassInfo(data); 
+				var fieldName:Array = objInfo["properties"] as Array;
+				for each(var q:QName in fieldName){ 
+					var cfieldName:String=q.localName;
+					var cfield:String=cfieldName+"_enabled";
+					if(data.hasOwnProperty(cfield))
+					{
+						data[cfield]="1";
+					}
+				}
+				
+				//设置不可选
+				for(var i:int=0;i<valueArr.length;i++)
+				{
+					var valueStr:String = valueArr[i]+"_Name_enabled";
+					var valueStr1:String =valueArr[i]+"_enabled";
+					if(data.hasOwnProperty(valueStr))
+					{
+						data[valueStr]="-1";
+						data[valueArr[i]]="";
+					}
+					if(data.hasOwnProperty(valueStr1))
+					{
+						data[valueStr1]="-1";
+						data[valueArr[i]+"_Name"]="";
+					}
+				}
+			}
+			
+			public function conditionSqlFunction(cconsultconfld:String):String
+			{
+				var cconsultconfldArr:Array = cconsultconfld.split("|");
+				
+				var value:Object = paramForm.getValue();
+				var sql:String ="";
+				for(var i:int=0;i<cconsultconfldArr.length;i++)
+				{
+					var cconsultconfldObj:String=cconsultconfldArr[i] as String;
+					var cconsultconfldObjArr:Array =cconsultconfldObj.split("=");
+					sql+=" and "+cconsultconfldObjArr[0]+"=";
+					var cfield:String =cconsultconfldObjArr[1];
+					
+					//从表头取出值作为条件
+					if(cfield.indexOf(".")!=-1)
+					{
+						var cfield2:String=cfield.substr(cfield.indexOf(".")+1);
+						sql+="'"+value[cfield2]+"'";
+					}
+						//从表体本身(当前行)取值作为条件
+					else if(data.hasOwnProperty(cfield))
+					{
+						sql+="'"+data[cfield]+"'";
+					}
+						//常量
+					else
+					{
+						sql+=cfield;
+					}
+				}
+				return sql;
+			}
+			
+		
+		]]>
+	</fx:Script>
+	<mx:HBox id="myBox" width="100%"/>
+	<!--<module:CrmEapComboBox id="consultti" width="100%" valueChange="change()" conditionSqlFunction="{conditionSqlFunction}" text="{data[dataGridListData.dataField]}"/>-->
+</s:MXDataGridItemRenderer>

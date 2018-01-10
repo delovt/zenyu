@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" horizontalAlign="center" paddingRight="0" horizontalGap="0" paddingTop="5" creationComplete="ne_creationCompleteHandler(event)"
+		 toolTip="{'编码：'+_code+'  姓名：'+_text}">
+	    <fx:Script>
+			<![CDATA[
+				import mx.rpc.events.ResultEvent;
+				import mx.utils.ObjectUtil;
+				
+				import yssoft.models.CRMmodel;
+				import yssoft.models.ConstsModel;
+				import yssoft.tools.AccessUtil;
+				import yssoft.tools.CRMtool;
+				[Bindable]
+				public var fontcolor:int=0x0874C2;
+				[Bindable]
+				public var _userid:int;
+				[Bindable]
+				public var _code:String;
+				[Bindable]
+				public var _personid:int;
+				[Bindable]
+				public var _text:String;
+				[Bindable]
+				public var _count:String;
+				[Bindable]
+				public var isShowText:Boolean=true;
+				[Bindable]
+				public var isShowCount:Boolean=true;
+				
+				//根据 用户的 id 来从 upload/header 目录下，下载 用户头像
+				
+				private var loader:Loader;
+				private function ne_creationCompleteHandler(event:Event):void
+				{
+						loadUserHeaderIcon(_personid);
+				}
+				/**
+				 * 根据用户iid 来获取头像
+				 */
+				private function loadUserHeaderIcon(iid:int):void{
+					var param:Object={};
+					param.fileName=""+iid;
+					param.fileType="jpg";
+					param.downType="0";
+					AccessUtil.remoteCallJava("FileDest","downFile",loadHeaderIconCallBack,param,null,false);
+				}
+				private function loadHeaderIconCallBack(event:ResultEvent):void{
+					if(event.result){
+						var ba:ByteArray=event.result as ByteArray;
+						var loader:Loader = new Loader();
+						loader.contentLoaderInfo.addEventListener(Event.COMPLETE,function(event:Event):void{
+							try{
+							var sourceBMP:Bitmap = event.currentTarget.loader.content as Bitmap;
+							personIcon.source=sourceBMP;
+							CRMtool.addUserHeaderIcon(_personid,sourceBMP);
+							}catch(e:Error){
+							
+							}
+						});
+						loader.loadBytes(ba);
+					}
+					else
+					{
+						personIcon.source=ConstsModel.wf_inodetype_0;
+					}
+				}
+			]]>
+		</fx:Script>
+		<mx:Canvas borderStyle="solid" height="46" width="46" cornerRadius="4">
+			<mx:Image id="personIcon" width="40" height="40" top="2" left="2"/>
+		</mx:Canvas>
+		<mx:Label text="{_text}" textAlign="center" visible="{this.isShowText}" color="{this.fontcolor}" includeInLayout="{this.isShowText}"/>
+		<mx:Label text="{_count}" textAlign="center" visible="{this.isShowCount}" color="{this.fontcolor}" includeInLayout="{this.isShowCount}"/>
+</mx:VBox>

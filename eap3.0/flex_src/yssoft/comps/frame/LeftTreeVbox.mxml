@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" height="100%"
+		 paddingRight="-1"
+		 creationComplete="treInit()"
+		 xmlns:comps="yssoft.comps.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.messaging.channels.StreamingAMFChannel;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import yssoft.comps.NodeElement;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var _itemObj:Object;
+			
+			public var parentForm:Object;
+			
+			private var result:String="";
+			
+			public function set itemObj(value:Object):void
+			{
+				_itemObj = value;
+			}
+			
+			private function treInit():void
+			{
+				parentForm = this.owner;
+				if(_itemObj.hasOwnProperty("onGetTreeParam"))
+				{
+					var cname:String;
+					if(_itemObj.onGetTreeParam=="null")
+					{
+						cname="";
+					}
+					else
+					{
+						cname=_itemObj.onGetTreeParam as String;
+					}
+					AccessUtil.remoteCallJava(_itemObj.tredest,_itemObj.onGetTree,treInitBack,cname);
+				}
+				else
+				{
+					AccessUtil.remoteCallJava(_itemObj.tredest,_itemObj.onGetTree,treInitBack);
+				}
+			}
+			
+			private function treInitBack(event:ResultEvent):void
+			{
+				if(event.result!=null)
+				{
+					result = event.result as String;
+					this.tre_department.treeCompsXml = new XML(result);
+				}
+			}
+			
+			private function onChange():void
+			{
+				if(this.tre_department.selectedItem)
+				{
+					var treCfield:String=this._itemObj.treCfield;
+					var treCfieldArr:Array = treCfield.split("|");
+					
+					var param:Object = new Object();
+					var sql:String="";
+					for(var i:int=0;i<treCfieldArr.length;i++)
+					{
+						var treCfieldArrStr:String= treCfieldArr[i];
+						var treCfieldStrArr:Array = treCfieldArrStr.split("、");
+						var str0:String = this.tre_department.selectedItem["@"+treCfieldStrArr[1]];
+						param[treCfieldStrArr[0]]=str0;
+						sql+=" and "+treCfieldStrArr[0]+"='"+str0+"'";
+					}
+					
+					if(_itemObj.hasOwnProperty("treClink"))
+					{
+						var ipid:String=this.tre_department.selectedItem.@ipid+"";
+						param.ipid=ipid;
+						this.tre_department.DeleteSelectNode();
+						AccessUtil.remoteCallJava(_itemObj.tredest,_itemObj.treClink,treClink,param,null,false);
+					}
+						
+					parentForm.pageInitBack(sql); 
+				}
+				else
+				{
+					CRMtool.tipAlert("请选择要操作的记录");
+				}
+			}
+			
+			
+			private function treClink(event:ResultEvent):void
+			{
+				if(event.result!=null)
+				{
+					var resultStr:String = event.result as String;
+					
+					var _node:XML=this.tre_department.treeCompsXml.descendants("*").(@cVer==this.tre_department.selectedItem.@cVer)[0] as XML;
+					_node.appendChild(XMLList(resultStr)); 
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:ApplicationControlBar width="100%" styleName="frameSideAppBar" height="32" >
+		<s:Label text="{_itemObj.treTitle}" styleName="contentTitle"/>
+	</mx:ApplicationControlBar>
+	<mx:HBox width="100%" height="100%" styleName="lefttree1">
+		<comps:TreeCompsVbox id="tre_department" width="100%" height="100%" click="onChange()"/>
+	</mx:HBox>
+	<mx:HBox width="100%"  height="5%"  paddingLeft="10" paddingRight="10" paddingBottom="10">
+		<mx:Button label="{_itemObj.button1}" height="25" width="50%" click="treInit()" visible="{_itemObj.button1IsShow==1?true:false}"/>
+		<mx:Button label="{_itemObj.button2}" height="25" width="50%" click="CRMtool.openMenuItemFormOther(_itemObj.clzz,null,'','')"
+				   visible="{_itemObj.button2IsShow==1?true:false}"/>
+	</mx:HBox>
+</mx:VBox>

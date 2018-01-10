@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="支持反馈情况"
+                        width="650" height="194"
+                        xmlns:module="yssoft.comps.frame.module.*"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+        import flashx.textLayout.formats.Float;
+
+        import mx.collections.ArrayCollection;
+        import mx.collections.ArrayList;
+        import mx.controls.Alert;
+        import mx.controls.CheckBox;
+        import mx.controls.TextInput;
+        import mx.events.DataGridEvent;
+        import mx.events.DataGridEventReason;
+        import mx.events.FlexEvent;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.comps.CRMDataGridForCheckBox;
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var iid:int;
+        private var crmeap:CrmEapRadianVbox;
+
+        private var icustomer:int;
+
+        public function myinit(iid:int, crmeap:CrmEapRadianVbox):void {
+            this.iid = iid;
+            this.crmeap = crmeap;
+            this.icustomer = (crmeap.getValue() as Object).icustomer;
+            initConsult();
+            CRMtool.openView(this);
+            var param:Object = crmeap.getValue();
+            this.ui_cfeedback.text = param.cfeedback;
+            this.ui_cresult.text = param.cresult;
+            this.ui_fresult.text = param.fresult;
+        }
+
+        private function initConsult():void {
+        }
+
+        public function onGetConsultSqlCondition(value:String = "icustomer=icustomer"):String {
+            if (icustomer > 0) {
+                return  " and icustomer=" + icustomer;
+            }
+            else {
+                return "";
+            }
+        }
+
+        private var flag:Boolean = true;
+
+        protected function titlewindow1_updateCompleteHandler():void {
+            //if(ui_iaperson&&ui_cfeedback&&flag){
+            var valueObj:Object = crmeap.getValue();
+
+            ui_cresult.text = valueObj.cresult;
+            ui_fresult.text = valueObj.fresult;
+            ui_cfeedback.text = valueObj.cfeedback;
+            //ui_cfeedback.onDataChange();
+
+            CRMtool.setTabIndex(this.myBorder);
+            flag = false;
+            //}
+        }
+
+        private function verification():Boolean {
+            if (!verificationItem(ui_fresult)) {
+                return false;
+            }
+
+            return true;
+
+        }
+
+        private function verificationItem(textInput:Object):Boolean {
+            var bool:Boolean = true;
+            if (CRMtool.isStringNull(textInput.text)) {
+                bool = false;
+                //CRMtool.showAlert(textInput.id+"  必填");
+                textInput.setFocus();
+            }
+            return bool;
+        }
+
+        override protected function onSubmit():void {
+            var valueObj:Object = crmeap.getValue();
+
+            if (verification() == false) {
+                return;
+            }
+
+            valueObj.cfeedback = ui_cfeedback.text;
+            valueObj.cresult = ui_cresult.text;
+            valueObj.fresult = ui_fresult.text;
+
+            //valueObj.istatus=2;
+
+            var sql:String = "update sa_presupport set cfeedback='" + valueObj.cfeedback + "',cresult='" + valueObj.cresult + "',fresult=" + valueObj.fresult + " where iid =" + valueObj.iid;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function ():void {
+                CRMtool.tipAlert("提交支持申请成功！");
+                var obj:Object = new Object();
+                obj.mainValue = valueObj;
+                crmeap.setValue(obj, 1, 1);
+                onCloseHandler();
+            }, sql, "更新中……");
+
+        }
+        ]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:VBox id="myBorder" width="100%" height="186" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" verticalGap="10" >
+		<mx:VBox width="100%" height="33" styleName="content">
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%" id="ui_cfeedback_box">
+					<mx:Label text="支持效果反馈:" styleName="contentLabel"/>
+					<mx:TextInput id="ui_cfeedback" height="100%" styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="最终成交情况:" styleName="contentLabel" />
+					<mx:TextInput id="ui_cresult"  styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="33" styleName="content">
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%">
+					<mx:Label text="最终成交金额:" styleName="contentLabel" color="red"/>
+					<mx:TextInput id="ui_fresult" restrict="0-9." height="100%" styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:HBox  verticalAlign="middle" paddingRight="10" paddingLeft="10">
+			<s:Spacer width="455"/>
+			<s:Button label="确定" click="onSubmit()"/>
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<mx:Label xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+		selectable="true" click="label1_clickHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			protected function label1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(event.ctrlKey) {
+					System.setClipboard(this.text);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<!-- To change this template use File | Settings | File Templates. -->
+</mx:Label>

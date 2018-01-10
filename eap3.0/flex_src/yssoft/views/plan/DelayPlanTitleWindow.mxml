@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:Basic="yssoft.comps.frame.module.Basic.*" 
+						title="计划顺延"
+						width="700" height="450">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]private var _fromList:ArrayCollection;
+			[Bindable]public var fromTitle:String;
+			
+			[Bindable]private var _toList:ArrayCollection;
+			[Bindable]public var toTitle:String;			
+			private var _winParam:Object;
+			
+			[Bindable]private var _iplan:int;
+
+			public function get iplan():int
+			{
+				return _iplan;
+			}
+
+			public function get winParam():Object
+			{
+				return _winParam;
+			}
+
+			public function set winParam(value:Object):void
+			{				
+				if(value){
+					_winParam = CRMtool.ObjectCopy(value);
+					
+					switch(winParam.itype){
+						case 1:
+							if(winParam.year+1<=CRMmodel.maxYear)
+								winParam.year++;	
+							else
+								return;
+							break;
+						case 2:
+							if(winParam.quarter+1<=4)
+								winParam.quarter++;	
+							else{
+								if(winParam.year+1<=CRMmodel.maxYear){
+									winParam.year++;	
+									winParam.quarter=1;
+								}else
+									return;
+							}
+							break;
+						case 3:
+							if(winParam.month+1<=12)
+								winParam.month++;
+							else{
+								if(winParam.year+1<=CRMmodel.maxYear){
+									winParam.year++;	
+									winParam.month=1;
+								}else
+									return;
+							}
+							break;
+						case 4:
+							if(winParam.week+1<=54)
+								winParam.week++;
+							break;
+					}
+					getPlanId();
+					initTitle();
+				}
+			}
+			
+			private function initTitle():void{
+				if(winParam){
+					switch(winParam.itype){
+						case 1:
+							toTitle = winParam.year+"年";
+							if(winParam.year==new Date().fullYear)
+								toTitle +=" （本年）";
+							break;
+						case 2:
+							toTitle = winParam.year+"年 第"+winParam.quarter+"季";
+							if(winParam.year==new Date().fullYear&&winParam.quarter==Math.ceil((new Date().month+1)/3))
+								toTitle +=" （本季）";
+							break;
+						case 3:
+							toTitle = winParam.year+"年 "+winParam.month+"月";
+							if(winParam.year==new Date().fullYear&&winParam.month==new Date().month+1)
+								toTitle +=" （本月）";
+							break;
+						case 4:
+							toTitle =CRMtool.convertDateToString(CRMtool.firstDayInWeek(winParam.year,winParam.week),"YYYY年MM月DD日")+" - "+CRMtool.convertDateToString(CRMtool.endDayInWeek(winParam.year,winParam.week),"YYYY年MM月DD日");
+							//subTitle = winParam.year+"年 第"+winParam.week+"周";
+							if(winParam.year==new Date().fullYear&&CRMtool.weekOfYear(new Date())==winParam.week)
+								toTitle +=" （本周）";
+							break;
+					}
+				}
+			}
+			
+			private function getPlanId():void{
+				var sql:String = "select top 1 iid from oa_plan where 1=1 and itype="+winParam.itype+" ";
+				if(winParam){
+					switch(winParam.itype){
+						case 1:
+							sql+="and iyear="+winParam.year;
+							break;
+						case 2:
+							sql+="and iyear="+winParam.year+" and iseason="+winParam.quarter;
+							break;
+						case 3:
+							sql+="and iyear="+winParam.year+" and imonth="+winParam.month;
+							break;
+						case 4:
+							var debgin:String = CRMtool.formatDateNoHNS(CRMtool.firstDayInWeek(winParam.year, winParam.week));
+							var dend:String = CRMtool.formatDateNoHNS(CRMtool.endDayInWeek(winParam.year, winParam.week));
+							sql += " and dbegin='"+debgin+"' and dend='"+dend+"'";
+							break;
+					}				
+				}
+				sql+=" and iperson="+CRMmodel.userId;
+			
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					if(ac&&ac.length>0){
+						var iid:int = ac[0].iid;
+						iplan = iid;
+					}else{
+						//iplan = 0;
+					}
+				},sql,null,false);
+			}
+			
+			public function set iplan(value:int):void
+			{
+				_iplan = value;
+				if(value>0){
+					AccessUtil.remoteCallJava("OADest","getPlanList",function(event:ResultEvent):void{
+						var obj:Object = event.result;
+						if(obj){
+							_toList = obj.planList;
+						}
+					},value);
+				}else{
+				
+				}
+			}
+
+			
+			public function get fromList():ArrayCollection
+			{
+				return _fromList;
+			}
+
+			public function set fromList(value:ArrayCollection):void
+			{
+				var swapValue:ArrayCollection = new ArrayCollection(CRMtool.ObjectCopy(value.toArray()));
+				for each(var item:Object in swapValue){
+					if(item.istatus==1||item.istatus==2)
+						item.selected = false;
+					else
+						item.selected = true;
+				}
+				_fromList = swapValue;
+			}
+
+			
+			
+			override protected function onSubmit():void
+			{
+				if(_iplan>0){
+					var ac:ArrayCollection = new ArrayCollection();
+					for each(var item:Object in _fromList){
+						if(item.selected){
+							item.iplan = _iplan;
+							item.dmaker = CRMtool.getNowDateHNS();
+							item.dmodify =CRMtool.getNowDateHNS();
+							item.iplans=0;
+                            item.istatus = 0;
+                            item.dmessage = '';
+							ac.addItem(item);
+						}
+					}
+					
+					AccessUtil.remoteCallJava("OADest","addPlansList",function(event:ResultEvent):void{
+						if(event.result as Boolean){
+							iplan = _iplan;
+							for each(var item:Object in _fromList){
+								item.selected = false;
+							}
+							_fromList.refresh();
+							CRMtool.showAlert("顺延成功。");
+						}							
+						else
+							CRMtool.showAlert("顺延失败。");
+					},ac);
+				}else{
+					var obj:Object = new Object();
+					obj.itype =winParam.itype;
+					obj.year =winParam.year;
+					obj.month = winParam.month;
+					obj.quarter = winParam.quarter;
+					obj.week =winParam.week;
+					obj.cname ="";
+					obj.idepartment =CRMmodel.hrperson.idepartment;
+					obj.iperson =CRMmodel.userId;
+					obj.dmaker =CRMtool.getNowDateHNS();
+					if(winParam.itype ==4){
+						obj.dbegin = CRMtool.formatDateNoHNS(CRMtool.firstDayInWeek(winParam.year, winParam.week));
+						obj.dend = CRMtool.formatDateNoHNS(CRMtool.endDayInWeek(winParam.year, winParam.week));
+					}
+					
+					AccessUtil.remoteCallJava("OADest","addPlan",function(event:ResultEvent):void{
+						if(int(event.result)>0){
+							_iplan = int(event.result);
+							onSubmit();
+						}else
+							CRMtool.showAlert("顺延失败。");
+					},obj);
+				}
+			}
+			
+			protected function fromDG_itemClickHandler(event:ListEvent):void
+			{
+				fromDG.selectedItem.selected = !fromDG.selectedItem.selected;
+				_fromList.refresh();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
+		<mx:HBox width="100%" height="100%" horizontalGap="20">
+			<mx:VBox width="50%" height="100%" verticalGap="0">
+				<mx:HBox width="100%" paddingLeft="2" paddingRight="2">
+					<s:Label text="{fromTitle}" fontSize="12"/>	
+					<s:Spacer width="100%"/>
+					<s:Label text="当前阶段"/>
+				</mx:HBox>						
+				<s:Spacer height="3"/>
+				<mx:DataGrid id="fromDG" width="100%" height="100%" dataProvider="{_fromList}" borderVisible="true" itemClick="fromDG_itemClickHandler(event)">
+					<mx:columns>
+						<mx:DataGridColumn headerText="" dataField="selected" width="20">
+							<mx:itemRenderer>
+								<fx:Component>
+									<s:MXDataGridItemRenderer>
+										
+										<fx:Script>
+											<![CDATA[
+												
+											]]>
+										</fx:Script>
+										
+										<s:CheckBox id="mycb" selected="{data.selected}" enabled="false"/>
+									</s:MXDataGridItemRenderer>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="" dataField="istatus" width="20">
+							<mx:itemRenderer>
+								<fx:Component>
+									<s:MXDataGridItemRenderer>
+										
+										<fx:Script>
+											<![CDATA[
+												import yssoft.tools.CRMtool;
+												
+											]]>
+										</fx:Script>
+										
+										<s:Image source="yssoft/assets/images/plan/type2{CRMtool.isStringNotNull(data.istatus)?data.istatus:0}.png"/>
+									</s:MXDataGridItemRenderer>
+								</fx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="计划分类" dataField="ctype" width="80" itemRenderer="mx.controls.Label"/>
+						<mx:DataGridColumn headerText="计划细则" dataField="cdetail" itemRenderer="mx.controls.Label"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+			<mx:VBox  width="50%" height="100%" verticalGap="0">
+				<mx:HBox width="100%" paddingLeft="2" paddingRight="2">
+					<s:Label text="{toTitle}" fontSize="12"/>	
+					<s:Spacer width="100%"/>
+					<s:Label text="下一阶段"/>
+				</mx:HBox>	
+				<s:Spacer height="3"/>
+				<mx:DataGrid width="100%" height="100%" dataProvider="{_toList}" borderVisible="true">
+					<mx:columns>
+						<mx:DataGridColumn headerText="计划分类" dataField="ctype" width="80" itemRenderer="mx.controls.Label"/>
+						<mx:DataGridColumn headerText="计划细则" dataField="cdetail" itemRenderer="mx.controls.Label"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+		</mx:HBox>
+		<s:Spacer height="5"/>
+		<mx:HBox width="100%">
+			<mx:Text text="勾选左侧条目作为顺延数据"/>
+			<s:Spacer width="100%"/>
+			<s:Button label="确定" click="onSubmit()"/>
+			<s:Button label="关闭" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</Basic:BasicTitleWindow>

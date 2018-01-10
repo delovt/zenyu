@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                   xmlns:view="yssoft.views.callcenter_new.softdial.*"
+                   width="100%" height="100%"
+                   borderVisible="false"
+                   xmlns:comps="yssoft.comps.*"
+                   creationComplete="mainViewCCHandler();getIsuper();initStateMainView();" keyDown="fastOpenLockedWindow(event)"
+                   xmlns:navmenu="yssoft.comps.navmenu.*" click="appliction_clickSearch(event)">
+
+    <fx:Script>
+		<![CDATA[
+        import yssoft.evts.GetNumberEvent;
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.interfaces.IMainViewStackRefresh;
+        import yssoft.scripts.CallCenterConnect;
+        import yssoft.views.callcenter_new.HotLineViews;
+
+        [Embed(source="/yssoft/assets/eap1.0/online.png")]
+        public var online:Class;
+        [Embed(source="/yssoft/assets/eap1.0/dbsx.png")]
+        public var dbsx:Class;
+        [Embed(source="/yssoft/assets/eap1.0/msg.png")]
+        public var msg:Class;
+        [Embed(source="/yssoft/assets/eap1.0/jhtx.png")]
+        public var jhtx:Class;
+
+        [Embed(source="/yssoft/assets/eap1.0/help.png")]
+        public var help:Class;
+
+        [Embed(source="/yssoft/assets/eap1.0/onlineC.png")]
+        public var onlineC:Class;
+        [Embed(source="/yssoft/assets/eap1.0/dbsxC.png")]
+        public var dbsxC:Class;
+        [Embed(source="/yssoft/assets/eap1.0/msgC.png")]
+        public var msgC:Class;
+        [Embed(source="/yssoft/assets/eap1.0/jhtxC.png")]
+        public var jhtxC:Class;
+        [Embed(source='/yssoft/assets/images/call_miss.png')]
+        public var notConnected:Class;
+        [Embed(source='/yssoft/assets/images/call_out.png')]
+        public var theConnected:Class;
+        [Bindable]
+        public var isShow:Boolean = true;
+        [Bindable]
+        public var phoneNumberText:String = "";
+        public var auth:OperDataAuth; //操作权限
+        [Bindable]
+        public var isSuccess:Boolean = false;
+
+        /**
+         * 脚本控制
+         * @auth: zmm
+         * @date: 2011-08-04
+         */
+// 主窗体 加载 完成
+        private function mainViewCCHandler():void {
+            auth = new OperDataAuth();
+            //---------------加载操作权限 begin---------------//
+            var params1:Object = new Object();
+            params1.ifuncregedit = 453;
+            params1.iperson = CRMmodel.userId;
+            auth.addEventListener("onGet_FunoperauthSucess", function (event:Event):void {
+                for each(var ah:Object in auth.operauthArr) {
+                    if (ah.benable == 0 && ah.operid == "01") {
+                        isShow = false;
+                    }
+                }
+
+                if(CRMmodel.cc_allowcount < 5) {  //五个许可内不显示此功能
+                    isShow = false;
+                }
+                if(isShow){
+                    //连接成功
+                    var call:CallCenterConnect = new CallCenterConnect();
+                    call.addEventListener("connOK",function(event:Event):void{
+                        isSuccess = true;
+                    });
+                    //连接关闭
+                    call.addEventListener("connclose",function(event:Event):void{
+                        isSuccess = false;
+                    });
+                    //连接异常
+                    call.addEventListener("connerror",function(event:Event):void{
+                        isSuccess = false;
+                    });
+                    //挂机事件
+//                    call.addEventListener("msgChange",function(event:Event):void{
+//                        if(softDial.setAside.label == "挂机") {
+//                            softDial.click_handel();
+//                        }
+//                    });
+
+                }
+
+            });
+            auth.get_funoperauth(params1);
+
+            //---------------加载操作权限 end---------------//
+
+            CRMmodel.mainView = this;
+
+            CRMmodel.mainSearchTextInput = newTextInput;
+
+            this.setFocus();
+            CRMtool.addExt();
+            getAuthMenus();
+            this.stage.addEventListener(MouseEvent.CLICK, onStageClick);
+            //this.stage.addEventListener(Event.DEACTIVATE,onStageClick);
+            loadUserHeaderIcon();
+            CRMmodel.mainViewStack = this.mainViewStack;
+            CRMmodel.crmLinkBar = this.crmLinkBar;
+
+            //this.welcomeTxt.htmlText="<b>欢迎您<br/><font color='#4F9CD4' >"+CRMmodel.hrperson.cname+"</font></b>";
+
+            // 对js 开放 flex onLogoutHandler 方法
+            ExternalInterface.addCallback("logout", logoffLog);
+
+            //获取在线人数
+            try {
+                onLineUserTimer();
+            } catch (e:Error) {
+            }
+
+            // 订阅消息
+            this.msgCenter.subscribe();
+            //长时间不操作显示
+            this.systemManager.addEventListener(FlexEvent.IDLE, userIdle);
+
+            //检测加密锁
+            checkKey();
+
+            this.addEventListener(GetNumberEvent.eventtype,function(event):void {
+                var item:Object = event.param;
+                var num:String = String(item.callphone).substring(0, String(item.callphone).indexOf(' '));
+                var sql:String = "select cvalue from as_options where iid='94' ";
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var reslist:ArrayCollection = event.result as ArrayCollection;
+                    if(reslist.length > 0) {
+                        var outnum:String = reslist[0].cvalue;
+                        softDial.phoneNumber.text = outnum + num;
+                    } else {
+                        softDial.phoneNumber.text = num;
+                    }
+
+                },sql);
+
+            });
+
+
+        }
+
+        // 注销后 再次进入被执行,要完成一些清理工作
+        public function logoutEnter():void {
+            mainViewCCHandler();
+        }
+
+        //取得当前登录人的直接领导
+        private function getIsuper():void {
+            var sql:String = "select * from hr_department where iid=" + CRMmodel.hrperson.idepartment;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+                if (ac && ac.length > 0) {
+                    var ihead:int = ac[0].ihead;//部门主管
+                    var icharge:int = ac[0].icharge;//分管主管
+                    var ilead:int = ac[0].ilead;//分管领导
+
+                    if (ihead != CRMmodel.userId)
+                        CRMmodel.isuper = ihead;
+                    else if (icharge != CRMmodel.userId)
+                        CRMmodel.isuper = icharge;
+                    else if (ilead != CRMmodel.userId)
+                        CRMmodel.isuper = ilead;
+                    else
+                        CRMmodel.isuper = ilead;
+                }
+            }, sql, null, false);
+        }
+
+
+        //双击 关闭  标签，lr add
+        protected function crmLinkBar_doubleClickHandler(event:MouseEvent):void {
+            var newLink:LinkButton = event.target as LinkButton;
+            if (newLink) {
+                if (newLink.label == "我的桌面" || newLink.label == "常用功能") {
+                    return;
+                }
+                var index:int = crmLinkBar.getChildIndex(newLink);
+                linkBarCallBack(index);
+            }
+
+        }
+
+
+        protected function mainViewStack_valueCommitHandler(event:FlexEvent):void {
+
+            //crmLinkBar.selectedIndex = mainViewStack.selectedIndex;
+
+            var selectBox = mainViewStack.selectedChild;
+            if (selectBox is IMainViewStackRefresh) {
+                (selectBox as IMainViewStackRefresh).mainViewSelectMe();
+            }
+            this.right.width = 1;
+            this.left.width = 1;
+        }
+
+        protected function floatMsgWindow_msgcountChangeHandler(event:Event):void {
+            var hv:HomeViewPro = mainViewStack.getChildAt(0) as HomeViewPro;
+            if (hv)
+                hv.refSubHome();
+        }
+
+        protected function jhtxButton_clickHandler(event:MouseEvent):void {
+            if (CRMmodel.jhtx_count == 0) {
+                var param:String = ",ifuncregedit:35,ctable:oa_workplan,outifuncregedit:0,title:新建计划";
+                CRMtool.openMenuItemFormOther('yssoft.frameui.FrameCore', param, "工作计划", "");
+            } else {
+                var parmobj:Object = new Object();
+                parmobj.ifuncregedit = 41;
+                parmobj.ctable = "oa_workplan";
+                parmobj.outifuncregedit = 35;
+                parmobj.outtitle = "新建计划";
+                parmobj.relatedSql = " and istatus_UI6249=620 and bnomessage_UI6253=0 and dmessage<'" + CRMtool.getFormatDateString("YYYY-MM-DD HH:NN:SS", new Date()) + "' and imaker_UI6254=" + CRMmodel.userId;
+
+                CRMtool.openMenuItemFormOther("yssoft.comps.frame.FrameworkVBoxView", parmobj, "计划管理");
+            }
+        }
+
+        private function linkButton1_clickHandler(event:MouseEvent):void {
+            navigateToURL(new URLRequest("help/main.html"));
+        }
+
+        private function newTextInput_changeHandler(event:Event):void {
+            //wxh add
+            if (this.newTextInput.text == CRMmodel.programModeKeyword) {
+                CRMmodel.isCrmProgramMode = true;
+                this.newTextInput.text = "";
+                CRMtool.showAlert("已开启工程模式。");
+            }
+        }
+
+        private function button1_clickHandler(event:MouseEvent):void {
+            if (tabs == null) {
+                tabs = new TabsManager();
+                tabs.viewStack = this.mainViewStack;
+                //tabs.owner = this.tabsmg;
+                tabs.linkbar = this.crmLinkBar;
+            }
+            tabs.items = ergodic();
+            //this.tabsmg.popUp = tabs;
+            tabs.open();
+        }
+
+        /**
+         * 创建呼叫中心连接
+         * @param event
+         */
+        private function callButton_clickHandler(event:MouseEvent):void {
+            if(!isSuccess){
+                var cc:CallCenterConnect = new CallCenterConnect();
+                cc.addEventListener("connOK",function(event:Event):void{
+                    isSuccess = true;
+                });
+            }
+        }
+
+        private function initStateMainView():void{
+            HotLineViews.mainView = this;
+        }
+
+        ]]>
+	</fx:Script>
+
+    <fx:Script source="../scripts/SystemModules.as"/>
+    <fx:Script source="../scripts/MainViewScript.as"/>
+
+    <fx:Declarations>
+        <s:Consumer id="msgCenter" destination="MsgCenter" fault="msgCenterFault(event)"
+                    message="msgCenterHandler(event)"/>
+    </fx:Declarations>
+    <mx:Canvas styleName="top_bg" width="100%" height="45" top="0">
+        <s:Image source="yssoft/assets/index/logo.png" left="15"/>
+        <s:Image source="yssoft/assets/index/top_left.png" left="40"/>
+        <mx:Canvas id="menubar" right="0" height="45" bottom="0">
+            <mx:HBox height="45" left="0" right="10" top="0" bottom="0"/>
+            <mx:LinkButton styleName="logout"
+                           toolTip="注销" name="Logout" click="baseLinkButtonHandler(event)" verticalCenter="0"
+                           right="15"/>
+            <navmenu:NavMenuBar color="#ffffff" height="45" fontWeight="bold" fontSize="14" id="navbb"
+                                right="{fixwidth}" left="60" bottom="0" fontFamily="宋体"
+                                overchange="navbbItemRollOver(event)" rollOut="onMenuRollOut(event)"/>
+        </mx:Canvas>
+    </mx:Canvas>
+
+    <basic:BasicTitleWindow width="100%" height="100%" id="content" visible="false"
+                            includeInLayout="false" isAllowMax="true"
+                            showInAutomationHierarchy="false" depth="99" title="共找到{arrSearch.length}个相关结果"
+                            myClose="content.visible = false">
+        <basic:layout>
+            <s:VerticalLayout/>
+        </basic:layout>
+    </basic:BasicTitleWindow>
+
+    <s:BorderContainer borderVisible="false" width="100%" height="100%" cornerRadius="0" top="45">
+        <s:layout>
+            <s:VerticalLayout gap="0"/>
+        </s:layout>
+
+        <mx:HBox height="31" width="100%" verticalAlign="middle" horizontalGap="0" paddingTop="-2"
+                 styleName="menubar_bg" paddingLeft="2" paddingRight="10" verticalScrollPolicy="off">
+            <mx:HBox height="100%" verticalAlign="middle" horizontalGap="12" paddingLeft="10" paddingRight="13">
+                <mx:Button id="homeButton"
+                           styleName="popupbuttonskin_home"
+                           click="mainViewStack.selectedIndex=0;crmLinkBar.selectedIndex=0" toolTip="主页"/>
+                <mx:Button styleName="popupbuttonskin_del" click="button1_clickHandler(event)"/>
+                <!--<mx:PopUpButton id="tabsmg" width="12"
+                                creationComplete="onTabsCreateComplete()" open="onTabsChange()"
+                                styleName="popupbuttonskin_del" toolTip="页签管理"/>-->
+            </mx:HBox>
+            <mx:Canvas id="crmlinkbarcontent" height="100%" width="100%" horizontalScrollPolicy="off">
+                <mx:Canvas id="barBackCanvas" height="100%" styleName="barBackCanvas" x="-100"/>
+                <comps:CRMLinkBar verticalAlign="middle" horizontalGap="2" styleName="CRMLinkBar" height="100%"
+                                  fontWeight="bold" childAdd="lb_datachange('add')"
+                                  childRemove="lb_datachange('remove')"
+                                  id="crmLinkBar" barBackCanvas="{barBackCanvas}"
+                                  paddingLeft="-72" dataProvider="{mainViewStack}"
+                                  doubleClickEnabled="true" doubleClick="crmLinkBar_doubleClickHandler(event)"
+                                  selectedItemIcon="{ConstsModel.png_cancel}" callBack="linkBarCallBack"
+                        />
+            </mx:Canvas>
+            <mx:HBox id="linkbarnav" horizontalGap="0" width="60" paddingRight="10" verticalAlign="middle"
+                     visible="false" paddingBottom="-2">
+                <mx:Button styleName="prebutton" click="leftNav()" buttonMode="true"/>
+                <mx:Button styleName="nextbutton" click="rightNav()" buttonMode="true"/>
+            </mx:HBox>
+            <comps:SearchBoxTextInput id="newTextInput"
+                                      mouseDown="newTextInput_mouseDownHandler(event)"
+                                      basicSearch="basicSearchHandler()"
+                                      localSearch="localSearchHandler()"
+                                      search="_newTextInput_searchHandler(event)"
+                                      change="newTextInput_changeHandler(event)"/>
+        </mx:HBox>
+        <!--<mx:HBox styleName="yinying" height="3" width="100%"/>-->
+
+
+        <mx:HBox id="mainViewStackHBox" width="100%" height="100%" horizontalGap="0"
+                 paddingTop="1" paddingBottom="1">
+            <s:Spacer id="left" width="1" height="100%"/>
+            <mx:ViewStack id="mainViewStack" backgroundColor="#ffffff" width="100%" height="100%"
+                          valueCommit="mainViewStack_valueCommitHandler(event)"
+                          creationComplete="initHBoxHomePage()"/>
+            <s:Spacer id="right" width="1" height="100%"/>
+        </mx:HBox>
+
+        <mx:HBox width="100%" height="28" verticalAlign="middle" paddingLeft="3"
+                 styleName="indexbottom"
+                 paddingRight="5" horizontalGap="2">
+            <mx:LinkButton icon="@Embed(source='/yssoft/assets/images/shezhi.png')" styleName="icon_over"
+                           id="personinfotxt_user" textIndent="0" click="openUserDataEditView()"/>
+            <mx:Image source="yssoft/assets/images/menubar_separatorSkin1.png"/>
+            <mx:LinkButton styleName="icon_over" id="zxyhlkbt" label="在线人数：{CRMmodel.online_count}" name="ZXYH"
+                           toolTip="注册：{CRMmodel.personCount}   授权：{CRMmodel.authorizedUsersNum}"
+                           click="baseLinkButtonHandler(event)"
+                           icon="{online}"/>
+            <mx:LinkButton styleName="icon_over" label="使用帮助"
+                           click="linkButton1_clickHandler(event)"
+                           icon="{help}"/>
+            <mx:Image source="yssoft/assets/images/menubar_separatorSkin1.png"/>
+            <mx:LinkButton styleName="icon_over" id="callButton"
+                           toolTip="呼叫中心连接"
+                           click="callButton_clickHandler(event)"
+                           icon="{isSuccess==true?theConnected:notConnected}" visible="{isShow}"/>
+
+
+            <view:CRMSoftDialNew id="softDial" visible="{isShow}" width="270"/>
+
+            <s:Spacer width="100%"/>
+
+            <mx:LinkButton styleName="icon_over" label="待办：{CRMmodel.dbsx_count}" id="xxzxbt" name="XXZX"
+                           click="baseLinkButtonHandler(event)"
+                           icon="{CRMmodel.dbsx_count>0?dbsxC:dbsx}"/>
+            <mx:Image source="yssoft/assets/images/menubar_separatorSkin1.png"/>
+            <mx:LinkButton id="jhtxButton" styleName="icon_over" label="计划：{CRMmodel.jhtx_count}"
+                           icon="{CRMmodel.jhtx_count>0?jhtxC:jhtx}" click="jhtxButton_clickHandler(event)"/>
+
+            <mx:Image source="yssoft/assets/images/menubar_separatorSkin1.png"/>
+            <mx:LinkButton styleName="icon_over" label="消息：{CRMmodel.msg_count}" click="showFloatMsgHandler()"
+                           icon="{CRMmodel.msg_count>0?msgC:msg}"/>
+        </mx:HBox>
+    </s:BorderContainer>
+    <comps:FloatMsgWindow id="floatMsgWindow" right="10" bottom="35" visible="false"
+                          msgcountChange="floatMsgWindow_msgcountChangeHandler(event)"/>
+</s:BorderContainer>
+
+
+

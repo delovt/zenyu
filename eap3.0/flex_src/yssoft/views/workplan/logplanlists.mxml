@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox width="100%" height="100%" xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" styleName="contentHDividedBox"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:comps="yssoft.comps.*" 
+		 creationComplete="hdividedbox1_creationCompleteHandler(event)"
+		 xmlns:renders="yssoft.renders.*">
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.CalendarLayoutChangeEvent;
+        import mx.events.FlexEvent;
+        import mx.events.ItemClickEvent;
+        import mx.events.ListEvent;
+        import mx.formatters.DateFormatter;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        //工具栏初始化值
+        [Bindable]
+        public var lbrItem:ArrayCollection = new ArrayCollection([
+            {label: "日历", name: "onDate"    },
+            {label: "周历", name: "onWeek"},
+            {label: "月历", name: "onMonth"    },
+            {label: "列表", name: "onList"}
+        ]);
+
+        [Bindable]
+        public var personcount:ArrayCollection;
+        [Bindable]
+        public var personnotin:ArrayCollection;
+        //无计划人数
+        [Bindable]
+        public var notincout = 0;
+
+        //当前选择日期"YYYY-MM-DD"
+        public var seldate:String;
+
+        public var ifuniid:int = 52;//功能注册id
+
+        //浏览部门数据权限附加条件
+        public var adddepcondition:String = "";
+        //浏览部门人员数据权限附加条件
+        public var addpercondition:String = "";
+        //浏览数据权限附加条件
+        public var addcondition11:String = "";
+
+        //权限类对象
+        public var auth:OperDataAuth;
+
+        protected function hdividedbox1_creationCompleteHandler(event:FlexEvent = null):void {
+            auth = new OperDataAuth();
+            auth.addEventListener("onGet_ifuncregeditSucess", onGet_ifuncregeditBack);
+            auth.get_ifuncregedit(ifuniid);
+        }
+
+        public function onGet_ifuncregeditBack(event:Event):void {
+            //---------------加载数据权限 刘磊 20111015 begin---------------//
+            auth.addEventListener("onGet_FundataauthSucess", onGet_FundataauthBack);
+            var params2:Object = new Object();
+            params2.ifuncregedit = auth.outifuncregedit;
+            params2.iperson = CRMmodel.hrperson.iid;
+            auth.get_fundataauth(params2);
+            //---------------加载数据权限 刘磊 20111015 end---------------//
+        }
+
+        public function onGet_FundataauthBack(event:Event):void {
+            var arr:ArrayCollection = auth.dataauthArr;
+            this.addcondition11 = auth.getdataauthcondition("01", auth.outifuncregedit, CRMmodel.hrperson.iid, CRMmodel.hrperson.idepartment, "oa_workdiary", 1);
+            this.adddepcondition = auth.getdataauthcondition("01", auth.outifuncregedit, CRMmodel.hrperson.iid, CRMmodel.hrperson.idepartment, "oa_workdiary", 2);
+            this.addpercondition = auth.getdataauthcondition("01", auth.outifuncregedit, CRMmodel.hrperson.iid, CRMmodel.hrperson.idepartment, "oa_workdiary", 3);
+            var params:Object = new Object();
+            params.condition = this.adddepcondition;
+            params.iid = CRMmodel.hrperson.idepartment;
+            this.dtc_diary.selectedDate = new Date();
+            AccessUtil.remoteCallJava("HrDepartmentDest", "get_HR_departmentByWhere", loadTree_CallBackHandler, params);
+        }
+
+        public function loadTree_CallBackHandler(event:ResultEvent):void {
+            if (event.result != null) {
+                this.tre_tree.treeCompsXml = new XML(event.result as String);
+                this.selectall();
+                dtc_diary_changeHandler();
+                this.tre_tree.expandAll();
+            }
+            else {
+                this.tre_tree.treeCompsXml = null;
+            }
+        }
+
+        public function loadPersonCount_CallBackHandler(event:ResultEvent):void {
+            if (event.result != null) {
+                this.personcount = event.result as ArrayCollection;
+            }
+        }
+
+        public function loadPersonNotIn_CallBackHandler(event:ResultEvent):void {
+            if (event.result != null) {
+                this.personnotin = event.result as ArrayCollection;
+                if (this.personnotin != null) {
+                    this.notincout = this.personnotin.length;
+                }
+            }
+        }
+
+        public function selectall():void {
+            for each(var item:Object in this.tre_tree.treeCompsXml.descendants("*")) {
+                item[this.tre_tree.checkBoxStateField] = 1;
+            }
+        }
+
+        protected function tre_tree_clickHandler(event:MouseEvent = null):void {
+            var condition11:String = "";
+            var condition21:String = "";
+            var conditionTemp:String = "";
+
+            var first:Boolean = true;
+            for each(var item:Object in this.tre_tree.treeCompsXml.descendants("*")) {
+                if (item.@state == "1") {
+                    item[this.tre_tree.checkBoxStateField] = 1;
+                    if (first) {
+                        conditionTemp = "and convert(varchar(10),oa_workdiary.dday,120)='" + this.seldate;
+                        condition11 = "' and oa_workdiary.idepartment in (" + item.@iid + ")";
+                        condition21 = "and idepartment in (" + item.@iid + ")";
+                        first = false;
+                    }
+                    else {
+                        condition11 = condition11.replace(")", "," + item.@iid + ")");
+                        condition21 = condition21.replace(")", "," + item.@iid + ")");
+                    }
+                }
+                else {
+                    item[this.tre_tree.checkBoxStateField] = 0;
+                }
+            }
+
+            condition11 = conditionTemp + condition11;
+
+
+            if (condition11 != "") {
+                condition11 = condition11 + this.addcondition11 + this.addpercondition;
+                AccessUtil.remoteCallJava("hrPersonDest", "get_personlogcount", loadPersonCount_CallBackHandler, condition11, null, event == null);
+                var obj:Object = new Object();
+                obj.condition1 = condition11;
+                obj.condition2 = condition21 + this.addpercondition;
+                AccessUtil.remoteCallJava("hrPersonDest", "get_personlognotin", loadPersonNotIn_CallBackHandler, obj, null, event == null);
+            }
+            else {
+                this.rpt_person.dataProvider = null;
+                this.rpt_personnotin.dataProvider = null;
+            }
+        }
+
+        //窗体初始化
+        public function onWindowInit():void {
+
+        }
+
+        //窗体打开
+        public function onWindowOpen():void {
+            hdividedbox1_creationCompleteHandler();
+        }
+
+        //窗体关闭,完成窗体的清理工作
+        public function onWindowClose():void {
+
+        }
+
+        protected function imgtextrender1_onEditDeleteClickHandler(event:Event):void {
+            tre_tree_clickHandler();
+        }
+
+        protected function dtc_diary_changeHandler(event:CalendarLayoutChangeEvent = null):void {
+            if (tre_tree.treeCompsXml != null) {
+                var myformat:DateFormatter = new DateFormatter();
+                myformat.formatString = "YYYY-MM-DD";
+                seldate = myformat.format(this.dtc_diary.selectedDate);
+                tre_tree_clickHandler(new MouseEvent(MouseEvent.CLICK));
+            }
+        }
+
+        protected function btn_today_clickHandler(event:MouseEvent):void {
+            this.dtc_diary.selectedDate = new Date();
+        }
+
+        protected function lbr_toolbar_itemClickHandler(event:ItemClickEvent):void {
+            // TODO Auto-generated method stub
+
+        }
+
+        protected function linkbutton1_clickHandler(event:MouseEvent):void {
+            this.dtc_diary.selectedDate = new Date(this.dtc_diary.selectedDate.fullYear, this.dtc_diary.selectedDate.month, this.dtc_diary.selectedDate.date - 1);
+            dtc_diary_changeHandler();
+        }
+
+        protected function linkbutton2_clickHandler(event:MouseEvent):void {
+            this.dtc_diary.selectedDate = new Date(this.dtc_diary.selectedDate.fullYear, this.dtc_diary.selectedDate.month, this.dtc_diary.selectedDate.date + 1);
+            dtc_diary_changeHandler();
+        }
+        ]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+		<mx:VBox width="20%" height="100%" verticalGap="10">
+			<mx:VBox width="100%" height="40%">
+			     <mx:DateChooser cornerRadius="8" id="dtc_diary" width="100%" height="100%" borderVisible="true" borderColor="#c4cccc" borderAlpha="1" monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']" dayNames="['日','一','二','三','四','五','六']" change="dtc_diary_changeHandler(event)"/>
+			</mx:VBox>
+			<mx:VBox width="100%" height="60%" styleName="lefttree">
+				<mx:ApplicationControlBar styleName="contentTitle"  id="menuBar1" width="100%" height="32" dock="true">
+					<mx:Label text="部门"/>
+				</mx:ApplicationControlBar>
+				<mx:HBox width="100%" height="100%" styleName="lefttree1">
+				<comps:TreeCompsVbox id="tre_tree" width="100%" height="100%" borderVisible="false" checkBoxStateField="@state" 
+									 styleName="content" isShowCheckBox="true" click="tre_tree_clickHandler(event)" />	
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+		<mx:VBox width="80%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar styleName="centertop" id="menuBar2" x="0" y="0" width="100%" height="32" dock="true">
+				<mx:Button id="btn_today" label="本日" width="48" textIndent="2" height="25" click="btn_today_clickHandler(event)"/>
+				<mx:LinkButton icon="{ConstsModel.leftarrow}" width="20" paddingLeft="0" paddingRight="0" click="linkbutton1_clickHandler(event)"/>
+				<mx:LinkButton icon="{ConstsModel.rightarrow}" width="20" paddingLeft="0" paddingRight="0" click="linkbutton2_clickHandler(event)"/>
+				<mx:Label text="{CRMtool.convertDateToString(this.dtc_diary.selectedDate,'YYYY年MM月DD日')}" fontWeight="bold"/>
+				<mx:ButtonBar id="lbr_toolbar" styleName="contentButtonBar" height="25" dataProvider="{lbrItem}"
+							  itemClick="lbr_toolbar_itemClickHandler(event)" visible="false"/>
+			</mx:ApplicationControlBar>
+			<mx:Canvas width="100%" height="80%" horizontalScrollPolicy="off">
+				<mx:VBox width="100%" height="100%" paddingTop="5" horizontalAlign="center">
+					<mx:Repeater id="rpt_person" width="100%" height="100%" dataProvider="{personcount}">
+						<renders:ImgTextRender id="imgTextRenderLog" item="{rpt_person.currentItem}" onEditDeleteClick="imgtextrender1_onEditDeleteClickHandler(event)" isPlan="false" currDate="{seldate}"/>
+						<comps:CrmDotLine width="100%"/>
+					</mx:Repeater>
+				</mx:VBox>
+			</mx:Canvas>
+			
+			<mx:Canvas width="100%" >
+				<mx:Label text="{'他们本日无日志：('+this.notincout+')'}" width="100%" paddingLeft="8" paddingTop="5"/>
+			</mx:Canvas>
+			<mx:Canvas width="100%" height="90"  verticalScrollPolicy="off">
+				<mx:HBox width="100%" height="100%" paddingLeft="14"  paddingTop="0" paddingBottom="0">
+					<mx:Repeater id="rpt_personnotin" dataProvider="{personnotin}">
+						<renders:ImgText item="{rpt_personnotin.currentItem}" width="60"/>
+					</mx:Repeater>
+				</mx:HBox>
+			</mx:Canvas>
+		</mx:VBox>
+</mx:HDividedBox>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:List xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         alternatingItemColors="[white, white]"
+         selectable="false"
+         width="100%" rowHeight="25"
+         height="100%">
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Metadata>
+        [Event(name="selectedChanged", type="flash.events.Event")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.Sort;
+        import mx.controls.CheckBox;
+        import mx.controls.Label;
+        import mx.utils.ObjectUtil;
+
+        import yssoft.tools.CRMtool;
+        import yssoft.tools.SortUtil;
+
+        public var selectedList:ArrayCollection = new ArrayCollection();//已选数据集
+
+        [Bindable]
+        private var _dataValue:ArrayCollection;
+        public var selectLabel:Label;
+
+        public function set dataValue(value:ArrayCollection):void {
+            this._dataValue = value;
+        }
+
+        private var _cfield:String;
+
+        public function set cfield(value:String):void {
+            this._cfield = value;
+        }
+
+        public function get cfield():String {
+            return this._cfield;
+        }
+
+        private var _selectAllBox:CheckBox;
+
+        public function set selectAllBox(value:CheckBox):void {
+            this._selectAllBox = value;
+            _selectAllBox.addEventListener(Event.CHANGE, function (e:Event):void {
+                var selected:Boolean = _selectAllBox.selected;
+                isSelectedAll(selected);
+            });
+        }
+
+        public function get selectAllBox():CheckBox {
+            return this._selectAllBox;
+        }
+
+        public function isSelectedAll(selected:Boolean):void {
+            _selectAllBox.selected = selected;
+
+            var valueArr:ArrayCollection = this.dataProvider as ArrayCollection;
+            selectedList.removeAll();
+            if (selected) {
+                selectedList.addAll(valueArr);
+            } else {
+                this.selectedIndex = -1;
+            }
+
+            for each(var item:Object in valueArr) {
+                item.data = selected;
+            }
+
+            valueArr.refresh();
+            this.verticalScrollPosition = 0;
+
+            doListChange();
+        }
+
+        public function refresh(value:ArrayCollection):void {
+            var valueArr:ArrayCollection = new ArrayCollection();
+            var oldValue:ArrayCollection = ObjectUtil.clone(value) as ArrayCollection;
+
+            for each(var oitem:Object in oldValue) {
+                var isFind:Boolean = false;
+                for each(var mitem:Object in valueArr) {
+                    if ((mitem.label + "") == (oitem[_cfield] + "")) {
+                        isFind = true;
+                        break;
+                    }
+                }
+
+                if (!isFind) {
+                    var obj = oitem[_cfield];
+                    if (obj is Date) {
+                        obj = CRMtool.formatDateWithHNS(obj);
+                    }
+                    valueArr.addItem({ label: oitem[_cfield], name: obj});
+                }
+            }
+
+            this.dataProvider = valueArr;
+
+            var sort:Sort = new Sort();
+            SortUtil.setDataField("label");
+            sort.compareFunction = SortUtil.sortChineseObject;
+            dataProvider.sort = sort;
+            dataProvider.refresh();
+        }
+
+        public function doListChange():void {
+            selectLabel.text = "";
+            selectLabel.toolTip = "";
+            if (selectedList.length > 0)
+                selectLabel.text = "【" + selectedList.length + "】";
+
+            for each(var item:Object in selectedList) {
+                selectLabel.text += item.name;
+                selectLabel.text += " ";
+
+                selectLabel.toolTip += item.name;
+                selectLabel.toolTip += "\n";
+            }
+            selectLabel.text = selectLabel.text;
+
+            this._selectAllBox.selected = (dataProvider.length == this.selectedList.length);
+            dispatchEvent(new Event("selectedChanged"));
+        }
+        ]]>
+	</fx:Script>
+    <mx:itemRenderer>
+        <fx:Component>
+            <mx:HBox width="{outerDocument.width}" paddingTop="0" horizontalGap="0" horizontalScrollPolicy="off"
+                     horizontalAlign="left">
+                <mx:CheckBox id="cb" dataChange="{data.data}"
+                             change="checkBox1_changeHandler()" selected="{data.data}">
+                </mx:CheckBox>
+                <mx:Label width="{this.width-cb.width}" text="{data.name}" click="checkBox1_changeHandler()"
+                          textAlign="left"/>
+                <fx:Script><![CDATA[
+                    private function checkBox1_changeHandler():void {
+                        data.data = !data.data
+                        if (data.data) {
+                            outerDocument.selectedList.addItem(data);
+                        } else {
+                            outerDocument.selectedList.removeItemAt(outerDocument.selectedList.getItemIndex(data));
+                        }
+                        data = data;
+
+                        outerDocument.doListChange();
+                    }
+                    ]]></fx:Script>
+            </mx:HBox>
+        </fx:Component>
+    </mx:itemRenderer>
+</mx:List>

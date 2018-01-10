@@ -1,0 +1,519 @@
+﻿<?xml version="1.0"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+		 cornerRadius="5"
+		 verticalGap="-1"
+		 xmlns:comps="yssoft.comps.*" styleName="contentVBox" width="100%" height="100%" horizontalScrollPolicy="off"  creationComplete="creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			// creationComplete="getBodyData()"
+			import mx.collections.ArrayCollection;
+
+            import mx.controls.dataGridClasses.DataGridColumn;
+            import mx.events.FlexEvent;
+            import mx.events.ListEvent;
+            import mx.rpc.events.ResultEvent;
+
+
+
+            import yssoft.frameui.formopt.OperDataAuth;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.consultsets.ConsultsetSet;
+			import yssoft.vos.AcConsultclmVo;
+			import yssoft.vos.AcConsultsetVo;
+			
+			//模糊查询值
+			[Bindable]
+			public var search:String;
+			//数据字典中条件sql
+			[Bindable]
+			public var condition:String;
+			
+			
+			//参照编辑条件sql  lr add
+			public var cconsultedit:String;
+			
+			//子sql
+			[Bindable]
+			public var childsql:String;
+			//树分类编码
+			[Bindable]
+			public var treeccode:String;
+			
+			//参照窗体宽
+			[Bindable]
+			public var winwidth:int;
+			
+			//参照窗体高
+			[Bindable]
+			public var winheight:int;
+			
+			//允许多选
+			[Bindable]
+			public var allowmulti:Boolean;
+			
+			//选中记录集属性
+			public var selectRows:Object;
+
+            //表体集
+            [Bindable]
+            private var _bodyArr:ArrayCollection = new ArrayCollection();
+			
+			//参照主键
+			public var iid:int;
+			
+			//表头VO
+			[Bindable]
+			public var acConsultsetVo:AcConsultsetVo = new AcConsultsetVo();
+			//表体VO
+			public var acConsultclmVo:AcConsultclmVo;
+			
+			
+			//列表设置
+			public var consultsetSet:ConsultsetSet = new ConsultsetSet();
+			
+			//获得选中记录集回调方法
+			[Bindable]
+			public var getSelectListRows:Function;
+			
+			//关闭父窗体
+			[Bindable]
+			public var closeWindow:Function;
+			
+			//是否数据权限控制
+			[Bindable]
+			public var bdataauth:Boolean;
+			//相关功能注册内码
+			[Bindable]
+			public var ifuniid:int;
+			
+			//参照查询参数对象
+			private var obj:Object
+			
+			//权限类对象
+			public var auth:OperDataAuth;
+
+            //已选参照数据
+            [Bindable]
+            private var selectedList:ArrayCollection = new ArrayCollection();
+			
+			/**
+			 *
+			 * 作者：liu_lei
+			 * 日期：2011-08-23
+			 * 功能：获得选中数据退出
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 *
+			 */
+            protected function btn_ok_clickHandler(event:MouseEvent):void {
+                if (getSelectListRows != null) {
+                    var list:ArrayCollection = new ArrayCollection();
+                    for each(var item:Object in selectedList)
+                        if (item.checked)
+                            list.addItem(item);
+
+                    if (selectedList.length > 0)
+                        this.getSelectListRows(list);
+                    else
+                        this.getSelectListRows(new ArrayCollection([dgrd_details.selectedItem]));
+                }
+                this.closeParentWindow();
+            }
+			
+			private function closeParentWindow():void {
+				if (this.closeWindow != null) {
+					this.closeWindow();
+				}
+			}
+			
+			/**
+			 *
+			 * 作者：liu_lei
+			 * 日期：2011-08-24
+			 * 功能：全表格搜索定位
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 *
+			 */
+			protected function tnp_search_searchHandler():void {
+				this.search = tnp_search.text;
+				this.getBodyData();
+			}
+			
+			protected function tnp_search_keyDownHandler(event:KeyboardEvent):void {
+				if (event.keyCode == 13) {
+					tnp_search_searchHandler();
+				}
+			}
+			
+			
+			/**
+			 *
+			 * 作者：liu_lei
+			 * 日期：2011-08-23
+			 * 功能：获得表体数据
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 *
+			 */
+			public function getBodyData():void {
+				auth = new OperDataAuth();
+				obj = new Object();
+				obj.issql = 1;
+				obj.iid = this.iid;
+				obj.search = this.search;
+				obj.ccode = this.treeccode;
+				//---------------加载数据权限 刘磊 20111015 begin---------------//
+				auth.addEventListener("onGet_FundataauthSucess", onGet_FundataauthBack);
+				var params:Object = new Object();
+				params.ifuncregedit = ifuniid;
+				params.iperson = CRMmodel.userId;
+				auth.get_fundataauth(params);
+				//---------------加载数据权限 刘磊 20111015 end---------------//
+			}
+			
+			public function onGet_FundataauthBack(event:Event):void {
+				if (bdataauth) {
+					this.childsql = this.childsql + " " + auth.getdataauthcondition("01", ifuniid, CRMmodel.userId, CRMmodel.hrperson.idepartment, "", 1);
+				}
+				obj.childsql = this.childsql;
+				obj.condition = this.condition;
+				if(cconsultedit)
+					obj.cconsultedit = this.cconsultedit;
+				else
+					obj.cconsultedit="";
+				AccessUtil.remoteCallJava("ConsultDest", "getAcConsultListData", bodyData_callBackHandler, obj,null,false);
+			}
+			
+			/**
+			 *
+			 * 作者：liu_lei
+			 * 日期：2011-08-26
+			 * 功能：列表设置
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 *
+			 */
+			protected function btn_ConsultSet_clickHandler(event:MouseEvent):void {
+				this.consultsetSet.iid = this.iid;
+				this.consultsetSet.refreshStyle = getBodyData;
+				CRMtool.openView(this.consultsetSet);
+			}
+			
+			/**
+			 *
+			 * 作者：liu_lei
+			 * 日期：2011-08-23
+			 * 功能：获得表体数据回调
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 *
+			 */
+            private var _sql:String;
+            private var fieldlabels:ArrayCollection;
+            public function bodyData_callBackHandler(event:ResultEvent):void {
+                if (event.result.hasOwnProperty("exception") == false) {
+                    this.dgrd_details.cleanColumns();
+
+                    this.acConsultsetVo.cname = event.result.cname;
+                    this.acConsultsetVo.ipage = event.result.ipage;
+                    this.acConsultsetVo.cordersql = event.result.cordersql + "";
+                    //this.dgrd_details.InitColumns();
+                    var columns:Array = new Array();
+                    //动态创建其他数据列
+                    fieldlabels = event.result.success2;
+                    for (var i:int; i < fieldlabels.length; i++) {
+                        if (fieldlabels.getItemAt(i).bshow) {
+                            var col:DataGridColumn = new DataGridColumn();
+                            var cfield:String = fieldlabels.getItemAt(i).cfield + "";
+
+                            //lr add,对表名.字段名组合特殊处理
+                            var x:int = cfield.indexOf(".");
+                            if (i > -1) {
+                                col.dataField = cfield.substring(x + 1);
+                            } else {
+                                col.dataField = cfield;
+                            }
+
+
+                            col.headerText = fieldlabels.getItemAt(i).cnewcaption;
+                            col.width = fieldlabels.getItemAt(i).icolwidth;
+                            col.sortable = false;
+                            col.resizable = true;
+                            if (fieldlabels.getItemAt(i).ifieldtype == 3) {
+                                col.labelFunction = CRMtool.labelFunctionFormatDateNoHNS;
+                            }
+                            switch (fieldlabels.getItemAt(i).ialign) {
+                                case 0:
+                                {
+                                    col.setStyle("textAlign", "left");
+                                    break;
+                                }
+                                case 1:
+                                {
+                                    col.setStyle("textAlign", "center");
+                                    break;
+                                }
+                                case 2:
+                                {
+                                    col.setStyle("textAlign", "right");
+                                    break;
+                                }
+                            }
+                            columns.push(col);
+                        }
+                    }
+                    if (columns.length > 0) {
+                        this.dgrd_details.columns = this.dgrd_details.columns.concat(columns);
+                    }
+
+                    var paramObj:Object = new Object();
+                    if (this.acConsultsetVo.ipage == 0) {
+                        this.acConsultsetVo.ipage = 50;
+                    }
+                    paramObj.pagesize = this.acConsultsetVo.ipage;
+                    paramObj.curpage = 1;
+                    paramObj.sqlid = "get_persons_sql";
+                    var sql:String = String(event.result.success)
+                    paramObj.sql = CRMtool.replaceSystemValues(sql);
+                    _sql = paramObj.sql;
+                    if (this.acConsultsetVo.cordersql + "" != "null" || this.acConsultsetVo.cordersql == null) {
+                        paramObj.orderSql = this.acConsultsetVo.cordersql;
+                    } else {
+                        paramObj.orderSql = null;
+                    }
+
+                    this.pageBar.initPageHandler(paramObj, function (list:ArrayCollection):void {
+                        pageCallBack(list, paramObj.sql)
+                    });
+                }
+            }
+
+            private function getDateText(item:Object, column:DataGridColumn):String {
+				var strdate:String;
+				if (item[column.dataField] != null) {
+					strdate = item[column.dataField].toString();
+					if (strdate.length > 10) {
+						return CRMtool.convertDateToString(item[column.dataField], "YYYY-MM-DD");
+					}
+					else {
+						return strdate;
+					}
+				}
+				else {
+					return null;
+				}
+			}
+			
+			public function pageCallBack(list:ArrayCollection, sql:String):void {
+				this.bodyArr = list;
+			}
+			
+			protected function btn_all_clickHandler(event:MouseEvent):void {
+				var obj:Object = new Object();
+				obj.iid = this.iid;
+				obj.issql = 1;
+				obj.search = "";
+				obj.childsql = this.childsql;
+				if (condition) {
+					obj.condition = condition;
+				}
+				else {
+					obj.condition = "";
+				}
+				if(cconsultedit)
+					obj.cconsultedit = this.cconsultedit;
+				else
+					obj.cconsultedit="";
+				AccessUtil.remoteCallJava("ConsultDest", "getAcConsultListData", bodyData_callBackHandler, obj);
+			}
+			
+			protected function dgrd_details_clickHandler(event:MouseEvent):void {
+				this.pageBar.selectedNum = this.dgrd_details.getSelectRows().length;
+			}
+            private function rlb_listChangedHandler(event:Event):void {
+                var changedItem:Object = rlb.changedItem;
+                if (changedItem != null) {
+
+                    var i:int = -1
+                    for each(var item:Object in bodyArr) {
+                        i++;
+                        if (item.iid == changedItem.iid)
+                            break;
+                    }
+
+                    if (i > -1) {
+                        (dgrd_details.dataProvider as ArrayCollection).setItemAt(changedItem, i);
+                    }
+                    dgrd_details.selectedItem = null;
+                }
+            }
+
+            private function dgrd_details_itemCheckedChangeEventHandler(event:Event):void {
+
+                var list:ArrayCollection = dgrd_details.getSelectRows();
+
+                for each(var item:Object in list) {
+                    var isIn:Boolean = false;
+                    for each(var item2:Object in selectedList) {
+                        if (item.iid == item2.iid)
+                            isIn = true;
+                    }
+                    if (!isIn)
+                        selectedList.addItem(item);
+                }
+
+                /* var removeList:ArrayCollection = new ArrayCollection();
+                 for each(var item:Object in selectedList) {
+                 if (item.checked == false)
+                 removeList.addItem(item);
+                 }
+                 for each(var item:Object in removeList)
+                 selectedList.removeItemAt(selectedList.getItemIndex(item));*/
+
+                rlb.dataProvider = selectedList;
+            }
+            private function dgrd_details_itemDoubleClickHandler(event:ListEvent):void {
+                if (getSelectListRows != null) {
+                    this.getSelectListRows(new ArrayCollection([dgrd_details.selectedItem]));
+                }
+                this.closeParentWindow();
+            }
+            private function creationCompleteHandler(event:FlexEvent):void {
+                dgrd_details.addEventListener("allCheckedEvent",function(event:Event):void{
+                    var list:ArrayCollection = dgrd_details.dataProvider as ArrayCollection;
+                    for each(var item:Object in list) {
+                        var isIn:Boolean = false;
+                        for each(var item2:Object in selectedList) {
+                            if (item.iid == item2.iid)
+                                isIn = true;
+                        }
+                        if (!isIn)
+                            selectedList.addItem(item);
+                    }
+                    rlb.dataProvider = selectedList;
+                })
+                dgrd_details.addEventListener("allCheckedNoEvent",function(event:Event):void{
+
+
+                    var removeList:ArrayCollection = new ArrayCollection();
+                    for each(var obj:Object in  rlb.dataProvider){
+                        removeList.addItem(obj);
+                    }
+                    for each(var re:Object in  removeList){
+                        rlb.removeItemWithData(re);
+                    }
+
+
+                })
+            }
+            [Bindable]
+            public function get bodyArr():ArrayCollection {
+                return _bodyArr;
+            }
+
+            public function set bodyArr(value:ArrayCollection):void {
+                _bodyArr = value;
+                if (value == null)
+                    return;
+
+                for each(var item:Object in value) {
+                    var allInformation:String = "";
+                    var i:int = 0;
+                    for each(var field:Object in  fieldlabels) {
+                        if (field.bshow && field.ifieldtype != 3) {
+                            allInformation = allInformation + (i > 0 ? "|" : "") + item[field.cfield];
+                            i++;
+                        }
+                    }
+                    item.allInformation = allInformation;
+
+                    var isIn:Boolean = false;
+                    for each(var item2:Object in selectedList) {
+                        if (item.iid == item2.iid && item2.checked) {
+                            isIn = true;
+                            break;
+                        }
+                    }
+                    if (isIn)
+                        item.checked = true;
+                }
+            }
+
+        ]]>
+	</fx:Script>
+	<mx:ApplicationControlBar styleName="consultTree" cornerRadius="0" id="menuBar2" x="0" y="0" width="100%"
+							  height="32" dock="true">
+		<mx:HBox width="20%">
+			<comps:CrmTextInput id="tnp_search" text="" search="tnp_search_searchHandler()"
+								keyDown="tnp_search_keyDownHandler(event)" focusIn="CRMtool.setIME()">
+			</comps:CrmTextInput>
+			<mx:LinkButton id="btn_all" label="全部" color="#388DB" fontWeight="normal"
+						   styleName="contentVBox" textDecoration="underline" click="btn_all_clickHandler(event)">
+			</mx:LinkButton>
+		</mx:HBox>
+		<mx:HBox width="80%" horizontalAlign="right" verticalAlign="middle">
+			<mx:LinkButton id="btn_ConsultEdit" label="档案编辑" color="#388DB" fontWeight="normal"
+						   styleName="contentVBox" textDecoration="underline" visible="false">
+			</mx:LinkButton>
+			<mx:LinkButton id="btn_ConsultSet" label="列表设置"  visible="{CRMmodel.isCrmProgramMode}"
+						   click="btn_ConsultSet_clickHandler(event)" color="#388DB"
+						   fontWeight="normal" styleName="contentVBox" textDecoration="underline">
+			</mx:LinkButton>
+		</mx:HBox>
+	</mx:ApplicationControlBar>
+	<!--<basic:BasicMxDataGrid paddingTop="-1" id="dgrd_details" width="100%" height="100%" borderStyle="solid"
+						   borderColor="#c4cccc" borderAlpha="1" doubleClickEnabled="true"
+						   doubleClick="btn_ok_clickHandler(event)" click="dgrd_details_clickHandler(event)"
+						   dataProvider="{bodyArr}" horizontalScrollPolicy="auto" variableRowHeight="true"
+						   isAllowMulti="{allowmulti}"
+						   >
+	</basic:BasicMxDataGrid>-->
+    <basic:BasicMxDataGrid paddingTop="-1" id="dgrd_details" width="100%" height="100%" borderStyle="solid"
+                           borderColor="#c4cccc" borderAlpha="1" doubleClickEnabled="true"
+                           itemDoubleClick="dgrd_details_itemDoubleClickHandler(event)"
+                           click="dgrd_details_clickHandler(event)"
+                           dataProvider="{bodyArr}" horizontalScrollPolicy="auto" variableRowHeight="true"
+                           isAllowMulti="{allowmulti}" editable="false"
+                           itemCheckedChangeEvent="dgrd_details_itemCheckedChangeEventHandler(event)"
+            />
+	<!--<comps:CRMDataGridForCheckBox paddingTop="-1" id="dgrd_details" width="100%" height="100%"  borderStyle="solid" borderColor="#c4cccc" borderAlpha="1" doubleClickEnabled="true"
+	doubleClick="btn_ok_clickHandler(event)" click="dgrd_details_clickHandler(event)"
+	dataProvider="{bodyArr}" horizontalScrollPolicy="auto" variableRowHeight="true" allowMulti="{allowmulti}">
+	</comps:CRMDataGridForCheckBox>-->
+	<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="right">
+		<comps:PageBar paddingRight="10" id="pageBar" selectedNum="{this.dgrd_details.getSelectRows().length}"/>
+	</mx:HBox>
+	<mx:HRule width="100%">
+
+	</mx:HRule>
+    <comps:RectangleListBox id="rlb" width="100%" height="80" paddingTop="3" paddingLeft="3" paddingRight="3"
+                            paddingBottom="3" labelField="allInformation"
+                            dataProvider="{selectedList}" listChanged="rlb_listChangedHandler(event)"
+                            visible="{allowmulti &amp;&amp; rlb.getChildren().length>0}"
+                            includeInLayout="{allowmulti&amp;&amp; rlb.getChildren().length>0}"/>
+
+    <mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle" height="38" paddingRight="10">
+		<s:Button id="btn_ok" label="确定" click="btn_ok_clickHandler(event)"/>
+		<s:Button id="btn_cancel" label="取消" click="closeParentWindow()"/>
+	</mx:HBox>
+</mx:VBox>

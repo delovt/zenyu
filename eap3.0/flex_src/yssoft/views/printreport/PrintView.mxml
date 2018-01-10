@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:myreport="myreport.*"
+		 width="100%" height="100%" styleName="topcontent"
+		 implements="yssoft.impls.ICRMWindow"
+		 creationComplete="Init();creationCompleteHandler(event)">
+	<fx:Script source="PrintViewScript.as"></fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<myreport:ReportViewer id="printReport" width="100%" height="100%"></myreport:ReportViewer>
+    <fx:Script><![CDATA[
+        import mx.events.FlexEvent;
+
+        private function creationCompleteHandler(event:FlexEvent):void {
+            //外部方式向printReport添加自定义按钮
+            var exportPDF1:ToolButton = new ToolButton();
+            exportPDF1.width = 23;
+            exportPDF1.setStyle("icon", Asset.ICON_FILE_PDF16);
+            exportPDF1.toolTip = "导出PDF";
+            exportPDF1.addEventListener(MouseEvent.CLICK, OnExportPDFAsync1);
+            printReport.CustomToolBar.addChild(exportPDF1);
+
+            var exportXLS1:ToolButton = new ToolButton();
+            exportXLS1.width = 23;
+            exportXLS1.setStyle("icon", Asset.ICON_FILE_XLS16);
+            exportXLS1.toolTip = "导出XLS";
+            exportXLS1.addEventListener(MouseEvent.CLICK, OnExportXLSAsync1);
+            printReport.CustomToolBar.addChild(exportXLS1);
+        }
+        ]]></fx:Script>
+</mx:VBox>

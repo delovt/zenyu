@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%" styleName="content" borderStyle="solid" creationComplete="init();">
+    <fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="complete",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+        import mx.containers.HBox;
+        import mx.controls.HRule;
+        import mx.core.UIComponent;
+
+        //一组所有信息
+        private var _singleType:Object = new Object();
+
+        public function set singleType(value:Object):void {
+            this._singleType = value;
+        }
+
+        public function get singleType():Object {
+            return this._singleType;
+        }
+
+        public var paramForm:Object;
+
+        private function init():void {
+            paramForm = this.owner;
+        }
+
+        //创建子节点
+        public function addCrmChild(child:UIComponent):void {
+            if (!child.visible) {
+                var crmHbox3:HBox = new HBox();
+                crmHbox3.height = 0;
+                crmHbox3.width = 0;
+                child.height = 0;
+                child.width = 0;
+                crmHbox3.addChild(child);
+                this.addChild(crmHbox3);
+            }
+            else {
+                //所有的子节点
+                var childNumber:int = this.numChildren;
+                child.percentWidth = 100 / int(this._singleType.igrouprow);
+                child.percentHeight = 100;
+                if (childNumber == 0) {
+                    var crmHbox:HBox = new HBox();
+                    crmHbox.percentWidth = 100;
+                    crmHbox.percentHeight = 100;
+                    this.addChild(crmHbox);
+
+                    crmHbox.addChild(child);
+
+                }
+                else {
+                    var length:int = childNumber - 1;
+                    //找到最后一个节点
+                    var chilidObj:HBox = this.getChildAt(length) as HBox;
+                    //判断个数是否和列数一致
+                    if (chilidObj.numChildren == int(this._singleType.igrouprow)) {
+                        var crmHrRule:HRule = new HRule();
+                        crmHrRule.percentWidth = 100;
+                        this.addChild(crmHrRule);
+
+                        var crmHbox2:HBox = new HBox();
+                        crmHbox2.percentWidth = 100;
+                        crmHbox2.percentHeight = 100;
+                        this.addChild(crmHbox2);
+                        crmHbox2.addChild(child);
+                    }
+                    else {
+                        chilidObj.addChild(child);
+                    }
+                }
+            }
+        }
+        ]]>
+	</fx:Script>
+</mx:VBox>

@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		 creationComplete="myinit(event)" xmlns:plan="yssoft.views.plan.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+            import mx.core.FlexGlobals;
+            import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.titlewindow.SingleTextAreaTitleWindow;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			
+			[Bindable]
+			public var winParam:Object=new Object();
+			
+			[Bindable]
+			[Embed(source="/yssoft/assets/images/pre1.png")]
+			private var preIcon:Class;
+			
+			[Bindable]
+			[Embed(source="/yssoft/assets/images/next1.png")]
+			private var nextIcon:Class;
+			
+			[Bindable]private var _iplan:int;
+			
+			[Bindable]private var typeTitle:String;
+			[Bindable]private var subTitle:String;			
+			[Bindable]private var dateTitle:String="";
+			
+			[Bindable]private var planList:ArrayCollection;
+			[Bindable]public var ctypeList:ArrayCollection;
+			
+			[Bindable]private var csummary:String;
+			[Bindable]private var cinstruction:String;
+			[Bindable]private var dsummary:String;
+			[Bindable]private var dinstruction:String;
+			[Bindable]private var iperson_cname:String;
+			[Bindable]private var iinstruction_cname:String;
+			[Bindable]private var idepartment_cname:String;
+			
+			[Bindable]private var iperson:int=0;
+			
+			public function get iplan():int
+			{
+				return _iplan;
+			}
+			
+			public function set iplan(value:int):void
+			{
+				_iplan = value;
+				if(value>0){
+					AccessUtil.remoteCallJava("OADest","getPlanAndPlansListAndCtypeList",function(event:ResultEvent):void{
+						var obj:Object = event.result;
+						if(obj){							
+							planList = obj.planList;
+							ctypeList = obj.ctypeList;
+							var ac:ArrayCollection = obj.plan;
+							if(ac&&ac.length>0){
+								var df:DateFormatter = new DateFormatter();
+								df.formatString = "YYYY-MM-DD HH:NN";			
+								dateTitle = df.format(ac[0].dmaker);	
+								
+								csummary = ac[0].csummary;
+								cinstruction = ac[0].cinstruction;
+								dsummary = df.format(ac[0].dsummary);	
+								dinstruction = df.format(ac[0].dinstruction);	
+								iinstruction_cname = ac[0].iinstruction_cname;
+								iperson_cname = ac[0].iperson_cname;
+								idepartment_cname = ac[0].idepartment_cname;
+								iperson = ac[0].iperson;
+							}else{
+								iplan = 0;
+							}
+						}
+					},value);
+				}else{
+					var sql3:String="select distinct oa_plans.ctype from oa_plans left join oa_plan on oa_plan.iid=iplan where iperson="+CRMmodel.userId+" order by ctype";
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+						ctypeList = event.result as ArrayCollection;
+					},sql3);
+					iperson =0;
+					csummary="";
+					cinstruction="";
+					planList=null;
+				}
+			}
+			
+			public function refData():void{
+				this.iplan = this.iplan;
+			}
+			
+			protected function myinit(event:FlexEvent):void
+			{
+                var me:PlanMainView = this;
+                if(winParam.hasOwnProperty("iplans_iid")){
+                    var sql:String ="select * from oa_plan where iid=(select iplan from oa_plans where iid="+winParam.iplans_iid+")";
+                    AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+                        var ac:ArrayCollection = event.result as ArrayCollection;
+                        var item:Object = ac[0];
+
+                        winParam.year = item.iyear;
+                        winParam.quarter = item.iseason;
+                        winParam.week = item.iweek;
+                        winParam.month = item.imonth;
+                        winParam.itype = item.itype;
+                        winParam.iplan = item.iid;
+                        iplan = item.iid;
+
+                        initTitle();
+
+                        var cname:String = "";
+                        switch (winParam.itype) {
+                            case 1:
+                                cname = winParam.year + "年 计划";
+                                break;
+                            case 2:
+                                cname = winParam.year + "年 第" + winParam.quarter + "季 计划";
+                                break;
+                            case 3:
+                                cname = winParam.year + "年 " + winParam.month + "月 计划";
+                                break;
+                            case 4:
+                                cname = winParam.year + "年 第" + winParam.week + "周 计划";
+                                break;
+                        }
+
+                        CRMtool.setCrmLinkBarLable(me,cname);
+                    },sql);
+                    return;
+                }
+
+                initTitle();
+				if(winParam){
+					iplan = winParam.iplan;
+				}
+			}
+			
+			private function initTitle():void{
+				if(winParam){
+					switch(winParam.itype){
+						case 1:
+							typeTitle="年计划";
+							subTitle = winParam.year+"年";
+							if(winParam.year==new Date().fullYear)
+								subTitle +=" （本年）";
+							break;
+						case 2:
+							typeTitle = "季计划";
+							subTitle = winParam.year+"年 第"+winParam.quarter+"季";
+							if(winParam.year==new Date().fullYear&&winParam.quarter==Math.ceil((new Date().month+1)/3))
+								subTitle +=" （本季）";
+							break;
+						case 3:
+							typeTitle = "月计划";
+							subTitle = winParam.year+"年 "+winParam.month+"月";
+							if(winParam.year==new Date().fullYear&&winParam.month==new Date().month+1)
+								subTitle +=" （本月）";
+							break;
+						case 4:
+							typeTitle = "周计划";
+							subTitle =CRMtool.convertDateToString(CRMtool.firstDayInWeek(winParam.year,winParam.week),"YYYY年MM月DD日")+" - "+CRMtool.convertDateToString(CRMtool.endDayInWeek(winParam.year,winParam.week),"YYYY年MM月DD日");
+							//subTitle = winParam.year+"年 第"+winParam.week+"周";
+							if(winParam.year==new Date().fullYear&&CRMtool.weekOfYear(new Date())==winParam.week)
+								subTitle +=" （本周）";
+							break;
+					}
+				}
+			}
+			
+			protected function add_clickHandler(event:MouseEvent):void
+			{
+				if(iperson!=0&&iperson!=CRMmodel.userId){
+					CRMtool.showAlert("您不是计划创建者，不能添加计划。");					
+				}else{
+					var addWin:AddPlanTitleWindow = new AddPlanTitleWindow();
+					addWin.ownerBox = this;
+					addWin.itype = winParam.itype;
+					addWin.year = winParam.year;
+					addWin.quarter = winParam.quarter;
+					addWin.month = winParam.month;
+					addWin.week = winParam.week;
+					addWin.iplan =  iplan;
+					
+					CRMtool.openView(addWin);
+				}						
+				
+			}
+			
+			protected function pre_clickHandler(event:MouseEvent):void
+			{
+				if(winParam){
+					switch(winParam.itype){
+						case 1:
+							if(winParam.year-1>=CRMmodel.minYear)
+								winParam.year--;
+							else
+								return;
+							break;
+						case 2:
+							if(winParam.quarter-1>0)
+								winParam.quarter--;
+							else
+							{
+								if(winParam.year-1>=CRMmodel.minYear){
+									winParam.year--;
+									winParam.quarter=4;
+								}else
+									return;
+							}
+							break;
+						case 3:
+							if(winParam.month-1>0)
+								winParam.month--;
+							else{
+								if(winParam.year-1>=CRMmodel.minYear){
+									winParam.year--;
+									winParam.month=12;
+								}else
+									return;
+							}
+							break;
+						case 4:
+							//if(winParam.week-1>0)
+								winParam.week--;
+							/*else{
+								if(winParam.year-1>=CRMmodel.minYear){
+									winParam.year--;
+									winParam.week=53;
+								}else
+									return;
+							}*/
+							break;
+					}		
+					getPlanId();
+				}
+				initTitle();
+			}
+			
+			protected function next_clickHandler(event:MouseEvent):void
+			{
+				if(winParam){
+					switch(winParam.itype){
+						case 1:
+							if(winParam.year+1<=CRMmodel.maxYear)
+								winParam.year++;	
+							else
+								return;
+							break;
+						case 2:
+							if(winParam.quarter+1<=4)
+								winParam.quarter++;	
+							else{
+								if(winParam.year+1<=CRMmodel.maxYear){
+									winParam.year++;	
+									winParam.quarter=1;
+								}else
+									return;
+							}
+							break;
+						case 3:
+							if(winParam.month+1<=12)
+								winParam.month++;
+							else{
+								if(winParam.year+1<=CRMmodel.maxYear){
+									winParam.year++;	
+									winParam.month=1;
+								}else
+									return;
+							}
+							break;
+						case 4:
+							//if(winParam.week+1<=53)
+								winParam.week++;
+							/*else{
+								if(winParam.year+1<=CRMmodel.maxYear){
+									winParam.year++;
+									winParam.week=1;
+								}else
+									return;
+							}*/
+							break;
+					}
+					getPlanId();
+				}
+				
+				initTitle();
+			}
+			
+			private function getPlanId():void{
+				var sql:String = "select top 1 iid from oa_plan where 1=1 and itype="+winParam.itype+" ";
+				if(winParam){
+					switch(winParam.itype){
+						case 1:
+							sql+="and iyear="+winParam.year;
+							break;
+						case 2:
+							sql+="and iyear="+winParam.year+"and iseason="+winParam.quarter;
+							break;
+						case 3:
+							sql+="and iyear="+winParam.year+"and imonth="+winParam.month;
+							break;
+						case 4:
+							var debgin:String = CRMtool.formatDateNoHNS(CRMtool.firstDayInWeek(winParam.year, winParam.week));
+							var dend:String = CRMtool.formatDateNoHNS(CRMtool.endDayInWeek(winParam.year, winParam.week));
+							sql += " and dbegin='"+debgin+"' and dend='"+dend+"'";
+							break;
+					}				
+				}
+				
+				if(winParam.iperson>0)
+                    sql+="and iperson="+winParam.iperson;
+				else
+                    sql+="and iperson="+CRMmodel.userId;
+				
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					if(ac&&ac.length>0){
+						var iid:int = ac[0].iid;
+						iplan = iid;
+					}else{
+						iplan = 0;
+					}
+				},sql,null,false);
+			}
+			
+			protected function delay_clickHandler(event:MouseEvent):void
+			{
+				var delayTW:DelayPlanTitleWindow = new DelayPlanTitleWindow();
+				delayTW.fromList = planList;
+				delayTW.fromTitle = subTitle;
+				delayTW.winParam = winParam;
+				delayTW.open();
+			}			
+			
+			protected function editCsummary(event:MouseEvent):void
+			{
+				if(iperson==CRMmodel.userId){
+					var win:SingleTextAreaTitleWindow = new SingleTextAreaTitleWindow();
+					win.width=400;
+					win.height = 220;
+					win.title="总结";
+					win.allowNull = true;
+					win.text = csummary;
+					win.addEventListener("onSubmit",function(event:Event):void{
+						saveRightContent(1,win.text);
+					});
+					CRMtool.openView(win);
+				}else{
+					CRMtool.showAlert("您不是计划创建者，没有总结权限。");
+				}
+			}
+			
+			protected function editCinstruction(event:MouseEvent):void
+			{
+				var sql:String = "select hr_department.* from hr_department left join hr_person on hr_person.idepartment = hr_department.iid where hr_person.iid="+iperson;
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					if(ac&&ac.length>0){
+						var isuper:int=0;
+						
+						var ihead:int = ac[0].ihead;//部门主管
+						var icharge:int = ac[0].icharge;//分管主管
+						var ilead:int = ac[0].ilead;//分管领导
+						
+						if(ihead!=iperson)
+							isuper = ihead;
+						else if(icharge!=iperson)
+							isuper = icharge;
+						else if(ilead!=iperson)
+							isuper = ilead;
+						else
+							isuper = ilead;
+						
+						if(isuper==CRMmodel.userId){
+							var win:SingleTextAreaTitleWindow = new SingleTextAreaTitleWindow();
+							win.width=400;
+							win.height = 220;
+							win.title="批注";
+							win.allowNull = true;
+							win.text = cinstruction;
+							win.addEventListener("onSubmit",function(event:Event):void{
+								saveRightContent(2,win.text);
+							});
+							CRMtool.openView(win);
+						}else{
+							CRMtool.showAlert("您不是计划创建者的主管领导，没有批注权限。");
+						}								
+					}
+				},sql);			
+			}
+			
+			private function saveRightContent(typeid:int,text:String):void{
+				var field:String = "";
+				var field2:String = "";
+				var sql2;
+				if(typeid==1){
+					field = "csummary";
+					field2 = "dsummary";
+					sql2="update oa_plan set "+field+" ='"+text+"',"+field2+" ='"+CRMtool.getNowDateHNS()+"' where iid="+iplan;
+				}else{
+					field = "cinstruction";
+					field2 = "dinstruction";
+					sql2="update oa_plan set "+field+" ='"+text+"',"+field2+" ='"+CRMtool.getNowDateHNS()+"',iinstruction="+CRMmodel.userId+" where iid="+iplan;
+				}
+				
+				
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					/* if(typeid==1)
+					csummary = text;
+					else
+					cinstruction = text; */
+					
+					iplan = iplan;
+				},sql2);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:BorderContainer width="100%" height="100%" borderVisible="false">
+		<mx:HBox depth="2" width="100%" height="100%">
+			<s:Spacer width="{mainPlanLeft.width-15}"/>
+			<mx:VBox verticalAlign="middle" height="100%" paddingTop="80" paddingBottom="80" verticalGap="100">
+				<plan:BookLinkV/>
+				<plan:BookLinkV/>
+				<plan:BookLinkV/>
+			</mx:VBox>
+			
+		</mx:HBox>
+		<mx:HBox width="100%" height="100%" horizontalGap="8">
+			<mx:VBox id="mainPlanLeft" styleName="mainPlanLeft" width="80%" height="100%" paddingLeft="15" paddingRight="15" paddingTop="15" paddingBottom="20">
+				<mx:HBox id="headBox" width="100%" height="25" verticalAlign="bottom" paddingLeft="15" paddingRight="15" horizontalGap="0">
+					<s:Image source="yssoft/assets/images/plan/month.png" />
+					<mx:HBox width="100%" height="100%" verticalAlign="bottom" paddingBottom="2">
+						<s:Spacer width="5"/>
+						<s:Label text="{typeTitle}" color="#b5a577" fontWeight="bold" fontSize="14"/>
+						<s:Spacer width="10"/>
+						<s:Label text="{subTitle}" fontWeight="bold" fontSize="14"/>		
+						<mx:HBox horizontalGap="0">
+							<mx:LinkButton icon="{preIcon}" width="20" height="15" click="pre_clickHandler(event)"/>
+							<mx:LinkButton icon="{nextIcon}" width="20" height="15" click="next_clickHandler(event)"/>	
+						</mx:HBox>
+						<s:Spacer width="100%"/>
+						<s:Label text="{dateTitle}" visible="{dateTitle.length>0}" fontWeight="bold" fontSize="14"/>	
+					</mx:HBox>
+				</mx:HBox>
+				<s:Spacer height="5"/>
+				<s:Image source="yssoft/assets/images/plan/mainline.png" fillMode="repeat" width="100%"/> 
+				<s:Spacer height="8"/>
+				<plan:MainPlanListBox id="mainPlanListBox" width="100%" height="100%" owner="{this}" dataProvider="{planList}"/>
+				<mx:HRule width="100%" strokeColor="#C6B995"/>
+				<mx:HBox width="100%" height="25" paddingLeft="15" paddingRight="15" verticalAlign="bottom">
+					<mx:HBox width="100%" height="100%" verticalAlign="bottom" paddingBottom="5">
+						<s:Label text="{iperson_cname}" />
+						<s:Label text="{idepartment_cname}"/>
+					</mx:HBox>
+					<mx:LinkButton icon="@Embed(source='/yssoft/assets/images/plan/add.png')" visible="{winParam.iperson==CRMmodel.userId}" styleName="LinkButtonnew1"  label="添加计划" click="add_clickHandler(event)"/>
+					<mx:LinkButton icon="@Embed(source='/yssoft/assets/images/plan/delay.png')" visible="{iperson==CRMmodel.userId}"
+								   includeInLayout="{iperson==CRMmodel.userId}" styleName="LinkButtonnew1"  label="顺延计划" click="delay_clickHandler(event)"/>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:VBox id="mainPlanRight" width="20%" height="100%" styleName="mainPlanRight" paddingLeft="15" paddingRight="15" paddingTop="15" paddingBottom="20">
+				<mx:HBox width="100%" height="25" verticalAlign="bottom" paddingLeft="15" paddingRight="15" horizontalGap="0">
+					<s:Image source="@Embed(source='/yssoft/assets/images/plan/summary.png')" includeInLayout="false"/>
+					<s:Spacer width="30"/>
+					<s:Label text="总结与批注" fontSize="14" color="#b5a577" fontWeight="bold"/>	
+				</mx:HBox>
+				<s:Spacer height="5"/>
+				<s:Image source="yssoft/assets/images/plan/mainline.png" fillMode="repeat" width="100%"/> 
+				<s:Spacer height="8"/>
+				<mx:VBox id="rightContent" width="100%" height="{FlexGlobals.topLevelApplication.stage.stageHeight-200}" verticalGap="10">
+					<mx:VBox width="100%" visible="{CRMtool.isStringNotNull(csummary)}" includeInLayout="{CRMtool.isStringNotNull(csummary)}" verticalGap="8">
+						<s:Label text="{iperson_cname}" fontWeight="bold" color="#018ccf" />
+						<mx:Text text="{csummary}" width="100%" textIndent="20"/>
+						<mx:HBox width="100%" horizontalAlign="right">
+							<s:Label text="{dsummary}" color="#929190"/>
+						</mx:HBox>
+						<s:Image source="yssoft/assets/images/plan/jihua.png" fillMode="repeat" width="100%" /> 
+					</mx:VBox>
+					<mx:VBox width="100%" visible="{CRMtool.isStringNotNull(cinstruction)}" includeInLayout="{CRMtool.isStringNotNull(cinstruction)}" verticalGap="8">
+						<s:Label text="{iinstruction_cname}" fontWeight="bold" color="#018ccf"/>
+						<mx:Text text="{cinstruction}"  width="100%" textIndent="20"/>
+						<mx:HBox width="100%" horizontalAlign="right">
+							<s:Label text="{dinstruction}" color="#929190"/>
+						</mx:HBox>
+						<s:Image source="yssoft/assets/images/plan/jihua.png" fillMode="repeat" width="100%"/> 
+					</mx:VBox>
+					
+				</mx:VBox>
+				<mx:HRule width="100%" strokeColor="#C6B995"/>
+				<mx:HBox width="100%" height="25" horizontalAlign="right" verticalAlign="bottom" visible="{iperson>0}"
+						 >
+					<mx:LinkButton styleName="LinkButtonnew1"  icon="@Embed(source='/yssoft/assets/images/plan/zongjie.png')"  label="总结" click="editCsummary(event)"/>
+					<mx:LinkButton styleName="LinkButtonnew1"  icon="@Embed(source='/yssoft/assets/images/plan/pizhu.png')" label="批注" click="editCinstruction(event)"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:HBox>
+	</s:BorderContainer>
+</mx:HBox>

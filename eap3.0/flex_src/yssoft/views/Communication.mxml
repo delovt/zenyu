@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<!--
+  Created by yj on 2014/9/12.
+-->
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:s="library://ns.adobe.com/flex/spark"
+                        creationComplete="init()"
+        >
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+
+        import yssoft.tools.AccessUtil;
+
+        [Bindable]
+        private var _datagridlist:ArrayCollection = new ArrayCollection();
+
+        [Bindable]
+        public function set datagridlist(value:ArrayCollection):void {
+            _datagridlist = value;
+        }
+
+        [Bindable]
+        public function get datagridlist():ArrayCollection {
+            return _datagridlist;
+        }
+
+        public var _personlist:ArrayCollection = new ArrayCollection();
+
+
+        public function get personlist():ArrayCollection {
+            return _personlist;
+        }
+
+        public function set personlist(value:ArrayCollection):void {
+            _personlist = value;
+        }
+
+        [Bindable]
+        public var selcount:int = 0;
+        [Bindable]
+        public var counts:int = 0;
+
+        private var _isAllchecked:Boolean = false;
+        //全选
+        public function set isAllchecked(value:Boolean):void {
+            _isAllchecked = value;
+            if (value) {
+                personlist.removeAll();
+
+                for each(var obj:Object in datagridlist) {
+                    if (obj.cmoblie != "") {
+                        personlist.addItem(obj);
+                    }
+                }
+                selcount = personlist.length;
+            } else {
+                selcount = 0;
+                personlist.removeAll();
+            }
+
+            for each(var item:Object in dg.dataProvider) {
+                if (item.cmobile != '') {
+                    item.chicks = value == true ? 1 : 0;
+                }
+            }
+            dg.dataProvider.refresh();
+
+        }
+
+        public function get isAllchecked():Boolean {
+            return _isAllchecked;
+        }
+
+        //序号列
+        private function lineNumColFunction(item:Object, column:DataGridColumn):String {
+            if (dg.dataProvider) {
+                for (var i:int = 1; i <= dg.dataProvider.length; i++) {
+                    if (dg.dataProvider[i - 1] == item) {
+                        item.sort_id = i;
+                        return i + "";
+                    }
+                }
+            }
+            return "0";
+        }
+
+        private function init():void {
+            this.dg.isAllowMulti = false;//是否显示复选框列
+            this.dg.isShowLineNum = false;//是否显示序号列
+
+            var sql:String = " select per.iid,per.ccode,per.cname,isnull(depart.cname,'') department,isnull(post.cname,'') postname,isnull(per.cmobile1,'') cmobile," +
+                    " 0 chicks " +
+                    " from hr_person per " +
+                    " left join HR_department depart on per.idepartment = depart.iid " +
+                    " left join HR_post post on per.ipost = post.iid " +
+                    " where isnull(per.bjobstatus,0) > 0 and per.iid <> "+ CRMmodel.userId;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                datagridlist = event.result as ArrayCollection;
+                counts = datagridlist.length;
+            }, sql);
+        }
+        ]]></fx:Script>
+    <mx:VBox  paddingLeft="10" paddingRight="10" paddingTop="10" width="100%" height="97%">
+        <basic:BasicMxDataGrid id="dg" width="100%" height="100%" isAllowMulti="false" borderVisible="true"
+                               borderStyle="inset" editable="true"
+                               doubleClickEnabled="false"
+                               dataProvider="{_datagridlist}" lockedColumnCount="1" >
+            <basic:columns>
+                <mx:DataGridColumn id="ck" editable="false" width="30" headerText=" " dataField="chicks"
+                                   sortable="false">
+                    <mx:headerRenderer>
+                        <fx:Component>
+                            <mx:HBox verticalAlign="middle" horizontalAlign="center" width="100%">
+                                <mx:CheckBox id="allCheckBox" change="allCheckBox_changeHandler(event)"/>
+                                <fx:Script><![CDATA[
+                                    private function allCheckBox_changeHandler(event:Event):void {
+                                        if (outerDocument.dg.dataProvider.length > 0) {
+                                            outerDocument.isAllchecked = allCheckBox.selected;
+                                        }
+                                    }
+                                    ]]></fx:Script>
+                            </mx:HBox>
+                        </fx:Component>
+                    </mx:headerRenderer>
+                    <mx:itemRenderer>
+                        <fx:Component>
+                            <mx:HBox horizontalAlign="center" verticalAlign="middle" width="100%">
+                                <mx:CheckBox id="selectBox" textAlign="center" click="selectBox_clickHandler(event)"
+                                             selected="{(data.chicks==0)?false:true}">
+                                    <fx:Script><![CDATA[
+                                        import yssoft.tools.CRMtool;
+
+                                        private function selectBox_clickHandler(event:MouseEvent):void {
+                                            if (data.cmobile == '') {
+                                                CRMtool.showAlert("该联系人暂无联系电话，请先进行维护！");
+                                                data.chicks = 0;
+                                            } else {
+                                                data.chicks = !data.chicks;
+                                                if (selectBox.selected) {
+                                                    outerDocument.selcount = outerDocument.selcount + 1;
+
+                                                    var flag:Boolean = false;
+                                                    //检验所选信息是否已经在集合当中
+                                                    for each(var obj:Object in outerDocument.personlist) {
+                                                        if (obj.iid == data.iid) {
+                                                            flag = true;
+                                                        }
+                                                    }
+                                                    if (!flag) {
+                                                        outerDocument.personlist.addItem(data);
+                                                    }
+
+                                                } else {
+                                                    outerDocument.selcount = outerDocument.selcount - 1;
+
+                                                    var flag:Boolean = false;
+                                                    //检验所选信息是否已经在集合当中
+                                                    for each(var obj:Object in outerDocument.personlist) {
+                                                        if (obj.iid == data.iid) {
+                                                            flag = true;
+                                                        }
+                                                    }
+                                                    if (flag) {
+                                                        outerDocument.personlist.removeItem(data);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        ]]></fx:Script>
+                                </mx:CheckBox>
+                            </mx:HBox>
+                        </fx:Component>
+                    </mx:itemRenderer>
+                </mx:DataGridColumn>
+                <mx:DataGridColumn headerText="序号" dataField="sort_id" editable="false"
+                                   labelFunction="lineNumColFunction" width="40" textAlign="center"/>
+                <mx:DataGridColumn headerText="id" dataField="iid" visible="false"/>
+                <mx:DataGridColumn headerText="编码" width="80" dataField="ccode" editable="false"/>
+                <mx:DataGridColumn headerText="姓名" width="130" dataField="cname" editable="false"/>
+                <mx:DataGridColumn headerText="部门" width="130" dataField="department" editable="false"/>
+                <mx:DataGridColumn headerText="岗位" dataField="post" editable="false"/>
+                <mx:DataGridColumn headerText="联系电话" dataField="cmobile" editable="false"/>
+            </basic:columns>
+        </basic:BasicMxDataGrid>
+        <mx:Spacer height="3%"/>
+        <mx:HBox height="35" width="100%" verticalAlign="middle">
+            <mx:Label styleName="contentLabel" text="已选中：{selcount}/{counts}"/>
+            <mx:Spacer width="100%"/>
+            <mx:Button id="submit" label="多方通话" click="onSubmit()"/>
+            <mx:Button id="cancel" label="取消" click="close()"/>
+        </mx:HBox>
+    </mx:VBox>
+
+</basic:BasicTitleWindow>

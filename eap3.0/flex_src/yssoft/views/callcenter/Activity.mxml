@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+           xmlns:s="library://ns.adobe.com/flex/spark"
+           xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:basic="yssoft.comps.frame.module.Basic.*" width="100%"
+           height="100%">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var _winParam:Object;
+			
+			public function set winParam(value:Object):void
+			{
+				this._winParam=value;
+				if(this._winParam){
+					callRequest(this._winParam);
+				}
+			}
+			
+			public function get winParam():Object
+			{
+				return this._winParam;
+			}
+			
+			private function callRequest(param:Object):void
+			{
+				//show(""+ObjectUtil.toString(param));
+				AccessUtil.remoteCallJava("CallCenterDest","getActivities",callBack,param,null,false);
+			}
+			[Bindable]
+			private var item:ArrayCollection=new ArrayCollection();
+			private function callBack(event:ResultEvent):void
+			{ 
+				//Alert.show("[result]"+(event.result));
+				item=event.result as ArrayCollection;
+				if(item.length==0)
+				{
+					this.label="活动";
+				}
+				else
+				{
+					this.label="活动("+item.length+")";
+				}
+			}
+
+			//
+			private function lbfun(item:Object,column:DataGridColumn):String{
+				if(item){
+					return ""+(this.item.getItemIndex(item)+1)
+				}else{
+					return "";
+				}
+			}
+
+			protected function datagrid1_doubleClickHandler(event:MouseEvent):void
+			{
+				CRMtool.openbillonbrowse(46,dgitems.selectedItem.iid,"工作日志");
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:DataGrid editable="false" borderAlpha="1" id="dgitems" wordWrap="false" width="100%" height="100%" dataProvider="{item}" variableRowHeight="false" rowHeight="25" doubleClickEnabled="true" doubleClick="datagrid1_doubleClickHandler(event)">
+		<mx:columns>
+			<mx:DataGridColumn width="60" headerText="序号" labelFunction="lbfun" />
+			<mx:DataGridColumn width="100" headerText="活动时间" dataField="dbegin"/>
+			<mx:DataGridColumn width="100" headerText="活动主题" dataField="cname"/>
+			<mx:DataGridColumn width="100" headerText="活动方式" dataField="istyleName"/>
+			<mx:DataGridColumn width="100" headerText="活动类型" dataField="itypeName"/>
+            <mx:DataGridColumn width="100" headerText="联系人员" dataField="custperson"/>
+			<mx:DataGridColumn width="100" headerText="活动人员" dataField="pname"/>
+			<mx:DataGridColumn headerText="活动内容" wordWrap="false" dataField="cdetail" itemRenderer="mx.controls.Label"/>
+		</mx:columns>
+	</mx:DataGrid>
+</mx:Canvas>

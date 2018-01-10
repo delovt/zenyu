@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="添加计划"
+                        width="593" height="325"
+                        xmlns:module="yssoft.comps.frame.module.*"
+                        creationComplete="myinit(event)"
+                        keyDown="keyDownHandler(event)"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.FlexEvent;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        public var ownerBox:PlanMainView;
+
+        //由本计划协同出的计划的列表
+        public var coopList:ArrayCollection;
+
+        public var itype:int;
+        public var year:int;
+        public var quarter:int;
+        public var month:int;
+        public var week:int;
+        public var iplan:int;
+
+        private var _iplans:int;//修改时 传入计划内码
+        [Bindable]
+        private var _ctype:String;
+        [Bindable]
+        private var _cdetail:String;
+        [Bindable]
+        private var _iquadrant:int;
+        [Bindable]
+        private var _icustomer:int;
+        [Bindable]
+        private var _dmessage:Date;
+
+        public function get icustomer():int {
+            return _icustomer;
+        }
+
+        public function set icustomer(value:int):void {
+            _icustomer = value;
+        }
+
+        public function get dmessage():Date {
+            return _dmessage;
+        }
+
+        public function set dmessage(value:Date):void {
+            _dmessage = value;
+        }
+
+
+        //相关客户
+        private var ui_icustomer:CrmEapTextInput;
+
+        private function initConsultItem(name:String, ifuncregedit:int = 162):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = ifuncregedit;
+            if (ifuncregedit == 162)
+                obj1.ctable = "sc_order";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.percentWidth = 100;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+                consultTextInput.styleName = "contentTextInputOther";
+
+                consultTextInput.text = _icustomer + "";
+                consultTextInput.addEventListener("initialization", function (event:Event):void {
+                    consultTextInput.onDataChange();
+                });
+                consultTextInput.addEventListener(KeyboardEvent.KEY_DOWN, function (event:KeyboardEvent):void {
+                    if (event.keyCode == Keyboard.ENTER) {
+                        submitButton.setFocus();
+                    }
+                });
+                consultTextInput.addEventListener("yesConsultList", function (event:Event):void {
+                    consultTextInput.setFocus();
+                });
+                consultTextInput.onDataChange();
+
+
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+
+        public function get iquadrant():int {
+            return _iquadrant;
+        }
+
+        public function set iquadrant(value:int):void {
+            if (value > 4)
+                value = 0;
+            _iquadrant = value;
+        }
+
+
+        private var ui_iquadrantAC:ArrayCollection = new ArrayCollection(
+                [
+                    {label: ""},
+                    {label: "重要紧急"},
+                    {label: "重要不紧急"},
+                    {label: "不重要紧急"},
+                    {label: "不重要不紧急"}
+                ]
+        );
+
+        //浮动提示
+        [Bindable]
+        private var _tip:String = "";
+
+        public function get tip():String {
+            return _tip;
+        }
+
+        public function set tip(value:String):void {
+            _tip = value;
+
+            var _timer:Timer = new Timer(1000);
+            _timer.addEventListener(TimerEvent.TIMER, function (event:TimerEvent):void {
+                _tip = "";
+                _timer.stop();
+            });
+
+            _timer.start();
+        }
+
+        public function get ctype():String {
+            return _ctype;
+        }
+
+        public function set ctype(value:String):void {
+            _ctype = value;
+        }
+
+        public function get cdetail():String {
+            return _cdetail;
+        }
+
+        public function set cdetail(value:String):void {
+            _cdetail = value;
+        }
+
+        public function get iplans():int {
+            return _iplans;
+        }
+
+        public function set iplans(value:int):void {
+            _iplans = value;
+            if (value > 0)
+                this.title = "修改计划";
+        }
+
+
+        protected function submit():void {
+            var my_iquadrant:int = 0;
+            if (ui_iquadrant.selectedIndex == 0)
+                my_iquadrant = 10;
+            else
+                my_iquadrant = ui_iquadrant.selectedIndex;
+
+            if (CRMtool.isStringNull(ui_ctype.textInput.text)) {
+                CRMtool.showAlert("请输入一种计划分类。", ui_ctype);
+                return;
+            }
+            if (CRMtool.isStringNull(ui_cdetail.text)) {
+                CRMtool.showAlert("请输入计划细则。", ui_cdetail);
+                return;
+            }
+
+            var obj:Object = new Object();
+            if (ui_icustomer.consultList.length > 0)
+                obj.icustomer = this.ui_icustomer.consultList[0].iid;
+            else obj.icustomer = 0;
+
+            if (CRMtool.isStringNotNull(ui_dmessage.text))
+                obj.dmessage = ui_dmessage.text;
+            else obj.dmessage = "";
+
+            obj.iplan = iplan;
+            obj.ctype = StringUtil.trim(ui_ctype.textInput.text);
+            obj.cdetail = StringUtil.trim(ui_cdetail.text);
+            obj.dmaker = CRMtool.getNowDateHNS();
+            obj.dmodify = CRMtool.getNowDateHNS();
+            obj.iquadrant = my_iquadrant;
+
+            if (iplans > 0) {
+                obj.iid = iplans;
+                for each(var item:Object in coopList) {
+                    item.icustomer = obj.icustomer;
+                    item.dmessage = obj.dmessage;
+                    item.ctype = "协同计划";
+                    item.cdetail = StringUtil.trim(ui_cdetail.text);
+                    item.dmaker = CRMtool.getNowDateHNS();
+                    item.dmodify = CRMtool.getNowDateHNS();
+                    item.iquadrant = my_iquadrant;
+                }
+
+                obj.coopList = coopList;
+                AccessUtil.remoteCallJava("OADest", "updatePlans", function (event:ResultEvent):void {
+                    if (ownerBox)
+                        ownerBox.refData();
+                    onCloseHandler();
+                }, obj);
+            } else if (iplan > 0) {
+                AccessUtil.remoteCallJava("OADest", "addPlans", function (event:ResultEvent):void {
+                    if (int(event.result) > 0) {
+                        if (ownerBox)
+                            ownerBox.iplan = iplan;
+                        ui_cdetail.text = "";
+                        ui_icustomer.text = "";
+                        ui_icustomer.onDataChange();
+                        ui_dmessage.text = "";
+                        tip = "计划添加成功...";
+                        //onCloseHandler();
+                    }
+                    else
+                        CRMtool.showAlert("保存失败。");
+                }, obj);
+            } else {
+                var obj:Object = new Object();
+                obj.itype = itype;
+                obj.year = year;
+                obj.month = month;
+                obj.quarter = quarter;
+                obj.week = week;
+                obj.cname = "";
+                obj.idepartment = CRMmodel.hrperson.idepartment;
+                obj.iperson = CRMmodel.userId;
+                obj.dmaker = CRMtool.getNowDateHNS();
+
+                if (itype == 4) {
+                    obj.dbegin = CRMtool.formatDateNoHNS(CRMtool.firstDayInWeek(year, week));
+                    obj.dend = CRMtool.formatDateNoHNS(CRMtool.endDayInWeek(year, week));
+                }
+
+                AccessUtil.remoteCallJava("OADest", "addPlan", function (event:ResultEvent):void {
+                    if (int(event.result) > 0) {
+                        iplan = int(event.result);
+                        if (ownerBox)
+                            ownerBox.iplan = iplan;
+                        submit();
+                    } else
+                        CRMtool.showAlert("保存失败。");
+                }, obj);
+            }
+        }
+
+        protected function ui_cdetail_keyDownHandler(event:KeyboardEvent):void {
+            if (event.ctrlKey && event.keyCode == Keyboard.ENTER) {
+                submit();
+            }
+        }
+
+        protected function ui_ctype_keyDownHandler(event:KeyboardEvent):void {
+            if (event.keyCode == Keyboard.ENTER) {
+                ui_cdetail.setFocus();
+            }
+        }
+
+        protected function myinit(event:FlexEvent):void {
+            if (ctype)
+                ui_ctype.textInput.text = ctype;
+
+            initConsultItem("icustomer");
+        }
+
+        override protected function keyDownHandler(event:KeyboardEvent):void {
+            if (event.keyCode == Keyboard.ESCAPE) {
+                onCloseHandler();
+            }
+        }
+
+        protected function ui_dmessage_creationCompleteHandler(event:FlexEvent):void {
+            if (_dmessage != null && _dmessage.fullYear + "" != "1900")
+                ui_dmessage.text = CRMtool.getFormatDateString("YYYY-MM-DD HH:NN:SS", _dmessage);
+        }
+
+        ]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:VBox id="myBorder" width="100%" height="100%" paddingLeft="15" paddingRight="17" paddingTop="15" paddingBottom="10" verticalGap="10">
+		<mx:HBox width="100%">
+			<mx:FormItemLabel text="计划分类" color="red" />
+			<s:ComboBox id="ui_ctype" height="23" dataProvider="{ownerBox.ctypeList}" labelField="ctype" selectedIndex="-1" 
+						 keyDown="ui_ctype_keyDownHandler(event)" width="195" restrict="^'"/>
+			<s:Spacer width="100%"/>
+			<mx:FormItemLabel text="象限维度" />
+			<s:DropDownList id="ui_iquadrant" height="23" dataProvider="{ui_iquadrantAC}" labelField="label" selectedIndex="{_iquadrant}" 
+						width="195" />
+		</mx:HBox>
+		<mx:HBox width="100%" height="165">
+			<mx:FormItemLabel text="计划细则" color="red" />
+			<s:TextArea id="ui_cdetail" width="100%" height="100%" text="{_cdetail}" keyDown="ui_cdetail_keyDownHandler(event)" 
+						restrict="^'" focusIn="CRMtool.setIME()"/>
+		</mx:HBox>	
+		<mx:HBox width="100%" verticalAlign="middle" height="30">
+			<mx:FormItemLabel text="相关客商" />
+			<mx:HBox id="ui_icustomer_box" width="195"/>
+			<s:Spacer width="100%"/>
+			<mx:FormItemLabel text="提醒时间" />
+			<comps:DateControl id="ui_dmessage" width="195" creationComplete="ui_dmessage_creationCompleteHandler(event)"/>
+		</mx:HBox>
+		<mx:HBox width="100%"  verticalAlign="middle">
+			<mx:Label text="{_tip}" color="#ff8100"/>
+			<s:Spacer width="100%"/>
+			<s:Button id="submitButton" label="确定" click="submit()"/>
+			<s:Button label="关闭" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

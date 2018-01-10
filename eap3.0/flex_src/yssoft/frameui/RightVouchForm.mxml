@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="100%"
+		 implements="yssoft.impls.ICRMWindow" creationComplete="onWindowInit();" xmlns:comps="yssoft.comps.*">
+	<fx:Script source="RightVouchFormScript.as"/>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" styleName="lefttree">
+		<mx:ApplicationControlBar width="100%" height="32" dock="true">
+			<s:Label text="功能目录" styleName="contentTitle"/>
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox id="tre_vouch" width="100%" height="100%" click="treeMenu_itemClickHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:VBox>

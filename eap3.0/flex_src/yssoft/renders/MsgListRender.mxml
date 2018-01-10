@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" height="60" 
+				autoDrawBackground="true" implements="mx.controls.listClasses.IListItemRenderer">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			private function loadUserHeaderIcon(iid:String):void{
+				var param:Object={};
+				param.fileName=iid;
+				param.fileType="jpg";
+				param.downType="0";
+				AccessUtil.remoteCallJava("FileDest","downFile",loadHeaderIconCallBack,param,null,false);
+			}
+			private function loadHeaderIconCallBack(event:ResultEvent):void{
+				if(event.result){
+					try{
+						var ba:ByteArray=event.result as ByteArray;
+						var loader:Loader = new Loader();
+						loader.contentLoaderInfo.addEventListener(Event.COMPLETE,function(event:Event):void{
+							var sourceBMP:Bitmap = event.currentTarget.loader.content as Bitmap;
+							headerIcon.source=sourceBMP;
+							//CRMtool.addUserHeaderIcon(inodevalue,sourceBMP);
+						});
+						loader.loadBytes(ba);
+					}catch(e:Error){
+						//Alert.show("---获取工作流节点头像出错---");
+					}
+				}else{
+                    headerIcon.source = ConstsModel.wf_inodetype_0;
+                }
+			}
+			
+			
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				if(data){
+					loadUserHeaderIcon(data.isperson);
+					
+					var t1:String="<font color='#018ccf'>"+data.pcname+"</font> <font color='#ff8100'>"+data.fsdate+"</font> "+data.cdetail;
+					var t2:String=data.funcname+" "+(data.csubject==null?"":data.csubject);
+					if(txt1){
+						this.txt1.htmlText=t1;
+						this.txt1.toolTip=txt1.text;
+					}
+					if(txt2){
+						this.txt2.text=t2;
+						this.txt2.toolTip=t2;
+					}
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:Canvas borderStyle="solid" cornerRadius="2" width="48" height="48" left="0" verticalCenter="0" borderColor="#c4cccc">
+		<s:Image id="headerIcon" source="" left="0" top="0" bottom="0" right="0"/>
+	</mx:Canvas>
+	<mx:VBox width="100%" left="50" top="0" bottom="1" verticalAlign="middle">
+		<mx:Text id="txt1"  height="20" width="100%"/>
+		<mx:Text id="txt2"  height="20" width="100%"/>
+	</mx:VBox>
+	
+	<mx:HRule width="100%" bottom="0"/>
+</s:ItemRenderer>

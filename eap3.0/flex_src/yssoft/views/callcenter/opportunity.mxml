@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		   label="商机预测{size>0?'('+size+')':''}">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.comps.frame.CompositeReportVBox;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var _winParam:Object;
+			
+			[Bindable]
+			private var size:int=0;
+			
+			private var basicAC:ArrayCollection;
+			
+			private var _filterObj:Object;
+			
+			public function get filterObj():Object
+			{
+				return _filterObj;
+			}
+			
+			public function set filterObj(value:Object):void
+			{
+				_filterObj = value;
+				if(value&&value.idepartment&&basicAC){					
+					var filterAC:ArrayCollection = new ArrayCollection();
+					for each(var item:Object in basicAC){					
+						if(value.isCollect){
+							if(item.dccode&&(item.dccode as String).search("^"+value.ccode)>-1){
+								filterAC.addItem(item);
+							}								
+						}else if(item.dccode==value.ccode)
+							filterAC.addItem(item);
+					}	
+					mainDG.dataProvider = filterAC;
+					size = filterAC.length;
+				}
+			}
+
+			
+			private var _myParent:CompositeReportVBox;
+			
+			public function get myParent():CompositeReportVBox
+			{
+				return _myParent;
+			}
+			
+			public function set myParent(value:CompositeReportVBox):void
+			{
+				_myParent = value;
+			}
+			
+			public function set winParam(value:Object):void
+			{
+				this._winParam=value;
+				if(this._winParam){
+					callRequest(this._winParam);
+				}
+				if(value==null){
+					mainDG.dataProvider = null;
+					size=0;
+				}
+			}
+			
+			public function get winParam():Object
+			{
+				return this._winParam;
+			}
+			
+			private function callRequest(param:Object):void
+			{
+				param.sddate =param.opportunity_sddate;
+				param.eddate = param.opportunity_eddate;
+				param.authSql = param.opportunityAuthSql;
+				param.isSuccessNo = true;
+				AccessUtil.remoteCallJava("customerDest","getFunnelDate",searchBack,param);	
+			}
+			
+			private function searchBack(event:ResultEvent):void{
+				if(event.result){
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					mainDG.dataProvider = ac;		
+					size=ac.length;
+					basicAC = ac;
+					for each(var ditem:Object in winParam.mainDGData){
+						ditem.fforecast =0;
+					}
+					
+					for each(var item:Object in ac){
+						for each(var ditem:Object in winParam.mainDGData){
+							if(item.idepartment==ditem.idepartment){
+								ditem.fforecast += item.fforecast;
+							}
+						}
+					}
+					
+					this.myParent.sum();
+				}
+			}
+						
+			private function doLineNum(item:Object, column:DataGridColumn):String{	
+				var lineNum:int = mainDG.dataProvider.getItemIndex(item)+1;
+				return lineNum+"";
+			}
+			
+			protected function mainDG_doubleClickHandler(event:MouseEvent):void
+			{
+				CRMtool.openbillonbrowse(80,mainDG.selectedItem.iid,"新增销售商机");				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:DataGrid id="mainDG" width="100%" height="100%" doubleClickEnabled="true" doubleClick="mainDG_doubleClickHandler(event)">
+		<mx:columns>
+			<mx:DataGridColumn labelFunction="{doLineNum}" width="30"/>
+			<mx:DataGridColumn headerText="项目状态" dataField="istatus_cname" width="70"/>
+			<mx:DataGridColumn headerText="商机阶段" dataField="iphase_cname" width="70"/>
+			<mx:DataGridColumn headerText="部门" dataField="idepartment_cname" width="90"/>
+			<mx:DataGridColumn headerText="业务员" dataField="iperson_name" width="70"/>
+			<mx:DataGridColumn headerText="客户" dataField="customer_cname" width="190"/>
+			<mx:DataGridColumn headerText="项目" dataField="opportunity_cname" width="190"/>
+			<mx:DataGridColumn headerText="预测金额" dataField="fforecast" width="70" textAlign="right"  labelFunction="{CRMtool.formatFloat}"/>
+			<mx:DataGridColumn headerText="预设成功率" dataField="fprobability" width="70" textAlign="center"/>
+			<mx:DataGridColumn headerText="预计成交时间" dataField="dforecast" width="120" labelFunction="{CRMtool.formatDate}"  textAlign="center" />
+		</mx:columns>
+	</mx:DataGrid>
+</mx:Canvas>

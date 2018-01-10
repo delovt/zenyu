@@ -1,0 +1,205 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+    <select id="msg.select_department_items" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select iid,ipid,ccode,cname,ihead,icharge,ilead,'d' type,'0' state,'0' isPerson from hr_department where
+        cname!='离退人员' and isnull(istatus,0)!=2
+    </select>
+    <select id="msg.select_person_items" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        <!--		select iid personid,cname,cnickname,cusecode,idepartment,csignature,'0' isonline,'p' type from hr_person
+                    select iid personid,cname,cnickname,cusecode,idepartment,csignature,'0' isonline,'p' type,ctel,cmobile1,cemail,clast from hr_person
+        -->
+        select a.iid personid,a.cname,a.cnickname,a.cusecode,a.idepartment,a.csignature,'0' isonline,'p'
+        type,a.ctel,a.cmobile1,a.cemail,a.clast,
+        b.cname departname,'0' state,'1' isPerson from hr_person a
+        left join hr_department b on a.idepartment = b.iid
+        where busestatus=1 and bjobstatus=1
+    </select>
+
+    <insert id="msg.insert_msg_item" parameterClass="java.util.HashMap">
+        insert into as_communication (itype,isperson,irperson,dsend,cdetail,ifuncregedit,iinvoice,isonline)
+        values
+        (#itype#,#isperson#,#irperson#,convert(varchar,getdate(),120),#cdetail#,#ifuncregedit#,#iinvoice#,#isonline#)
+    </insert>
+
+    <!-- 历史消息 -->
+    <select id="msg.select_his_msg_items" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        <!--		select top $pagesize$ c.iid,c.itype,convert(varchar(19),c.dsend,120) dsend,c.isperson,p1.cname ispersonname,c.irperson , p2.cname irpersonname,c.cdetail from (-->
+        <!--			select top $topsize$ * from as_communication order by dsend desc-->
+        <!--		) c -->
+        <!--		left join hr_person p1 on c.isperson=p1.iid-->
+        <!--		left join hr_person p2 on c.irperson=p2.iid-->
+        <!--		where (c.isperson=#isperson# and c.irperson=#irperson#) or (c.isperson=#irperson# and c.irperson=#isperson#)-->
+        <!--		order by c.dsend-->
+
+        select c.iid,c.itype,convert(varchar(19),c.dsend,120) dsend,c.isperson,
+        p1.cname ispersonname,c.irperson , p2.cname irpersonname,c.cdetail from (
+        select top $pagesize$ * from as_communication
+        where itype=0 and ((isperson=#isperson# and irperson=#irperson#) or (isperson=#irperson# and
+        irperson=#isperson#)) and iid > (
+        select isnull(max(iid),0)
+        from (
+        select top $topsize$ iid from as_communication where itype=0 and ((isperson=#isperson# and irperson=#irperson#)
+        or (isperson=#irperson# and irperson=#isperson#)) order by iid
+        ) a
+        ) ) c
+        left join hr_person p1 on c.isperson=p1.iid
+        left join hr_person p2 on c.irperson=p2.iid
+
+
+    </select>
+    <select id="msg.select_his_msg_items_sum" parameterClass="java.util.HashMap" resultClass="int">
+        select count(*) from as_communication c
+        where itype=0 and ((c.isperson=#isperson# and c.irperson=#irperson#) or (c.isperson=#irperson# and
+        c.irperson=#isperson#))
+    </select>
+
+    <select id="msg.select_msg_items1" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        select * from as_communication where irperson=#irperson# and isread=#isread# and itype=#itype#
+    </select>
+
+    <select id="msg.select_msg_items" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+        <!--		select * from (-->
+        <!--			select oa.csubject,com.iid,oa.iinvoice,com.ifuncregedit,com.itype,com.cdetail,fun.cname funcname,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate  from as_communication com -->
+        <!--			left join as_funcregedit fun on com.ifuncregedit=fun.iid-->
+        <!--			left join hr_person p on com.isperson=p.iid-->
+        <!--			left join oa_invoice oa on com.iinvoice = oa.iid-->
+        <!--			where com.itype=1 and com.ifuncregedit !=10 and com.isread=#isread# and com.irperson=#irperson#-->
+        <!--			union-->
+        <!--			select '自由协同' csubject,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,'自由协同' funcame,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate  from as_communication com -->
+        <!--			left join hr_person p on com.isperson=p.iid-->
+        <!--			where com.itype=1 and com.ifuncregedit =10 and com.isread=#isread# and com.irperson=#irperson#-->
+        <!--			union-->
+        <!--			select '公告通知' csubject,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,fun.cname funcname,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate  from as_communication com -->
+        <!--			left join as_funcregedit fun on com.ifuncregedit=fun.iid-->
+        <!--			left join hr_person p on com.isperson=p.iid-->
+        <!--			where com.itype=2 and com.ifuncregedit !=10 and com.isread=#isread# and com.irperson=#irperson#-->
+        <!--			union-->
+        <!--			select '离线消息' csubject,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,'离线消息' funcame,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate from as_communication com-->
+        <!--			left join hr_person p on com.isperson=p.iid-->
+        <!--			where com.itype=0 and com.isread=0 and com.isonline=0 and com.irperson=#irperson#-->
+        <!--			union-->
+        <!--			select oa.csubject,com.iid,case when isnull(fun.cname,'自由协同')= '自由协同' then oa.iid else oa.iinvoice end iinvoice,isnull(fun.iid,10) ifuncregedit,com.itype,com.cdetail,isnull(fun.cname,'自由协同') funcname,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate  from as_communication com -->
+        <!--			left join oa_invoice oa on com.iinvoice=oa.iid-->
+        <!--			left join as_funcregedit fun on fun.iid=oa.ifuncregedit-->
+        <!--			left join hr_person p on com.isperson=p.iid-->
+        <!--			where com.itype=4 and com.isread=0 and com.irperson=#irperson#-->
+        <!--		) msg where msg.iinvoice is not null order by msg.fsdate desc-->
+
+        select * from (
+        select oa.csubject,com.isperson,com.iid,oa.iinvoice,com.ifuncregedit,com.itype,com.cdetail,fun.cname
+        funcname,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate from as_communication com
+        left join as_funcregedit fun on com.ifuncregedit=fun.iid
+        left join hr_person p on com.isperson=p.iid
+        left join oa_invoice oa on com.iinvoice = oa.iid
+        where com.itype=1 and com.ifuncregedit !=10 and com.isread=0 and com.irperson=#irperson#
+        union
+        select oa.csubject,com.isperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,'自由协同'
+        funcame,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate from as_communication com
+        left join hr_person p on com.isperson=p.iid
+        left join oa_invoice oa on oa.iid=com.iinvoice
+        where com.itype=1 and com.ifuncregedit =10 and com.isread=0 and com.irperson=#irperson#
+        union
+        select com.cdetail csubject,com.isperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,fun.cname
+        funcname,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate from as_communication com
+        left join as_funcregedit fun on com.ifuncregedit=fun.iid
+        left join hr_person p on com.isperson=p.iid
+        where com.itype=2 and com.ifuncregedit !=10 and com.isread=0 and com.irperson=#irperson#
+        union
+        select com.cdetail csubject,com.isperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,'离线消息'
+        funcame,p.cname pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate from as_communication com
+        left join hr_person p on com.isperson=p.iid
+        where com.itype=0 and com.isread=0 and com.isonline=0 and com.irperson=#irperson#
+        union
+        select oa.csubject,com.isperson,com.iid,case when isnull(fun.cname,'自由协同')= '自由协同' then oa.iid else oa.iinvoice
+        end iinvoice,isnull(fun.iid,10) ifuncregedit,com.itype,com.cdetail,isnull(fun.cname,'自由协同') funcname,p.cname
+        pcname,substring(convert(varchar(19),com.dsend,120),3,14) fsdate from as_communication com
+        left join oa_invoice oa on com.iinvoice=oa.iid
+        left join as_funcregedit fun on fun.iid=oa.ifuncregedit
+        left join hr_person p on com.isperson=p.iid
+        where com.itype=4 and com.isread=0 and com.irperson=#irperson#
+
+        <!-- lr add 要事计划提醒-->
+        union
+        select op.ctype+'：'+op.cdetail csubject,com.isperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,'我的计划提醒'
+        cdetail,fun.cname funcname,p.cname pcname,substring(convert(varchar(19),Getdate(),120),3,14) fsdate from
+        as_communication com
+        left join as_funcregedit fun on com.ifuncregedit=fun.iid
+        left join hr_person p on com.isperson=p.iid
+        left join oa_plans op on op.iid = com.iinvoice
+        where com.itype=11 and com.isread=0 and com.irperson=#irperson# and op.dmessage!='1900-01-01 00:00:00.000' and
+        Getdate()>op.dmessage and isnull(op.istatus,0)=0
+        <!-- lr add 客商计划提醒-->
+        union
+        select ow.cname csubject,com.isperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,'客商计划提醒' cdetail,
+        fun.cname funcname,p.cname pcname,substring(convert(varchar(19),Getdate(),120),3,14) fsdate from
+        as_communication com
+        left join as_funcregedit fun on com.ifuncregedit=fun.iid
+        left join hr_person p on com.isperson=p.iid
+        left join oa_workplan ow on ow.iid = com.iinvoice
+        where com.itype=12 and com.isread=0 and com.irperson=#irperson# and ow.dmessage!='1900-01-01 00:00:00.000'
+        and Getdate()>ow.dmessage and ow.istatus=620 and ow.bnomessage=0
+        union
+        select ow.cname csubject,com.isperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,'客商计划提醒' cdetail,
+        fun.cname funcname,p.cname pcname,substring(convert(varchar(19),Getdate(),120),3,14) fsdate from
+        as_communication com
+        left join as_funcregedit fun on com.ifuncregedit=fun.iid
+        left join hr_person p on com.isperson=p.iid
+        left join oa_workplan ow on ow.iid = com.iinvoice
+        where com.itype=12 and com.isread=0 and com.irperson=#irperson# and ow.dmessage!='1900-01-01 00:00:00.000'
+        and Getdate()>ow.dmessage and ow.istatus=620 and ow.dbegin>Getdate() and ow.bnomessage=1
+        <!-- lr add 客商活动提醒-->
+        union
+        select ow.cmessage csubject,com.isperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,'客商活动提醒' cdetail,
+        fun.cname funcname,p.cname pcname,substring(convert(varchar(19),Getdate(),120),3,14) fsdate from
+        as_communication com
+        left join as_funcregedit fun on com.ifuncregedit=fun.iid
+        left join hr_person p on com.isperson=p.iid
+        left join oa_workdiary ow on ow.iid = com.iinvoice
+        where com.itype=13 and com.isread=0 and com.irperson=#irperson# and ow.dmessage!='1900-01-01 00:00:00.000'
+        and Datediff(day,ow.dmessage,Getdate())>=-1
+        <!--and isnull(ow.bnomessage,0)=0-->
+
+        <!--问卷调查-->
+        union
+
+        select oi.cname csubject,0 isperson,oi.iid,oi.iid iinvoice,461 ifuncregedit,-1 as 'itype',oi.cname cdetail,
+        aa.cname 'funcname',an.cname 'pcname',
+        convert(varchar,oi.dmaker,120) fsdate
+        from OA_inquiry oi
+        left join OA_noticenode ode on ode.inotice = oi.iid
+        left join OA_noticenodes odes on odes.inoticenode = ode.iid
+        left join (select aa_data.iid,aa_data.ccode,aa_data.cname from aa_data left join aa_dataclass
+        on aa_data.iclass = aa_dataclass.iid where aa_dataclass.cname = '问卷类型') aa on
+        convert(varchar(4),oi.itype)=aa.ccode
+        left join hr_person an on oi.imaker = an.iid
+        where odes.iperson= #irperson# and isnull(odes.bread,0)=0 and (DATEDIFF(DAY,GETDATE(),oi.dend) >= 0 or oi.dend
+        is null)
+        and oi.istatus != 9
+
+        ) msg order by msg.fsdate desc
+
+        <!-- 		where msg.iinvoice is not null  -->
+
+    </select>
+
+
+    <update id="msg.update_msg_item" parameterClass="java.util.HashMap">
+        update as_communication set isread=#isread#,dread=convert(varchar(19),getdate(),120) where iid in ( $iid$ )
+    </update>
+
+    <delete id="msg.del_msg_item" parameterClass="java.util.HashMap">
+        delete as_communication where iid in ( $iid$)
+    </delete>
+
+    <!-- subhome 中相关 修改 -->
+    <update id="msg.update_msg_item_subhome" parameterClass="java.util.HashMap">
+        update as_communication set isread=1,dread=convert(varchar(19),getdate(),120) where irperson=#irperson# and
+        ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice#
+    </update>
+
+    <!--回写消息表中的ismsstatus-->
+    <update id="msgUpdateIsmsStatus" parameterClass="java.util.HashMap">
+        update as_communication set ismsstatus=#ismsstatus# where iid in ( $iid$ )
+    </update>
+
+</sqlMap>

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+				xmlns:comps="yssoft.comps.*" implements="yssoft.impls.ICRMWindow" creationComplete="onWindowInit()">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.frameui.formopt.OperDataAuth;
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			public var curButtonStatus:String="onGiveUp";
+			
+			//菜单(列表)传参
+			[Bindable]
+			public var winParam:Object=new Object();
+			
+			private var tableMessage:ArrayCollection;
+			
+			private var _vouchFormArr:ArrayList;
+			
+			// 单据功能注册码
+			[Bindable]
+			public var formIfunIid:int=0;
+			
+			public var currid:int=0;
+			
+			/**
+			 *  单据状态, 新增 new ，编辑 edit ，浏览 browser, 默认为新增 new
+			 * 	从菜单触发 状态为new，从其他触发与单据列表触发 可以设为new,edit,browser其中之一
+			 */
+			[Bindable]
+			public var formStatus:String="new";
+			
+			//权限类对象
+			public var auth:OperDataAuth;
+			
+			private function init():void
+			{
+			}
+			
+			public function onWindowInit():void
+			{
+				initWindow();
+			}
+			
+			//打开（初始化界面）进行按钮互斥
+			private function initWindow():void
+			{
+				//初始化权限
+				auth=new OperDataAuth();
+				//---------------加载操作权限 begin---------------//
+				var params1:Object=new Object();
+				var itemObj:Object = CRMtool.getObject(winParam);
+				params1.ifuncregedit=itemObj.ifuncregedit;
+				params1.iperson=CRMmodel.userId;
+				auth.get_funoperauth(params1);
+				//---------------加载操作权限 end---------------//
+				winParam = CRMtool.getObject(this.winParam);
+				this.formIfunIid = int(itemObj.ifuncregedit);
+				var crmeap:CrmEapRadianVbox = new CrmEapRadianVbox();
+				crmeap.name="myCanva";
+				crmeap.curButtonStatus=this.curButtonStatus;
+				crmeap.formIfunIid = this.formIfunIid;
+				crmeap.owner=this;
+				crmeap.addEventListener("complete",complete);
+				crmeap.queryVouchForm();
+				this.formShowArea.addChild(crmeap);
+				setAllButtonsEnabled(this.curButtonStatus,0);
+				AccessUtil.remoteCallJava("FditemDest","queryFditem",callBackHandler);
+			}
+			
+			private function complete(event:Event):void
+			{
+				
+			}
+			
+			//窗体打开
+			public function onWindowOpen():void
+			{
+				this.formShowArea.removeAllChildren();
+				this.formStatus="new";
+				this.curButtonStatus="onGiveUp";
+				onWindowInit();
+				init();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void
+			{
+			}
+			
+			private  function callBackHandler(event:ResultEvent):void
+			{
+				if(event.result!=null)
+				{
+					var treexml:XML = new XML(event.result as String);
+					this.tre_fditem.treeCompsXml = treexml;
+					CRMtool.toolButtonsEnabled(this.lbr_fditem,null,this.tre_fditem.treeCompsXml.length());
+				}
+				else
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_fditem,null,0);
+				}
+				
+				CRMtool.containerChildsEnabled(this.formShowArea,false);
+		 		//回车替代TAB键
+				CRMtool.setTabIndex(this.formShowArea);
+			}
+			
+			private function onDelete(event:Event):void
+			{
+				if(!this.tre_fditem.selectedItem)
+				{
+					CRMtool.tipAlert("请选择一条记录!");
+					return;
+				}
+				this.curButtonStatus="onDelete";
+				var crmeap:CrmEapRadianVbox=this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				crmeap.curButtonStatus= this.curButtonStatus;
+				crmeap.onDelete();
+				crmeap.addEventListener("success",success);
+			}
+			
+			private function success(event:Event):void
+			{
+				var crmeap:CrmEapRadianVbox=this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				var obj:Object = crmeap.getValue();
+				if(this.curButtonStatus=="onNew")
+				{
+					obj.iid=crmeap.currid;
+					this.tre_fditem.AddTreeNode(obj);
+				}
+				else if(this.curButtonStatus=="onEdit")
+				{
+					this.tre_fditem.EditTreeNode(obj);
+				}
+				else
+				{
+					this.tre_fditem.DeleteTreeNode();
+					crmeap.setValue(null,1,1);
+				}
+					
+				this.curButtonStatus="onGiveUp";
+				this.tre_fditem.enabled=true;
+				setAllButtonsEnabled("onGiveUp");
+			}
+			
+			private function onSave(event:Event):void
+			{
+				var crmeap:CrmEapRadianVbox=this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				var obj:Object = crmeap.getValue();
+				obj.ipid=this.tre_fditem.getIpid(obj.ccode);
+				crmeap.setValue(crmeap.fzsj(obj));
+				crmeap.onSave();
+				crmeap.addEventListener("success",success);
+			}
+			
+			private function onNew(event:Event):void
+			{
+				this.curButtonStatus="onNew";
+				var crmeap:CrmEapRadianVbox=this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				crmeap.curButtonStatus = "onNew";
+				crmeap.setValue(null,1,1);
+				crmeap.onNew();
+				setAllButtonsEnabled("onNew");
+				CRMtool.containerChildsEnabled(crmeap,true);
+			}
+			
+			
+			private function onEdit(event:Event):void
+			{
+				if(!this.tre_fditem.selectedItem)
+				{
+					CRMtool.tipAlert("请选择一条记录!");
+					return;
+				}
+				this.curButtonStatus="onEdit";
+				this.tre_fditem.enabled=false;
+				var crmeap:CrmEapRadianVbox=this.formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				CRMtool.containerChildsEnabled(crmeap,true);
+				crmeap.setCurButtonStatus();
+				crmeap.curButtonStatus = this.curButtonStatus;
+				setAllButtonsEnabled(this.curButtonStatus);
+			}
+			
+			private function onGiveUp(event:Event):void
+			{
+				this.curButtonStatus="onGiveUp";
+				var crmeap:CrmEapRadianVbox=formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				CRMtool.containerChildsEnabled(crmeap,false);
+				if(null==this.tre_fditem.treeCompsXml)
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_fditem,"onGiveUp",0);
+				}
+				else
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_fditem,"onGiveUp",this.tre_fditem.treeCompsXml.length());
+				}
+				this.tre_fditem.enabled = true;
+			}
+			
+			private function queryComplete(event:Event):void
+			{
+				var crmeap:CrmEapRadianVbox=formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				if(crmeap.vouchFormValue.mainValue==null)
+				{
+					setAllButtonsEnabled(curButtonStatus,0);
+				}
+				else
+				{
+					setAllButtonsEnabled(curButtonStatus);
+				}
+			}
+			
+			//设置按钮互斥
+			public function setAllButtonsEnabled(selectedName:String,length:int=1):void
+			{
+				CRMtool.toolButtonsEnabled(this.lbr_fditem,selectedName,length);
+			}
+			
+			
+			private function treeMenu_itemClickHandler():void
+			{
+				if(!this.tre_fditem.selectedItem)
+				{
+					CRMtool.tipAlert("请选择一条记录!");
+					return;
+				}
+				var crmeap:CrmEapRadianVbox=formShowArea.getChildByName("myCanva") as CrmEapRadianVbox;
+				var iid:String =this.tre_fditem.selectedItem.@iid;
+				crmeap.queryPm(iid);
+				crmeap.addEventListener("queryComplete",queryComplete);
+			}
+		]]>
+	</fx:Script>
+	<mx:VBox width="20%" height="100%" styleName="lefttree">
+		<mx:ApplicationControlBar width="100%" height="32" dock="true">
+			<mx:Label text="回访要素" styleName="contentTitle"/>
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox id="tre_fditem" width="100%" height="100%" click="treeMenu_itemClickHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+	<!-- 右边 -->
+	<mx:VBox width="80%" height="100%" styleName="centerbg4" >
+		<mx:ApplicationControlBar styleName="centertop" width="100%" height="32" >
+			<comps:LinkBarVboxComps horizontalAlign="left" id="lbr_fditem"  dataProvider="{ConstsModel.LBRITEM}"
+									onDeleteEvent="onDelete(event)" 
+									onSaveEvent="onSave(event)" height="25" styleName="contentButtonBar" onGiveUpEvent="onGiveUp(event)"
+									onNewEvent="onNew(event)" onEditEvent="onEdit(event)"/>
+		
+		</mx:ApplicationControlBar>
+		<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="10" paddingRight="10">
+			<mx:Canvas id="formShowArea" width="100%" height="100%" 
+					   horizontalScrollPolicy="off" >
+			</mx:Canvas>
+		</mx:VBox>
+	</mx:VBox>
+		
+</mx:HDividedBox>

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:menu="yssoft.frameui.menu.*"
+                   borderVisible="false"
+                   xmlns:s="library://ns.adobe.com/flex/spark" xmlns:comps="yssoft.comps.*"
+                   creationComplete="myInit()" rollOver="rollOverHandler(event)"
+                   rollOut="rollOutHandler(event)" click="clickHandler(event)">
+    <fx:Metadata>
+        [Style(name="myTextColor", type="uint", format="Color", inherit="no")]
+        [Style(name="myTextRollOverColor", type="uint", format="Color", inherit="no")]
+
+        [Style(name="myBackgroundColor", type="uint", format="Color", inherit="no")]
+        [Style(name="myBackgroundRollOverColor", type="uint", format="Color", inherit="no")]
+
+        [Style(name="myIconColor", type="uint", format="Color", inherit="no")]
+        [Style(name="myIconRollOverColor", type="uint", format="Color", inherit="no")]
+    </fx:Metadata>
+    <s:layout>
+        <s:HorizontalLayout gap="8" verticalAlign="middle" horizontalAlign="left" paddingLeft="10" paddingRight="5"/>
+    </s:layout>
+
+    <comps:Square id="square" sideLength="3"/>
+    <mx:Label id="uilabel" text="{label}" width="100%"/>
+    <menu:MenuButton2 id="button2" visible="{plusData!=null}" click="button2_clickHandler(event)"/>
+    <fx:Script><![CDATA[
+        public var data:*;
+        [Bindable]
+        public var label:String;
+
+        [Bindable]
+        public var plusData:Object;
+        [Bindable]
+        public var plusTip:String;
+
+        private function myInit():void {
+            this.setStyle("backgroundColor", getStyle("myBackgroundColor"));
+            uilabel.setStyle("color", getStyle("myTextColor"));
+            square.fillColor = getStyle("myIconColor");
+            button2.isRollOver = false;
+        }
+
+        private function rollOverHandler(event:MouseEvent):void {
+            this.setStyle("backgroundColor", getStyle("myBackgroundRollOverColor"));
+            uilabel.setStyle("color", getStyle("myTextRollOverColor"));
+            square.fillColor = getStyle("myIconRollOverColor");
+            button2.isRollOver = true;
+        }
+
+        private function rollOutHandler(event:MouseEvent):void {
+            myInit();
+        }
+
+        private function clickHandler(event:MouseEvent):void {
+            if (event.target == button2) {
+                event.stopImmediatePropagation();
+            }
+
+        }
+
+        private function button2_clickHandler(event:MouseEvent):void {
+            this.dispatchEvent(new Event("plusButtonClick"));
+        }
+        ]]></fx:Script>
+</s:BorderContainer>

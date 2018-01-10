@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx" styleName="topcontent"
+         xmlns:comps="yssoft.comps.*"
+         width="100%" height="100%" creationComplete="onWindowInit()"
+         implements="yssoft.impls.ICRMWindow,yssoft.interfaces.IMainViewStackSearch">
+    <fx:Script source="../../../yssoft/scripts/CoManagerScript.as"/>
+    <fx:Script>
+		<![CDATA[
+        public function searchFromMain(s:String):void {
+            fastsearch.text = s;
+            onSearch();
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+        <mx:VBox width="20%" height="100%" styleName="lefttree">
+            <!-- 菜单树 -->
+            <mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="frameSideAppBar">
+                <s:Label id="lbTitle" text="我的协同 [{optName}]"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox styleName="lefttree1" verticalGap="0" width="100%">
+                <mx:LinkButton styleName="LinkButton1" paddingLeft="10" label="待办事项{dbsx_sum==0?'':'('+dbsx_sum+')'}"
+                               click="linkbar_ClickHandler(event)" name="dbsx" icon="{ConstsModel.wf_node_istatus_3}"
+                               letterSpacing="2" textAlign="left" width="100%" textIndent="10" height="27"/>
+                <mx:LinkButton styleName="LinkButton1" paddingLeft="10" label="已办事项{ybsx_sum==0?'':'('+ybsx_sum+')'}"
+                               click="linkbar_ClickHandler(event)" name="ybsx" icon="{ConstsModel.wf_node_istatus_1}"
+                               letterSpacing="2" textAlign="left" width="100%" textIndent="10" height="27"/>
+                <mx:LinkButton styleName="LinkButton1" paddingLeft="10" label="跟踪未办{gzsx_sum==0?'':'('+gzsx_sum+')'}"
+                               click="linkbar_ClickHandler(event)" name="gzsx" icon="{ConstsModel.wf_node_istatus_0}"
+                               letterSpacing="2" textAlign="left" width="100%" textIndent="10" height="27"/>
+                <mx:LinkButton styleName="LinkButton1" paddingLeft="10" label="待发事项{dfsx_sum==0?'':'('+dfsx_sum+')'}"
+                               click="linkbar_ClickHandler(event)" name="dfsx" icon="{ConstsModel.wf_node_istatus_4}"
+                               letterSpacing="2" textAlign="left" width="100%" textIndent="10" height="27"/>
+                <mx:LinkButton styleName="LinkButton1" paddingLeft="10" label="已发已办{yfsx_sum==0?'':'('+yfsx_sum+')'}"
+                               click="linkbar_ClickHandler(event)" name="yfsx" icon="{ConstsModel.wf_node_istatus_6}"
+                               letterSpacing="2" textAlign="left" width="100%" textIndent="10" height="27"/>
+            </mx:VBox>
+        </mx:VBox>
+        <!-- 菜单信息维护 -->
+        <mx:VBox width="80%" height="100%" styleName="centerbg03" verticalGap="0">
+            <!-- 标签 -->
+            <mx:ApplicationControlBar width="100%" height="32" dock="true" styleName="centertop">
+                <mx:Button id="newBt" click="newBtClickHandler()" label="创建自由协同" styleName="contentButtonBar"
+                          height="25"/>
+                <mx:Button id="cxBt" click="revocationHandler()" label="撤销自由协同" styleName="contentButtonBar" height="25"
+                          visible="false"/>
+				<mx:Button id="scBt" click="delecteHandler()" label="删除自由协同" styleName="contentButtonBar" height="25"
+						   visible="false"/>
+				<s:Button label="高级查询" id="query_bt" click="openQueryWin()"  height="25"/>
+                <s:Spacer width="100%"/>
+                <comps:CrmTextInput id="fastsearch" visible="false" includeInLayout="false" search="onSearch()"/>
+            </mx:ApplicationControlBar>
+            <mx:Canvas width="100%" height="100%" borderVisible="false">
+                <mx:DataGrid left="1" right="1" id="workFlowDg" dataProvider="{_workFlowDatas}"
+                             doubleClickEnabled="true" itemDoubleClick="workFlowDg_itemHandler()" borderVisible="false"
+                             width="100%" resizableColumns="false" height="100%"
+                             alternatingItemColors="[#ffffff,#f4f4f4]" rowHeight="25">
+                    <mx:columns>
+                        <!--oa.iid,oa.csubject,ab.imaker,ab.dmaker,oa.dfinished,oa.istatus -->
+                        <mx:DataGridColumn dataField="" headerText="序号" width="40"
+                                           labelFunction="lbfun"></mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="funname" headerText="相关业务" width="100"></mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="csubject" headerText="标题"
+                                           labelFunction="csubjectLbFun"></mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="pcname" headerText="发起者" width="65"></mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="dmaker" headerText="发起时间" width="130"></mx:DataGridColumn>
+                        <mx:DataGridColumn dataField="dfinished" headerText="处理期限" width="130"></mx:DataGridColumn>
+                        <!--<mx:DataGridColumn dataField="istatus" headerText="处理状态" width="65"></mx:DataGridColumn>-->
+                        <!--<mx:DataGridColumndataField="dataField3" headerText="催办次数" width="65"></mx:DataGridColumn>
+                              <mx:DataGridColumndataField="dataField3" headerText="处理日志" width="65"></mx:DataGridColumn>-->
+                    </mx:columns>
+                </mx:DataGrid>
+            </mx:Canvas>
+            <comps:PageBar paddingRight="10" id="pageBar" width="100%" height="32"/>
+        </mx:VBox>
+    </mx:HDividedBox>
+</mx:HBox>

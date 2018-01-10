@@ -1,0 +1,888 @@
+<ReportSettings version="1.1">
+  <PageWidth>51.1</PageWidth>
+  <PageHeight>21</PageHeight>
+  <LeftMargin>0.5</LeftMargin>
+  <RightMargin>0.5</RightMargin>
+  <TopMargin>0.5</TopMargin>
+  <BottomMargin>0.5</BottomMargin>
+  <CanGrow>true</CanGrow>
+  <FitToPrintSize>true</FitToPrintSize>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.7</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.8</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Concat(金税收费率统计：,Parameters!date1.Value,~ ,Parameters!date2.Value)</Value>
+          <Style>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售回款</Value>
+          <Style>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+          </Style>
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>年度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>一季度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>二季度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>7</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>8</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>9</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>三季度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>10</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>11</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>12</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>四季度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!date1.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==3)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==6)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==9)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date1.Value &amp;&amp; Fields!imonth.Value==12))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Parameters!date2.Value</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12))==0,1,(Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12)/Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12)))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12))==0,1,((Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!num.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12))/(Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==1)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==2)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==3)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==4)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==5)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==6)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==7)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==8)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==9)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==10)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==11)+Get(Fields!sums.Value,Fields!iyear.Value==Parameters!date2.Value &amp;&amp; Fields!imonth.Value==12))))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>10</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <FontBold>true</FontBold>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>18</ColSpan>
+          <Control type="Line3DMS">
+            <Chart type="Line3DMS">
+              <PaddingTop>20</PaddingTop>
+              <EndBackgroundColor>#ffffff</EndBackgroundColor>
+              <BorderColor>#ffffff</BorderColor>
+              <TitleVisible>false</TitleVisible>
+              <SubtitleVisible>false</SubtitleVisible>
+              <LabelField>=Series(Fields!iyear.Value)</LabelField>
+              <LineThickness>2.5</LineThickness>
+              <LineValueField>=Series(If((0+Fields!sums.Value) == 0,1,(Fields!num.Value)/(Fields!sums.Value))*100)</LineValueField>
+              <CanvasWidth>1340</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <XAxisName/>
+              <YAxisName/>
+              <YAxisLabelField>=Split(Fields!Y.Value, Str(,))</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!imonth.Value)</XAxisLabelField>
+              <Colors>
+                <Value>#ff8100</Value>
+                <Value>#018ccf</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>18</ColSpan>
+          <Control type="Line3DMS">
+            <Chart type="Line3DMS"/>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>18</ColSpan>
+          <Control type="Line3DMS">
+            <Chart type="Line3DMS"/>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>18</ColSpan>
+          <Control type="Line3DMS">
+            <Chart type="Line3DMS"/>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>14</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>14</ColSpan>
+          <Control type="Line3DMS">
+            <Chart type="Line3DMS">
+              <PaddingTop>20</PaddingTop>
+              <Gap>1</Gap>
+              <EndBackgroundColor>#ffffff</EndBackgroundColor>
+              <BorderColor>#ffffff</BorderColor>
+              <TitleVisible>false</TitleVisible>
+              <SubtitleVisible>false</SubtitleVisible>
+              <LabelField>=Series(Fields!年.Value)</LabelField>
+              <LineThickness>2.5</LineThickness>
+              <LineValueField>=Series(If((0+Fields!回款.Value) == 0,"",Fields!回款.Value))</LineValueField>
+              <CanvasWidth>1100</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <CanvasLineColor>10066329</CanvasLineColor>
+              <XAxisName/>
+              <YAxisName/>
+              <YAxisLabelField>0,500000,1000000,1500000,2000000,2500000,3000000</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月.Value)</XAxisLabelField>
+              <Colors>
+                <Value>#ff8100</Value>
+                <Value>#018ccf</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>2</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>18</ColSpan>
+          <Control type="Line3DMS">
+            <Chart type="Line3DMS"/>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <LeftBorder>false</LeftBorder>
+            <RightBorder>false</RightBorder>
+            <TopBorder>false</TopBorder>
+            <BottomBorder>false</BottomBorder>
+          </Style>
+          <ColSpan>18</ColSpan>
+          <Control type="Line3DMS">
+            <Chart type="Line3DMS"/>
+          </Control>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

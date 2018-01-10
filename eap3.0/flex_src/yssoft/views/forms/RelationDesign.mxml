@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+//单据关系对应设计器
+-->
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:comps="yssoft.comps.*" 
+		  implements="yssoft.impls.ICRMWindow" creationComplete="onWindowInit()" xmlns:forms="yssoft.views.forms.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.containers.Canvas;
+			import mx.controls.Alert;
+			import mx.controls.List;
+			import mx.controls.Text;
+			import mx.controls.Tree;
+			import mx.core.IUIComponent;
+			import mx.events.DragEvent;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.tools.AccessUtil;
+			
+			[Bindable]
+			
+			private var tplXml:XML=new XML();
+			
+			public var startEnable:Boolean=false;
+			
+			//窗体初始化
+			public function onWindowInit():void{
+				getWorkFlowTpl();
+			}
+			//窗体打开
+			public function onWindowOpen():void{
+				onWindowInit();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void{
+				
+			}
+			//获取模板信息
+			private function getWorkFlowTpl():void{
+				AccessUtil.remoteCallJava("FormRelationDest","getTables",callBack,null,"正在获取单据列表...");
+			}
+			private function callBack(event:ResultEvent):void{
+					this.tplXml=new XML(event.result);
+					rdTree.treeCompsXml=this.tplXml;
+			}
+			
+			protected function onDragEnterHandler(event:DragEvent):void
+			{
+				if(!startEnable){
+					DragManager.acceptDragDrop(event.currentTarget as IUIComponent);
+				}
+			}
+			// 开始拖动
+			
+			private function onDragStart():void
+			{
+				var ctable:String=	this.rdTree.selectedItem.@ctable;
+				var ipid:int=int(this.rdTree.selectedItem.@ipid);
+				if(ctable == ""&&ipid!=-1){
+					treeSelectedXml=this.rdTree.selectedItem as XML;
+				}
+			}
+			
+			//[Bindable]
+			private var treeSelectedXml:XML=null;
+			protected function onDragDropHandler(event:DragEvent):void
+			{
+				//Alert.show(""+event.dragSource.formats);
+				if(rdTree.selectedItem == null){
+					Alert.show("请选择后，再操作！！","提示");
+					return;
+				}
+				if((rdTree.selectedItem as XML).hasComplexContent()){
+					Alert.show("请选择叶子节点，再处理！！","提示");
+					return;
+				}
+				
+				if(String(rdTree.selectedItem.@cname)==null || (rdTree.selectedItem.@cname)==""){
+					Alert.show("构建信息不全，不予操作.\n错误原因:表名不存在等","提示");
+					return;
+				}
+				if(!startEnable){
+					startEnable=true;
+					createTabelDetail(event.localX,event.localY,1);
+				}else{
+					Alert.show("本表已经存在，请拖动到本表上！！","提示");
+				}
+			}
+			
+			// 设定上下游关系
+			private var setWindow:SetRelation=new SetRelation();
+			public function showSetWindow():void
+			{
+				if(setWindow==null){
+					setWindow=new SetRelation();
+				}
+				setWindow.owner=this;
+				PopUpManager.addPopUp(setWindow,this);
+				PopUpManager.centerPopUp(setWindow);
+			}
+			
+			// 设置窗口 回调执行
+			public function swresult(formType:int=0):void
+			{
+				var tb:TableDetail=this.getTableDetail("td_1");
+				if(tb == null){
+					Alert.show("本表不存在！！","提示");
+					return;
+				}
+				createTabelDetail(tb.x+tb.width+50,tb.y+50,formType);
+			}
+			
+			//当前拖动即将要创建的 TableDetail
+			private var curTableDetail:TableDetail=null;
+			public function createTabelDetail(localX:Number,localY:Number,formType:int=0):void{
+				curTableDetail=new TableDetail();
+				designer.addElement(curTableDetail);
+				
+				//Alert.show(""+treeSelectedXml.@ctable);
+				
+				curTableDetail.name=generateUniqueId(formType);
+				curTableDetail.tableName=treeSelectedXml.@cname;
+				curTableDetail.tableCNName=treeSelectedXml.@cname;
+				curTableDetail.ifuniid=parseInt(treeSelectedXml.@ipid);
+				curTableDetail.formType=formType;
+				curTableDetail.owner=this; // 关联 单据关系设计器
+				//curTableDetail.getFields();
+				if(formType==1){//本表 居中
+					curTableDetail.x=(designer.width)/2-100;
+					curTableDetail.y=(designer.height)/2-100;
+				}else{
+					curTableDetail.x=localX;
+					curTableDetail.y=localY;
+				}
+				
+				// 绘制箭头
+				if(curTableDetail.formType != 1){ // 本表 不需要绘制
+					drawFRLine(curTableDetail,curTableDetail.formType,curTableDetail.formType==0?"下游关系":"上游关系");
+				}
+				
+			}
+			//生成 唯一值
+			private function generateUniqueId(formType:int=0):String{
+				if(formType==1){//本表比较特殊，只能有一个
+					return "td_"+formType;
+				}else{
+					return "td_"+(new Date()).getTime()+Math.round(Math.random()*100)+"_"+formType;
+				}
+			}
+			//获取 TableDetail
+			private function getTableDetail(tdname:String):TableDetail
+			{
+				return this.designer.getChildByName(tdname) as TableDetail;
+			}
+			//绘制 线条
+			
+			/**
+			 * 箭头颜色
+			 */
+			private var arrowColor:uint=0x7085AA;
+			/**
+			 * 箭头粗细
+			 */
+			private var arrowThickness:int=1;
+			/**
+			 * 线条颜色
+			 */
+			private var lineColor:uint=0x7085AA;
+			/**
+			 * 线条粗细
+			 */
+			private var lineThickness:int=2;
+			
+			public function drawFRLine(td:TableDetail,formType:int,info:String=null):void
+			{
+				var benTableDetail:TableDetail=this.getTableDetail("td_1");
+				if(benTableDetail == null){
+					Alert.show("本表不存在！！","提示");
+					return;
+				}
+				// 检查对应的线条,有就删除
+				var line:Canvas=this.designer.getChildByName(td.name+"_line") as Canvas;
+				if(line){
+					//if(info==null){
+						info=line.data as String;
+					//}
+					this.designer.removeChild(line);
+				}
+				
+				var point1:Point=getSquarePoint(benTableDetail);
+				var point2:Point=getSquarePoint(td);
+				if(formType==0){ // 推进
+					drawLine(point1.x,point1.y,point2.x,point2.y,td.name,info);
+				}else if(formType==2){//回写
+					drawLine(point2.x,point2.y,point1.x,point1.y,td.name,info);
+				}
+				
+			}
+			
+			private var lines:Canvas;
+			private function drawLine(startX:int,startY:int,endX:int,endY:int,tdname:String,info:String="下游关系"):void{
+				lines=new Canvas();
+				this.lines.graphics.lineStyle(lineThickness,lineColor);
+				this.lines.graphics.moveTo(startX,startY);
+				this.lines.graphics.lineTo(endX,endY);
+				drawArrow(startX,startY,endX,endY);
+				lines.name=tdname+"_line";
+				//Alert.show("["+info+"]");
+				if(info==null){
+					info="";
+				}
+				lines.data=info;
+				var text:Text=new Text();
+					text.text=info;
+					lines.addChild(text);
+				this.designer.addChild(lines);
+				text.x=(startX+endX)/2;
+				text.y=(startY+endY)/2;
+			}
+			/**
+			 * 功能：绘制箭头
+			 * 参数：startX 	起点X坐标点
+			 * 参数：startY	起点Y坐标点
+			 * 参数：endX 	终点的X坐标点 
+			 * 参数：endY		终点的Y坐标点
+			 */
+			private function drawArrow(startX:int,startY:int,endX:int,endY:int):void{
+				this.lines.graphics.beginFill(arrowColor,arrowThickness);
+				var slopy:Number;
+				var cosy:Number;
+				var siny:Number;
+				var Par:Number=10;
+				slopy = Math.atan2((startY - endY),(startX - endX));
+				cosy = Math.cos(slopy);
+				siny = Math.sin(slopy);
+				this.lines.graphics.moveTo(endX,endY);
+				this.lines.graphics.lineTo(endX + int( Par * cosy - ( Par / 2.0 * siny ) ), endY + int( Par * siny + ( Par / 2.0 * cosy ) ) );
+				this.lines.graphics.lineTo(endX + int( Par * cosy + Par / 2.0 * siny ),endY - int( Par / 2.0 * cosy - Par * siny ) );
+				this.lines.graphics.lineTo(endX,endY);	      	
+				this.lines.graphics.endFill();
+			}
+			/**
+			 * 定位 节点 9个点 坐标
+			 * 参数: node 节点
+			 * 参数: endpoint 端点类型 tl 上左 ，tc 上中，tr 上右，cl 中左,cc 中中 ，cr 中右 ，bl 下左，bc 下中，br 下右
+			 * 
+			 */ 
+			private function getSquarePoint(node:TableDetail,endpoint:String="tc"):Point{
+				var tpPoint:Point=new Point();
+				var x:Number=node.x;
+				var y:Number=node.y;
+				var w:Number=node.width;
+				var h:Number=node.height;
+				
+				switch(endpoint){
+					case "tl":tpPoint = new Point(x,y);break;
+					case "tc":tpPoint = new Point(x+w/2,y);break;
+					case "tr":tpPoint = new Point(x+w,y);break;
+					
+					case "cl":tpPoint = new Point(x,y+h/2);break;
+					case "cc":tpPoint = new Point(x+w/2,y+h/2);break;
+					case "cr":tpPoint = new Point(x+w,y+h/2);break;
+					
+					case "bl":tpPoint = new Point(x,y+h);break;
+					case "bc":tpPoint = new Point(x+w/2,y+h);break;
+					case "br":tpPoint = new Point(x+w,y+h);break;
+				}
+				return tpPoint;
+			}
+			// 配置字段的对应关系
+			private var cf:ConfigRelation=new ConfigRelation();
+			public function openConfigRelationWindow(bbFieldName:String,listDatas:ArrayCollection,index:int):void
+			{
+				
+				if(listDatas==null || index<0){
+					return;
+				}
+				if(cf==null){
+					cf=new ConfigRelation();
+				}
+				PopUpManager.addPopUp(cf,this);
+				PopUpManager.centerPopUp(cf);
+				cf.bbFieldName=bbFieldName;
+				cf.curFieldList=listDatas;
+				cf.curFiledIndex=index;
+				cf.curFieldName=listDatas.getItemAt(index).cfield;
+			}
+			
+			//
+			private function startEffect(type:String="zd"):void
+			{
+				for each(var td:Object in designer.getChildren()){
+					if(td is TableDetail){
+						(td as TableDetail).slideType=type;
+					}
+				}
+			}
+			
+			private function deleteItems():void
+			{
+				for each(var td:Object in designer.getChildren()){
+					if(td is TableDetail){
+						(td as TableDetail).deleteItem();
+					}
+				}
+				this.startEnable=false;
+			}
+			
+			// 遍历 单据中 字段的对应关系
+			private function traversalFormFieldRelation(bbname:String,td:TableDetail):ArrayCollection
+			{
+				var list:ArrayCollection=new ArrayCollection();
+				
+				if(td==null || td.fieldList==null || td.fieldList.length==0){
+					return list;
+				}
+				var bool:Boolean=td.formType==0?true:false; // trur pull  下游表,false push 上游表
+				//#irsiid#,#ctable#,#cfield#,#ctable2#,#cfield#,#bpush#,#cpushfun#,#bpull#,#cpullfun#
+				for each(var item:Object in td.fieldList){
+					if(item.dyfunction !="" || item.dyfield !=""){
+						var obj:Object={};
+						obj.irsiid=-1;
+						obj.ctable=bbname;
+						obj.cfield=item.dyfield;
+						obj.ctable2=item.ctable;
+						obj.cfield=item.cfield;
+						
+						if(bool){
+							obj.bpull=true;
+							obj.cpullfun=item.dyfunction;
+							
+							obj.bpush=false;
+							obj.cpushfun="";
+						}else{
+							obj.bpush=true;
+							obj.cpushfun=item.dyfunction;
+							
+							obj.bpull=false;
+							obj.cpullfun="";
+						}
+						list.addItem(obj);
+					}
+				}
+				return list;
+			}
+			
+			// 遍历 单据与单据之间关系，单据中的字段配置
+			private function traversalFormRelatcion():void
+			{
+				//首先获取本表
+				var bb:TableDetail=this.getTableDetail("td_1");
+				if(bb==null){
+					Alert.show("保存失败，本表不存在！！","提示");
+					return;
+				}
+				
+				var list:ArrayCollection=new ArrayCollection();
+				for each(var child:Object in designer.getChildren()){
+					if(child is TableDetail){
+						var tb:TableDetail=child as TableDetail;
+						if(tb.formType !=1){// push 推送，下游关系
+							var item:Object={};
+							item.ifuniid1=bb.ifuniid;
+							item.ifuniid2=tb.ifuniid;
+							item.bpush=(tb.formType==0?true:false);
+							item.bpull=(tb.formType==0?false:true);
+							item.cmemo=(this.designer.getChildByName(tb.name+"_line") as Canvas).data;
+							item.fildlist=traversalFormFieldRelation(bb.tableName,tb);
+							list.addItem(item);
+						}
+					}
+				}
+				
+				addFormRaletion(list);
+			}
+			
+			// 向后台提交
+			private function addFormRaletion(param:Object):void
+			{
+				if(param==null){
+					Alert.show("数据错误，不予保存！！","提示");
+					return;
+				}
+				AccessUtil.remoteCallJava("FormRelationDest","addFormRaletion",frCallBack,param,"正在保存单据关系...");
+			}
+			
+			private function frCallBack(event:ResultEvent):void
+			{
+				Alert.show(""+event.result as String);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="20%" height="100%" styleName="lefttree">
+		<!-- 菜单树 -->
+		<mx:ApplicationControlBar width="100%" height="32" dock="true">
+			<s:Label id="lbTitle" text="单据类型" styleName="contentTitle"/>
+		</mx:ApplicationControlBar>
+		<mx:VBox width="100%" height="100%" styleName="lefttree1">
+		<comps:TreeCompsVbox id="rdTree" dragEnabled="true" dropShadowVisible="false" dragMoveEnabled="false" dragStart="onDragStart()"
+					 borderVisible="false" width="100%" height="100%" />
+		</mx:VBox>	
+	</mx:VBox>
+	<mx:VBox width="80%" height="100%" styleName="centerbg4">
+		<!-- 菜单树 -->
+		<mx:ApplicationControlBar verticalAlign="middle" styleName="centertop" width="100%" height="32" dock="true">
+			<s:Button height="25" label="清空" click="deleteItems()"/>
+			<s:Button height="25" label="折叠" click="startEffect('zd')"/>
+			<s:Button height="25" label="展开" click="startEffect('zk')"/>
+			<s:Button height="25" id="bt_save" label="保存" click="traversalFormRelatcion()"/>
+			<s:Button height="25" id="bt_delete" label="删除"/>
+		</mx:ApplicationControlBar>
+		<!--<mx:Canvas id="designer" width="100%" height="100%" backgroundColor="red" backgroundAlpha="0.2" 
+				   dragEnter="onDragEnterHandler(event)" dragDrop="onDragDropHandler(event)"/>-->
+	    <forms:Designer id="designer" width="100%" height="100%" backgroundAlpha="0.3" backgroundColor="White"
+						dragEnter="onDragEnterHandler(event)" dragDrop="onDragDropHandler(event)"/>
+	</mx:VBox>
+</mx:HDividedBox>

@@ -1,0 +1,54 @@
+﻿<ReportSettings version="1.1">
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>销售产品统计</Value>
+          <Width>18</Width>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Dynamic>true</Dynamic>
+      <DynamicColumnSettings>=Parameters!cclassname.Value</DynamicColumnSettings>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>公司</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>月份</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=DynamicText()</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting"/>
+        <ItemSetting type="TableCellSetting">
+          <Value>=DynamicValue()</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting"/>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

@@ -1,0 +1,95 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：as_dataauth
+ * 创建人：刘磊
+ * 创建时间：2011-10-12 17:45:27
+ * 修改人：刘磊
+ * 修改时间：2011-10-12 17:45:27
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+
+    <!--按角色初始化数据权限分配-->   
+    <parameterMap class="map" id="pr_initdatarightParams"> 
+		<!-- 自定义sql -->  
+		<parameter property="irole" javaType="int" jdbcType="int" mode="IN" />   
+	</parameterMap> 
+	
+	<procedure id="pr_initdataright" parameterMap="pr_initdatarightParams">
+		<![CDATA[   
+			{call pr_initdataright(?)}
+		  ]]>
+	</procedure>
+
+    <!--按人员初始化数据权限分配-->
+    <parameterMap class="map" id="pr_initdatarightsParams">
+        <!-- 自定义sql -->
+        <parameter property="iperson" javaType="int" jdbcType="int" mode="IN" />
+    </parameterMap>
+
+    <procedure id="pr_initdatarights" parameterMap="pr_initdatarightsParams">
+        <![CDATA[
+			{call pr_initdatarights(?)}
+		  ]]>
+    </procedure>
+	
+	<!--修改数据权限勾选初始化数据权限分配-->   
+    <parameterMap class="map" id="pr_initdatarightupParams"> 
+		<!-- 自定义sql -->  
+		<parameter property="ifuncregedit" javaType="int" jdbcType="int" mode="IN" />   
+	</parameterMap> 
+	
+	<procedure id="pr_initdatarightup" parameterMap="pr_initdatarightupParams">
+		<![CDATA[   
+			{call pr_initdatarightup(?)}
+		  ]]>
+	</procedure>
+   
+     <select id="get_bywhere_as_dataauth" parameterClass="String" resultClass="java.util.HashMap">
+       select as_dataauth.iid,as_dataauth.ifuncregedit,as_dataauth.irole,as_dataauth.cdatavalue,as_funcregedit.ccode,as_funcregedit.cname,
+       substring(as_dataauth.cdatavalue,1,1) as bdataauth1,substring(as_dataauth.cdatavalue,2,1) as ifind,substring(as_dataauth.cdatavalue,3,1) as iedit,
+       substring(as_dataauth.cdatavalue,4,1) as idelete,substring(as_dataauth.cdatavalue,5,1) as bdataauth2,substring(as_dataauth.cdatavalue,6,1) as ilink 
+       from  (select * from as_funcregedit where bdataauth1=1 or bdataauth2=1) as as_funcregedit 
+       left join as_dataauth on as_dataauth.ifuncregedit=as_funcregedit.iid $condition$
+       order by ccode  
+     </select>
+
+    <!--查询人员数据权限-->
+    <select id="get_bywhere_as_dataauths" parameterClass="String" resultClass="java.util.HashMap">
+        select as_dataauths.iid,as_dataauths.ifuncregedit,as_dataauths.iperson,as_dataauths.cdatavalue,as_funcregedit.ccode,as_funcregedit.cname,
+        substring(as_dataauths.cdatavalue,1,1) as bdataauth1,substring(as_dataauths.cdatavalue,2,1) as ifind,substring(as_dataauths.cdatavalue,3,1) as iedit,
+        substring(as_dataauths.cdatavalue,4,1) as idelete,substring(as_dataauths.cdatavalue,5,1) as bdataauth2,substring(as_dataauths.cdatavalue,6,1) as ilink
+        from  (select * from as_funcregedit where bdataauth1=1 or bdataauth2=1) as as_funcregedit
+        left join as_dataauths on as_dataauths.ifuncregedit=as_funcregedit.iid $condition$
+        order by ccode
+    </select>
+
+     <!--增加一条记录-->
+     <insert id="add_as_dataauth" parameterClass="java.util.HashMap">
+            insert into as_dataauth(ifuncregedit,irole,cdatavalue) 
+            values (#ifuncregedit#,#irole#,#cdatavalue#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条角色记录-->
+     <update id="update_as_dataauth" parameterClass="java.util.HashMap">
+            update as_dataauth set ifuncregedit=#ifuncregedit#,irole=#irole#,cdatavalue=#cdatavalue# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_as_dataauth" parameterClass="String">
+            delete from as_dataauth
+            where $condition$
+     </delete>
+
+    <!--更新一条人员记录-->
+    <update id="update_as_dataauths" parameterClass="java.util.HashMap">
+        update as_dataauths set ifuncregedit=#ifuncregedit#,iperson=#iperson#,cdatavalue=#cdatavalue#
+        where iid=#iid#
+    </update>
+</sqlMap>

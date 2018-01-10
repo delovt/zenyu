@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:plan="yssoft.views.plan.*"
+		  creationComplete="myinit(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.DateHadle;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			//默认季度
+			[Bindable]private var _quarter:int=Math.ceil((new Date().month+1)/3);
+			//默认年度
+			[Bindable]private var _year:int = int(DateHadle.getYear());
+			
+			[Bindable]private var _yearList:ArrayCollection = new ArrayCollection();
+			
+			//显示 年标签 状体为1  显示 年选择框  状态为2
+			[Bindable]private var _showLabelOrComboBox:int=2;
+			
+			[Bindable]private var _isHasYearPlan:Boolean = false;
+			[Bindable]private var _isHasQuarterPlan:Boolean = false;
+			
+			private var _iplanYear:int;
+			private var _iplanQuarter:int;
+					
+			
+			public function get quarter():int
+			{
+				return _quarter;
+			}
+
+			public function set quarter(value:int):void
+			{
+				_quarter = value;
+				if(value>0&&year>0){
+					getQuarterData();
+				}
+			}
+
+			public function get year():int
+			{
+				return _year;
+			}
+
+			public function set year(value:int):void
+			{
+				_year = value;
+				if(value>0){
+					getDate();
+				}
+			}
+
+			protected function myinit(event:FlexEvent):void
+			{
+				initYearList();
+				
+				getDate();
+			}
+			
+			public function getDate():void{
+				getYearData();
+				getQuarterData();
+				
+				for each(var m:MonthBox in mouthBox.getChildren()){
+					m.getData();
+				}
+			}
+			
+			protected function quarter_clickHandler(event:MouseEvent):void
+			{
+				quarter = int((event.currentTarget as Label).text);
+			}
+			
+			protected function yearLabel_mouseOverHandler(event:MouseEvent):void
+			{
+				_showLabelOrComboBox=2;
+			}
+			
+			private function initYearList():void{
+				_yearList.removeAll();
+				for(var year:int=_year-5;year<=_year+5;year++){
+					var item:Object ={year:year};
+					_yearList.addItem(item);
+					if(year==_year)
+						yearSelect.selectedItem=item;
+				}
+			}
+			
+			protected function yearSelect_changeHandler(event:IndexChangeEvent):void
+			{
+				year= yearSelect.selectedItem.year;		
+			}
+			
+			private function getYearData():void{
+				var sql:String="select * from oa_plan where iperson="+CRMmodel.userId+" and itype=1 and iyear="+year;
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					if(ac&&ac.length>0){
+						_isHasYearPlan = true;
+						_iplanYear = ac[0].iid;
+					}else{
+						_isHasYearPlan = false;
+						_iplanYear=0;
+					}
+				},sql);
+				
+			}
+			private function getQuarterData():void{
+				var sql:String="select * from oa_plan where iperson="+CRMmodel.userId+" and itype=2 and iyear="+year+" and iseason="+quarter;
+				AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+					var ac:ArrayCollection = event.result as ArrayCollection;
+					if(ac&&ac.length>0){
+						_isHasQuarterPlan = true;
+						_iplanQuarter = ac[0].iid;
+					}else{
+						_isHasQuarterPlan = false;
+						_iplanQuarter = 0;
+					}
+				},sql);
+			}
+			
+			protected function yearView_clickHandler(event:MouseEvent):void
+			{
+				var obj:Object = new Object();
+				obj.year = year;
+				obj.quarter = quarter;
+				obj.itype = 1;
+				obj.iplan = _iplanYear;
+				obj.iperson = CRMmodel.userId;
+				
+				CRMtool.openMenuItemFormOther("yssoft.views.plan.PlanMainView",obj,year+"年度计划");
+			}
+			
+			protected function quarterView_clickHandler(event:MouseEvent):void
+			{
+				var obj:Object = new Object();
+				obj.year = year;
+				obj.quarter = quarter;
+				obj.itype = 2;
+				obj.iplan = _iplanQuarter;
+				obj.iperson = CRMmodel.userId;
+				
+				CRMtool.openMenuItemFormOther("yssoft.views.plan.PlanMainView",obj,year+"年 第"+quarter+"季度计划");
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:BorderContainer width="100%" height="100%" borderVisible="false">
+		<mx:VBox horizontalCenter="0" depth="2" width="75%" height="100%" horizontalAlign="center">
+			<s:Spacer height="{myPlanHeadBox.height-1}"/>
+			<mx:HBox width="{mouthBox.width}">
+				<plan:BookLink/>
+				<plan:BookLink/>
+				<plan:BookLink/>
+			</mx:HBox>
+		</mx:VBox>
+		
+		<mx:VBox horizontalCenter="0" width="75%" height="100%" horizontalAlign="center" verticalGap="5" paddingTop="10">
+			<mx:HBox id="myPlanHeadBox" styleName="myPlanHeadBox" width="100%"  height="65" paddingBottom="3" verticalAlign="middle" horizontalAlign="center">
+				<!--<s:Label id="yearLabel" width="80" text="{_year} 年" fontSize="17" mouseOver="yearLabel_mouseOverHandler(event)" visible="{_showLabelOrComboBox==1}" includeInLayout="{_showLabelOrComboBox==1}"/>-->
+				<s:DropDownList id="yearSelect" labelField="year" width="80" dataProvider="{_yearList}"  change="yearSelect_changeHandler(event)" visible="{_showLabelOrComboBox==2}" includeInLayout="{_showLabelOrComboBox==2}"/>
+				<s:Label text="年" fontSize="17" />
+				<s:Spacer width="5"/>
+				<mx:LinkButton label="[查看年计划]" visible="{this._isHasYearPlan}" includeInLayout="{this._isHasYearPlan}" color="#0DAAD8"  click="yearView_clickHandler(event)" />
+				<mx:LinkButton label="[新建年计划]" visible="{!this._isHasYearPlan}" includeInLayout="{!this._isHasYearPlan}" click="yearView_clickHandler(event)"/>
+				<s:Spacer width="60"/>
+				<s:Label text="第"/>
+				<s:Label id="q1" text="1" useHandCursor="true" buttonMode="true" click="quarter_clickHandler(event)" textDecoration="{1==_quarter?'underline':'none'}" fontWeight="{1==_quarter?'bold':'normal'}"/>
+				<s:Label id="q2" text="2" useHandCursor="true" buttonMode="true" click="quarter_clickHandler(event)" textDecoration="{2==_quarter?'underline':'none'}" fontWeight="{2==_quarter?'bold':'normal'}"/>
+				<s:Label id="q3" text="3" useHandCursor="true" buttonMode="true" click="quarter_clickHandler(event)" textDecoration="{3==_quarter?'underline':'none'}" fontWeight="{3==_quarter?'bold':'normal'}"/>
+				<s:Label id="q4" text="4" useHandCursor="true" buttonMode="true" click="quarter_clickHandler(event)" textDecoration="{4==_quarter?'underline':'none'}" fontWeight="{4==_quarter?'bold':'normal'}"/>
+				<s:Label text="季度"/>
+				<s:Spacer width="5"/>
+				<mx:LinkButton label="[查看季计划]" visible="{this._isHasQuarterPlan}" includeInLayout="{this._isHasQuarterPlan}" color="#0DAAD8"  click="quarterView_clickHandler(event)"/>
+				<mx:LinkButton label="[新建季计划]" visible="{!this._isHasQuarterPlan}" includeInLayout="{!this._isHasQuarterPlan}" click="quarterView_clickHandler(event)"/>
+			</mx:HBox>
+			<mx:HBox id="mouthBox" width="100%" height="70%" minHeight="180" horizontalGap="20">
+				<plan:MonthBox  id="month1" width="100%" height="100%" month="{1+(_quarter-1)*3}" year="{_year}"/>
+				<plan:MonthBox  id="month2" width="100%" height="100%" month="{2+(_quarter-1)*3}" year="{_year}"/>
+				<plan:MonthBox  id="month3" width="100%" height="100%" month="{3+(_quarter-1)*3}" year="{_year}"/>
+			</mx:HBox>
+		</mx:VBox>
+	</s:BorderContainer>
+</s:Module>

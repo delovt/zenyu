@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 添加客户档案 -->
+	<insert id="add_CsCustomer" parameterClass="java.util.HashMap">
+	    insert into cs_customer(ccode,cname,icustclass,ipartnership,iindustry,cwebsite,iorganization,iheadcust,ivaluelevel,
+		isalesprocess,icountry,iprovince,icity,cofficeaddress,cofficezipcode,cshipaddress,cshipzipcode,ctel,
+		cfax,isalesarea,isalesdepart,isalesperson,icreditrating,cproducteffect,cmemo,ikeycontacts)
+		values(#ccode#,#cname#,#icustclass#,#ipartnership#,#iindustry#,#cwebsite#,#iorganization#,#iheadcust#,#ivaluelevel#,
+		#isalesprocess#,#icountry#,#iprovince#,#icity#,#cofficeaddress#,#cofficezipcode#,
+		#cshipaddress#,#cshipzipcode#,#ctel#,#cfax#,#isalesarea#,
+		#isalesdepart#,#isalesperson#,#icreditrating#,#cproducteffect#,#cmemo#,#ikeycontacts#)
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 查询客户联系方式  -->
+	<select id="get_CsCustomer" resultClass="yssoft.vos.CsCustpersonVo" parameterClass="java.util.HashMap">
+		select cname,cdepartment,cpost,ctitle,cmobile1,ctel,cemail,isex from cs_custperson where cname =#cname# and icustomer=#icustomer#
+	</select>
+	
+	<!-- 添加客户联系 -->
+	<insert id="add_custpersonVo" parameterClass="java.util.HashMap">
+		insert into cs_custperson(cname,cdepartment,cpost,ctitle,cmobile1,ctel,cemail,isex) 
+		values(#cname#,#cdepartment#,#cpost#,#ctitle#,#cmobile1#,#ctel#,#cemail#,#isex#)
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<!-- 修改客户档案 -->
+	<update id="update_CsCustomer" parameterClass="java.util.HashMap">
+		update cs_customer set ccode=#ccode#,cname=#cname#,icustclass=#icustclass#,ipartnership=#ipartnership#,
+		iindustry=#iindustry#,cwebsite=#cwebsite#,iorganization=#iorganization#,iheadcust=#iheadcust#,
+		ivaluelevel=#ivaluelevel#,isalesprocess=#isalesprocess#,icountry=#icountry#,iprovince=#iprovince#,
+		icity=#icity#,cofficeaddress=#cofficeaddress#,cofficezipcode=#cofficezipcode#,cshipaddress=#cshipaddress#,
+		cshipzipcode=#cshipzipcode#,ctel=#ctel#,cfax=#cfax#,ikeycontacts=#ikeycontacts#,isalesarea=#isalesarea#,
+		isalesdepart=#isalesdepart#,isalesperson=#isalesperson#,icreditrating=#icreditrating#,cproducteffect=#cproducteffect#,
+		cmemo=#cmemo# where iid=#iid#
+	</update>
+	
+	<!-- 修改客户联系方式-->
+	<update id="update_CsCustomer_byCsCustomer" parameterClass="java.util.HashMap">
+		update cs_custperson set cname=#cname#,cdepartment=#cdepartment#,cpost=#cpost#,ctitle=#ctitle#,cmobile1=#cmobile1#,
+		ctel=#ctel#,cemail=#cemail#,isex=#isex# where iid=#iid#
+	</update>
+	
+	<!-- 新增客户联系方式  -->
+	<insert id="add_CsCustomer_byCsCustomer" parameterClass="java.util.HashMap">
+		insert into cs_custperson(cname,cdepartment,cpost,ctitle,cmobile1,
+		ctel,cemail,isex) values(#cname#,#cdepartment#,#cpost#,#ctitle#,#cmobile1#,
+		#ctel#,#cemail#,#isex#)
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<update id="update_custperson_Byiid" parameterClass="java.util.HashMap">
+		update CS_custperson set icustomer=#icustomer# where iid=#iid#
+	</update>
+	
+	<!-- 删除客户档案 -->
+	<delete id="delete_CsCustomer" parameterClass="string">
+		delete from cs_customer where $iidStr$
+	</delete>
+	
+	<!-- 新增客户联系人 -->
+	<insert id="add_custperson" parameterClass="java.util.HashMap">
+		insert into cs_custperson(ccode,cname,icustomer,icustpnclass,ctitle,cdepartment,cpost,isuperiors,iassistant,bcharge,bkeycontect,cmobile1,
+		ctel,cemail,cfax,caddress,czipcode,cqqmsn,ccarnumber,isex,dbirthday,cnation,ceducation,cprofessional,cidnumber,cbirthplace,cgraduated,
+		ccharacter,chobby,chabit,crelationship,cfriendships,cmarital,cspouse,cspouseworkunit,cspousepost,cspousetel,cfamilymembers)values
+		(#ccode#,#cname#,#icustomer#,#icustpnclass#,#ctitle#,#cdepartment#,#cpost#,#isuperiors#,#iassistant#,#bcharge#,#bkeycontect#,#cmobile1#,
+		#ctel#,#cemail#,#cfax#,#caddress#,#czipcode#,#cqqmsn#,#ccarnumber#,#isex#,#dbirthday#,#cnation#,#ceducation#,#cprofessional#,#cidnumber#,#cbirthplace#,#cgraduated#,
+		#ccharacter#,#chobby#,#chabit#,#crelationship#,#cfriendships#,#cmarital#,#cspouse#,#cspouseworkunit#,#cspousepost#,#cspousetel#,#cfamilymembers#)
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+	</insert>
+	
+	<update id="update_custperson" parameterClass="java.util.HashMap">
+		update cs_custperson set ccode=#ccode#,cname=#cname#,icustomer=#icustomer#,icustpnclass=#icustpnclass#,
+		ctitle=#ctitle#,cdepartment=#cdepartment#,cpost=#cpost#,isuperiors=#isuperiors#,iassistant=#iassistant#,bcharge=#bcharge#,bkeycontect=#bkeycontect#,cmobile1=#cmobile1#,
+		ctel=#ctel#,cemail=#cemail#,cfax=#cfax#,caddress=#caddress#,czipcode=#czipcode#,cqqmsn=#cqqmsn#,ccarnumber=#ccarnumber#,isex=#isex#,dbirthday=#dbirthday#,cnation=#cnation#,
+		ceducation=#ceducation#,cprofessional=#cprofessional#,cidnumber=#cidnumber#,cbirthplace=#cbirthplace#,cgraduated=#cgraduated#,
+		ccharacter=#ccharacter#,chobby=#chobby#,chabit=#chabit#,crelationship=#crelationship#,cfriendships=#cfriendships#,cmarital=#cmarital#,
+		cspouse=#cspouse#,cspouseworkunit=#cspouseworkunit#,cspousepost=#cspousepost#,cspousetel=#cspousetel#,cfamilymembers=#cfamilymembers# where iid=#iid#
+	</update> 
+	
+	<delete id="remove_custperson" parameterClass="string">
+		delete from cs_custperson where $iidStr$
+	</delete>
+	
+	<!-- 查询区域 -->
+	<select id="get_area" resultClass="java.util.HashMap">
+		  select * from aa_data where iclass=3 and buse=1
+	</select>
+	
+	<!-- 查询客户档案 -->
+	<!-- <select id="get_CsCustomers" parameterClass="string" resultClass="java.util.HashMap">
+		select customer.ccode,customer.cname,customer.icustclass,customer.ipartnership,customer.iindustry,customer.cwebsite,customer.iorganization,
+		customer.iheadcust,customer.icreditrating,customer.isalesprocess,customer.icountry,customer.iprovince,customer.icity,
+		customer.cofficeaddress,customer.cofficezipcode,customer.cshipaddress,customer.cshipzipcode,customer.ctel,customer.cfax,
+		custperson.cname custpersonName,custperson.cdepartment,custperson.cpost,custperson.ctitle,
+		custperson.cmobile1 custpersonCmobile,custperson.ctel custpersonCtel,custperson.cemail custpersonCemail,
+		custperson.isex,customer.isalesarea,customer.isalesdepart,customer.isalesperson,customer.icreditrating,customer.cproducteffect,
+		customer.cmemo from CS_customer customer 
+		left join CS_custperson custperson on customer.iid = custperson.icustomer where custperson.$iid$
+	</select> -->
+	
+	<select id="get_CsCustomers" parameterClass="string" resultClass="java.util.HashMap">
+		select * from CS_customer where $iid$
+	</select>
+	
+	<!-- 查询客户档案 -->
+	<select id="get_CsCustomerpersons" parameterClass="string" resultClass="java.util.HashMap">
+		select * from CS_custperson where $iid$
+	</select>
+	
+	<!--  zmm 添加 -->
+	<!--  获取 crm 中 ，客户的相关信息 -->
+	<select id="crm.kf_infos" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select top 1 -1 fitemid,cs.cmnemonic kfbh,aa.cmnemonic FParentID,cs.cname FName,cs.ccode FNumber,reverse(left(reverse(cs.ccode),case when charindex('.',reverse(cs.ccode),0)=0 then len(cs.ccode) else charindex('.',reverse(cs.ccode),0)-1 end )) FShortNumber
+		from cs_customer cs 
+		left join aa_data aa on cs.iprovince=aa.iid
+		where cs.iid=#iid# and icustclass = 128
+	</select>
+	<!-- 更新 客户信息 -->
+	<update id="crm.kf_info_update" parameterClass="java.util.HashMap" >
+		update cs_customer set cmnemonic = #fitemid# where iid = #iid#
+	</update>
+	
+		<!-- 查询客户档案 -->
+	<select id="get_CsCustomerById" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select * from $tableName$ where 1=1
+		<isNotEmpty prepend="and" property="ccode"> 
+			ccode=#ccode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="iid"> 
+			iid=#iid#
+		</isNotEmpty>
+	</select>
+	
+		<!-- 更新 客户信息 -->
+	<update id="update_customer_ccode" parameterClass="java.util.HashMap" >
+		update $tableName$ set ccode=#ccode# where iid=#iid#
+	</update>
+	
+		<!-- 更新 客户信息 -->
+	<update id="update_cmnemonic" parameterClass="java.util.HashMap" >
+		update $tableName$ set cmnemonic=#cmnemonic# where iid=#iid#
+	</update>
+</sqlMap> 

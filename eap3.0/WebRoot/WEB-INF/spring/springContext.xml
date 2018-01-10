@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- 引入数据源参数配置文件-->
+	<bean id="config"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:config.properties</value>
+		</property>
+	</bean>
+	
+	<!-- rky k3 配置数据源 -->
+	<bean id="kryk3_DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${rkyk3_driverClassName}" />
+		<property name="jdbcUrl" value="${rkyk3_url}" />
+		<property name="user" value="${rkyk3_username}" />
+		<property name="password" value="${rkyk3_password}" />
+	</bean>
+
+	<!-- 配置数据源 -->
+	<bean id="DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${driverClassName}" />
+		<property name="jdbcUrl" value="${url}" />
+		<property name="minPoolSize" value="${minPoolSize}" />
+		<property name="maxPoolSize" value="${maxPoolSize}" />
+		<property name="maxIdleTime" value="${maxIdleTime}" />
+		<property name="acquireIncrement" value="${acquireIncrement}" />
+		<property name="maxStatements" value="${maxStatements}" />
+		<property name="initialPoolSize" value="${initialPoolSize}" />
+		<property name="idleConnectionTestPeriod" value="${idleConnectionTestPeriod}" />
+		<property name="acquireRetryAttempts" value="${acquireRetryAttempts}" />
+		<property name="breakAfterAcquireFailure" value="${breakAfterAcquireFailure}" />
+		<property name="testConnectionOnCheckout" value="${testConnectionOnCheckOut}" />
+		<property name="properties" ref="AccountDecrypt" />
+	</bean>
+	<!-- 解密账号与密码 -->
+	<bean id="AccountDecrypt" class="yssoft.utils.AccountDecryptUtil">
+		<property name="properties">
+			<props>
+				<prop key="username">${username}</prop>
+				<prop key="password">${password}</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- 配置ibatis -->
+	<bean id="SqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="DataSource" />
+		<property name="configLocation" value="classpath:sql-map-config.xml" />
+		<property name="mappingLocations" value="classpath:yssoft/sqlmap/**/*.xml" />
+		<property name="useTransactionAwareDataSource" value="true"></property>
+	</bean>
+
+	<bean id="BaseDao" class="yssoft.daos.BaseDao">
+		<property name="sqlMapClient">
+			<ref bean="SqlMapClient" />
+		</property>
+	</bean>
+
+	<!-- ehcache 缓存配置 -->
+	<bean id="CacheManager"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation">
+			<value>classpath:ehcache.xml</value>
+		</property>
+	</bean>
+
+	<bean id="EhcacheCacheManager"
+		class="yssoft.cache.ehcache.EhcacheCacheManager">
+		<constructor-arg ref="CacheManager" />
+	</bean>
+
+
+	<!-- 事务管理 -->
+	<bean id="TxManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="DataSource" />
+	</bean>
+	<!-- 声明式事务管理 -->
+	<tx:advice transaction-manager="TxManager" id="TxAdvice">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" />  
+            <tx:method name="delete*" propagation="REQUIRED" />  
+            <tx:method name="update*" propagation="REQUIRED" />
+            <tx:method name="get*" propagation="REQUIRED" />
+
+            <!--lr 工作流 启用事务-->
+            <tx:method name="coopHandler" propagation="REQUIRED" />
+            <tx:method name="co_deleteWorkFlow" propagation="REQUIRED" />
+            <tx:method name="onlySendReplay" propagation="REQUIRED" />
+            <tx:method name="return2level" propagation="REQUIRED" />
+            <tx:method name="returnOtheLevel" propagation="REQUIRED" />
+            <tx:method name="ywZcdbHandler" propagation="REQUIRED" />
+            
+            <tx:method name="checkSalesSubmit" propagation="REQUIRED" />
+            <tx:method name="reCheckSalesSubmit" propagation="REQUIRED" />
+            <!--lr 工作流 启用事务 end-->
+<!--            <tx:method name="*" propagation="true" />-->
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut id="PointCut" expression="execution(* yssoft.views.*.*(..))" />
+		<aop:advisor advice-ref="TxAdvice" pointcut-ref="PointCut" />
+	</aop:config>
+
+
+</beans>

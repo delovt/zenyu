@@ -1,0 +1,1341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+           xmlns:s="library://ns.adobe.com/flex/spark"
+           borderStyle="none" left="0"
+           xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" creationComplete="onCreationComplete()">
+    <!--<fx:Script source="/../../../yssoft/scripts/PaintViewScript.as" />-->
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.controls.List;
+        import mx.controls.Tree;
+        import mx.core.DragSource;
+        import mx.core.IUIComponent;
+        import mx.core.UIComponent;
+        import mx.events.CloseEvent;
+        import mx.events.DragEvent;
+        import mx.managers.DragManager;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.ObjectProxy;
+        import mx.utils.ObjectUtil;
+
+        import spark.primitives.Line;
+
+        import yssoft.comps.NodeElement;
+        import yssoft.evts.FWFChangeEvent;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.tools.FilterUitls;
+        import yssoft.views.workflow.PaintView;
+        import yssoft.vos.OAinvoiceVo;
+        import yssoft.vos.WfNodeVo;
+
+        private var _isJQ:Boolean=false;// 是否要加签
+
+        private var _isLeafNode:Boolean=false; // 只在加签时可用, 当前处理节点是否为叶子节点
+
+        public function set isJQ(value:Boolean):void{
+            this._isJQ=value;
+        }
+        public function get isJQ():Boolean{
+            return this._isJQ;
+        }
+
+        public function set  isLeafNode(value:Boolean):void{
+            this._isLeafNode=value;
+        }
+
+
+        private var _wfNodeXmlCopy:XML; // 编辑时，来备份数据
+        /**
+         *  工作流中节点xml数据
+         */
+        [Bindable]
+        private var _wfNodeXml:XML=new XML("<root/>");
+        public function set wfNodeXml(value:XML):void{
+            this._wfNodeXml=value;
+            /*  				if(this.wfDrawType==wfDrawTypeOpen && value){
+             openWorkFlow();
+             }  */
+        }
+        public function get wfNodeXml():XML{
+            //delete this.wfNodeXml.node.(@ipid != "0")[0]; // 删除不合法节点
+            return this._wfNodeXml;
+        }
+        /**
+         *  工作流中节点xml 转为 array
+         */
+        public function xml2array():Array{
+            var tp:Array=new Array();
+            for each(var item:XML in _wfNodeXml.descendants("*")){
+                tp.push(xml2object(item));
+            }
+            return tp;
+        }
+        /**
+         * 工作流中节点xml 转为 ArrayCollection
+         */
+        public function xml2ArrayCollection(xml:XML=null):ArrayCollection{
+
+            var tp:ArrayCollection=new ArrayCollection();
+            if(xml==null){
+                xml=_wfNodeXml;
+            }
+            for each(var item:XML in xml.descendants("*")){
+                var obj:Object=xml2object(item);
+                if(obj){
+                    tp.addItem(obj);
+                }
+            }
+            return tp;
+        }
+        /**
+         * 工作流的绘制类型,new 新建，open 打开并可编辑，show 查看不可编辑
+         */
+        public static var wfDrawTypeNew:String="new";
+        public static var wfDrawTypeOpen:String="open";
+        public static var wfDrawTypeShow:String="show";
+
+        private var _wfDrawType:String;
+        public function set wfDrawType(value:String):void{
+            this._wfDrawType=value;
+        }
+        public function get wfDrawType():String{
+            return this._wfDrawType;
+        }
+
+        /**
+         * 节点 分别 相对 x y 的偏移量
+         */
+        private var _nodeXoffset:int=10;
+        private var _nodeYoffset:int=10;
+
+        /**
+         *节点之间的 单位水平间隔,单位垂直间隔
+         */
+        private var _nodeHorizontalGap:int=60;
+        private var _nodeVerticalGap:int=85;
+
+        /**
+         *  节点 类型 iNodeType
+         */
+        [Bindable]
+        private var _iNodeType:String="1";
+        public function set iNodeType(value:String):void{
+            this._iNodeType=value;
+        }
+        public function get iNodeType():String{
+            return this._iNodeType;
+        }
+        /**
+         *  inodemode
+         */
+        private var _iNodeMode:int=0;
+        public function set iNodeMode(value:int):void{
+            this._iNodeMode=value;
+        }
+        public function get iNodeMode():int{
+            return this._iNodeMode;
+        }
+
+
+        /**
+         * 当前被操作的节点
+         */
+        private var _curNodeElement:NodeElement;
+        /**
+         * 绘制线条
+         */
+        //private var lines:Sprite=new Sprite();
+        /**
+         * 箭头颜色
+         */
+        private var arrowColor:uint=0x42a2c9;
+        /**
+         * 箭头粗细
+         */
+        private var arrowThickness:Number=1;
+        /**
+         * 线条颜色
+         */
+        private var lineColor:uint=0x42a2c9;
+        /**
+         * 线条粗细
+         */
+        private var lineThickness:int=1;
+
+
+        /**
+         * 发起人的上级节点nodeid为 startnode
+         */
+        private var _startNodeIpNodeId:String="startnode";
+
+        /**
+         * 流程图绘制界面创建完成后，执行
+         */
+        public function onCreationComplete():void{
+
+            if(!(this.parent is PaintView)){
+                this.stage.addEventListener(FWFChangeEvent.PROPERTYCHANGE,onPropertyChange)
+            }
+            if(startIsCreated==false){
+                createNewWorkFlow();
+            }
+        }
+        /**
+         *  节点属性 改变
+         */
+
+        private function onPropertyChange(event:FWFChangeEvent):void{
+            var nodeElement:NodeElement=event.source as NodeElement;
+            //获取系统中得 节点
+            var xgNodeElement:NodeElement=this.getNodeElementById(nodeElement.inodeid);
+            if(xgNodeElement){
+                xgNodeElement[event.property]=event.newValue;
+                var xml:XML=this._wfNodeXml..node.(@inodeid==nodeElement.inodeid)[0];
+                xml["@"+event.property]=event.newValue;
+            }
+        }
+
+        /**
+         * 	xml  转发为 object
+         * 参数: xml 数据源
+         *  返回: obj 指定要转化成的对象
+         */
+        private function xml2object(xml:XML):Object{
+            if(xml && xml.hasOwnProperty("@ipid") && xml.@ipid != 0 ){ //过滤非法节点
+                return null;
+            }
+            var obj:WfNodeVo=new WfNodeVo();
+            var attrNameList:XMLList=xml.@*;
+            for (var i:int=0;i<attrNameList.length();i++){
+                var attrName:String=String(attrNameList[i].name());
+                if(obj.hasOwnProperty(attrName)){
+                    obj[attrName]=xml["@"+attrName];
+                }
+            }
+            return obj;
+        }
+
+        /**
+         * 定位 节点 9个点 坐标
+         * 参数: node 节点
+         * 参数: endpoint 端点类型 tl 上左 ，tc 上中，tr 上右，cl 中左,cc 中中 ，cr 中右 ，bl 下左，bc 下中，br 下右
+         *
+         */
+        private function getSquarePoint(node:NodeElement,endpoint:String="cl"):Point{
+            var tpPoint:Point=new Point();
+            var x:Number=node.x;
+            var y:Number=node.y;
+            var w:Number=node.width;
+            var h:Number=node.height;
+
+            switch(endpoint){
+                case "tl":tpPoint = new Point(x,y);break;
+                case "tc":tpPoint = new Point(x+w/2,y);break;
+                case "tr":tpPoint = new Point(x+w,y);break;
+
+                case "cl":tpPoint = new Point(x,y+h/2);break;
+                case "cc":tpPoint = new Point(x+w/2,y+h/2);break;
+                case "cr":tpPoint = new Point(x+w,y+h/2);break;
+
+                case "bl":tpPoint = new Point(x,y+h);break;
+                case "bc":tpPoint = new Point(x+w/2,y+h);break;
+                case "br":tpPoint = new Point(x+w,y+h);break;
+            }
+            return tpPoint;
+        }
+
+        /**
+         * 功能：绘制直线
+         * 参数:
+         * 参数: startX 	起点X坐标点
+         * 参数: startY	起点Y坐标点
+         * 参数: endX 	终点的X坐标点
+         * 参数: endY		终点的Y坐标点
+         * 参数: flag     标志，是否绘制箭头，false 不绘制，true 绘制
+         * 参数: name  线条的名称
+         * 参数: addLinster 是否添加 事件
+         */
+        private var lines:Canvas;
+        private function drawLine(startX:int,startY:int,endX:int,endY:int,flag:Boolean=true,name:String="",addLinster:Boolean=true):void{
+            lines=new Canvas();
+            this.lines.graphics.lineStyle(lineThickness,lineColor);
+            this.lines.graphics.moveTo(startX,startY);
+            this.lines.graphics.lineTo(endX,endY);
+            if(flag){
+                drawArrow(startX,startY,endX,endY);
+            }
+            lines.name=name;
+            //this.addChild(lines);
+            this.wf_draw.addChild(lines);
+
+            if(addLinster){
+                addNodeEventListener(lines);
+            }
+        }
+        /**
+         *  删除 所有线条
+         */
+
+        private function removeAllLines():void{
+            for each(var child:Object in this.wf_draw.getChildren()){
+                if(child is NodeElement){
+                    var inodeid:String=(child as NodeElement).inodeid
+                    removeChildByName("pc"+inodeid);
+                    removeChildByName("pv"+inodeid);
+                    removeChildByName("cp"+inodeid);
+                }
+            }
+        }
+
+        /**
+         * 功能：绘制箭头
+         * 参数：startX 	起点X坐标点
+         * 参数：startY	起点Y坐标点
+         * 参数：endX 	终点的X坐标点
+         * 参数：endY		终点的Y坐标点
+         */
+        private function drawArrow(startX:int,startY:int,endX:int,endY:int):void{
+            this.lines.graphics.beginFill(arrowColor,arrowThickness);
+            var slopy:Number;
+            var cosy:Number;
+            var siny:Number;
+            var Par:Number=10;
+            slopy = Math.atan2((startY - endY),(startX - endX));
+            cosy = Math.cos(slopy);
+            siny = Math.sin(slopy);
+            this.lines.graphics.moveTo(endX,endY);
+            this.lines.graphics.lineTo(endX + int( Par * cosy - ( Par / 2.0 * siny ) )+1, endY + int( Par * siny + ( Par / 2.0 * cosy ) )+1 );
+            this.lines.graphics.lineTo(endX +  int( Par * cosy + Par / 2.0 * siny )+1, endY - int( Par / 2.0 * cosy - Par * siny )-1 );
+            this.lines.graphics.lineTo(endX,endY);
+            this.lines.graphics.endFill();
+        }
+
+        /**
+         *  新建节点时，创建节点的nodeid
+         *  生成规则:前缀，当前时间戳，随机数(注:添加随机数，是为了防止客户机修改时间，但不能完全避免)
+         */
+        private function generateNodeId():String{
+            return "node"+(new Date()).getTime()+Math.round(Math.random()*100);
+        }
+
+        /**
+         *  创建新的 工作流
+         */
+        public function createNewWorkFlow():void{
+            createStartNode();
+        }
+        /**
+         *  打开 已有工作流
+         */
+        public function openWorkFlow():void{
+            drawWorkFlowNodes(this.wfNodeXml.node);
+        }
+        /**
+         * 查看 已有工作流
+         */
+        private function showWorkFlow():void{
+
+        }
+
+        /**
+         * 给节点添加相关事件
+         */
+        private function addNodeEventListener(node:UIComponent):void{
+            node.addEventListener(DragEvent.DRAG_ENTER,nodeDragEnterHandler);
+            node.addEventListener(DragEvent.DRAG_DROP,nodeDragDropHandler);
+            //node.addEventListener(DragEvent.DRAG_OVER,nodeDragOverHandler);
+            //node.addEventListener(MouseEvent.CLICK,nodeMouseClickHandler);
+            node.addEventListener(MouseEvent.MOUSE_OVER,nodeMouseOverHandler);
+            node.addEventListener(MouseEvent.MOUSE_OUT,nodeMouseOutHandler);
+            node.addEventListener(MouseEvent.MOUSE_DOWN,nodeMouseDownHandler);
+            //node.addEventListener(MouseEvent.ROLL_OVER,nodeRollOverHandler);
+            //node.addEventListener(MouseEvent.ROLL_OUT,nodeRollOutHandler);
+        }
+        /**
+         *  删除节点事件,例如 在删除节点时，删除事件
+         */
+        private function removeNodeEventListener(node:UIComponent):void{
+            node.removeEventListener(DragEvent.DRAG_ENTER,nodeDragEnterHandler);
+            node.removeEventListener(DragEvent.DRAG_DROP,nodeDragDropHandler);
+            //node.removeEventListener(DragEvent.DRAG_OVER,nodeDragOverHandler);
+            //node.removeEventListener(MouseEvent.CLICK,nodeMouseClickHandler);
+            node.removeEventListener(MouseEvent.MOUSE_OVER,nodeMouseOverHandler);
+            node.removeEventListener(MouseEvent.MOUSE_OUT,nodeMouseOutHandler);
+            node.removeEventListener(MouseEvent.MOUSE_DOWN,nodeMouseDownHandler);
+            //node.removeEventListener(MouseEvent.ROLL_OVER,nodeRollOverHandler);
+            //node.removeEventListener(MouseEvent.ROLL_OUT,nodeRollOutHandler);
+        }
+        /**
+         * 删除 组件
+         */
+        private function removeChildByName(nodeid:String):void{
+            //var child:DisplayObject=this.getChildByName(nodeid);
+            var child:DisplayObject=this.wf_draw.getChildByName(nodeid);
+            if(child){
+                removeNodeEventListener(child as UIComponent);
+                //this.removeChild(child);
+                this.wf_draw.removeChild(child);
+                child=null;
+            }
+        }
+        /**
+         * 删除 nodeeleemnt 对应的线条
+         */
+        private function deleteLines(nodeid:String):void{
+            removeChildByName("pc"+nodeid);
+            removeChildByName("pv"+nodeid);
+            removeChildByName("cp"+nodeid);
+        }
+
+        /**
+         * 删除 线条 与 组件
+         */
+        private function removeNode(nodeid:String):void{
+            deleteLines(nodeid);
+            removeChildByName(nodeid);
+        }
+        /**
+         *
+         */
+        private function removeAllNode():void{
+            for each(var child:DisplayObject in this.wf_draw.getChildren()){
+                if(child is NodeElement){
+                    (child as NodeElement).fwfcondition=null;
+                    (child as NodeElement).fwfentry=null;
+                }
+                this.wf_draw.removeChild(child);
+            }
+            //this.wf_draw.removeAllChildren();
+        }
+        /**
+         *  节点 NodeElement,接受拖拽事件
+         */
+        private function nodeDragEnterHandler(event:DragEvent):void{
+
+            if((event.dragInitiator is NodeElement) && event.currentTarget is Image){
+                DragManager.acceptDragDrop(event.currentTarget as IUIComponent);
+            }
+
+            if((event.dragInitiator is List) && ((event.currentTarget is NodeElement) || (event.currentTarget is Canvas))){
+                DragManager.acceptDragDrop(event.currentTarget as IUIComponent);
+            }
+
+        }
+        /**
+         * 拖动，浮动
+         */
+        private function nodeDragOverHandler(event:DragEvent):void{
+
+        }
+        /**
+         *  被拖动的信息，放在该节点上时处理
+         */
+        private function nodeDragDropHandler(event:DragEvent):void{
+            var curXml:XML;
+            var mdata:XML;
+            var inodetype:int;
+            var inodevalue:int;
+            mdata=(event.dragInitiator as List).selectedItem as XML;
+            if(mdata == null){
+                return;
+            }
+            if(mdata.hasComplexContent()){
+                CRMtool.tipAlert("只能添加叶子节点数据，请重试");
+                return;
+            }
+            //trace("前xml字符串"+this._wfNodeXml.toXMLString());
+            // 区分 拖动的来源
+            if(event.dragInitiator is Tree){	// 是从部门，角色 等树上拖动的
+                inodetype=parseInt(this._iNodeType);
+                inodevalue=mdata.@iid;
+            }else{ 								// 是从对应的人员列表上选择的
+                inodetype=0;
+                inodevalue=mdata.@iid;
+            }
+            // 朱毛毛 修改与20120106，添加子节点 加签功能
+            if(this._isJQ){//加签处理
+                if( this.handlerNode !=null){
+                    if(this._isLeafNode){//当前加签的节点为 叶子节点
+                        // 1 当前节点 是要加签的节点
+                        // 2 加签后的新节点(线条上加签，节点上加签)
+                        if(event.currentTarget is NodeElement){//节点加签
+                            var node:NodeElement=event.currentTarget as NodeElement;
+                            if(node.inodeid==this.handlerNode.inodeid || node.iid==0){
+
+                            }else{
+                                CRMtool.tipAlert("此位置不可加签4");
+                                return;
+                            }
+                        }else{//线条加签
+                            var line:UIComponent=event.currentTarget as UIComponent;
+                            var inodeid:String=line.name.substr(2);
+                            //Alert.show("线条name["+line.name+"],nodeid["+inodeid+"]");
+                            var node:NodeElement=this.getNodeElementById(inodeid);
+                            if(node.inodeid==this.handlerNode.inodeid || node.iid==0){
+
+                            }else{
+                                CRMtool.tipAlert("此位置不可加签5");
+                                return;
+                            }
+                        }
+
+                    }else{ // 不是叶子节点
+                        if(!(event.currentTarget is NodeElement)){//不是叶子节点加签的，只能在线条上加签
+                            var line:UIComponent=event.currentTarget as UIComponent;
+                            if(line.name == "pc"+this.handlerNode.inodeid){//处理加签
+                                lineDragDropHandler(line.name,inodetype,inodevalue,mdata);
+                                return;//一定要添加的，在线条上绘制，就条状线条绘制的方法中
+                            }else{
+                                CRMtool.tipAlert("此位置不可加签1");
+                                return;
+                            }
+                        }else{
+                            CRMtool.tipAlert("此位置不可加签2");
+                            return;
+                        }
+                    }
+                }else{
+                    CRMtool.tipAlert("此位置不可加签3");
+                    return;
+                }
+            }
+
+
+            //区分 线条 与 节点的 处理
+            if(event.currentTarget is NodeElement){
+                this._curNodeElement=event.currentTarget as NodeElement; // 此时为新节点的 父节点
+                curXml=this.wfNodeXml..node.(@inodeid==_curNodeElement.inodeid)[0]
+            }else{
+                var line:UIComponent=event.target as UIComponent;
+                lineDragDropHandler(line.name,inodetype,inodevalue,mdata);
+                return;
+            }
+            //Alert.show("节点类型:"+inodetype+",节点值:"+inodevalue+",inodeid:"+_curNodeElement.inodeid);
+            // 同一个父节点上 不能有相同的 子节点（inodetype , inodevalue  不能都相同）
+            /* 				var tpxmllist:XMLList=this.wfNodeXml..node.((@ipnodeid==_curNodeElement.inodeid) && (@inodetype==inodetype) && (@inodevalue==inodevalue)) as XMLList;
+             if(tpxmllist.length()>=1){
+             CRMtool.tipAlert(ConstsModel.WF_ALERT_XTJD);
+             return;
+             } */
+            if(mdata==null || curXml == null){
+                return;
+            }
+            createNodeElement("",true,mdata.@cname,this._curNodeElement.inodeid,inodetype,inodevalue,iNodeMode,parseInt(curXml.@inodelevel)+1,"")
+            //this.wfDrawType=wfDrawTypeNew;
+            // 在每次添加节点时,重新绘制节点结构图
+            drawWorkFlowNodes(this.wfNodeXml.node);
+
+            //trace("后xml字符串"+this._wfNodeXml.toXMLString());
+        }
+
+        /**
+         *  处理线条拖动 绘制
+         */
+        private function lineDragDropHandler(name:String,inodetype:int,inodevalue:int,mdata:XML):void{
+
+            if(CRMtool.isStringNull(name)){
+                return ;
+            }
+
+            var newNode:NodeElement;										// 新的nodeelement
+            var newNodeId:String;											// 新的nodeid
+            var newXml:XML;													// 新节点的 xml
+
+            var optType:String=name.substr(0,2); 							// 当前的操作类型，pc,pv,cp
+            var inodeid:String=name.substring(2); 							// 线条附属的 nodeelement 的 nodeid
+            var node:NodeElement=this.getNodeElementById(inodeid);			// 获取nodeid 对应的 子组件
+            var curXml:XML=this.wfNodeXml..node.(@inodeid==inodeid)[0];	// 获取 nodeid 对应的 xml 节点数据
+            var curNodeLevel:int=parseInt(curXml.@inodelevel);				// 当前节点的 层级
+            var curXmlCopy:XML;
+
+            var descNodeXmls:XMLList;										// 子孙节点的集合
+            var descLen:int;												// 子孙节点个数
+
+            if(optType=="pc"){// 父到子 的线条, 此时 node 是父节点
+
+                curXmlCopy=curXml.copy();
+                newNode=createNodeElement("",true,mdata.@cname,node.inodeid,inodetype,inodevalue,iNodeMode,curNodeLevel+1,node.cexecsql,node.iistatus);
+                newNodeId=newNode.inodeid;
+                newXml=newNode.generateNodeXml();
+
+                descNodeXmls= curXmlCopy.descendants("*");
+                descLen=descNodeXmls.length();
+                // 修改子孙节点的层级关系  (注:对于一次迁移，1 修改子孙节点的层级，2 修改子节点的父节点)
+                for(var i:int=0;i<descLen;i++){
+                    var cnode:XML=descNodeXmls[i] as XML;
+                    cnode.@inodelevel=parseInt(""+cnode.@inodelevel)+1;
+                    this.getNodeElementById(cnode.@inodeid).inodelevel=parseInt(""+cnode.@inodelevel)+1;
+
+                    if(cnode.@ipnodeid==node.inodeid){ //判断是不是子节点
+                        cnode.@ipnodeid=newNodeId;
+                        this.getNodeElementById(cnode.@inodeid).ipnodeid=newNodeId;
+                        newXml.appendChild(cnode);
+                    }
+                }
+                delete curXml.*; // 删除以前的子节点信息
+                curXml.appendChild(newXml);
+                drawWorkFlowNodes(this.wfNodeXml.node);
+            }else{ // cp 子到父，此时 node 是子节点
+
+                // 要判断 是不是 有重复节点（要排除当前节点）
+                /* 					var tpxmllist:XMLList=this.wfNodeXml..node.((@ipnodeid==node.ipnodeid) && (@inodeid !=inodeid) && (@inodetype==inodetype) && (@inodevalue==inodevalue)) as XMLList
+                 if(tpxmllist.length()>=1){
+                 CRMtool.tipAlert(ConstsModel.WF_ALERT_XTJD);
+                 return;
+                 } */
+
+
+                newNode=createNodeElement('',false,mdata.@cname,node.ipnodeid,inodetype,inodevalue,iNodeMode,curNodeLevel,node.cexecsql,node.iistatus,"",0,0,ioainvoice);
+                newNodeId=newNode.inodeid;
+                newXml=newNode.generateNodeXml();
+                curXmlCopy=curXml.copy();
+
+                //delete curXml.*;
+
+
+                descNodeXmls= curXmlCopy.descendants("*");
+                descLen=descNodeXmls.length();
+
+                // 修改 子孙节点的 层级关系
+                for(var i:int=0;i<descLen;i++){
+                    var cnode:XML=descNodeXmls[i] as XML;
+                    cnode.@inodelevel=parseInt(""+cnode.@inodelevel)+1;
+                    this.getNodeElementById(cnode.@inodeid).inodelevel=parseInt(""+cnode.@inodelevel)+1;
+                }
+
+                curXmlCopy.@inodelevel=parseInt(""+curXml.@inodelevel)+1;
+                curXmlCopy.@ipnodeid=newNodeId;
+
+                this.getNodeElementById(curXmlCopy.@inodeid).inodelevel=parseInt(""+curXml.@inodelevel)+1;
+                this.getNodeElementById(curXmlCopy.@inodeid).ipnodeid=newNodeId;
+                newXml.appendChild(curXmlCopy);
+
+                this.wfNodeXml..node.(@inodeid==inodeid)[0]=newXml;
+                drawWorkFlowNodes(this.wfNodeXml.node);
+            }
+
+            delete this.wfNodeXml.node.(@ipid != "0")[0]; // 删除不合法节点
+        }
+
+
+
+        /**
+         * 节点 NodeElement, 鼠标点击事件
+         */
+        private function nodeMouseClickHandler(event:MouseEvent):void{
+
+        }
+        /**
+         * 节点 NodeElement,鼠标浮动事件
+         */
+        private function nodeMouseOverHandler(event:MouseEvent):void{
+            FilterUitls.glowFilter(event.currentTarget);
+        }
+        /**
+         * 节点或线条，鼠标out事件
+         */
+        private function nodeMouseOutHandler(event:MouseEvent):void{
+            FilterUitls.removeFilters(event.currentTarget as DisplayObject);
+        }
+
+        /**
+         *
+         */
+        private function nodeMouseDownHandler(event:MouseEvent):void{
+            var tp:NodeElement=event.currentTarget as NodeElement;
+            if(this.owner is FWFPaintView){
+                if(tp)
+                    (this.owner as FWFPaintView).tsinfo.text="当前节点是第"+tp.inodelevel+"层级的"+tp.cname+"   ";
+            }
+        }
+
+        /**
+         *
+         */
+        private function nodeRollOverHandler(event:MouseEvent):void{
+            //FilterUitls.glowFilter(event.currentTarget);
+        }
+        /**
+         *
+         */
+        private function nodeRollOutHandler(event:MouseEvent):void{
+            //FilterUitls.removeFilters(event.currentTarget as DisplayObject);
+        }
+
+        /**
+         *  根据 节点的nodeid 从主绘制区中，获取节点nodeElement 对象
+         */
+        private function getNodeElementById(inodeid:String):NodeElement{
+            //return this.getChildByName(inodeid) as NodeElement;
+            return this.wf_draw.getChildByName(inodeid) as NodeElement;
+        }
+
+        /**
+         *  获取 root节点 发起人节点
+         */
+        private function getRootNodeElement():NodeElement{
+            var inodeid:String=(this.wfNodeXml.node.(@ipnodeid=_startNodeIpNodeId)[0] as XML).@inodeid
+            return getNodeElementById(inodeid);
+        }
+
+
+        /**
+         * 定位x,y相关的参数
+         */
+        private var preLevel:int=0;
+        private var curLevel:int=0;
+        private var firstNodeYs:Array=[];
+        private var preY:int=0;
+        private var nodeIndex:int=0;
+
+
+        /**
+         *  绘制 节点信息 ，从xml数据中
+         */
+        private function drawWorkFlowNodes(xmllist:XMLList):void{
+            clearDrawParam(); // 初始化 ，绘制 参数
+            removeAllLines();
+            fixedNodePosition(xmllist);
+            drawNodeLines(xmllist);
+        }
+
+        /**
+         *  初始化或复位 绘制参数
+         */
+        private function clearDrawParam():void{
+            preLevel=0;
+            curLevel=0;
+            firstNodeYs=[];
+            preY=0;
+            nodeIndex=0;
+        }
+
+        /**
+         *  定位节点 NodeElement的x,y坐标
+         */
+        private function fixedNodePosition(nodes:XMLList):void{
+            var nodeslen:int=nodes.length();
+            var node:NodeElement;
+            for(var i:int;i<nodeslen;i++){
+                if(nodes[i].hasComplexContent()){
+                    fixedNodePosition(nodes[i].children());
+                }
+                var nodeXml:XML=nodes[i] as XML;
+                node=this.getNodeElementById(nodeXml.@inodeid);
+                if( ! node ){
+                    /* 						var bsendnew:int=0;
+                     if(nodeXml.@bsendnew=="true"){
+                     bsendnew=1;
+                     }
+
+                     var baddnew:int=0;
+                     if(nodeXml.@baddnew=="true"){
+                     baddnew=1;
+                     }
+
+                     var bfinalverify:int=0;
+                     if(nodeXml.@bfinalverify=="true"){
+                     bfinalverify=1;
+                     } */
+
+                    node=createNodeElement(nodeXml.@ccomefield,false,nodeXml.@cname,nodeXml.@ipnodeid,nodeXml.@inodetype,nodeXml.@inodevalue,nodeXml.@inodemode,
+                            nodeXml.@inodelevel,nodeXml.@cexecsql,nodeXml.@iistatus,nodeXml.@inodeid,nodeXml.@iid,nodeXml.@ipid,nodeXml.@ioainvoice,
+                            nodeXml.@inodeattribute,nodeXml.@baddnew,nodeXml.@bsendnew,nodeXml.@cnotice,nodeXml.@istatus,nodeXml.@baddnode,nodeXml.@bfinalverify,nodeXml.@iinvoset);
+                }
+                // 两次 获取 都不成功 ，就return
+                if( ! node ){
+                    continue;
+                }
+                //node.visible=true;
+                // 遍历的 节点的 层级是从 深到浅 ，例如 5--->1 ， 开始节点的 层级 为1
+                curLevel=parseInt(nodeXml.@inodelevel);
+                //
+                if(curLevel<preLevel){
+                    var startY:Number=0;
+                    var endY  :Number=0;
+                    nodeIndex--;
+                    endY=preY;
+                    startY=firstNodeYs[preLevel];
+                    node.y=startY+(endY-startY)/2;
+                    firstNodeYs[preLevel] = "";
+                }else{
+                    node.y=this._nodeVerticalGap*nodeIndex+this._nodeYoffset;
+                }
+                node.x=this._nodeXoffset+(curLevel-1)*(this._nodeHorizontalGap+node.width)
+
+                if(curLevel>preLevel || firstNodeYs[curLevel] == undefined || firstNodeYs[curLevel] == ""){
+                    firstNodeYs[curLevel]=node.y;
+                }
+                preLevel=curLevel;
+                preY=node.y;
+                nodeIndex++;
+            }
+
+            if(node && node.ipnodeid==this._startNodeIpNodeId && this.wfDrawType != "new"){ // 修正 起始点的 y轴 坐标
+                //drawNodeLines(this.wfNodeXml.node);
+                var nodes:XMLList=(this.wfNodeXml..node.(@ipnodeid==_startNodeIpNodeId)[0] as XML).children();
+                var childlen:int=nodes.length();
+
+                //Alert.show("---wfDrawType---"+wfDrawType+",子节点长度:"+childlen);
+                if(childlen>0){
+                    var firstChildNode:XML=nodes[0] as XML;
+                    var lastChildNode:XML=nodes[childlen-1] as XML;
+                    node.y=(this.getNodeElementById(lastChildNode.@inodeid).y-this.getNodeElementById(firstChildNode.@inodeid).y)/2+this.getNodeElementById(firstChildNode.@inodeid).y
+                }
+            }
+        }
+
+        /**
+         *  线条绘制 与 节点x,y定位 分离
+         */
+        private function drawNodeLines(nodes:XMLList):void{
+            var nodeslen:int=nodes.length();
+            for(var i:int;i<nodeslen;i++){
+                if(nodes[i].hasComplexContent()){  // 有子节点
+                    var pnodexml:XML=nodes[i] as XML;
+                    var pnode:NodeElement=this.getNodeElementById(pnodexml.@inodeid);
+                    if( pnode==null ){
+                        continue;
+                    }
+                    var childLen:int=pnodexml.children().length();
+                    var startPoint:Point=this.getSquarePoint(pnode,"cr");
+                    if(childLen==1){ // 只有一个节点
+                        this.drawLine(startPoint.x,startPoint.y,startPoint.x+this._nodeHorizontalGap,startPoint.y,true,"pc"+pnode.inodeid);
+                    }else{ // 有多个节点
+                        var topPoint:Point;
+                        var endPoint:Point;
+                        for(var j:int=0;j<childLen;j++){
+                            var cnode:NodeElement=this.getNodeElementById((pnodexml.children()[j] as XML).@inodeid);
+                            if( ! cnode ){
+                                continue;
+                            }
+                            var nodePoint:Point=this.getSquarePoint(cnode,"cl");
+                            // 绘制 指向 子节点的 线条
+                            this.drawLine(nodePoint.x-this._nodeHorizontalGap/2,nodePoint.y,nodePoint.x,nodePoint.y,true,"cp"+cnode.inodeid);
+                            if(j==0){
+                                topPoint=nodePoint;
+                            }
+                            if(j==childLen-1){
+                                endPoint=nodePoint;
+                            }
+                        }
+                        // 绘制 垂直 线条
+                        if(topPoint && endPoint){
+                            this.drawLine(topPoint.x-this._nodeHorizontalGap/2,topPoint.y,endPoint.x-this._nodeHorizontalGap/2,endPoint.y,false,"pv"+pnode.inodeid,false);
+                        }
+                        // 绘制 由 父节点  指向 垂直线条的 线条
+                        this.drawLine(startPoint.x,startPoint.y,startPoint.x+this._nodeHorizontalGap/2,startPoint.y,false,"pc"+pnode.inodeid);
+                    }
+
+                    drawNodeLines(nodes[i].children());
+                }
+            }
+        }
+
+        /***********************创建工作流***************************/
+
+        /**
+         * 根据当前登录用户信息来创建起始节点（发起人节点）
+         */
+        private function createStartNode():void{
+            _curNodeElement=createNodeElement("",true,"发起人",_startNodeIpNodeId,0,-1,2,1,"",0,"",0,0,ioainvoice,0,1,1,"0");
+            _curNodeElement.x=this._nodeXoffset;
+            _curNodeElement.y=this._nodeYoffset;
+        }
+
+        /**
+         * 根据提供的相关信息来 统一创建 节点组件
+         * 参数：flag 是否添加到 xml 中 true 添加， false 不添加
+         * 其他参数的具体含义，请查看
+         * 新建节点的 istatus 3 为进入
+         * @see NodeElement
+         */
+        private function createNodeElement(ccomefield:String,flag:Boolean,cname:String,ipnodeid:String,inodetype:int,
+                                           inodevalue:int,inodemode:int,inodelevel:int,cexecsql:String,iistatus:int=0,
+                                           inodeid:String="",iid:int=0,ipid:int=0,ioainvoice:int=0,inodeattribute:int=0,
+                                           baddnew:int=1,bsendnew:int=1,cnotice:String="0",istatus:int=-1,baddnode:int=0,
+                                           bfinalverify:int=0,iinvoset:int=0):NodeElement{
+            var node:NodeElement=new NodeElement();
+            node.cname=cname;
+            if(inodeid==""){
+                node.inodeid=this.generateNodeId();
+            }else{
+                node.inodeid=inodeid;
+            }
+
+            node.ipnodeid=ipnodeid;
+            node.inodetype=inodetype;
+            node.inodevalue=inodevalue;
+            node.inodemode=inodemode;
+            node.name=node.inodeid;  //后期在获取node,在主绘制区中，动态创建的组件，id 不能使用
+            node.inodelevel=inodelevel;
+
+            node.iid=iid;
+            node.ipid=ipid;
+            node.ioainvoice=ioainvoice;
+            node.inodeattribute=inodeattribute;
+            node.baddnew=baddnew;
+            node.bsendnew=bsendnew;
+            node.cnotice=cnotice;
+            node.istatus=istatus;
+            node.baddnode=baddnode;
+            node.ccomefield=ccomefield;
+            node.cexecsql = cexecsql;
+            node.iistatus = iistatus;
+            node.isHandlerNode=isHandleNode(inodeid);
+
+            if(this.cons && this.cons.length>0){
+                node.fwfcondition=this.getNodeCons(inodeid);
+            }
+
+            if(this.relats && this.relats.length>0){
+                node.fwfentry=this.getNodeRelats(inodeid);
+            }
+
+            //表单协同
+            node.bfinalverify=bfinalverify;
+            node.iinvoset=iinvoset;
+
+            addNodeEventListener(node);
+            //this.addChild(node);
+            this.wf_draw.addChild(node);
+            //node.visible=false;
+
+            // 发起点 比较特殊，单独操作
+            var nodeXml:XML=node.generateNodeXml();
+            if(ipnodeid==_startNodeIpNodeId){
+                if((this.wfNodeXml.node as XMLList).length()==0){
+                    this.wfNodeXml.appendChild(nodeXml);
+                }
+            }else{
+                if(flag){
+                    (this.wfNodeXml..node.(@inodeid==ipnodeid)[0] as XML).appendChild(nodeXml);
+                }
+            }
+            return node;
+        }
+
+        /**
+         * 判断当前节点 是否为 操作节点
+         * 接受判断的节点的inodeid
+         */
+        public function isHandleNode(inodeid:String=null):Boolean{
+            if(inodeid && this.handlerNode){
+                if(this.handlerNode.inodeid==inodeid){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * 拖动删除  提示
+         */
+        private function trashDragDropHandler(event:DragEvent):void{
+            var node:NodeElement=event.dragInitiator as NodeElement;
+
+            if(this._isJQ && node.iid !=0){//加签处理时，只能删除 新增加的节点 ..判断规则 // 节点的 iid 是否为0
+                CRMtool.tipAlert("加签模式下，该节点不可以删除");
+                return;
+            }
+
+
+            var info:String=CRMtool.resourceReplace(ConstsModel.WF_ALERT_DELETE_CNODE,node.cname);
+            if(node.ipnodeid==_startNodeIpNodeId){
+                info=CRMtool.resourceReplace(ConstsModel.WF_ALERT_DELETE_ALLNODE,node.cname)
+            }
+            CRMtool.tipAlert1(info,null,"AFFIRM",function():void{
+                onDeleteNode(node);
+            });
+        }
+        /**
+         * 拖动删除 实际操作
+         */
+        private function onDeleteNode(node:NodeElement):void{
+            var nodeXml:XML;
+            var pnodeXml:XML;
+            var jg:String; // 判定结果
+
+            var pnodeid:String=node.ipnodeid;
+            var nodeid:String=node.inodeid;
+
+
+            if(pnodeid != this._startNodeIpNodeId){ // 非发起人节点 删除
+                nodeXml=this.wfNodeXml..node.(@inodeid==nodeid)[0] as XML;
+                pnodeXml=this.wfNodeXml..node.(@inodeid==pnodeid)[0] as XML;
+                //判断 两者的子节点 是否 有相同 节点 ，根据节点的 nodetype 与 nodevalue
+                /* 					jg=judgeSameNode(pnodeXml,nodeXml,node.inodeid);
+                 if(jg != null ){
+                 CRMtool.tipAlert(CRMtool.resourceReplace(ConstsModel.WF_ALERT_NUDELETE,jg));
+                 return;
+                 } */
+
+                // 变更 子节点 的父节点,并添加到新的父节点中 (注: xml 中的节点要改变，以及主绘制区中的 nodeelement 元素节点)
+                for each(var cnode:XML in nodeXml.children()){
+                    cnode.@ipnodeid=pnodeid;
+                    this.getNodeElementById(cnode.@inodeid).ipnodeid=pnodeid;
+                }
+
+                // 变更 所有 子 孙 节点的 层级 ，一级 在新的 父节点上 添加 这些节点，并在原有的父节点下 删除 节点
+                var childNodeXmls:XMLList= nodeXml.descendants("*");
+                var childLen:int=childNodeXmls.length();
+                // 修改 子孙节点的 层级关系
+                for(var i:int=0;i<childLen;i++){
+                    var cnode:XML=childNodeXmls[i] as XML;
+                    cnode.@inodelevel=parseInt(""+cnode.@inodelevel)-1;
+                    this.getNodeElementById(cnode.@inodeid).inodelevel=parseInt(""+cnode.@inodelevel)-1;
+                }
+                // 迁移子节点
+                pnodeXml.appendChild(nodeXml.node);
+                removeNode(nodeid);
+                delete this.wfNodeXml..node.(@inodeid==nodeid)[0] as XML; // delete 删除 ，会删除该节点 以及 该节点的 子孙节点
+            }else{
+                clearAllNodes();
+            }
+
+            this.drawWorkFlowNodes(this.wfNodeXml.node);
+        }
+        /**
+         * 清空所有节点
+         */
+        public var startIsCreated:Boolean=false;
+        public function clearAllNodes(flag:Boolean=false):void{
+            startIsCreated=true;
+            this.wfNodeXml=new XML("<root/>");
+            this._wfNodeXmlCopy=new XML("<root/>");  // 同时 清空 copy数据
+            this.handlerNode=null;
+            removeAllNode();
+            this.cons.removeAll();
+            this.relats.removeAll();
+            if(flag)
+                this.createStartNode();
+
+            try{
+                if(this.stage.hasEventListener(FWFChangeEvent.SOURCEOBJECTCHANGE)){
+                    this.stage.removeEventListener(FWFChangeEvent.SOURCEOBJECTCHANGE,null);
+                }
+            }catch(e:Error){
+
+            }
+        }
+        /**
+         * 判断两个xml数据，的子节点 是不是有相同的 节点
+         * 判定规则：
+         * 子节点的 inodevalue 与 inodetype 属性 是不是 都相同
+         * 参数： xml1 被比较的xml
+         * 参数： xml2 要比较的xml
+         * 参数： inodeid  排除检查的节点 id（注:一般为拖动删除的节点）
+         */
+        private function judgeSameNode(xml1:XML,xml2:XML,inodeid:String=""):String{
+            for each(var node1:XML in xml1.children()){
+                for each(var node2:XML in xml2.children()){
+                    if((node1.@inodeid != inodeid )&&(node1.@inodetype==node2.@inodetype) && (node1.@inodevalue==node2.@inodevalue)){
+                        return node1.@cname;
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        /**
+         *公共处理协同 入口
+         *
+         * optType 操作类型
+         * iid 协同iid
+         *
+         */
+
+        private var optType:String;
+        private var ioainvoice:int=0;
+        public function workFlowEntrance(opt:String,iid:int,handleNode:WfNodeVo):void{
+            optType=opt;
+            ioainvoice=iid;
+            this.handlerNode=handleNode;
+
+            // 获取工作流 节点信息
+            getWorkFlow(iid);
+
+            // 在 open 状态下，只有 待发事项 才显示 垃圾桶
+            if(optType==ConstsModel.XTGL_OPT_DFSX){
+                //getWorkFlow(iid);
+                this.wf_trash.visible=true;
+                this.wf_trash.includeInLayout=true;
+            }else{
+                this.wf_trash.visible=false;
+                this.wf_trash.includeInLayout=false;
+            }
+        }
+
+        /**
+         * 根据 协同的 iid 来获取协同的信息
+         * 参数： iid 协同iid
+         */
+        public function getWorkFlow(iid:int):void{
+            AccessUtil.remoteCallJava("WorkFlowDest","getWorkFlowNodes",workFlowCallBack,iid,"正在获取协同节点信息...");
+        }
+
+        /**
+         * 根据 协同的 iid 来获取协同的信息
+         * 参数： iid 协同iid
+         */
+        /* 			private var cons:ArrayCollection=new ArrayCollection;
+         private var relats:ArrayCollection=new ArrayCollection; */
+        public function getFormWorkFlow(ifunid:int,iinvoice:int):void{
+            //Alert.show("----执行到----");
+            AccessUtil.remoteCallJava("WorkFlowDest","getFormWorkFlowNodes",workFlowCallBack,{"ifuncregedit":ifunid,"iinvoice":iinvoice,"iperson":CRMmodel.userId},"正在获取协同节点信息...");
+        }
+
+        [Bindable]
+        public var wfNodeDetail:ArrayCollection=new ArrayCollection(); 				// 节点对应的详细信息
+
+        // 当前登录用户，所处在的节点(当前处理节点)
+        public var handlerNode:WfNodeVo;
+
+        private function workFlowCallBack(event:ResultEvent):void{
+            if(event.result){
+                this.clearAllNodes();
+                var map:Object=event.result;
+                wfNodeXml=new XML(map.nodeStr);
+                _wfNodeXmlCopy=mx.utils.ObjectUtil.copy(this._wfNodeXml) as XML;
+                wfNodeDetail=map.nodeDetailList as ArrayCollection;
+                this.cons=map.nodecd as ArrayCollection;
+                this.relats=map.nodeentry as ArrayCollection;
+                //this.handlerNode=xml2object(wfNodeXml.node.(@ipnodeid=this._startNodeIpNodeId)[0]) as WfNodeVo;
+                this.handlerNode=map.handlerNode as WfNodeVo;
+                openWorkFlow();
+                //this.handlerNode=this.getRootNodeElement();
+                if(this._isJQ){// 只有是加签时，才处理
+                    judgeLeafNode();
+                }
+            }
+            else
+            {
+                clearAllNodes(1);
+            }
+        }
+
+        // 编辑时，打开后，获取相关的节点信息，修改，删除，新增
+
+        public function editWFNodes():Object{
+            var editNodesac:ArrayCollection; 		// 修改
+            var deleteNodesac:ArrayCollection; 		// 删除
+            var newNodesac:ArrayCollection; 		// 新增
+            var ret:Object={};						// 返回
+
+            var newNodes:ArrayCollection=xml2ArrayCollection(this.wfNodeXml);
+            var oldNodes:ArrayCollection=xml2ArrayCollection(this._wfNodeXmlCopy);
+            editNodesac=new ArrayCollection;
+            deleteNodesac=new ArrayCollection;
+            newNodesac=new ArrayCollection;
+
+            // newNodes 中 iid 为空，全都是新增的节点
+            for each(var item:Object in newNodes){
+                if(item.iid==0){
+                    newNodesac.addItem(item);
+                }
+            }
+
+            // 筛选修改与删除的节点
+            for each(var oldItem:Object in oldNodes){
+                var obj:Object=itemIsExist(newNodes,oldItem,"iid");
+                if(obj){//存在 既是要修改的
+                    editNodesac.addItem(obj);
+                }else{// 否则 就是要删除的
+                    deleteNodesac.addItem(oldItem);
+                }
+                if(obj&&CRMtool.isStringNotNull(obj.cexecsql)){
+                    obj.cexecsql = CRMtool.replaceToXMLMarkValues(obj.cexecsql)
+                }
+
+            }
+
+            ret.newNodes=newNodesac;
+            ret.editNodes=editNodesac;
+            ret.deleteNodes=deleteNodesac;
+            return ret;
+        }
+
+        // 不存在，就添加
+        private function addItem(ac:ArrayCollection,obj:Object,key:String):void{
+            var boo:Boolean=false;
+            for each(var item:Object in ac){
+                if(item[key] == obj[key]){
+                    boo=true;
+                    break;
+                }
+            }
+            if( !boo ){
+                ac.addItem(obj);
+            }
+        }
+        // 判断一个对象是否在 集合中,存在就返回在ac中存在的对应
+        private function itemIsExist(ac:ArrayCollection,obj:Object,key:String):Object{
+            for each(var item:Object in ac){
+                if(item[key] == obj[key]){
+                    return item;
+                }
+            }
+            return null;
+        }
+        // 修改时，还原工作流
+        public function restoreWorkFlow():void{
+            if(this.wfDrawType==wfDrawTypeOpen && _wfNodeXmlCopy){ // 打开已有
+                wfNodeXml=ObjectUtil.copy(_wfNodeXmlCopy) as XML;
+                removeAllNode();
+                this.drawWorkFlowNodes(this.wfNodeXml.node);
+                //this.handlerNode=xml2object(wfNodeXml.node.(@ipnodeid=this._startNodeIpNodeId)[0]) as WfNodeVo;
+            }
+        }
+
+        // 获取 表单 工作流 节点
+
+        public function getWfInvosets(iid:int):void{
+            //getWfInvosets
+            //AccessUtil.remoteCallJava("FormWorkFlowDest","getWfInvosets",FwfCallBack,iid,"正在获取表单工作流节点信息...");
+            AccessUtil.remoteCallJava("FormWorkFlowDest","getWfInvosetInfos",FwfCallBack,iid,"正在获取表单工作流节点信息...");
+        }
+
+        private var cons:ArrayCollection=new ArrayCollection;
+        private var relats:ArrayCollection=new ArrayCollection;
+        private function FwfCallBack(event:ResultEvent):void{
+            if(event.result){
+
+                var map:Object=event.result;
+                // 节点信息
+                wfNodeXml=new XML(map.xmlstr);
+                _wfNodeXmlCopy=mx.utils.ObjectUtil.copy(this._wfNodeXml) as XML;
+
+                //
+                cons=map.cons as ArrayCollection;
+                relats=map.relats as ArrayCollection;
+
+                removeAllNode();
+                openWorkFlow();
+            }
+        }
+
+        public function getNodeCons(inodeid:String):ArrayCollection{
+            var tp:ArrayCollection=new ArrayCollection();
+            for each(var item:Object in this.cons){
+                if(item.cnodeid == inodeid){
+                    tp.addItem(item);
+                }
+            }
+            return tp;
+        }
+
+        public function getNodeRelats(inodeid:String):ArrayCollection{
+            var tp:ArrayCollection=new ArrayCollection();
+            for each(var item:Object in this.relats){
+                if(item.cnodeid == inodeid){
+                    tp.addItem(item);
+                }
+            }
+            return tp;
+        }
+
+        // 处理表单工作流中 ，节点的 录入
+        public function getNodeEntrys():ArrayCollection{
+            var tp:ArrayCollection=new ArrayCollection();
+            for each(var child:Object in this.wf_draw.getChildren()){
+                if(child is NodeElement){
+                    tp.addAll((child as NodeElement).fwfentry);
+                }
+            }
+            return tp;
+        }
+
+        // 处理表单工作流中 ，节点的 条件
+        public function getNodeConditions():ArrayCollection{
+            var tp:ArrayCollection=new ArrayCollection();
+            for each(var child:Object in this.wf_draw.getChildren()){
+                if(child is NodeElement){
+                    tp.addAll((child as NodeElement).fwfcondition);
+                }
+            }
+            return tp;
+        }
+
+
+        // 加签 处理
+        public function jqHandler():Object{
+            var tp:Object=null;
+            // 检测 处理节点数否存在
+            if(this.handlerNode == null){
+                CRMtool.tipAlert("数据有误，不可处理");
+                return null;
+            }
+            // 检测，是否添加新的节点了
+
+            // 首先获取 处理节点下的 说有节点
+            var hxml:XML=this.wfNodeXml..node.(@inodeid==this.handlerNode.inodeid)[0] as XML;
+            var cxmllist:XMLList=hxml..node;
+            //新增的节点，要修改的节点分离
+            var newAC:ArrayCollection=new ArrayCollection();
+            var editAC:ArrayCollection=new ArrayCollection();
+
+            var len:int=cxmllist.length();
+
+            for each(var node:XML in cxmllist){
+                if( node.@iid == 0  || node.@iid=="0" ){
+                    var item:Object=this.xml2object(node);
+                    item.istatus=0;
+                    newAC.addItem(item);
+                }else{
+                    editAC.addItem(this.xml2object(node));
+                }
+            }
+
+            if(newAC == null || newAC.length==0){
+                CRMtool.tipAlert("没有新加签节点，不予操作");
+                return null;
+            }
+            tp=new Object();
+            tp.newAC=newAC;
+            tp.editAC=editAC;
+
+            return tp;
+        }
+
+        // 判断 当前处理节点是否为 叶子节点,只在从加签页面跳转过来后，执行一次
+        private function judgeLeafNode():void{
+            if(this.handlerNode == null){
+                CRMtool.tipAlert("数据有误，不可处理");
+                return;
+            }
+            var hxml:XML=this.wfNodeXml..node.(@inodeid==this.handlerNode.inodeid)[0] as XML;
+            if(hxml.hasComplexContent()){
+                //Alert.show("包含子元素");
+                this._isLeafNode=false;
+            }else{
+                //Alert.show("不包含子元素");
+                this._isLeafNode=true;
+            }
+        }
+
+        ]]>
+	</fx:Script>
+    <mx:Canvas  borderStyle="none" left="0" id="wf_draw" width="100%" height="100%" backgroundColor="#f7f7f7"/>
+    <mx:HBox width="100%" height="30" bottom="10" verticalAlign="middle" horizontalAlign="center" visible="{!wf_trash.visible}">
+        <mx:Spacer width="100%"/>
+        <s:Image  source="{ConstsModel.wf_node_istatus_5}"/>
+        <s:Label text="已办"/>
+        <mx:Spacer width="10"/>
+        <s:Image source="{ConstsModel.wf_node_istatus_3}"/>
+        <s:Label text="待办"/>
+        <mx:Spacer width="10"/>
+        <s:Image source="{ConstsModel.wf_node_istatus_0}"/>
+        <s:Label text="未到达"/>
+        <mx:Spacer width="100%"/>
+    </mx:HBox>
+    <s:Image id="wf_trash" source="{ConstsModel.wf_trash}" right="10" bottom="15" dragEnter="nodeDragEnterHandler(event)" dragDrop="trashDragDropHandler(event)"/>
+</mx:Canvas>

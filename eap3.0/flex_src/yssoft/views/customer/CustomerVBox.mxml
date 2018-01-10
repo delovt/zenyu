@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" 
+		 styleName="rolecontentHbox" xmlns:comps="yssoft.comps.*" creationComplete="initCus()" 
+		 implements="yssoft.impls.ICRMWindow">
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="onInit",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.AbInvoiceatmVo;
+			import yssoft.vos.CsCustomerVo;
+			import yssoft.vos.CsCustpersonVo;
+			import yssoft.vos.ElementVo;
+			import yssoft.vos.SubElementsVo;
+			
+			[Bindable]
+			private var _customerVo:Object = new Object();
+			
+			[Bindable]
+			private var _custpersonVo:CsCustpersonVo = new CsCustpersonVo();
+			
+			public var parentForm:Object;
+			
+			private var item:String="";
+			
+			public function set customerVo(value:Object):void
+			{
+				this._customerVo =value;
+				vbx_radian.parametersObj = value;
+				vbx_radian1.parametersObj = value;
+				vbx_radian3.parametersObj = value ;
+				vbx_radian2.parametersObj =value;
+				vbx_radian2.reset();
+				vbx_radian.reset();
+				vbx_radian1.reset();
+				vbx_radian3.reset();
+				
+				this.icountryArr.removeAll();
+				
+				for(var i:int=0;i<allData.length;i++)
+				{
+					var obj:Object = this.allData.getItemAt(i);
+					if(obj.ipid=="-1")
+					{
+						icountryArr.addItem(obj);
+					}
+				}
+				
+				for(var i:int=0;i<this.icountryArr.length;i++)
+				{
+					var obj:Object = this.icountryArr.getItemAt(i);
+					if(obj.iid==value.icountry)
+					{
+/* 						this.vbx_radian1.sele("icountry",i); */
+					}
+				}
+				
+				this.getData(value.icountry,this.iprovinceArr);
+				
+				for(var i:int=0;i<this.iprovinceArr.length;i++)
+				{
+					var obj:Object = this.iprovinceArr.getItemAt(i);
+					if(obj.iid==value.iprovince)
+					{
+/* 						this.vbx_radian1.sele("iprovince",i); */
+					}
+				}
+				
+				this.getData(value.iprovince,this.icityArr);
+				
+				for(var i:int=0;i<this.icityArr.length;i++)
+				{
+					var obj:Object = this.icityArr.getItemAt(i);
+					if(obj.iid==value.icity)
+					{
+				/* 		this.vbx_radian1.sele("icity",i); */
+					}
+				}
+				
+			}
+			
+			
+			public function set custpersonVo(value:CsCustpersonVo):void
+			{
+				this._custpersonVo = value;
+			}
+			
+			[Bindable]
+			private var elementArr:ArrayCollection = new ArrayCollection([
+				new ElementVo("客户编码:",new ArrayCollection([
+					new SubElementsVo(2,"ccode")
+				])),
+				new ElementVo("客户名称:",new ArrayCollection([
+					new SubElementsVo(2,"cname")
+				])),
+				new ElementVo("客户类别:",new ArrayCollection([
+					new SubElementsVo(2,"icustclass")
+				])),
+				new ElementVo("商务关系:",new ArrayCollection([
+					new SubElementsVo(2,"ipartnership")
+				])),
+				new ElementVo("客商行业:",new ArrayCollection([
+					new SubElementsVo(2,"iindustry")
+				])),
+				new ElementVo("网址:",new ArrayCollection([
+					new SubElementsVo(2,"cwebsite")
+				])),
+				new ElementVo("组织形式:",new ArrayCollection([
+					new SubElementsVo(2,"iorganization")
+				])),
+				new ElementVo("上级单位:",new ArrayCollection([
+					new SubElementsVo(2,"iheadcust")
+				])),
+				new ElementVo("价值级别:",new ArrayCollection([
+					new SubElementsVo(2,"icreditrating")
+				])),
+				new ElementVo("商机进程:",new ArrayCollection([
+					new SubElementsVo(2,"isalesprocess")
+				]))
+			]);
+			
+			[Bindable]
+			private var icountryArr:ArrayCollection = new ArrayCollection();
+			
+			//省份
+			[Bindable]
+			private var iprovinceArr:ArrayCollection = new ArrayCollection();
+			
+			//城市
+			[Bindable]
+			private var icityArr:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var allData:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var elementArr1:ArrayCollection;
+			
+			[Bindable]
+			private var elementArr2:ArrayCollection = new ArrayCollection([
+				new ElementVo("联系人员：",new ArrayCollection([
+					new SubElementsVo(2,"custpersonName","",false,true)
+				])),
+				new ElementVo("所属部门：",new ArrayCollection([
+					new SubElementsVo(2,"cdepartment")
+				])),
+				new ElementVo("人员职位：",new ArrayCollection([
+					new SubElementsVo(2,"cpost")
+				])),
+				new ElementVo("人员称呼：",new ArrayCollection([
+					new SubElementsVo(2,"ctitle")
+				])),
+				new ElementVo("联系手机：",new ArrayCollection([
+					new SubElementsVo(2,"custpersonCmobile")
+				])),
+				new ElementVo("固定电话：",new ArrayCollection([
+					new SubElementsVo(2,"custpersonCtel")
+				])),
+				new ElementVo("电子邮件：",new ArrayCollection([
+					new SubElementsVo(2,"custpersonCemail")
+				])),
+				new ElementVo("性别：",new ArrayCollection([
+					new SubElementsVo(4,"isex","",false,false,false,0,"男","0"),
+					new SubElementsVo(4,"isex","",false,false,false,0,"女","1"),
+					new SubElementsVo(4,"isex","",false,false,false,0,"未知","2")
+				]))
+			]);
+			
+			[Bindable]
+			private var elementArr3:ArrayCollection = new ArrayCollection([
+				new ElementVo("所属区域：",new ArrayCollection([
+					new SubElementsVo(2,"isalesarea")
+				])),
+				new ElementVo("所属部门：",new ArrayCollection([
+					new SubElementsVo(2,"isalesdepart")
+				])),
+				new ElementVo("所属人员：",new ArrayCollection([
+					new SubElementsVo(2,"isalesperson")
+				])),
+				new ElementVo("信用级别：",new ArrayCollection([
+					new SubElementsVo(2,"icreditrating")
+				])),
+				new ElementVo("产品使用情况：",new ArrayCollection([
+					new SubElementsVo(2,"cproducteffect","",true)
+				])),
+				new ElementVo("备注：",new ArrayCollection([
+					new SubElementsVo(2,"cmemo")
+				]))
+			]);
+			
+			private function getCustomerItem():CsCustomerVo
+			{
+				var custome:CsCustomerVo = new CsCustomerVo();
+				if(item=="onEdit")
+				{
+					custome.iid = _customerVo.iid;
+				}
+				var result:Object = vbx_radian.getResult();
+				if(result!=null)
+				{
+					custome.ccode = result.ccode;
+					custome.cname=result.cname;
+					custome.icustclass = int(Number(result.icustclass));
+					custome.ipartnership=int(Number(result.ipartnership));
+					custome.iindustry= int(Number(result.iindustry));
+					custome.cwebsite=result.cwebsite;
+					custome.iorganization=result.iorganization;
+					custome.iheadcust=result.iheadcust;
+					custome.icreditrating = int(Number(result.icreditrating));
+					custome.isalesprocess = int(Number(result.isalesprocess));
+				}
+				
+				var result1:Object = vbx_radian1.getResult();
+				if(result1!=null)
+				{
+					if(CRMtool.isStringNotNull(result1.icountry))
+					{
+						custome.icountry=int(Number(result1.icountry));
+					}
+					if(CRMtool.isStringNotNull(result1.iprovince))
+					{
+						custome.iprovince=int(Number(result1.iprovince));
+					}
+					if(CRMtool.isStringNotNull(result1.icity))
+					{
+						custome.icity = int(Number(result1.icity));
+					}
+					custome.cofficeaddress =result1.cofficeaddress;
+					custome.cofficezipcode=result1.cofficezipcode;
+					custome.cshipaddress=result1.cshipaddress;
+					custome.cshipzipcode=result1.cshipzipcode;
+					custome.ctel=result1.ctel;
+					custome.cfax =result1.cfax;
+				}
+				
+				var result2:Object = vbx_radian3.getResult();
+				if(result2!=null)
+				{
+					custome.isalesarea=int(Number(result2.isalesarea));
+					custome.isalesdepart =int(Number(result2.isalesdepart));
+					custome.isalesperson=int(Number(result2.isalesperson));
+					custome.icreditrating=int(Number(result2.icreditrating));
+					custome.cproducteffect=result2.cproducteffect;
+					custome.cmemo=result2.cmemo;
+				}
+				
+				if(customPerIid>0)
+				{
+					custome.ikeycontacts = customPerIid
+				}
+				
+				return custome;
+			}
+			
+			private function getCustpersonItem():CsCustpersonVo
+			{
+				var custper:CsCustpersonVo = new CsCustpersonVo();
+				if(item=="onEdit")
+				{
+					custper.iid = _custpersonVo.iid;
+				}
+				
+				var result:Object = vbx_radian2.getResult();
+				custper.cname = result.custpersonName;
+				custper.cdepartment= result.cdepartment;
+				custper.cpost= result.cpost;
+				custper.ctitle= result.ctitle;
+				custper.cmobile1= result.custpersonCmobile;
+				custper.ctel= result.custpersonCtel;
+				custper.cemail= result.custpersonCemail
+				custper.isex = int(Number(result.isex));
+				if(customPerIid>0)
+				{
+					custper.iid = customPerIid;
+				}
+				return custper;
+			}
+			
+			
+			
+			//页面初始化
+			public function initCus():void
+			{
+				AccessUtil.remoteCallJava("csCustomerDest","queryArea",queryAreaBack);
+			}
+			
+			private function queryAreaBack(event:ResultEvent):void
+			{
+				this.allData = event.result as ArrayCollection;
+				
+				this.icountryArr.removeAll();
+				
+				for(var i:int=0;i<allData.length;i++)
+				{
+					var obj:Object = this.allData.getItemAt(i);
+					if(obj.ipid=="-1")
+					{
+						icountryArr.addItem(obj);
+					}
+				}
+				
+				
+				elementArr1 = new ArrayCollection([
+					new ElementVo("地理区域:",new ArrayCollection([
+						new SubElementsVo(5,"icountry","",false,true,false,0,"cname","iid",icountryArr),
+						new SubElementsVo(5,"iprovince","",false,true,false,0,"cname","iid",iprovinceArr),
+						new SubElementsVo(5,"icity","",false,true,false,0,"cname","iid",icityArr)
+					])),
+					new ElementVo("办公地址：",new ArrayCollection([
+						new SubElementsVo(2,"cofficeaddress","")
+					])),
+					new ElementVo("办公邮编：",new ArrayCollection([
+						new SubElementsVo(2,"cofficezipcode","")
+					])),
+					new ElementVo("发货地址：",new ArrayCollection([
+						new SubElementsVo(2,"cshipaddress","")
+					])),
+					new ElementVo("发货邮编：",new ArrayCollection([
+						new SubElementsVo(2,"cshipzipcode","")
+					])),
+					new ElementVo("单位电话：",new ArrayCollection([
+						new SubElementsVo(2,"ctel","")
+					])),
+					new ElementVo("单位传真：",new ArrayCollection([
+						new SubElementsVo(2,"cfax","")
+					]))
+				]);
+				
+				parentForm = this.owner;
+				if(this.item=="onEdit")
+				{
+					CRMtool.containerChildsEnabled(this,true);
+				}
+				else
+				{
+					CRMtool.containerChildsEnabled(this,false);
+				}
+				CRMtool.setTabIndex(this);
+				this.dispatchEvent(new Event("onInit"));
+			}
+			
+			//保存
+			public function onSave():void
+			{
+				var paramObject:Object;
+				if(item=="onNew")
+				{
+					paramObject = new Object();
+					/* paramObject.isUpdate = isUpdate; */
+					var custperson:CsCustpersonVo = this.getCustpersonItem();
+					var isU:int=0;
+					if(CRMtool.isStringNotNull(custperson.cname))
+					{
+						isU=1;
+					}
+					paramObject.isUpdate = isU;
+					var customer:CsCustomerVo =this.getCustomerItem();
+					paramObject.customerItem = customer ;
+					paramObject.custpersonItem = custperson;
+					paramObject.personId = CRMmodel.userId
+					AccessUtil.remoteCallJava("csCustomerDest","addCsCustomer",saveCsCustomerVo,paramObject);
+				}
+				else
+				{
+					paramObject = new Object();
+					paramObject.isUpdate = isUpdate;
+					var custpers:CsCustpersonVo = this.getCustpersonItem();
+					var cuusto:CsCustomerVo =this.getCustomerItem();
+					paramObject.customerItem = cuusto ;
+					paramObject.custpersonItem = custpers;
+					AccessUtil.remoteCallJava("csCustomerDest","updateCsCustomer",saveCsCustomerVo,paramObject);
+				}
+			}
+			
+			private function saveCsCustomerVo(event:ResultEvent):void
+			{
+				if(event.result!=null || event.result!="fail")
+				{ 
+					var result:Object = event.result;
+					if(item =="onNew")
+					{
+						var obj:Object = new Object();
+						var cus:CsCustomerVo = this.getCustomerItem();
+						cus.iid = int(Number(result.customerIid));
+						if(result.hasOwnProperty("csCustpersonIid"))
+						{
+							var custp:CsCustpersonVo = this.getCustpersonItem();
+							custp.iid = int(Number(result.csCustpersonIid));
+							custp.icustomer =int(Number(result.customerIid));
+							obj.csCustperson = custp;
+						}
+						
+						obj.csCustomerVo = cus;
+						parentForm.pageInitBack(obj,item);
+						CRMtool.tipAlert("新增客户档案成功！！");
+					}
+					else if(item=="onDelete")
+					{
+						parentForm.deleteInitBack(_customerVo.iid);
+						CRMtool.tipAlert("删除客户档案成功!!");
+					}
+					else if(item=="onEdit")
+					{
+						var obj:Object = new Object();
+						/* var personVo:CsCustomerVo =_customerVo;  */
+						if( event.result!="success")
+						{
+							_custpersonVo.icustomer =  int(Number(event.result));
+						}
+						obj.csCustomerVo = _customerVo;
+						obj.csCustperson = _custpersonVo;
+						parentForm.pageInitBack(obj,item);
+						CRMtool.tipAlert("修改客户档案成功！！");
+					}
+					CRMtool.containerChildsEnabled(this,false);
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.FAIL);
+				}
+			}
+			
+			//新增
+			public function onNew():void
+			{
+				CRMtool.containerChildsEnabled(this,true);
+				vbx_radian.clean();
+				vbx_radian1.clean();
+				vbx_radian2.clean();
+				vbx_radian3.clean();
+				item = "onNew";
+			}
+			//修改
+			public function onEdit():void
+			{
+				CRMtool.containerChildsEnabled(this,true);
+				item="onEdit";
+				si=1;
+			}
+			
+			public function removeCustomer():void
+			{
+				CRMtool.tipAlert(ConstsModel.DETERMINE_HEAD+_customerVo.cname+"这个人员？】",null,"AFFIRM",this,"onDeleteCustomer");
+			}
+			
+			public function onDeleteCustomer():void
+			{
+				this.item="onDelete";
+				AccessUtil.remoteCallJava("csCustomerDest","removeCsCustomer",saveCsCustomerVo,_customerVo.iid);
+			}
+			
+			public function onGiveUp():void
+			{
+				vbx_radian.clean();
+				vbx_radian1.clean();
+				vbx_radian2.clean();
+				vbx_radian3.clean();
+				CRMtool.containerChildsEnabled(this,false);
+			}
+			
+			private var si:int = 0;
+			
+			private function onChange(event:Event):void
+			{
+				var cname:String = vbx_radian2.cname;
+				var obj:Object = new Object();
+				obj.cname=cname;
+				obj.icustomer=_customerVo.iid;
+				if(si==1)
+				{
+					AccessUtil.remoteCallJava("csCustomerDest","getCsCustpersonVo",onChangeHadle,obj);
+				}
+			}
+			
+			private var isUpdate:int = 0;
+			
+			private var customPerIid:int =0;
+			
+			private function onChangeHadle(event:ResultEvent):void
+			{
+				var customPer:CsCustpersonVo = event.result as CsCustpersonVo;
+				if(customPer!=null)
+				{
+					vbx_radian2.parametersObj = customPer;
+					vbx_radian2.reset();
+					isUpdate = 1;
+					customPerIid = customPer.iid;
+				}
+				else
+				{
+					isUpdate = 2;
+				}
+				si=0;
+			}
+			
+			//窗体初始化
+			public function onWindowInit():void
+			{
+				
+			}
+			//窗体打开
+			public function onWindowOpen():void
+			{
+			 	this.initCus();
+				this.item="";
+				this.vbx_radian.clean();
+				this.vbx_radian1.clean();
+				this.vbx_radian2.clean();
+				this.vbx_radian3.clean();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void
+			{
+				this.item="";
+				this.vbx_radian.clean();
+				this.vbx_radian1.clean();
+				this.vbx_radian2.clean();
+				this.vbx_radian3.clean();
+			}
+			
+			private function myCB_changeHandler(event:Event):void
+			{
+				var iid:String = vbx_radian1.selecteItem.iid;
+				var ccode:String = vbx_radian1.selecteItem.ccode;
+				if(ccode.split(".").length==1)
+				{
+					this.iprovinceArr.removeAll();
+					this.icityArr.removeAll();
+					getData(iid,this.iprovinceArr);
+					this.vbx_radian1.comDatdPr("iprovince",this.iprovinceArr);
+				}
+				else if(ccode.split(".").length==2)
+				{
+					this.icityArr.removeAll();
+					getData(iid,this.icityArr);
+					this.vbx_radian1.comDatdPr("icity",this.icityArr);
+				}
+			}
+			
+			private function getData(iid:String,datas:ArrayCollection):void
+			{
+				for(var i:int=0;i<this.allData.length;i++)
+				{
+					var obj:Object = this.allData.getItemAt(i);
+					if(obj.ipid==iid)
+					{
+						datas.addItem(obj);
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<comps:RadianVbox id="vbx_radian" width="100%" cou="2" elementArr="{elementArr}" height="20%" />
+	<comps:RadianVbox id="vbx_radian1" width="100%" cou="2" elementArr="{elementArr1}"  height="20%" myCB_changeHandler="myCB_changeHandler(event);"/>
+	<comps:RadianVbox id="vbx_radian2" width="100%" cou="2" elementArr="{elementArr2}"  height="20%" onChange="onChange(event);"/>
+	<comps:RadianVbox id="vbx_radian3" width="100%" cou="2" elementArr="{elementArr3}"  height="20%"/>
+</mx:VBox>

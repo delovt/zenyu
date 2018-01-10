@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" verticalGap="0">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var item:Object={};
+		]]>
+	</fx:Script>
+		<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
+			<!--<s:Label text=">>" color="#4F9CD4"/>-->
+			<mx:Label text="{item.cname}" fontSize="12" color="#FF8E01" fontWeight="bold" width="60" toolTip="名称:{item.cname}"/>
+			<mx:Spacer width="100%"/>
+			<mx:Label text="{(item.bpush=='0' || item.bpush==0)?'提交':'推送'}" width="45" fontSize="12"/>
+			<mx:HBox  height="100%" verticalAlign="middle" horizontalAlign="right">
+				<mx:Label text="{item.fdate}" fontSize="12" color="#ADADAD"/>
+			</mx:HBox>
+			
+		</mx:HBox>
+		<mx:Text text="{item.cmessage}" width="100%"/>
+</mx:VBox>

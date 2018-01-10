@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="650" height="400"
+                        cornerRadius="8"
+                        title="批量授权" close="onCloseHandler()" creationComplete="onIni()" xmlns:comps="yssoft.comps.*"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Label;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CollectionEvent;
+			import mx.events.DataGridEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import spark.components.supportClasses.ItemRenderer;
+			
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.ListclmVo;
+			
+			
+			public var consult2:CrmEapTextInput; 
+			
+			private var _consultObj:Object = {};//参照所需
+			[Bindable]
+			private var selectedNum:int=0;	
+			
+			public function set consultObj(value:Object):void{
+				this._consultObj = value;
+			}
+			
+			private var _dgColumnsArr:ArrayCollection;//字段信息
+			
+			public function set dgColumnsArr(value:ArrayCollection):void{
+			
+				this._dgColumnsArr = value;
+				
+			}
+			
+			private var _dgDataSet:ArrayCollection;//数据集
+			
+			private var dgDataSetForSearch:ArrayCollection = new ArrayCollection();
+			
+			public function set dgDataSet(value:ArrayCollection):void{
+				
+				this._dgDataSet = value;
+				
+			}
+			
+			private var _listclmVo:ListclmVo;
+			
+			public function set listclmVo(value:ListclmVo):void{
+			
+				this._listclmVo = value;
+			
+			}
+			
+			private var _ifuncregedit:int;//单据注册码
+			
+			public function set ifuncregedit(value:int):void{
+				
+				this._ifuncregedit = value;
+				
+			}
+			
+			private var consult1:CrmEapTextInput = new CrmEapTextInput();
+			
+			protected function onIni():void{
+				
+				//this.dgDataSetForSearch = this._dgDataSet;
+				for(var i:int; i<this._dgDataSet.length; i++) {
+					this.dgDataSetForSearch.addItem(this._dgDataSet[i]);
+				}
+				onIniDataGrid();
+				onCreateConsult();
+				
+			}
+			
+			//初始化DataGrid的相关信息
+			private function onIniDataGrid():void{
+				var count:int = 0;
+				for each(var acli:ListclmVo in _dgColumnsArr)
+				{
+					if(acli.bshow == false) continue;
+					if(count == 5) break;
+					
+					var dgcolumn:DataGridColumn = new DataGridColumn();
+					dgcolumn.dataField = acli.cfield;
+					dgcolumn.headerText = acli.cnewcaption;
+					dgcolumn.width =acli.icolwidth;
+					dglist.columns =dglist.columns.concat(dgcolumn);
+					
+					count++;
+					
+				}
+				
+				iniDefineColumn();
+				
+				//dglist.dataProvider = this._dgDataSet;
+				dglist.dataProvider = this.dgDataSetForSearch;
+				selectedNum = dglist.getSelectRows().length;
+			}
+			
+			//初始化其他相关列  内码、负责人员、相关人员
+			private function iniDefineColumn():void{
+			
+				var dgcolumn:DataGridColumn = new DataGridColumn();
+				dgcolumn.dataField = "iid";
+				dgcolumn.headerText = "内码";
+				dgcolumn.visible = false;				
+				dglist.columns =dglist.columns.concat(dgcolumn);
+				
+				
+				
+				var dgcolumn2:DataGridColumn = new DataGridColumn();
+				dgcolumn2.dataField = "iperson";
+				dgcolumn2.headerText = "负责人员";	
+				
+//				var itemRenderer2:ItemRenderer = new ItemRenderer();
+//				itemRenderer2.addChild(consult2);
+//				dgcolumn2.itemRenderer
+				dglist.columns =dglist.columns.concat(dgcolumn2);
+				
+				
+				
+				var dgcolumn3:DataGridColumn = new DataGridColumn();
+				dgcolumn3.dataField = "fiperson";
+				dgcolumn3.visible = false;
+				dglist.columns =dglist.columns.concat(dgcolumn3);
+				
+				var dgcolumn4:DataGridColumn = new DataGridColumn();
+				dgcolumn4.dataField = "idepartment";
+				dgcolumn4.headerText = "相关人员";
+				dglist.columns =dglist.columns.concat(dgcolumn4);
+			
+				var dgcolumn5:DataGridColumn = new DataGridColumn();
+				dgcolumn5.dataField = "xiperson";
+				dgcolumn5.visible = false;
+				dglist.columns =dglist.columns.concat(dgcolumn5);
+			
+			}
+			
+			//创建参照控件
+			//以下代码 借用了  departmentview.mxml里面的参照生成，如果该模块业务字典参照配置更改，肯定会影响此处
+			private function onCreateConsult():void{
+				
+				var lblname:Label = new Label();
+				lblname.text = "选择人员";
+				hbperson.addChild(lblname);
+				
+				var consult1:CrmEapTextInput;
+				
+				var obj1:Object=new Object();
+				obj1.cobjectname="consult1";
+				obj1.ifuncregedit="9";
+				obj1.cfield="ihead";
+				
+				AccessUtil.remoteCallJava("CommonalityDest","queryFun",function(evt:ResultEvent):void{
+					
+					if(evt.result!=null){
+						var consultObj:Object = evt.result;
+						
+						consult1 = new CrmEapTextInput();
+						consult1.percentWidth	=100;
+						consult1.name			= "UI_C1";
+						consultObj.cobjectname	="UI_C1";
+						consult1.singleType		=consultObj;
+						consult2=consult1;
+						hbperson.addChild(consult1);
+						consult1.editable = true;						
+					}					
+				},obj1);
+				
+			}
+
+			//删除事件
+			protected function onDel():void{
+				//if(this.dglist.selectedIndex == -1){CRMtool.tipAlert("请选择删除的数据!");return;}
+				var arrc:ArrayCollection = this.dglist.getSelectRows();
+				if(arrc.length < 1){CRMtool.tipAlert("请选择删除的数据!");return;}
+				
+				for(var i:int; i<arrc.length; i++) {
+					this.dgDataSetForSearch.removeItemAt(arrc[i].selectedIndex);
+				}
+				//this._dgDataSet.removeItemAt(this.dglist.selectedIndex);
+				this.selectedNum = dglist.getSelectRows().length;
+			}
+			
+			private function onConfirm():void
+			{
+				var arrcol:ArrayCollection = this.dglist.getSelectRows();
+				if(arrcol.length < 1) {
+					CRMtool.tipAlert("请选中待处理的记录！");
+					return;
+				}
+				
+				CRMtool.tipAlert("确定要批量授权？",null,"AFFIRM",this,"onOK");
+				
+			}
+			
+			//确定之前的业务分析
+			private function onConfirmBefore():Boolean{
+				consult1 = this.hbperson.getChildByName("UI_C1") as CrmEapTextInput;
+				
+				if(consult1.text == null || consult1.text == "") {
+					CRMtool.tipAlert("请选择人员后再执行此操作！");
+					return false;
+				}
+				if(dgDataSetForSearch.length == 0){CRMtool.tipAlert("无数据操作！");return false;}
+					
+				return true;
+			}
+			
+			//确定批量授权
+			public function onOK():void
+			{
+				if(onConfirmBefore() == false) return;
+				
+				var objvalue:Object = {};
+				
+				//后台参数赋值
+				objvalue.ifuncregedit	=	this._ifuncregedit;
+				objvalue.cinvoice		=	onGetCinvoices();
+				objvalue.itype			=	this.rbgPerson.selectedValue;
+				objvalue.iperson		= 	consult1.consultList.getItemAt(0)[consult1.singleType.cconsultbkfld];
+				objvalue.idepartment	=   consult1.consultList.getItemAt(0).hasOwnProperty("idepartment")==true?consult1.consultList.getItemAt(0)["idepartment"]:0;
+				
+				AccessUtil.remoteCallJava("BatchAccreditDest","onBatchAccredit",onBatchAccreditBack,objvalue);//调用后台的导出方法
+			}
+			
+			private function onGetCinvoices():String
+			{
+				var iids:String = "";
+				var arrcol:ArrayCollection = this.dglist.getSelectRows();
+				for(var i:int=0;i<arrcol.length;i++){
+//				for(var i:int=0;i<this._dgDataSet.length;i++){	
+//					var item:Object = _dgDataSet.getItemAt(i);
+					var item:Object = arrcol.getItemAt(i);
+					var iid:int		= item.iid;
+					iids += iid+",";
+				}
+				iids = iids.substring(0,iids.lastIndexOf(","));
+				
+				return iids;
+				
+			}
+			
+			private function onBatchAccreditBack(evt:ResultEvent):void{
+				
+				var rstr:String = evt.result as String;
+				if(rstr == "suc")
+					CRMtool.tipAlert("批量授权成功！");
+				else
+					CRMtool.tipAlert("批量授权失败！");
+				
+			}
+			
+			protected function tnp_search_searchHandler():void
+			{
+				//this.search=tnp_search.text;
+				this.dgDataSetForSearch.removeAll();
+				var str:String = StringUtil.trim(tnp_search.text);
+				var len:int = this._dgDataSet.length;
+				for(var i:int; i<len; i++) {
+					if(this._dgDataSet[i].fcperson.search(str) > -1 || this._dgDataSet[i].xcperson.search(str) > -1) {
+						this.dgDataSetForSearch.addItem(this._dgDataSet[i]);
+					}		
+				}
+				this.selectedNum = dglist.getSelectRows().length;
+				dglist.invalidateList();	
+			}
+			
+			protected function tnp_search_keyDownHandler(event:KeyboardEvent):void
+			{
+				if (event.keyCode==13)
+				{
+					tnp_search_searchHandler();
+				}
+			}
+			
+			protected function btn_all_clickHandler(event:MouseEvent):void
+			{
+				this.dgDataSetForSearch.removeAll();
+				for(var i:int; i<this._dgDataSet.length; i++) {
+					this.dgDataSetForSearch.addItem(this._dgDataSet[i]);
+				}
+				this.selectedNum = dglist.getSelectRows().length;
+				dglist.invalidateList();	
+			}
+			
+			protected function dglist_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.selectedNum = dglist.getSelectRows().length;
+			}			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="rbgPerson"/>
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		
+		
+		<mx:ApplicationControlBar styleName="consultTree" cornerRadius="0" id="menuBar2" x="0" y="0" width="100%" height="32"  dock="true" >
+			<mx:HBox width="20%" horizontalAlign="left">
+				<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle">
+					<mx:Label width="100%" styleName="contentLabel" text="根据负责人员和相关人员查询："/>
+				</mx:HBox>
+				
+				<comps:CrmTextInput id="tnp_search" text="" search="tnp_search_searchHandler()" keyDown="tnp_search_keyDownHandler(event)">
+				</comps:CrmTextInput>
+				<mx:LinkButton id="btn_all" label="全部" color="#388DB" fontWeight="normal"
+							   styleName="contentVBox" textDecoration="underline" click="btn_all_clickHandler(event)">
+				</mx:LinkButton>
+				<s:Spacer width="100%"/>				
+				<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">			
+				</mx:HBox>	
+			</mx:HBox>
+			<mx:Label width="100%" textAlign="right"
+					  text="总共{this.dgDataSetForSearch.length}条记录，已选 {this.selectedNum}/{this.dgDataSetForSearch.length} 条"/>
+		</mx:ApplicationControlBar>
+		
+		
+		
+		<!--<mx:DataGrid id="dglist" width="100%" height="100%" horizontalScrollPolicy="auto" allowMultipleSelection="true"/>-->
+		<comps:CRMDataGridForCheckBox id="dglist" width="100%" height="100%" horizontalScrollPolicy="auto" 
+									  variableRowHeight="false"  allowMulti="true" click="dglist_clickHandler(event)"/>
+		<mx:HBox width="100%" height="38" paddingLeft="10" paddingRight="10" verticalAlign="middle" >
+			
+			<mx:HBox width="70%">
+				<s:RadioButton label="批量分配负责员工" value="0" group="{rbgPerson}" selected="true"/>
+				<s:RadioButton label="批量分配相关员工" value="1" group="{rbgPerson}"/>
+				<s:RadioButton label="批量收回员工" 	   value="2" group="{rbgPerson}"/>
+			</mx:HBox>
+			
+			<mx:HBox horizontalAlign="right" width="30%" id="hbperson"/>
+			
+		</mx:HBox>
+		
+		<mx:HRule width="100%"/>
+		
+		<mx:HBox width="100%" height="38" verticalAlign="middle" paddingLeft="10" paddingRight="10">
+			
+			<mx:HBox width="10%">
+				<mx:Button id="btnAddRow" label="增行" click="onDel()"/>
+				<mx:Button id="btnDelRow" label="删行" click="onDel()"/>
+			</mx:HBox>
+			
+			<s:HGroup width="90%" horizontalAlign="right">
+				<mx:Button id="btnConfirm" label="确定" click="onConfirm()"/>
+				<mx:Button id="btnGiveUp" label="放弃" click="onCloseHandler()"/>
+			</s:HGroup>
+			
+		</mx:HBox>
+		
+	</mx:VBox>
+</basic:BasicTitleWindow>

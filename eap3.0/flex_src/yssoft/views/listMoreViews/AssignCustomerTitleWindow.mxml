@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="客户分配"
+                        width="650" height="400"
+                        close="onCloseHandler()" xmlns:module="yssoft.comps.frame.module.*" creationComplete="ini()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.CheckBox;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import yssoft.comps.CRMDataGridForCheckBox;
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var ac:ArrayCollection=new ArrayCollection();//DataGrid记录集
+			[Bindable]
+			private var _consultObj:Object = {};//参照所需
+			
+			
+			private function ini():void{
+				
+				onCreateConsult();
+				
+			}
+			
+			//以下代码 借用了  departmentview.mxml里面的参照生成，如果该模块业务字典参照配置更改，肯定会影响此处
+			public function onCreateConsult():void
+			{
+				var consult1:CrmEapTextInput;
+				var consult2:CrmEapTextInput;
+				
+				var obj1:Object=new Object();
+				obj1.cobjectname="consult1";
+				obj1.ifuncregedit="9";
+				obj1.cfield="ihead";
+				
+				AccessUtil.remoteCallJava("CommonalityDest","queryFun",function(evt:ResultEvent):void{
+					
+					if(evt.result!=null){
+						var consultObj:Object = evt.result;
+						
+						consult1 = new CrmEapTextInput();
+						consult1.percentWidth	=100;
+						consult1.name			= "UI_C1";
+						consultObj.cobjectname	="UI_C1";
+						consult1.singleType		=consultObj;
+						hb1.addChild(consult1);
+						consult1.editable = false;						
+					}					
+				},obj1);
+				
+				var obj2:Object=new Object();
+				obj2.cobjectname="consult2";
+				obj2.ifuncregedit="9";
+				obj2.cfield="icharge";
+				
+				AccessUtil.remoteCallJava("CommonalityDest","queryFun",function(evt:ResultEvent):void{
+					
+					if(evt.result!=null){
+						var consultObj:Object = evt.result;
+						
+						consult2 = new CrmEapTextInput();
+						consult2.percentWidth	=100;
+						consult2.name			= "UI_C2";
+						consultObj.cobjectname	="UI_C2";
+						consult2.singleType		=consultObj;
+						hb2.addChild(consult2);
+						consult2.editable = false;
+						
+					}					
+				},obj2);
+				
+			}
+			//初始化动态创建参照控件
+/* 			private function onCreateConsult():void{
+				var consult1:CrmEapTextInput = new CrmEapTextInput();
+				consult1.percentWidth	=100;
+				consult1.name			= "UI_C1";
+				_consultObj.cobjectname	="UI_C1";
+				consult1.singleType		=_consultObj;
+				hb1.addChild(consult1);
+				consult1.editable		= cbBus.selected; 
+				
+				var consult2:CrmEapTextInput = new CrmEapTextInput();
+				consult2.percentWidth	=100;
+				consult2.name			= "UI_C2";
+				_consultObj.cobjectname	="UI_C2";
+				consult2.singleType		=_consultObj;
+				hb2.addChild(consult2);
+				consult2.editable		= cbSer.selected; 
+				
+			} */
+
+			public function setAc(value:ArrayCollection):void
+			{
+				this.ac = value;
+			}
+			public function set consultObj(value:Object):void{
+				this._consultObj = value;
+			}
+			
+			//删除事件
+			protected function onDel():void{
+			
+				if(this.dglist.selectedIndex == -1){CRMtool.tipAlert("请选择删除的数据!");return;}
+				
+				this.ac.removeItemAt(this.dglist.selectedIndex);
+				
+			}
+			
+			//放弃事件
+			protected function onGiveUp():void{
+				onCloseHandler();
+			}
+			
+			//确定之前的业务分析
+			private function onConfirmBefore():Boolean{
+				var consult1:CrmEapTextInput = this.hb1.getChildByName("UI_C1") as CrmEapTextInput;
+				var consult2:CrmEapTextInput = this.hb2.getChildByName("UI_C2") as CrmEapTextInput;
+				
+				if((consult1.text == null || consult1.text == "") && (consult2.text == null || consult2.text == "")) {
+					CRMtool.tipAlert("请选择新业务人员或者新服务人员后再执行此操作！");
+					return false;
+				}
+				if(ac.length == 0){CRMtool.tipAlert("无客户分配！");return false;}
+				
+				return true;
+			}
+			
+			//确定事件
+			protected function onConfirm():void{
+				
+				if(onConfirmBefore() == false) return;
+				
+				var objvalue:Object = {};
+				
+				//获取客商内码集合
+				objvalue.cusiids	=	onGetCusIids();
+				objvalue.busperson	=	onGetData(1);
+				objvalue.serperson	= 	onGetData(2);
+				
+				AccessUtil.remoteCallJava("AssignCustomerDest","onAssignCustomer",onAssignCustomerBack,objvalue);//调用后台的方法
+			}
+			
+			private function onAssignCustomerBack(evt:ResultEvent):void{
+				CRMtool.tipAlert(evt.result+"");
+			}
+			
+			//客商内码
+			private function onGetCusIids():String{
+				//"12/0/0,13/2/4,23/4/5,....."
+				var iids:String = "";
+				
+				for(var i:int=0;i<ac.length;i++){
+					var item:Object = ac.getItemAt(i);
+					var iid:int		= item.iid;
+					var isalesperson:int	= item.isalesperson==null?0:int(item.isalesperson);
+					var iservicesperson:int	= item.iservicesperson==null?0:int(item.iservicesperson);
+					iids += ac[i]["iid"]+"/"+isalesperson+"/"+iservicesperson+",";
+				}
+				iids = iids.substring(0,iids.lastIndexOf(","));
+				
+				return iids;
+			}
+			
+			//获取权限设置信息
+			private function onGetData(tag:int):String{
+				
+				var rvalue:String 	= "";//返回值
+				var piid:String		= "";//人员内码
+				var auth:String		= "";//选择的权限
+				var depart:String	= "";//人员对应的部门
+				var consult1:CrmEapTextInput = this.hb1.getChildByName("UI_C1") as CrmEapTextInput;
+				var consult2:CrmEapTextInput = this.hb2.getChildByName("UI_C2") as CrmEapTextInput;
+				
+				if(tag == 1){//业务人员
+					if(consult1.consultList.length == 0) {
+						piid="0";
+						depart ="0";
+					}else{
+						piid	=	consult1.consultList.getItemAt(0)[consult1.singleType.cconsultbkfld]+"";
+						depart	=	consult1.consultList.getItemAt(0).hasOwnProperty("idepartment")==true?consult1.consultList.getItemAt(0)["idepartment"]+"":"0";
+					}
+					
+					auth	=	this.rbgBusiness.selectedValue+"";
+					
+					
+				}
+				else{//服务人员
+					if(consult2.consultList.length == 0) {
+						piid="0";
+						depart ="0";
+					}
+					else{
+						piid	=	consult2.consultList.getItemAt(0)[consult2.singleType.cconsultbkfld]+"";
+						depart	=	consult2.consultList.getItemAt(0).hasOwnProperty("idepartment")==true?consult2.consultList.getItemAt(0)["idepartment"]+"":"0";
+					}
+					auth	= 	this.rbgServer.selectedValue+"";
+					
+				}
+				
+				rvalue = piid+","+auth+","+depart;
+				
+				return rvalue;
+				
+			}
+			
+		
+			protected function cbSer_changeHandler(event:Event):void
+			{
+				var consult2:CrmEapTextInput = this.hb2.getChildByName("UI_C2") as CrmEapTextInput;
+				consult2.editable=cbSer.selected;
+			}
+			
+			protected function cbBus_changeHandler(event:Event):void
+			{
+				var consult1:CrmEapTextInput = this.hb1.getChildByName("UI_C1") as CrmEapTextInput;
+				consult1.editable=cbBus.selected;
+			}
+			
+			public function onFormatDate(item:Object,column:DataGridColumn):String{
+				
+				var df:DateFormatter = new DateFormatter();
+				var rvalue:String = "";
+				df.formatString = "YYYY-MM-DD";
+				if(item.hasOwnProperty("dsaleassign"))
+					rvalue = df.format(item.dsaleassign);
+				else
+					rvalue = df.format(item.dserviceassign);
+				return rvalue
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="rbgBusiness" enabled="{cbBus.selected}" />
+		<s:RadioButtonGroup id="rbgServer" enabled="{cbSer.selected}" />
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" verticalGap="10">
+		<mx:HBox width="100%" height="100%">
+			<mx:DataGrid id="dglist" dataProvider="{ac}" width="100%" height="100%" horizontalScrollPolicy="auto" allowMultipleSelection="true"
+						 lockedColumnCount="2">
+				<mx:columns>	
+					<mx:DataGridColumn headerText="客户编码" dataField="ccode"/>
+					<mx:DataGridColumn headerText="客户名称" dataField="cname"/>
+					<mx:DataGridColumn headerText="负责业务部门" dataField="isalesdepart"/>
+					<mx:DataGridColumn headerText="负责业务员" dataField="isalesperson"/>
+					<mx:DataGridColumn headerText="销售人员分配时间" dataField="dsaleassign" labelFunction="onFormatDate"/>
+					<mx:DataGridColumn headerText="负责服务部门" dataField="iservicesdepart"/>
+					<mx:DataGridColumn headerText="负责服务人员" dataField="iservicesperson"/>
+					<mx:DataGridColumn headerText="服务人员分配时间" dataField="dserviceassign" labelFunction="onFormatDate"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="20" paddingLeft="10" paddingRight="10">
+			
+			<mx:VBox width="50%" verticalGap="5" >
+				<mx:HBox paddingLeft="5" verticalAlign="middle" width="100%">
+					<mx:CheckBox id="cbBus" change="cbBus_changeHandler(event)"/>
+					<mx:Label text="新业务人员"/>
+					<mx:HBox verticalAlign="middle" width="100%" id="hb1"/>
+				</mx:HBox>
+				<mx:VBox width="100%" borderVisible="true" borderStyle="inset" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" cornerRadius="8">
+					<s:Label text="原业务人员业务权限"/>
+					<mx:HBox width="100%" horizontalAlign="center">
+						<s:RadioButton id="brb1" label="收回" value="0" group="{rbgBusiness}" selected="true"/>
+						<s:RadioButton id="brb2" label="降级" value="1" group="{rbgBusiness}"/>
+						<s:RadioButton id="brb3" label="不变" value="2" group="{rbgBusiness}"/>
+					</mx:HBox>	
+				</mx:VBox>
+			</mx:VBox>
+			<mx:VBox width="50%" verticalGap="5" >
+				<mx:HBox paddingLeft="5" verticalAlign="middle" width="100%">
+					<mx:CheckBox id="cbSer" change="cbSer_changeHandler(event)"/>
+					<mx:Label text="新服务人员"/>
+					<mx:HBox verticalAlign="middle" width="100%" id="hb2"/>
+				</mx:HBox>
+				<mx:VBox width="100%" borderVisible="true" borderStyle="inset" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" cornerRadius="8">
+					<s:Label text="原服务人员业务权限"/>
+					<mx:HBox width="100%" horizontalAlign="center">
+						<s:RadioButton id="srb1" label="收回" value="0" group="{rbgServer}" selected="true"/>
+						<s:RadioButton id="srb2" label="降级" value="1" group="{rbgServer}"/>
+						<s:RadioButton id="srb3" label="不变" value="2" group="{rbgServer}"/>
+					</mx:HBox>	
+				</mx:VBox>
+			</mx:VBox>
+			
+		</mx:HBox>
+		
+		<mx:VBox width="100%" height="38" verticalGap="0">
+			<mx:HRule width="100%" height="1"/>
+			<mx:HBox height="100%" width="100%" verticalAlign="middle" paddingRight="10" paddingLeft="10">
+
+				<s:Button label="删行" id="btnDel" click="onDel()"/>
+				<s:Spacer width="100%"/>
+				<s:Button label="确定" id="btnConfirm" click="onConfirm()"/>
+				<s:Button label="放弃" id="btnGiveUp" click="onGiveUp()"/>
+			</mx:HBox>
+		</mx:VBox>
+		
+	</mx:VBox>
+</basic:BasicTitleWindow>

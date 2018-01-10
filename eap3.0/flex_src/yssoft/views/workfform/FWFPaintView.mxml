@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%"
+				height="100%" 
+				styleName="contentHDividedBox" 
+				xmlns:workfform="yssoft.views.workfform.*" 
+				xmlns:comps="yssoft.comps.*" creationComplete="onWindowInit()" implements="yssoft.impls.ICRMWindow">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.events.CollectionEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.ListEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.evts.FWFChangeEvent;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.wf_invosetVo;
+			
+			[Bindable]
+			private var rightEnabled:Boolean = true;//右侧部门可不可编辑
+			
+			private var requestType:String="rbg"; //请求 从哪里发出的 
+			private var roleXml:XML=<node>
+										<node iid="-2" cname="部门主管" cmemo="发起人员部门主管"/>
+										<node iid="-3" cname="分管主管" cmemo="发起人员分管主管"/>
+										<node iid="-4" cname="分管领导" cmemo="发起人员分管领导"/>
+										<node iid="-1" cname="发起人员" cmemo="发起人"/>
+										<node iid="-5" cname="全部人员" cmemo="全部人员"/>
+				
+										<node iid="-9" cname="单据人员" cmemo="协同管理单据处理人员"/>
+										<node iid="-10" cname="单据部门" cmemo="协同管理单据处理人员所在部门"/>
+				
+										<node iid="-6" cname="部门" cmemo="发起人员所在部门"/>
+										<node iid="-7" cname="岗位" cmemo="发起人员所在岗位"/>
+										<node iid="-8" cname="职位" cmemo="发起人员所在职位"/>
+								 	 </node>;;		// 角色xml
+			[Bindable]
+			private var treeXml:XML=new XML();		// 组织层级xml
+			[Bindable]
+			private var personXml:XML=new XML(); 	// 人员数据
+			private var nullXml:XML=new XML(); 	// 用于清空
+			
+			[Bindable]
+			private var _iNodeType:String="1";   //节点类型
+			[Bindable]
+			private var _iNodeTypeName:String="部门";   //节点类型
+			
+			
+			public var winParam:Object;
+			private var type:String="onNew";				// 打开方式 onNew 新增，onEdit 修改
+			[Bindable]
+			private var wfname:String="";
+			
+			private var iid:int;					// 表单模板 iid
+			
+			private var WFNodes:Object={};			// 当时编辑状态是，用来 暂存 节点信息
+			
+			[Bindable]
+			private var dd_items:ArrayCollection=new ArrayCollection(); // 对应的 数据字典信息
+			
+			[Bindable]
+			private var wfvo:wf_invosetVo=new wf_invosetVo();
+			
+			//窗体初始化
+			public function onWindowInit():void{
+				this.rightEnabled = true;
+/* 				dd_items.addEventListener(CollectionEvent.COLLECTION_CHANGE,function(e:CollectionEvent):void{
+					Alert.show("---数据改变了---");
+				}); */
+				/* this.optbb.getChildAt(0).visible=false;
+				(this.optbb.getChildAt(0) as Button).includeInLayout=false; */
+				fc=new Object();
+				fc.add="0,0";
+				fc.edit="0,0";
+				fc.onEdit="1,1";
+				fc.onSave="1,0"; 
+				fc.onGiveup="0,0";
+				if(winParam){
+					wfvo.ifuncname=winParam.ifuncname;
+					wfvo.ifuncregedit=winParam.ifuncregedit;
+					type=winParam.optType;
+					wfname=winParam.wfname;
+					iid=winParam.iid;
+					
+				}
+				
+				if(type == "onEdit"){ // 修改
+					this.mainDraw.getWfInvosets(iid);	
+					if(winParam.auth==""){
+						onButtonFC("onEdit");
+					}else{
+						onButtonFC("onSave");
+					}
+				}else{
+					onButtonFC("onSave");
+				}
+				selete_wf_dd_items(wfvo.ifuncregedit);
+				getNodeTypeDetail(_iNodeType); // 获取部门的层级信息
+
+                getStatusList(wfvo.ifuncregedit);
+				selfDepartment(_iNodeType,""+CRMmodel.hrperson.idepartment,CRMmodel.hrperson.departcname); // 获取当前登录用户 所在部门的人员信息
+			}
+			//窗体打开
+			public function onWindowOpen():void{
+				//Alert.show("--再次打开--"+type);
+				clearWindowData();
+				onWindowInit();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void{
+				//clearWindowData();
+			}
+			
+			// 清空 窗体数据
+			public function clearWindowData():void{
+				this.mainDraw.clearAllNodes(true);
+				this.cname.text="";
+				this.wfname="";
+				this.dd_items.removeAll();
+				this.oldfc="";
+				this.newfc="";
+				//this.mainDraw.startIsCreated=false;
+				//this.WFNodes={};
+				//this.winParam={};
+				//this.fwfproperty.nodeElement=null;
+			}
+			
+			private function iNodeType_itemClickHandler():void{
+				requestType="rbg";
+				var tpRB:RadioButton=this.iNodeType.selection;
+				this._iNodeType=tpRB.name;
+				this._iNodeTypeName=tpRB.label;
+				
+				this.ttinfo.text="";
+				personXml=nullXml;
+				
+				if(this._iNodeType=="2"){//角色特殊 ，分开处理
+					treeXml=roleXml;
+				}else{
+					if(tpRB.hasOwnProperty("data") && tpRB.data is XML){ // 判断该组织节点的层级信息时候加载
+						treeXml=tpRB.data as XML;
+					}else{ //到后台请求数据
+						getNodeTypeDetail(this._iNodeType);
+					}
+				}
+			}
+			// 根据nodetype来获取对应的详细信息,获取组织对应层级信息
+			private function getNodeTypeDetail(nodeType:String="1"):void{
+				AccessUtil.remoteCallJava("WorkFlowDest","getNodeTypeDetail",nodeTypeCallBack,nodeType,null,false);
+			}
+			// 获取组织指定层级中人员信息
+			private function nodeTypeTree_itemClickHandler():void{
+				var nodeType:String=this.iNodeType.selection.name;
+				var nodeValue:String=(nodeTypeTree.selectedItem as XML).@iid;
+				var cname:String=(nodeTypeTree.selectedItem as XML).@cname;
+				selfDepartment(nodeType,nodeValue,cname);
+			}
+			//获取 当前登录用户所在的 部门的人员信息
+			private function selfDepartment(nodeType:String,nodeValue:String,cname:String):void{
+				this.ttinfo.text="";
+				if(nodeType || nodeValue){
+					if(nodeType=="2"){// 角色中，发起人 特殊
+						//personXml=new XML("<root><node iid='"+CRMmodel.userId+"' cname='"+CRMmodel.hrperson.cname+"' /></root>");
+						//this.ttinfo.text=cname+"("+personXml.children().length()+")";
+						this.ttinfo.text="";
+						personXml=nullXml;
+						
+					}else{
+						var param:Object={"nodeType":nodeType,"nodeValue":nodeValue};
+						getPersons(param);
+					}
+				}else{
+					CRMtool.tipAlert("数据不合法，不予查询");
+				}
+			}
+			//获取组织对应的人员数据
+			private function getPersons(param:Object):void{
+				requestType="tree";
+				param.iperson = CRMmodel.userId;
+				AccessUtil.remoteCallJava("WorkFlowDest","getPersons",personCallBack,param,null,false);
+			}
+			// 回调
+			private function nodeTypeCallBack(event:ResultEvent):void{
+				if(event.result){
+					treeXml=new XML(event.result);
+					//this.iNodeType.selection.data=treeXml;
+				}
+			}
+			
+			private function personCallBack(event:ResultEvent):void{
+				if(event.result){
+					personXml=new XML(event.result);
+					this.ttinfo.text=(nodeTypeTree.selectedItem?(nodeTypeTree.selectedItem as XML).@cname:CRMmodel.hrperson.departcname)+"("+personXml.children().length()+")"
+				}	
+			}
+			
+			
+			//具体处理
+			
+			private var nodes:ArrayCollection=new ArrayCollection; // 节点
+			private var conds:ArrayCollection=new ArrayCollection; // 条件
+			private var relat:ArrayCollection=new ArrayCollection; // 关联
+			
+			private var optType:String;
+			
+			private function optbb_itemClickHandler(event:ItemClickEvent):void{
+				optType=event.item.opt;
+				this[optType]();
+				this.onButtonFC(event.item.name);
+			}
+
+            private function onSave():void {
+                if (!checkParam()) {
+                    return;
+                }
+                var params:Object = new Object();
+                params.conds = this.mainDraw.getNodeConditions();
+                params.relat = this.mainDraw.getNodeEntrys();
+                params.wfvo = getWfvo();
+
+                if (this.type == "onNew") {
+                    params.nodes = nodes;
+                    AccessUtil.remoteCallJava("FormWorkFlowDest", "newFormWorkFlow", callBack, params);
+                } else {
+                    WFNodes = this.mainDraw.editWFNodes(); // 获取编辑状态下得 各种类型的 节点
+                    params.newNodes = WFNodes.newNodes;
+                    params.editNodes = WFNodes.editNodes;
+                    params.deleteNodes = WFNodes.deleteNodes;
+                    //if((params.newNodes && (params.newNodes as ArrayCollection).length !=0 )  || (params.deleteNodes && (params.deleteNodes as ArrayCollection).length !=0)){
+                    AccessUtil.remoteCallJava("FormWorkFlowDest", "editFormWorkFlow", callBack, params);
+                    /* 					}else{
+                     CRMtool.tipAlert1("没有添加或删除节点，不予操作",null,"PROMPT",function():void{
+                     onButtonFC(oldfc);
+                     });
+                     } */
+                }
+
+            }
+			
+			private function onTest():void{
+				
+			}
+			
+			private function onEdit():void{};
+			
+			private function onGiveup():void{
+				this.rightEnabled = false;
+				if(this.type=="onNew"){
+					this.mainDraw.clearAllNodes(true);
+					//this.onButtonFC("add");
+				}else{
+					this.mainDraw.wfDrawType="open";
+					this.mainDraw.restoreWorkFlow();
+					//this.onButtonFC("edit");
+				}
+			}
+			
+			private function checkParam():Boolean{
+				
+				if( ! CRMtool.isStringNotNull(this.cname.text) ){
+					CRMtool.tipAlert1("工作流名称不能为空!",this.cname,"PROMPT",function():void{
+						onButtonFC(oldfc);
+					});
+					return false;
+				}
+				
+				if(this.mainDraw == null){
+					CRMtool.tipAlert1("未创建工作流，不予操作！",null,"PROMPT",function():void{
+						onButtonFC("onSave");
+					});
+					return false;
+				}
+				
+				//if(this.type=="onNew"){
+					nodes=this.mainDraw.xml2ArrayCollection();
+/* 				}else{
+					WFNodes=this.mainDraw.editWFNodes();
+					nodes=WFNodes.newNodes as ArrayCollection;
+				} */
+				
+				if(nodes && nodes.length<=1){//只有发起人节点时，不予操作
+					CRMtool.tipAlert1("未创建工作流，不予操作！",null,"PROMPT",function():void{
+						onButtonFC(oldfc);
+					});
+					return false;
+				}
+				return true;
+			}
+			
+			private function getWfvo():wf_invosetVo{
+				wfvo.brelease=0;
+				wfvo.cname=this.cname.text;
+				wfvo.imaker=CRMmodel.userId;
+				wfvo.iid=this.iid;
+				return wfvo;
+			}
+			
+			private function callBack(event:ResultEvent):void{
+				//mx.controls.Alert.show(this.type+","+event.result);
+				if(event.result){
+					var ret:String=event.result as String;
+					if(this.type=="onNew" && ret=="suc"){
+						CRMtool.tipAlert("保存成功!");
+						this.rightEnabled = false;
+						return;
+					}
+					
+					if(this.type=="onEdit" && ret=="suc"){
+						CRMtool.tipAlert("修改成功!");
+						this.rightEnabled = false;
+						this.mainDraw.getWfInvosets(iid);
+						return;
+					}
+					CRMtool.tipAlert("操作失败");
+					onButtonFC(this.oldfc);
+				}
+			}
+			
+			// 获取 ifuniid 对应的 数据字典 信息
+			private function selete_wf_dd_items(ifuncregedit:int):void{
+				AccessUtil.remoteCallJava("FormWorkFlowDest","selete_wf_dd_items",ddCallBack,ifuncregedit,null,false);
+			}
+			
+			private function ddCallBack(event:ResultEvent):void{
+				this.dd_items=event.result as ArrayCollection;
+			}
+			
+			private function dataTipFun(item:Object):String{
+				if(item.hasOwnProperty("@cmemo")){
+					return String(item.@cmemo);
+				}else{
+					return String(item.@cname);
+				}
+			}
+			
+			
+			private var fc:Object;
+			
+			private var oldfc:String="";//前一个fc
+			private var newfc:String="";//当前fc
+			
+			private function onButtonFC(type:String="add"):void{
+				
+				if(oldfc==""){
+					oldfc=type;
+					newfc=type;
+				}else{
+					oldfc=newfc;
+					newfc=type;
+				}
+				if(fc[type] == null){
+					return;
+				}
+				var tp:Array=(fc[type] as String).split(",");
+				for(var i:int=0;i<tp.length;i++){
+					(this.optbb.getChildAt(i) as Button).enabled=(tp[i]=="0"?false:true);
+				}
+			}
+            [Bindable]
+            public var statusList:ArrayCollection;//当前功能启用的 状态方案明细列表
+            private function getStatusList(ifuncregedit:int):void {
+                AccessUtil.remoteCallJava("CommonalityDest", "getStatus", function (event:ResultEvent):void {
+                    var obj:Object = event.result;
+                    statusList = obj.list;
+                }, {ifuncregedit: ifuncregedit}, null, false);
+            }
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="80%" height="100%" styleName="centerbg04" verticalGap="0" paddingBottom="10">
+		<mx:ApplicationControlBar  styleName="centertop1" id="toppart"  dock="true" height="32" width="100%" verticalAlign="middle">
+			<mx:ButtonBar id="optbb" styleName="contentButtonBar" height="25" itemClick="optbb_itemClickHandler(event)">
+				<s:ArrayCollection>
+					<!--<fx:Object label="修改" opt="onEdit"/>-->
+					<fx:Object label="保存" opt="onSave" name="add"/>
+					<!--<fx:Object label="测试" opt="onTest"/>-->
+					<fx:Object label="放弃" opt="onGiveup" name="onGiveup"/>
+				</s:ArrayCollection>
+			</mx:ButtonBar>
+			<s:Spacer width="100%" />
+			<mx:Text id="tsinfo"/>
+		</mx:ApplicationControlBar>
+		<mx:HBox  width="100%"  height="40" paddingLeft="10" paddingTop="10" paddingRight="10">
+			<mx:HBox backgroundColor="#ffffff" width="100%" styleName="content" id="titlepart" height="100%" verticalAlign="middle" horizontalAlign="left" paddingLeft="10">
+					<mx:Label styleName="contentLabel" text="流程名称："/>
+					<mx:TextInput id="cname" text="{wfname}" width="20%" styleName="contentTextInput"/>
+					<mx:Label styleName="contentLabel" text="关联单据："/>
+					<mx:Text text="{this.wfvo.ifuncname}" width="20%" styleName="contentTextInput"/>
+			</mx:HBox> 
+		</mx:HBox>
+		<mx:HBox id="fwfpart" width="100%" height="100%" styleName="contentHbox" horizontalGap="0">
+			<mx:VBox id="leftPart" width="200" height="100%" verticalGap="0"  borderStyle="solid" borderVisible="true" borderAlpha="0.3">
+				<mx:Canvas width="100%" height="60" borderVisible="false">
+					<mx:RadioButtonGroup id="iNodeType" itemClick="iNodeType_itemClickHandler()"/>
+					<mx:RadioButton x="38" 	y="10" groupName="iNodeType" name="1" label="部门" styleName="radioButton" selected="true"/>
+					<mx:RadioButton x="108" y="10" groupName="iNodeType" name="3" label="岗位" styleName="radioButton"/>
+					<mx:RadioButton x="38" 	y="30" groupName="iNodeType" name="4" label="职务" styleName="radioButton"/>
+					<mx:RadioButton x="108" y="30" groupName="iNodeType" name="2" label="角色" styleName="radioButton"/>
+				</mx:Canvas>
+				<mx:HRule height="1" width="100%"/>
+<!--lr modify				<comps:TreeCompsVbox id="nodeTypeTree" borderVisible="false" width="100%" height="100%" 
+									 dataProvider="{treeXml}" 
+									 labelField="@cname" 
+									 dragMoveEnabled="false" 
+									 showRoot="false"
+									 showDataTips="true"
+								     dataTipFunction="dataTipFun" 
+									 itemClick="nodeTypeTree_itemClickHandler()" 
+									 dragEnabled="true"/>-->
+				<comps:TreeCompsVbox id="nodeTypeTree" borderVisible="false" width="100%" height="100%" 
+									 dataProvider="{treeXml}" 
+									 labelField="@cname" 
+									 dragMoveEnabled="false" 
+									 showRoot="false"
+									 itemClick="nodeTypeTree_itemClickHandler()" 
+									 dragEnabled="{this.rightEnabled}"/>
+				<mx:HRule height="1" width="100%"/>
+				<mx:HBox width="100%" height="25" verticalAlign="middle" borderVisible="false">
+					<s:Label id="ttinfo" text="人员信息" width="100%" textAlign="center"/>
+				</mx:HBox>
+				<mx:HRule height="1" width="100%"/>
+				<mx:List id="personnList" width="100%" height="100%" 
+						 dataProvider="{personXml.children()}"
+						 borderVisible="false" 
+						 dragMoveEnabled="false"
+						 labelField="@cname" dragEnabled="{this.rightEnabled}">
+					
+				</mx:List>
+			</mx:VBox>
+			<s:HGroup width="100%" height="100%" enabled="{this.rightEnabled}">
+				<workfform:FWFDrawView id="mainDraw" owner="{this}" width="100%" height="100%" styleName="CoPaintViewMainDraw" iNodeType="{_iNodeType}"  borderStyle="solid" borderVisible="true" borderAlpha="0.3"/>
+			</s:HGroup>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:Accordion id="rightPart" width="20%" height="100%" headerHeight="32" creationPolicy="all">
+		<workfform:FWFPropertyView id="fwfproperty" width="100%" height="100%" ccomefields="{dd_items}" owner="{this}" enabled="{this.rightEnabled}" statusList="{statusList}"/>
+		<workfform:FWFCondition id="fwfcondition" width="100%" height="100%" cfieldArr="{dd_items}" owner="{this}" enabled="{this.rightEnabled}"/>
+		<workfform:FWFEntry width="100%" height="100%" dd_items="{dd_items}" owner="{this}" enabled="{this.rightEnabled}"/>
+		<workfform:FWFExecsql width="100%" height="100%" owner="{this}" cexecsql="{dd_items}" enabled="{this.rightEnabled}"/>
+	</mx:Accordion>
+</mx:HDividedBox>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"  
+		 styleName="rolecontentHbox"  xmlns:comps="yssoft.comps.*"
+		 creationComplete="init()">
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.DateField;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.CsCustpersonVo;
+			import yssoft.vos.ElementVo;
+			import yssoft.vos.SubElementsVo;
+			
+			[Bindable]
+			private var _custpersonVo:CsCustpersonVo = new CsCustpersonVo();
+			
+			public function set custpersonVo(value:Object):void
+			{
+				this._custpersonVo = value as CsCustpersonVo;
+				vbx_radian.parametersObj = value;
+				vbx_radian1.parametersObj = value;
+				vbx_radian2.parametersObj = value;
+				vbx_radian3.parametersObj = value;
+				vbx_radian4.parametersObj = value;
+				vbx_radian.reset();
+				vbx_radian1.reset();
+				vbx_radian2.reset();
+				vbx_radian3.reset();
+				vbx_radian4.reset();
+			}
+			
+			public var parentForm:Object;
+			
+			[Bindable]
+			private var ieducationArr:ArrayCollection = new ArrayCollection([
+				{value:0,label:"博士"},
+				{value:1,label:"硕士"},
+				{value:2,label:"本科"},
+				{value:3,label:"大专"},
+				{value:4,label:"中专"},
+				{value:5,label:"其他"} 
+			]);
+			
+			[Bindable]
+			private var elementArr:ArrayCollection = new ArrayCollection([
+				new ElementVo("人员编码：",new ArrayCollection([
+					new SubElementsVo(2,"ccode")
+				])),
+				new ElementVo("人员名称：",new ArrayCollection([
+					new SubElementsVo(2,"cname")
+				])),
+				new ElementVo("所属客户：",new ArrayCollection([
+					new SubElementsVo(2,"icustomer")
+				])),
+				new ElementVo("所属分类：",new ArrayCollection([
+					new SubElementsVo(2,"icustpnclass")
+				])),
+				new ElementVo("称谓:",new ArrayCollection([
+					new SubElementsVo(2,"ctitle")
+				])),
+				new ElementVo("所属部门:",new ArrayCollection([
+					new SubElementsVo(2,"cdepartment")
+				])),
+				new ElementVo("职务:",new ArrayCollection([
+					new SubElementsVo(2,"cpost")
+				])),
+				new ElementVo("上级领导:",new ArrayCollection([
+					new SubElementsVo(2,"isuperiors")
+				])),
+				new ElementVo("助理秘书:",new ArrayCollection([
+					new SubElementsVo(2,"iassistant")
+				])),
+				new ElementVo("人员属性:",new ArrayCollection([
+					new SubElementsVo(6,"bcharge","",false,false,false,0,"是否单位负责人"),
+					new SubElementsVo(6,"bkeycontect","",false,false,false,0,"是否主联系人")
+				]))
+			]);
+			
+			
+			[Bindable]
+			private var elementArr1:ArrayCollection = new ArrayCollection([
+				new ElementVo("联系手机：",new ArrayCollection([
+					new SubElementsVo(2,"cmobile1")
+				])),
+				new ElementVo("固定电话：",new ArrayCollection([
+					new SubElementsVo(2,"ctel")
+				])),
+				new ElementVo("电子邮件:",new ArrayCollection([
+					new SubElementsVo(2,"cemail")
+				])),
+				new ElementVo("传真:",new ArrayCollection([
+					new SubElementsVo(2,"cfax")
+				])),
+				new ElementVo("通讯地址：",new ArrayCollection([
+					new SubElementsVo(2,"caddress")
+				])),
+				new ElementVo("邮编:",new ArrayCollection([
+					new SubElementsVo(2,"czipcode")
+				])),
+				new ElementVo("QQ/MSN:",new ArrayCollection([
+					new SubElementsVo(2,"cqqmsn")
+				])),
+				new ElementVo("车辆车牌:",new ArrayCollection([
+					new SubElementsVo(2,"ccarnumber")
+				]))
+			]);
+			
+			[Bindable]
+			private var elementArr2:ArrayCollection = new ArrayCollection([
+				new ElementVo("性别:",new ArrayCollection([
+					new SubElementsVo(4,"isex","",false,false,false,0,"男","0"),
+					new SubElementsVo(4,"isex","",false,false,false,0,"女","1"),
+					new SubElementsVo(4,"isex","",false,false,false,0,"未知","2")
+				])),
+				new ElementVo("生日:",new ArrayCollection([
+					new SubElementsVo(3,"dbirthday")
+				])),
+				new ElementVo("民族:",new ArrayCollection([
+					new SubElementsVo(2,"cnation")
+				])),
+				new ElementVo("学历:",new ArrayCollection([
+					new SubElementsVo(5,"ceducation","",false,false,false,0,"label","value",ieducationArr)
+				])),
+				new ElementVo("专业：",new ArrayCollection([
+					new SubElementsVo(2,"cprofessional")
+				])),
+				new ElementVo("身份证号：",new ArrayCollection([
+					new SubElementsVo(2,"cidnumber")
+				]))
+			]);
+			
+			[Bindable]
+			private var elementArr3:ArrayCollection = new ArrayCollection([
+				new ElementVo("籍贯:",new ArrayCollection([
+					new SubElementsVo(2,"cbirthplace")
+				])),
+				new ElementVo("毕业院校：",new ArrayCollection([
+					new SubElementsVo(2,"cgraduated")
+				])),
+				new ElementVo("性格:",new ArrayCollection([
+					new SubElementsVo(2,"ccharacter")
+				])),
+				new ElementVo("爱好:",new ArrayCollection([
+					new SubElementsVo(2,"chobby")
+				])),
+				new ElementVo("生活习惯：",new ArrayCollection([
+					new SubElementsVo(2,"chabit")
+				])),
+				new ElementVo("客户关系:",new ArrayCollection([
+					new SubElementsVo(2,"crelationship")
+				])),
+				new ElementVo("朋友关系:",new ArrayCollection([
+					new SubElementsVo(2,"cfriendships")
+				]))
+			]);
+			
+			
+			[Bindable]
+			private var elementArr4:ArrayCollection = new ArrayCollection([
+				new ElementVo("婚姻情况:",new ArrayCollection([
+					new SubElementsVo(2,"cmarital")
+				])),
+				new ElementVo("配偶姓名:",new ArrayCollection([
+					new SubElementsVo(2,"cspouse")
+				])),
+				new ElementVo("配偶单位:",new ArrayCollection([
+					new SubElementsVo(2,"cspouseworkunit")
+				])),
+				new ElementVo("配偶职务:",new ArrayCollection([
+					new SubElementsVo(2,"cspousepost")
+				])),
+				new ElementVo("配偶电话:",new ArrayCollection([
+					new SubElementsVo(2,"cspousetel")
+				])),
+				new ElementVo("其他家庭成员:",new ArrayCollection([
+					new SubElementsVo(2,"cfamilymembers")
+				]))
+			]);
+			
+			private var item:String="";
+			
+			//页面初始化
+			public function init():void
+			{
+				parentForm = this.owner;
+				CRMtool.containerChildsEnabled(this,false);
+				CRMtool.setTabIndex(this);
+			}
+			
+			private function getCustpersonItem():CsCustpersonVo
+			{
+				var custper:CsCustpersonVo = new CsCustpersonVo();
+				if(item=="onEdit")
+				{
+					custper.iid = _custpersonVo.iid;
+				}
+				
+				var result:Object = vbx_radian.getResult();
+				custper.ccode =result.ccode;
+				custper.cname= result.cname;
+				custper.icustomer =int(Number(result.icustomer));
+				custper.icustpnclass =int(Number(result.icustpnclass));
+				custper.ctitle =result.ctitle;
+				custper.cdepartment=result.cdepartment;
+				custper.cpost=result.cpost;
+				custper.isuperiors=int(Number(result.isuperiors));
+				custper.iassistant=int(Number(result.iassistant));
+				custper.bcharge= result.bcharge as Boolean;
+				custper.bkeycontect=result.bkeycontect as Boolean;
+				
+				var result1:Object = vbx_radian1.getResult();
+				custper.cmobile1 =result1.cmobile1
+				custper.ctel=result1.ctel;
+				custper.cemail=result1.cemail;
+				custper.cfax=result1.cfax;
+				custper.caddress=result1.caddress;
+				custper.czipcode=result1.czipcode;
+				custper.cqqmsn=result1.cqqmsn;
+				custper.ccarnumber=result1.ccarnumber;
+				
+				var result2:Object = vbx_radian2.getResult();
+				custper.isex=int(Number(result2.isex));
+				if(CRMtool.isStringNotNull(result2.dbirthday))
+				{
+					custper.dbirthday=DateField.stringToDate(result2.dbirthday,'YYYY-MM-DD');
+				}
+				custper.cnation=result2.cnation;
+				var ceducation:Object = result2.ceducation;
+				if(CRMtool.isStringNotNull(result2.cprofessional))
+				{
+					custper.cprofessional=result2.cprofessional.value;
+				}
+				custper.cidnumber=result2.cidnumber;
+				
+				var result3:Object = vbx_radian3.getResult();
+				custper.cbirthplace=result3.cbirthplace;
+				custper.cgraduated=result3.cgraduated;
+				custper.ccharacter=result3.ccharacter;
+				custper.chobby=result3.chobby;
+				custper.chabit=result3.chabit;
+				custper.crelationship=result3.crelationship;
+				custper.cfriendships=result3.cfriendships;
+				
+				var result4:Object = vbx_radian4.getResult();
+				custper.cmarital =result4.cmarital;
+				custper.cspouse=result4.cspouse;
+				custper.cspouseworkunit=result4.cspouseworkunit;
+				custper.cspousepost=result4.cspousepost;
+				custper.cspousetel=result4.cspousetel;
+				custper.cfamilymembers=result4.cfamilymembers;
+				return custper;
+			}
+			
+			//保存
+			public function onSave():void
+			{
+				if(item=="onNew")
+				{
+					AccessUtil.remoteCallJava("csCustomerDest","addCustpersonVo",saveCsCustomerVo,this.getCustpersonItem());
+				}
+				else
+				{
+					AccessUtil.remoteCallJava("csCustomerDest","updateCustpersonVo",saveCsCustomerVo,this.getCustpersonItem());
+				}
+			}
+			
+			private function saveCsCustomerVo(event:ResultEvent):void
+			{
+				if(event.result || event.result.toString()!="fail")
+				{ 
+					if(item =="onNew")
+					{
+						var personVo:CsCustpersonVo = this.getCustpersonItem();
+						personVo.iid = int(Number(event.result));
+						parentForm.pageInitBack(personVo,item);
+						CRMtool.tipAlert("新增客户档案成功！！");
+					}
+					else if(item=="onDelete")
+					{
+						parentForm.deleteInitBack(_custpersonVo.iid);
+						CRMtool.tipAlert("删除客户档案成功!!");
+					}
+					else if(item=="onEdit")
+					{
+						var personVo:CsCustpersonVo = this.getCustpersonItem();
+						parentForm.pageInitBack(personVo,item);
+						CRMtool.tipAlert("修改客户档案成功！！");
+					}
+					CRMtool.containerChildsEnabled(this,false);
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.FAIL);
+				}
+			}
+			
+			//新增
+			public function onNew():void
+			{
+				vbx_radian.clean();
+				vbx_radian1.clean();
+				vbx_radian2.clean();
+				vbx_radian3.clean();
+				vbx_radian4.clean();
+				item = "onNew";
+				CRMtool.containerChildsEnabled(this,true);
+			}
+			
+			//修改
+			public function onEdit():void
+			{
+				item="onEdit";
+				CRMtool.containerChildsEnabled(this,true);
+			}
+			
+			public function removeCustomer():void
+			{
+				CRMtool.tipAlert(ConstsModel.DETERMINE_HEAD+_custpersonVo.cname+"这个人员？】",null,"AFFIRM",this,"onDeleteCustomer");
+			}
+			
+			public function onDeleteCustomer():void
+			{
+				this.item="onDelete";
+				AccessUtil.remoteCallJava("csCustomerDest","removeCustpersonVo",saveCsCustomerVo,_custpersonVo.iid);
+			}
+			
+			public function onGiveUp():void
+			{
+				vbx_radian.reset();
+				vbx_radian1.reset();
+				vbx_radian2.reset();
+				vbx_radian3.reset();
+				vbx_radian4.reset();
+			}
+		]]>
+	</fx:Script>
+	
+	<comps:RadianVbox id="vbx_radian" width="100%" cou="2" elementArr="{elementArr}" height="20%" />
+	<comps:RadianVbox id="vbx_radian1" width="100%" cou="2" elementArr="{elementArr1}" height="20%" />
+	<comps:RadianVbox id="vbx_radian2" width="100%" cou="2" elementArr="{elementArr2}" height="20%" />		
+	<comps:RadianVbox id="vbx_radian3" width="100%" cou="2" elementArr="{elementArr3}" height="20%" />			
+	<comps:RadianVbox id="vbx_radian4" width="100%" cou="2" elementArr="{elementArr4}" height="20%" />
+</mx:VBox>

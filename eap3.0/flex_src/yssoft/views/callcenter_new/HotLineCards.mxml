@@ -1,0 +1,842 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:basic="yssoft.comps.frame.module.Basic.*"
+         xmlns:new="yssoft.views.callcenter_new.*"
+         label="" styleName="rolecontentHbox" verticalGap="0"
+         updateComplete="vbox1_updateCompleteHandler()"
+         creationComplete="init()">
+    <fx:Script>
+		<![CDATA[
+        import flexlib.containers.SuperTabNavigator;
+
+        import mx.controls.Button;
+
+        import mx.events.ItemClickEvent;
+        import mx.formatters.DateFormatter;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.evts.PlayerRecord;
+
+        import yssoft.views.callcenter.Mp3PlayerPro;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.models.CRMmodel;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.views.msg.SendShortMessageView;
+
+
+        [Bindable]
+        private var datagridlist:ArrayCollection;
+        [Bindable]
+        public var item:Object = new Object();
+
+        private var _phoneNum:String;
+        private var _callinTime:String;
+        private var _iid:int;
+        private var _crouteline:String;
+
+        public function set crouteline(value:String):void {
+            _crouteline = value;
+        }
+
+        public function get crouteline():String {
+            return _crouteline;
+        }
+
+        [Bindable]
+        private var _obj:Object = new Object();
+
+        [Bindable]
+        private var ui_icustomer:CrmEapTextInput;
+        private var icustomer:int;
+
+        [Bindable]
+        private var ui_icustarea:CrmEapTextInput;
+        private var icustarea:int;
+
+        [Bindable]
+        private var ui_iareaperson:CrmEapTextInput;
+        private var iareaperson:int;
+
+        [Bindable]
+        private var ui_isalesdepart:CrmEapTextInput;
+        private var isalesdepart:int;
+
+        [Bindable]
+        private var ui_isalesperson:CrmEapTextInput;
+        private var isalesperson:int;
+
+        [Bindable]
+        private var ui_imstype:CrmEapTextInput;
+        private var imstype:int;
+
+        private var _callInFullTime:String;
+
+        public function set callInFullTime(value:String):void {
+            _callInFullTime = value;
+        }
+
+        public function get callInFullTime():* {
+            return _callInFullTime;
+        }
+
+        public function set obj(value:Object):void {
+            _obj = value;
+
+            if (_iid >= 0) {
+                obj.iid = _iid;
+                icustomer = obj.icustomer;
+                icustarea = obj.icustarea;
+                iareaperson = obj.iareaperson;
+                isalesdepart = obj.isalesdepart;
+                isalesperson = obj.isalesperson;
+
+                queryCallInfo(_obj);
+            }
+
+            getCalled(_obj);
+        }
+
+        public function get obj():Object {
+            return _obj;
+        }
+
+        public function set iid(value:int):void {
+            _iid = value;
+        }
+
+        public function get iid():int {
+            return _iid;
+        }
+
+        public function get phoneNum():String {
+            return this._phoneNum;
+        }
+
+        public function set phoneNum(phoneNum:String):void {
+            this._phoneNum = phoneNum;
+        }
+
+        public function set callinTime(value:String):void {
+            _callinTime = value;
+        }
+
+        public function get callinTime():String {
+            return _callinTime;
+        }
+
+        protected function vbox1_updateCompleteHandler():void
+        {
+            // lr add
+            CRMtool.setTabIndex(mainVbox);
+        }
+
+        private function init():void {
+//            AccessUtil.remoteCallJava("LocalNumber", "getAllRecordToday", function (event:ResultEvent):void {
+//                datagridlist = event.result as ArrayCollection;
+//
+//            });
+
+        }
+
+        private function getCalled(callObj:Object):void {
+            AccessUtil.remoteCallJava("LocalNumber", "getAllRecordToday", function (event:ResultEvent):void {
+                datagridlist = event.result as ArrayCollection;
+
+            },callObj,null,false);
+        }
+
+
+        private function queryCallInfo(param:Object):void {
+            AccessUtil.remoteCallJava("CallCenterDest", "singleCallInfo", callBack, param, null, false);
+        }
+
+        private function callBack(event:ResultEvent):void {
+            if (event.result) {
+                item = event.result;
+                if (CRMtool.isStringNull(item.ideal)) {
+                    if((item.ctelphone as String).length <= 3 && (item.ctelphone as String).length >0) {  //没有处理 内部电话
+                        item.ideal = "系统管理员";
+                        item.ddeal = CRMtool.formatDateWithHNS();
+                        ddeal.text = CRMtool.formatDateWithHNS();
+
+                        (this.bill.getChildAt(0) as Button).enabled = false;
+                        (this.back.getChildAt(0) as Button).enabled = false;
+
+                    } else {  //没有处理的外部电话
+                        (this.bill.getChildAt(0) as Button).enabled = true;
+                        (this.back.getChildAt(0) as Button).enabled = false;
+
+                    }
+
+                    item.ddeal = "";
+                } else {     //已经处理过的记录
+                    (this.bill.getChildAt(0) as Button).enabled = false;
+                    (this.back.getChildAt(0) as Button).enabled = true;
+
+                }
+                imstype = item.imstype;
+            }
+            addCZ();
+        }
+
+        private function addCZ():void {
+            initConsultItem("icustomer", 383);  //经销商档案
+            initConsultItem("imstype", 383);  //信息类别
+
+        }
+
+        private function initConsultItem(name:String, ifuncregedit:int = 162):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = ifuncregedit;
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.percentWidth=100;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+
+                consultTextInput.addEventListener("initialization", function (event:Event):void {
+
+                    if (icustomer >= 0 && consultTextInput == ui_icustomer) {
+                        consultTextInput.text = icustomer + "";
+                        consultTextInput.onDataChange();
+
+                    }
+
+                    if (imstype >= 0 && consultTextInput == ui_imstype) {
+                        consultTextInput.text = imstype + "";
+                        consultTextInput.onDataChange();
+                    }
+
+                });
+
+                ui_icustomer.addEventListener("valueChange", onvalueChangeDW);
+
+                this[cobjectname + "_box"].addChild(consultTextInput);
+
+            }
+        }
+
+        private function onvalueChangeDW(evt:Event):void {
+            if (ui_icustomer.consultList && ui_icustomer.consultList.length > 0) {
+                var ui_icustomer_iid:int = ui_icustomer.consultList[0].iid;
+
+                var sql:String = "select area.cname area,h1.ctitle manager,depart.cname department,h2.ctitle salesman, "+
+                                "cust.caddress address,b.cmobile  from cs_customer cust "+
+                                "left join cs_customerarea area on cust.icustarea = area.iid "+
+                                "left join hr_person h1 on cust.iareaperson = h1.iid "+
+                                "left join hr_department depart on cust.isalesdepart = depart.iid "+
+                                "left join hr_person h2 on cust.isalesperson = h2.iid "+
+                                "left join ( "+
+                                "select b.icorp,b.cmobile from ( "+
+                                "select icorp,MAX(iid) iid from hr_person group by icorp)A left join "+
+                                "hr_person b on A.iid = b.iid)B on cust.icorp = B.icorp " +
+                        "where cust.icorp = " + ui_icustomer_iid;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var eventAC:ArrayCollection = event.result as ArrayCollection;
+                    address.text = eventAC[0].address as String;
+                    area.text = eventAC[0].area as String;
+                    salesman.text = eventAC[0].salesman as String;
+                    manager.text = eventAC[0].manager as String;
+                    department.text = eventAC[0].department as String;
+                    phone.text = eventAC[0].cmobile as String;
+
+                }, sql);
+            }
+            else {
+                //this.item.icustomer=null;
+                //this.item.icsperson=null;
+            }
+        }
+
+
+        private var billButtons:ArrayCollection=new ArrayCollection([
+            {label: "热线处理", name: "submitBill"},
+            {label: "保存通讯", name: "saveMoment"},
+        ]);
+
+        [Bindable]
+        private var csButtons:ArrayCollection=new ArrayCollection([
+            {label: "转发协同", name: "submitXieTong"},
+            {label: "转发反馈", name: "submitFanKui"},
+        ]);
+
+        private var oaButtons:ArrayCollection=new ArrayCollection([
+            {label: "短信告知", name: "msgNotice"},
+            {label: "播放录音", name: "saveRecord"}
+        ]);
+
+        private var backButtons:ArrayCollection=new ArrayCollection([
+            {label:"撤销处理",name:"rollback"	}
+        ]);
+
+        private function buttonbar_itemClickHandler(event:ItemClickEvent):void {
+            switch (event.item.name) {
+                case "submitBill":
+                    if (CRMtool.isStringNull(this.ideal.text)) {
+                        submitBill();//处理
+                        event.item.editable = false;
+                    } else {
+                        CRMtool.showAlert("已经处理！");
+                    }
+
+                    break;
+                case "saveMoment":
+                    saveMoment();//保存通讯录
+                    break;
+                case "submitXieTong":
+                    submitXieTong();//转协同
+                    break;
+                case "submitFanKui":
+                    submitFanKui();//转反馈
+                    break;
+                case "msgNotice":
+                    msgNotice();//短信告知
+                    break;
+                case "saveRecord":
+                    saveRecord();//录音
+                    break;
+                case "rollback" :
+                    rollback();//撤销处理
+            }
+        }
+
+        //撤销
+
+        private function rollback():void{
+            //CRMtool.showAlert(item.ideal+"  "+CRMmodel.user.cname);
+            if(item.ideal == CRMmodel.hrperson.cname) {
+                item.ideal = "";
+                this.ideal.text = "";
+                this.ddeal.text = "";
+                item.iid = _iid;
+                item.ichannel = CRMmodel.icallline - 1;
+                item.ctel = phoneNum;
+                item.dbegin = callInFullTime;
+
+                AccessUtil.remoteCallJava("LocalNumber", "rollbackDeal", function (event:ResultEvent):void {
+
+                    ideal.editable = true;
+                    ddeal.editable = true;
+                    cdetail.editable = true;
+                    cdeal.editable = true;
+                    dealprogress.editable = true;
+                    cdegree.editable = true;
+
+                    (bill.getChildAt(0) as Button).enabled = true;
+                    (back.getChildAt(0) as Button).enabled = false;
+
+
+                    var stnav:SuperTabNavigator = owner as SuperTabNavigator;
+
+                    AccessUtil.remoteCallJava("LocalNumber", "getDataGrid", function (event:ResultEvent):void {
+
+                        var cc:CallCenterCores = stnav.parent.parent as CallCenterCores;
+                        cc.datagridlist = ArrayCollection(event.result);
+                        //获取线路信息
+                        //getLineDetails();
+                        CRMtool.showAlert("原处理已撤销");
+
+                    }, {date: "today", lineno: "全部", type: "全部"}, null, false);
+
+
+                },item,null,false);
+            } else {
+                CRMtool.showAlert("不是原处理人，无法撤销处理！")
+            }
+        }
+
+        //处理
+        private function submitBill():void {
+
+            //item.ideal = CRMmodel.user.iid;
+            if (CRMtool.isStringNotNull(ui_imstype.text)) {
+                item.imstype = ui_imstype.consultList[0].ccode;
+            } else {
+                item.imstype = "0";
+            }
+            item.userid = CRMmodel.userId;
+            item.iid = _iid;
+
+            var dateFormatter:DateFormatter = new DateFormatter();
+            dateFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
+            var nowData:String = dateFormatter.format(new Date());
+
+            item.ideal = CRMmodel.hrperson.cname;
+            item.ddeal = nowData;
+            item.cdetail = this.cdetail.text;
+            item.cdeal = this.cdeal.text;
+            item.dealprogress = this.dealprogress.text;
+            item.cdegree = this.cdegree.text;
+            item.ichannel = CRMmodel.icallline - 1;
+            item.ctel = phoneNum;
+            item.dbegin = callInFullTime;
+            item.area = this.search.cellphoneNumberInfoText.text;
+
+            AccessUtil.remoteCallJava("LocalNumber", "updateInfo", submitCallBack, item, null, false);
+            //CRMtool.closeView(this);
+
+        }
+
+        private function submitCallBack(event:ResultEvent):void {
+            var s:String = event.result as String;
+            if (s == "success") {
+                ideal.text = CRMmodel.hrperson.cname;
+                var dateFormatter:DateFormatter = new DateFormatter();
+                dateFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
+                var nowData:String = dateFormatter.format(new Date());
+
+                ddeal.text = nowData;
+
+                this.ideal.editable = false;
+                this.ddeal.editable = false;
+                this.cdetail.editable = false;
+                this.cdeal.editable = false;
+                this.dealprogress.editable = false;
+                this.cdegree.editable = false;
+
+                (this.bill.getChildAt(0) as Button).enabled = false;
+                (this.back.getChildAt(0) as Button).enabled = true;
+
+
+                var stnav:SuperTabNavigator = this.owner as SuperTabNavigator;
+
+                AccessUtil.remoteCallJava("LocalNumber", "getDataGrid", function (event:ResultEvent):void {
+
+                    var cc:CallCenterCores = stnav.parent.parent as CallCenterCores;
+                    cc.datagridlist = ArrayCollection(event.result);
+                    //获取线路信息
+                    //getLineDetails();
+                    if(CRMmodel.bisCloseOut) {
+
+                        stnav.removeChild(stnav.getChildAt(stnav.selectedIndex));
+                    } else {
+                        CRMtool.showAlert("处理成功!");
+                    }
+
+
+                }, {date: "today", lineno: "全部", type: "全部"}, null, false);
+
+
+            }else{
+                CRMtool.showAlert("处理失败!");
+            }
+        }
+
+        //保存通讯录
+        private function saveMoment():void {
+            obj.itype = this.itype.selectedIndex;
+            obj.names = this.names.text;
+            if(CRMtool.isStringNull(obj.names)) {
+                CRMtool.showAlert("请填写用户姓名");
+                return;
+            }
+
+            obj.sex = this.sex.selectedIndex;
+            if(ui_icustomer.consultList.source.length == 0) {
+                obj.icustomer = 0;
+            } else{
+                obj.icustomer = this.ui_icustomer.consultList[0].iid;
+            }
+            obj.phone = this.mobile.text;
+            obj.ichannel = CRMmodel.icallline - 1;
+            obj.dbegin = callInFullTime;
+            obj.ctel = phoneNum;
+
+            obj.demo = this.demo.text;
+            obj.uid = CRMmodel.userId;
+            obj.iid = iid;
+
+            AccessUtil.remoteCallJava("LocalNumber", "updateBookInfo", function (event:ResultEvent):void {
+                var ro:Object = Object(event.result);
+                var rvalue:String = ro.rvalue;
+                if (rvalue.indexOf("成功") != -1 && obj.itype == 1) {
+                    rvalue += "是否写入经销商联系人档案？";
+                    CRMtool.tipAlert1(rvalue, null, "AFFIRM", function ():void {
+                        saveToPerson(obj);
+                    });
+                } else {
+                    CRMtool.showAlert(ro.rvalue);
+                }
+                init();
+            }, obj, null, false);
+        }
+
+        public function saveToPerson(o:Object):void {
+//            CRMtool.showAlert("更新经销商联系人档案");
+            AccessUtil.remoteCallJava("LocalNumber", "updatePersonInfo", function (event:ResultEvent):void {
+//                var ro:Object = Object(event.result);
+//                var rvalue:String = ro.rvalue;
+//                if (rvalue.indexOf("成功") != -1) {
+//                    rvalue += "是否写入经销商联系人档案？";
+//                    CRMtool.tipAlert1(rvalue, null, "AFFIRM", function ():void {
+//                        saveToPerson(obj);
+//                    });
+//                } else {
+//                    CRMtool.showAlert(ro.rvalue);
+//                }
+                if (event.result) {
+                    CRMtool.showAlert("更新经销商联系人档案成功");
+
+                }
+            }, o, null, false);
+        }
+
+        //转协同
+        private function submitXieTong():void {
+            if (item == null || item.iid == null) {
+//                CRMtool.showAlert("参数不合法，不予提交!", "提示");
+//                return;
+                item.iid = 0;
+            }
+
+            CRMtool.openMenuItemFormOther("yssoft.views.workflow.FreeCoView", item, "创建协同", "");
+        }
+
+        //转反馈
+        private function submitFanKui():void {
+            //var sc_rdrecords:ArrayCollection = arr;
+
+            var obj:Object = new Object();
+            obj.iinvoice = iid;
+            obj.ctel = this.phone.text;
+            obj.cdetail = this.cdetail.text;
+
+            if(ui_icustomer.consultList.source.length == 0) {
+                CRMtool.showAlert("当前电话没有对应的经销商，不能转反馈！");
+                return;
+            } else{
+                obj.icustomer = this.ui_icustomer.consultList[0].iid;
+            }
+            obj.ifuncregedit = 578;
+
+            obj.mainValue = obj;
+
+            var param:Object = new Object();
+            param.ifuncregedit = "381";
+            param.itemType = "onNew";
+            param.operId = "onListNew";
+            param.formTriggerType = "fromOther";
+            param.injectObj = obj;
+            param.personArr = new ArrayCollection();
+            CRMtool.openMenuItemFormOther("yssoft.frameui.FrameCore", param);
+        }
+
+        //短信告知
+        private function msgNotice():void {
+            var sendView:SendShortMessageView = new SendShortMessageView();
+            sendView.phoneNumber = phoneNum;
+            sendView.custName = ui_icustomer.text;
+            sendView.personName = names.text;
+            sendView.address = address.text;
+            CRMtool.openView(sendView);
+        }
+
+
+        //录音
+        private function saveRecord():void {
+            this.dispatchEvent(new Event("record"));
+        }
+
+        private function setInfo():void {
+            search.info = phoneNum;
+            search.search();
+        }
+
+        private function dg_ClickHandle():void {
+            this.dispatchEvent(new PlayerRecord("playRecord",this.dg.selectedItem));
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <s:RadioButtonGroup id="rbg"/>
+    </fx:Declarations>
+
+    <mx:VBox id="mainVbox" width="100%" height="100%">
+
+        <mx:Box width="100%" height="27" verticalAlign="middle" backgroundColor="#E7E7E7" >
+            <mx:ApplicationControlBar width="100%" height="100%" styleName="centertop1" paddingRight="10" verticalAlign="middle" horizontalAlign="center">
+
+                <mx:Label id="mobile" text="{phoneNum}" fontSize="15" width="15%" height="27" fontWeight="bold" selectable="true"
+                          color="#2383C7" textAlign="center"/>
+                <s:Spacer width="2%"  height="100%" />
+                <mx:Label text="{callinTime}" fontSize="15" width="15%" height="27" fontWeight="bold" selectable="true" textAlign="center"/>
+                <s:Spacer width="2%" height="100%"/>
+
+                <mx:HBox fontSize="15" width="15%" height="100%" fontWeight="bold" color="#909090" horizontalAlign="center" verticalAlign="middle">
+                    <new:SearchMobileNumber id="search" creationComplete="setInfo()"/>
+                </mx:HBox>
+                <s:Spacer width="2%" height="100%"/>
+
+                <mx:ButtonBar id="bill" dataProvider="{billButtons}" height="25" buttonWidth="65" styleName="contentButtonBar" itemClick="buttonbar_itemClickHandler(event)"/>
+                <mx:ButtonBar id="csBar" dataProvider="{csButtons}"  height="25" buttonWidth="65" styleName="contentButtonBar" itemClick="buttonbar_itemClickHandler(event)"/>
+                <mx:ButtonBar id="oa" dataProvider="{oaButtons}"  height="25" buttonWidth="65" styleName="contentButtonBar" itemClick="buttonbar_itemClickHandler(event)"/>
+                <mx:ButtonBar id="back" dataProvider="{backButtons}"  height="25" buttonWidth="65" styleName="contentButtonBar" itemClick="buttonbar_itemClickHandler(event)"/>
+
+
+            </mx:ApplicationControlBar>
+        </mx:Box>
+        <s:Spacer height="1%"/>
+
+        <mx:VBox id="mainBox" width="100%" height="20%" styleName="content">
+            <mx:HBox width="100%" height="10%" verticalAlign="middle">
+                <s:Spacer width="10"/>
+                <mx:Label text="所属类型：" styleName="contentLabel"/>
+                <s:ComboBox id="itype" width="100%" height="100%" borderColor="white"
+                            borderVisible="false" labelField="label"
+                            skinClass="yssoft.skins.CrmComboBoxSkin"
+                            selectedIndex="{obj.itype}"
+                            textAlign="center">
+                    <s:ArrayCollection>
+                        <fx:Object name="0" label="客户"/>
+                        <fx:Object name="1" label="经销商"/>
+                        <fx:Object name="2" label="用户"/>
+                        <fx:Object name="3" label="其他"/>
+                    </s:ArrayCollection>
+                </s:ComboBox>
+                <mx:Label styleName="contentLabel" text="人员姓名:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="names" text="{obj.names}"
+                              textAlign="center"/>
+
+                <mx:Label styleName="contentLabel" text="人员性别:"/>
+
+                <s:ComboBox id="sex" width="100%" height="100%" borderColor="white"
+                            borderVisible="false" labelField="label"
+                            selectedIndex="{obj.sex}"
+                            skinClass="yssoft.skins.CrmComboBoxSkin" textAlign="center">
+                    <s:ArrayCollection>
+                        <fx:Object name="0" label="先生"/>
+                        <fx:Object name="1" label="女士"/>
+                        <fx:Object name="2" label="未知"/>
+                    </s:ArrayCollection>
+                </s:ComboBox>
+            </mx:HBox>
+            <mx:HRule width="100%"/>
+
+
+            <mx:HBox width="100%" height="10%" verticalAlign="middle">
+                <s:Spacer width="10"/>
+                <mx:Label styleName="contentLabel" text="经销客商:"/>
+                <mx:Box id="ui_icustomer_box" width="100%" styleName="contentSubHbox">
+                </mx:Box>
+                <!--<mx:TextInput width="50%" styleName="contentTextInput" id="customer" text="{obj.icustomer}"/>-->
+                <mx:Label styleName="contentLabel" text="联系电话:"/>
+
+                <!--<mx:TextInput width="100%" styleName="contentTextInput" id="phone" text="{obj.phone}"/>-->
+                <mx:TextInput width="100%" styleName="contentTextInput" id="phone" text="{phoneNum}"/>
+            </mx:HBox>
+            <mx:HRule width="100%"/>
+
+            <mx:HBox width="100%" height="10%" verticalAlign="middle">
+                <s:Spacer width="10"/>
+                <mx:Label styleName="contentLabel" text="所属大区:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="area" editable="false" text="{obj.area}"/>
+                <!--<mx:Box id="ui_icustarea_box" width="100%" >-->
+                <!--</mx:Box>-->
+                <mx:Label styleName="contentLabel" text="大区经理:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="manager" editable="false" text="{obj.manager}"/>
+                <!--<mx:Box id="ui_iareaperson_box" width="100%">-->
+                <!--</mx:Box>-->
+                <mx:Label styleName="contentLabel" text="销售部门:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="department" editable="false" text="{obj.department}"/>
+                <!--<mx:Box id="ui_isalesdepart_box" width="100%">-->
+                <!--</mx:Box>-->
+                <mx:Label styleName="contentLabel" text="业务人员:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="salesman" editable="false" text="{obj.salesman}"/>
+                <!--<mx:Box id="ui_isalesperson_box" width="100%">-->
+                <!--</mx:Box>-->
+            </mx:HBox>
+            <mx:HRule width="100%"/>
+
+
+            <mx:HBox width="100%" height="10%" verticalAlign="middle">
+                <s:Spacer width="10"/>
+                <mx:Label styleName="contentLabel" text="客商地址:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="address" editable="false" text="{obj.address}"/>
+                <mx:Label styleName="contentLabel" text="客商备注:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="demo" text="{obj.demo}"/>
+            </mx:HBox>
+        </mx:VBox>
+        <s:Spacer height="1%"/>
+
+        <mx:VBox width="100%" height="20%" styleName="content">
+            <mx:HBox width="100%" height="10%" verticalAlign="middle">
+                <s:Spacer width="10"/>
+                <mx:Label styleName="contentLabel" text="来电内容:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="cdetail" text="{item.cdetail}"/>
+            </mx:HBox>
+            <mx:HRule width="100%"/>
+
+
+            <mx:HBox width="100%" height="10%" verticalAlign="middle">
+                <s:Spacer width="10"/>
+                <mx:Label styleName="contentLabel" text="处理措施:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="cdeal" text="{item.cdeal}"/>
+                <mx:Label styleName="contentLabel" text="信息类别:"/>
+                <mx:Box id="ui_imstype_box" width="100%">
+                </mx:Box>
+
+            </mx:HBox>
+            <mx:HRule width="100%"/>
+
+
+            <mx:HBox width="100%" height="10%" verticalAlign="middle">
+                <s:Spacer width="10"/>
+                <mx:Label styleName="contentLabel" text="处理进度:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="dealprogress" text="{item.dealprogress}"/>
+                <mx:Label styleName="contentLabel" text="满意程度:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" id="cdegree" text="{item.cdegree}"/>
+            </mx:HBox>
+            <mx:HRule width="100%"/>
+
+
+            <mx:HBox width="100%" height="10%" verticalAlign="middle">
+                <s:Spacer width="10"/>
+                <mx:Label styleName="contentLabel" text="处理人员:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" editable="false" text="{item.ideal}" id="ideal"/>
+                <mx:Label styleName="contentLabel" text="处理时间:"/>
+                <mx:TextInput width="100%" styleName="contentTextInput" editable="false" text="{item.ddeal}" id="ddeal"/>
+            </mx:HBox>
+        </mx:VBox>
+        <s:Spacer height="1%"/>
+
+        <basic:BasicMxDataGrid id="dg" width="100%" height="50%" isAllowMulti="false" borderVisible="true"
+                               borderStyle="inset" editable="true"
+                               doubleClickEnabled="false"
+                               dataProvider="{datagridlist}" lockedColumnCount="1"
+                               click="dg_ClickHandle()" >
+            <basic:columns>
+                <mx:DataGridColumn headerText="id" dataField="iid" visible="false"/>
+                <mx:DataGridColumn headerText="电话" dataField="cstatus" editable="false">
+                    <mx:itemRenderer>
+                        <fx:Component>
+                            <mx:HBox width="100%" paddingLeft="10" horizontalScrollPolicy="off"
+                                     verticalScrollPolicy="off" horizontalAlign="left" verticalAlign="middle" >
+                                <fx:Script>
+                                        <![CDATA[
+                                    override public function set data(value:Object):void {
+                                        super.data = value;
+                                        if (String(data.cstatus).indexOf("打入") != -1) {
+                                            //myImage.source = "yssoft/assets/images/call_in.png";
+                                            myImage.source = "yssoft/assets/call/callin.png";
+                                        }
+                                        else if (String(data.cstatus).indexOf("打出") != -1) {
+                                            //myImage.source = "yssoft/assets/images/call_out.png";
+                                            myImage.source = "yssoft/assets/call/callout.png";
+                                        }
+                                        else if (String(data.cstatus).indexOf("未接来电") != -1) {
+                                            //myImage.source = "yssoft/assets/images/call_miss.png";
+                                            myImage.source = "yssoft/assets/call/uncall.png";
+                                        }
+                                    }
+                                    ]]>
+                                    </fx:Script>
+                                <s:Image id="myImage" width="15" height="15" toolTip="{data.ctelphone}"/>
+                                <mx:Label id="ctelphone" text="{data.ctelphone}" toolTip="{data.ctelphone}"/>
+                            </mx:HBox>
+                        </fx:Component>
+                    </mx:itemRenderer>
+                </mx:DataGridColumn>
+
+                <!--录音下载-->
+                <!--<mx:DataGridColumn headerText="" dataField="crecord" editable="false" width="30">-->
+                    <!--<mx:itemRenderer>-->
+                        <!--<fx:Component>-->
+                            <!--<mx:VBox textAlign="center" horizontalAlign="center" verticalAlign="middle">-->
+                                <!--<fx:Script>-->
+                                        <!--<![CDATA[-->
+                                    <!--import mx.utils.StringUtil;-->
+                                    <!--import yssoft.tools.CRMtool;-->
+
+                                    <!--private var downloadURL:URLRequest;-->
+                                    <!--private var file:FileReference;-->
+
+                                    <!--public function downWav():void {-->
+                                        <!--var item:Object = outerDocument.dg.selectedItem;-->
+                                        <!--var sfm:String = StringUtil.trim(item.ctime);-->
+                                        <!--var curr_date:String = StringUtil.trim(item.dbegin);-->
+                                        <!--var callphone:String = StringUtil.trim(item.ctelphone);-->
+
+                                        <!--sfm = sfm.replace(":", "").replace(":", "");-->
+                                        <!--var crouteline:String = item.crouteline.replace("线路","line");-->
+
+                                        <!--var filePath:String = "PhoneRecord/" + curr_date + "/" + crouteline + "/" + callphone + "_" + sfm + ".wav";-->
+                                        <!--downloadURL = new URLRequest(filePath);-->
+
+                                        <!--var loader:Loader = new Loader();-->
+                                        <!--loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, ioError);-->
+                                        <!--loader.load(downloadURL);-->
+
+                                        <!--file = new FileReference();-->
+                                        <!--configureListeners(file);-->
+                                        <!--file.download(downloadURL);-->
+
+                                    <!--}-->
+
+                                    <!--private function ioError(event:IOErrorEvent):void {-->
+                                        <!--CRMtool.showAlert("文件不存在或者已经转移,请重试。");-->
+
+                                    <!--}-->
+
+                                    <!--private function configureListeners(dispatcher:IEventDispatcher):void {-->
+                                        <!--dispatcher.addEventListener(Event.COMPLETE, completeHandler);-->
+                                        <!--dispatcher.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);-->
+
+                                    <!--}-->
+                                    <!--private function completeHandler(event:Event):void {-->
+                                        <!--CRMtool.showAlert("下载成功");-->
+                                    <!--}-->
+                                    <!--private function ioErrorHandler(event:IOErrorEvent):void {-->
+                                        <!--CRMtool.showAlert("下载失败，文件已损坏");-->
+                                    <!--}-->
+
+                                    <!--//***********************************结束：播放通话记录**********************************************************-->
+                                    <!--]]>-->
+                                    <!--</fx:Script>-->
+                                <!--<s:Image id="download" click="downWav()" toolTip="下载"-->
+                                         <!--source="yssoft/assets/images/attachment_download.png"/>-->
+                            <!--</mx:VBox>-->
+                        <!--</fx:Component>-->
+                    <!--</mx:itemRenderer>-->
+                <!--</mx:DataGridColumn>-->
+
+                <mx:DataGridColumn headerText="时间" width="130" dataField="calltime" editable="false"/>
+                <mx:DataGridColumn headerText="联系人" width="70" dataField="cpersonname" editable="false"/>
+                <mx:DataGridColumn headerText="客户" dataField="ccustname" editable="false"/>
+                <mx:DataGridColumn headerText="信息类别" dataField="imstype" editable="false"/>
+                <mx:DataGridColumn headerText="来电内容" dataField="cdetail" editable="false"/>
+                <mx:DataGridColumn headerText="处理措施" dataField="cdeal" editable="false"/>
+                <mx:DataGridColumn headerText="处理进度" dataField="dealprogress" editable="false"/>
+                <mx:DataGridColumn headerText="处理人" dataField="ideal" editable="false"/>
+                <mx:DataGridColumn headerText="处理时间" dataField="ddeal" editable="false"/>
+                <mx:DataGridColumn headerText="满意度" dataField="cdegree" editable="false"/>
+                <mx:DataGridColumn headerText="线路" width="50" dataField="crouteline" editable="false" visible="true"/>
+                <mx:DataGridColumn dataField="ctime" visible="false"/>
+
+            </basic:columns>
+        </basic:BasicMxDataGrid>
+
+
+    </mx:VBox>
+</mx:VBox>
+

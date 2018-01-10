@@ -1,0 +1,591 @@
+<ReportSettings version="1.1">
+  <PageWidth>24</PageWidth>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <Height>2</Height>
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>线索转化分析</Value>
+          <Width>22</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <Height>0.8</Height>
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>起始时间：</Value>
+          <BindingValue>日期1</BindingValue>
+          <Width>6.8</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>结束时间：</Value>
+          <BindingValue>日期2</BindingValue>
+          <Width>6.8</Width>
+          <Style>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.6</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表2参数.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表2数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>线索总数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>跟进中</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>无效</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>无效率</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>转商机</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>转商机率</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>成单</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>成单率</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>成单金额</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>公司</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Fields!线索总数.Value == Null(),'0',Fields!线索总数.Value)</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Fields!跟进数.Value == Null(),'0',Fields!跟进数.Value)</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Fields!无效.Value == Null(),'0',Fields!无效.Value)</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>无效率</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>P0</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Fields!成交数.Value+Fields!商机数.Value</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>商机率</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>P0</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Fields!成交数.Value == Null(),'0',Fields!成交数.Value)</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>成交率</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>P0</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=If(Fields!成交金额.Value == Null(),'0',Fields!成交金额.Value)</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+    </ItemSetting>
+    <ItemSetting type="SubReportRowSetting">
+      <SubReportParameters>=Parameters!子表1参数.Value</SubReportParameters>
+      <SubReportTable>=Parameters!子表1数据.Value</SubReportTable>
+      <TableHeaderSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人线索转化分析</Value>
+              <Style>
+                <FontSize>12</FontSize>
+                <LeftBorder>false</LeftBorder>
+                <RightBorder>false</RightBorder>
+                <TopBorder>false</TopBorder>
+                <BottomBorder>false</BottomBorder>
+              </Style>
+              <ColSpan>10</ColSpan>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>提交人</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>线索总数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>跟进中</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>无效</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>无效率</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>转商机</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>转商机率</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>成单数</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>成单率</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>成单金额</Value>
+              <Style>
+                <TextAlign>center</TextAlign>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableHeaderSettings>
+      <TableDetailSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>提交人</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>线索总数</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>跟进中</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>无效</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>无效率</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>P0</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>=Fields!成单数.Value+Fields!转商机.Value</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>转商机率</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>P0</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>成单数</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>成单率</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+              <Format>P0</Format>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingColumn>成单金额</BindingColumn>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <FontSize>12</FontSize>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableDetailSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

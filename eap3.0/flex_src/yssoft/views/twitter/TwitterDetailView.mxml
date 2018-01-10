@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 xmlns:comps="yssoft.comps.*" implements="yssoft.impls.ICRMWindow"
+		 initialize="ini()"
+		 styleName="centerbg4"
+		 verticalGap="0" xmlns:myRichTextEditor="yssoft.comps.myRichTextEditor.*">	
+	
+	
+	<fx:Script source="../../scripts/TwitterDetailViewScript.as"/>
+	<mx:ApplicationControlBar styleName="centertop" id="menuBar1" width="100%" height="32" dock="true">
+		
+		
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+		
+
+            <mx:Button id="setMes" label="原帖" styleName="Button" height="25"  click="setMes_clickHandler(event)"/>
+            <mx:Spacer width="10"/>
+            <mx:Button id="repMes" label="跟帖" styleName="Button"  height="25" click="repMes_clickHandler(event)"/>
+			<mx:Spacer width="100%"/>
+			<mx:Text text="浏览：" />
+			<mx:Text id="viewTimes" width="45"  color="#ff0000" text="{twitterObj.iread}"/>
+			
+			<mx:Text text="回复：" />
+			<mx:Text id="replyTimes"  width="45" color="#ff0000"  text="{twitterObj.ibrowse}"/>
+			
+		<!--	<mx:Text text="发布时间：" />
+			<mx:Text id="issueTime" width="120"  text="{ DateUtil.formateDate( twitterObj.dmaker ) }"/>-->
+			
+			<!--<mx:Text text="类型：" />
+			<mx:Text id="type" width="90"  text="{twitterObj.typeName}"/>-->
+		</mx:HBox>
+		<mx:Button height="25" id="reply" label="回复" styleName="Button" click="reply_clickHandler(event)" />
+		<mx:Button height="25" id="issue" label="发帖" styleName="Button" click="issue_clickHandler(event)" />
+		<mx:Button height="25" id="refreshData" label="刷新" styleName="Button" click="refreshData_clickHandler(event)" />
+		<mx:Button height="25" id="returnBack" label="返回" styleName="Button" click="returnBack_clickHandler(event)" />
+	</mx:ApplicationControlBar>
+
+	<mx:HDividedBox width="100%" height="100%" id="hDividedBox">
+		<mx:HBox width="20%" styleName="bbg"  height="100%" paddingLeft="1" paddingBottom="1" horizontalGap="0" id="leftMws">
+			<mx:VBox width="100%" height="100%" verticalGap="0" >
+			   <mx:HBox  backgroundColor="#F8F9F3" paddingLeft="10" paddingTop="7" width="100%"   >
+					<mx:Image  source="{headerIcon}"  width="60" height="76" />
+					<mx:VBox width="100%" height="100%" verticalGap="0">
+						<mx:Text text="{'人员：' + twitterObj.iname==null?'':twitterObj.iname}" />
+						<mx:Text text="{'部门：' + twitterObj.departcname==null?'':twitterObj.departcname}" />
+						<mx:Text text="{'岗位：' + twitterObj.postcname==null?'':twitterObj.postcname}" />
+					</mx:VBox>
+				</mx:HBox>
+				<mx:HRule width="100%"/>
+				<mx:VBox paddingLeft="10" paddingRight="10" height="100%"  width="100%" horizontalAlign="center" verticalGap="5" >
+					<mx:HBox height="28" width="100%"  verticalAlign="middle"  paddingLeft="10" paddingRight="10">
+						<mx:Text fontWeight="bold" text="楼主"/>
+						<s:Spacer width="100%"/>
+						<mx:Text text="{ DateUtil.formateDate( twitterObj.dmaker ) }" />
+					</mx:HBox>
+                    <mx:HBox height="28" width="100%"  verticalAlign="middle"  paddingLeft="10" paddingRight="10">
+                        <mx:Text id="title" color="#018ccf" fontWeight="bold" text="{twitterObj.cname}" width="100%"/>
+                    </mx:HBox>
+
+					<!--<mx:TextArea height="100%" borderVisible="false"  id="cdetail" editable="false" htmlText="{twitterObj.cdetail}" width="100%" verticalScrollPolicy="auto"/>-->
+					<myRichTextEditor:MyRichTextEditor height="100%" width="100%" id="cdetail" htmlText="{twitterObj.cdetail}" richEditableTextEditable="false" toolbarHBvisible="false"/>
+				</mx:VBox>
+			</mx:VBox>
+			<mx:VRule height="100%"/>
+		</mx:HBox>
+		
+		<mx:HBox width="80%" height="100%" horizontalGap="-1" paddingRight="1" id="rightMes">
+			<mx:VRule height="100%" id="vRule"/>
+			<mx:VBox width="100%" height="100%" >
+				<mx:HBox  height="100%" width="100%" >
+					<s:List  borderVisible="false" id="list" width="100%" height="100%"  dataProvider="{twitterReplyArr}" selectionColor="white" rollOverColor="#ffffff"
+							  itemRenderer="yssoft.renders.twitterRenders.TwitterDetailViewItemRender">
+					</s:List>
+				</mx:HBox >
+
+				<comps:PageBar paddingRight="10" id="pageBar" width="100%" height="32" horizontalAlign="right"/>
+			</mx:VBox>
+		</mx:HBox>
+	</mx:HDividedBox>
+	
+
+	
+<!--	<mx:VBox height="180" width="100%" horizontalGap="0" includeInLayout="false" >
+			<mx:RichTextEditor id="cdetail" width="100%" height="100%" />
+		<mx:HBox width="100%" cornerRadius="5" horizontalAlign="right" height="25">
+			<mx:Button id="btn_reply" label="回复" click="btn_reply_clickHandler(event)" />
+			<mx:Button id="btn_reset" label="重置" click="btn_reset_clickHandler(event)" />
+		</mx:HBox>
+	</mx:VBox>-->
+
+</mx:VBox>

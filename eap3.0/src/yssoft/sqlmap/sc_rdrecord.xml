@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+<!-- lzx 根据cs_custproducts的iid获得sc_rdrecord的ccode-->
+	<select id="get_rdrecord_ccode" parameterClass="java.lang.String"
+		resultClass="java.util.HashMap" >
+		select distinct sc_rdrecord.ccode from cs_custproducts
+        left join sc_rdrecordsbom on cs_custproducts.irdrecordsbom = sc_rdrecordsbom.iid
+        left join sc_rdrecord on sc_rdrecordsbom.irdrecords = sc_rdrecord.iid where $sql$
+	</select>
+
+<!-- lzx 根据ifuncregedit查询对应的fields -->
+	<select id="get_fields" parameterClass="int"
+		resultClass="java.util.HashMap" >
+        select cfield from ac_listclm  left join ac_listset on ac_listclm.ilist = ac_listset.iid  where ac_listset.ifuncregedit = #passregedit# and iperson=0
+	</select>
+</sqlMap>

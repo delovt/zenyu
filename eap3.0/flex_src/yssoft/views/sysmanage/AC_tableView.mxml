@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:comps="yssoft.comps.*"
+         width="100%" height="100%" creationComplete="hbox1_creationCompleteHandler(event)"
+         implements="yssoft.impls.ICRMWindow">
+    <fx:Script>
+		<![CDATA[
+        import yssoft.models.ConstsModel;
+        ]]>
+	</fx:Script>
+	<fx:Script source="../../scripts/AC_tableScript.as"/>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<fx:Component id="ti">
+			<mx:TextInput width="100%" restrict="0-9"/>
+		</fx:Component>
+		<fx:Component id="ti_table_field">
+			<mx:TextInput width="100%" restrict="a-z\\_"/>
+		</fx:Component>
+	</fx:Declarations>
+	<mx:VBox width="35%" height="100%" styleName="lefttree">
+		<mx:ApplicationControlBar styleName="centertop" width="100%" height="34" dock="true">
+			<comps:CrmTextInput id="tnp_search0" text="" search="tnp_search_searchHandler(0)">
+			</comps:CrmTextInput>
+            <mx:HBox width="100%" horizontalAlign="right">
+				<comps:LinkBarVboxComps id="lbr_table" width="15%"  dataProvider="{ConstsModel.LBRAC_TABLEITEM}"
+										onNewEvent="onNew(event)"
+										onSaveEvent="onSave(event)" height="25" styleName="contentButtonBar" onGiveUpEvent="onGiveUp(event)"
+										onEditEvent="onEdit(event)" onUpdateEvent="onUpdate(event)" onDeleteEvent="onDelete(event)"/>
+			</mx:HBox>			
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" height="100%" styleName="lefttree1">
+			<mx:DataGrid id="dgrd_tablename" width="100%" height="100%" borderVisible="false" dataProvider="{tablenameArr}" click="dgrd_tablename_clickHandler(event)"
+						doubleClickEnabled="true" itemEditEnd="onTabelNameEditEnd(event)" >
+				<mx:columns>
+					<mx:DataGridColumn dataField="name" headerText="表名" sortable="false" editable="true" itemEditor="{ti_table_field}" ></mx:DataGridColumn>
+					<mx:DataGridColumn dataField="ccaption" headerText="中文" sortable="false" editable="true"></mx:DataGridColumn>
+					<mx:DataGridColumn dataField="cmemo" headerText="备注" sortable="false" editable="true"></mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:VBox width="65%" height="100%" styleName="lefttree">
+		<mx:ApplicationControlBar styleName="centertop" width="100%" height="34" >
+			<comps:CrmTextInput id="tnp_search1" text="" search="tnp_search_searchHandler(1)">
+			</comps:CrmTextInput>
+			<mx:LinkButton id="additionicon" toolTip="增行" />
+			<mx:LinkButton id="subtractionicon" toolTip="删行" />
+		</mx:ApplicationControlBar>
+		<mx:HBox width="100%" height="100%" styleName="lefttree1">
+		<mx:DataGrid id="dgrd_fields" width="100%" height="100%" borderVisible="false" dataProvider="{fieldArr}" itemEditEnd="onEditEnd(event)">
+			<mx:columns>
+				<mx:DataGridColumn dataField="cfield" headerText="字段" sortable="false" editable="true" itemEditor="{ti_table_field}" ></mx:DataGridColumn>
+				<mx:DataGridColumn dataField="ccaption" headerText="中文" sortable="false" editable="true"></mx:DataGridColumn>
+				<mx:DataGridColumn dataField="idatatype" headerText="类型" sortable="false" labelFunction="getdatatypelabel" editorDataField="value" editable="true">
+					<mx:itemEditor>
+						<fx:Component>
+							<mx:HBox width="100%">
+								<fx:Script>
+									<![CDATA[
+                                    import mx.events.ListEvent;
+
+                                    public function get value():Object {
+                                        var obj:Object = cmb_idatatype.selectedItem;
+                                        return obj.value;
+                                    }
+
+                                    protected function cmb_idatatype_changeHandler(event:ListEvent):void {
+                                        if (data.ifind > 0 && event.currentTarget.selectedLabel == "") {
+                                            event.currentTarget.selectedIndex = data.idatatype;
+                                        }
+
+                                        if (cmb_idatatype.selectedIndex == 1) {
+                                            outerDocument.fieldArr.getItemAt(outerDocument.dgrd_fields.selectedIndex).ilength = 4;
+                                        } else if (cmb_idatatype.selectedIndex == 3) {
+                                            outerDocument.fieldArr.getItemAt(outerDocument.dgrd_fields.selectedIndex).ilength = 8;
+                                        } else if (cmb_idatatype.selectedIndex == 4) {
+                                            outerDocument.fieldArr.getItemAt(outerDocument.dgrd_fields.selectedIndex).ilength = 1;
+                                        } else if (cmb_idatatype.selectedIndex == 0) {
+                                            outerDocument.fieldArr.getItemAt(outerDocument.dgrd_fields.selectedIndex).ilength = 100;
+                                        } else {
+                                            outerDocument.fieldArr.getItemAt(outerDocument.dgrd_fields.selectedIndex).ilength = "";
+                                        }
+
+                                        outerDocument.dgrd_fields.dataProvider.refresh();
+                                    }
+                                    ]]>
+								</fx:Script>
+								<mx:ComboBox id="cmb_idatatype" width="100%"
+											 dataProvider="{outerDocument.groupArr}"
+											 selectedIndex="{data.idatatype}" visible="{cmb_idatatype.text.length>0}" change="cmb_idatatype_changeHandler(event)" rowCount="10">
+								</mx:ComboBox>
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemEditor>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn dataField="ilength" headerText="长度" itemEditor="{ti}" sortable="false" editable="true">
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="是否为空" dataField="bempty" sortable="false"  editable="false"
+								   width="60">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:CheckBox textAlign="center" click="data.bempty=!data.bempty"
+										 selected="{(data.bempty==0)?false:true}" enabled="{outerDocument.isCheckBoxEnable}"/>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="关键字"  dataField="bkey" sortable="false"  editable="false"
+								   width="60">
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:CheckBox textAlign="center" click="data.bkey=!data.bkey"
+										 selected="{(data.bkey==0)?false:true}" enabled="{outerDocument.isCheckBoxEnable}"/>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn dataField="cmemo" headerText="备注" sortable="false" editable="true"></mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+		</mx:HBox>
+	</mx:VBox>
+</mx:HBox>

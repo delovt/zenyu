@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+           xmlns:s="library://ns.adobe.com/flex/spark"
+           xmlns:mx="library://ns.adobe.com/flex/mx"
+           xmlns:comps="yssoft.comps.*"
+           width="100%" height="100%"
+           implements="yssoft.impls.ICRMWindow"
+           creationComplete="getTreeXml();CRMtool.containerChildsEnabled(container,false);"
+           verticalScrollPolicy="off">
+    <fx:Script>
+		<![CDATA[
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.events.ListEvent;
+
+        import spark.events.TextOperationEvent;
+
+        private var isSearch:Boolean;
+
+        //lr add 搜索tree
+        protected function textinput1_changeHandler():void {
+            isSearch = false;
+            searchTree(searchTextInput.text);
+        }
+
+
+        public function searchTree(fname:String):void {
+            var vname:String = StringUtil.trim(fname);
+            if (vname == "") {
+                tre_tree.treeCompsXml = treeCompsXmlBase;
+            } else {
+                //lzx add 复制treeCompsXmlBase，防止CRMtool.searchTreeNode修改对象
+                var xmlCopy:XML = new XML(treeCompsXmlBase.toXMLString());
+                var xml:XML = CRMtool.searchTreeNode(xmlCopy.descendants("*"), vname);
+                if (xml) {
+                    tre_tree.treeCompsXml = xml;
+                    isSearch = true;
+                }
+            }
+
+        }
+
+        protected function searchTextInput_enterHandler(event:FlexEvent):void {
+            searchTextInput.selectAll();
+            searchTree(searchTextInput.text);
+        }
+
+        protected function searchTextInput_focusInHandler(event:FocusEvent):void {
+            searchTextInput.selectAll();
+        }
+
+        protected function tre_tree_itemClickHandler(event:ListEvent):void {
+            if (isSearch) {
+                backTree();
+            }
+            isSearch = false;
+        }
+
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = dgrd_consultclm.dataProvider.getItemIndex(item) + 1;
+            item.ino = lineNum;
+            return lineNum + "";
+        }
+        ]]>
+	</fx:Script>
+    <fx:Script source="../../scripts/ConsultViewScript.as"/>
+    <mx:HDividedBox width="100%" height="100%">
+        <mx:VBox width="20%" height="100%" styleName="lefttree">
+            <!-- 菜单树 -->
+            <mx:ApplicationControlBar id="menuBar1" width="100%" height="32" dock="true">
+                <s:Label text="参照管理" styleName="contentTitle"/>
+                <s:Spacer width="5"/>
+                <s:TextInput id="searchTextInput" text="搜索" width="100%" enter="searchTextInput_enterHandler(event)"
+                             focusIn="searchTextInput_focusInHandler(event)" change="textinput1_changeHandler()"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox width="100%" height="100%" styleName="lefttree1">
+                <comps:TreeCompsVbox id="tre_tree" width="100%" height="100%" borderVisible="false"
+                                     itemClick="tre_tree_itemClickHandler(event)"
+                                     change="CRMtool.toolButtonsEnabled(lbr_toolbar,null);CRMtool.containerChildsEnabled(container,false);getBodyData();get_cname_FuncregeditByID();"
+                                     styleName="content"/>
+
+            </mx:VBox>
+        </mx:VBox>
+        <!-- 参照信息维护 -->
+        <mx:VBox width="80%" styleName="centerbg4" creationComplete="CRMtool.setTabIndex(this.container)" height="100%">
+            <!-- 标签 -->
+            <mx:ApplicationControlBar styleName="centertop" id="menuBar2" x="0" y="0" width="100%" height="32"
+                                      dock="true">
+                <mx:ButtonBar id="lbr_toolbar" height="25" styleName="contentButtonBar"
+                              creationComplete="CRMtool.toolButtonsEnabled(lbr_toolbar,null)"
+                              dataProvider="{lbrItem}"
+                              itemClick="lbr_toolbar_itemClickHandler(event)"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox id="container" width="100%" paddingLeft="10" paddingRight="10" paddingTop="10" height="100%"
+                     verticalScrollPolicy="off">
+                <mx:VBox width="100%" styleName="content">
+                    <mx:HBox width="100%" paddingBottom="2" paddingLeft="20" paddingRight="20"
+                             verticalAlign="middle" borderVisible="false">
+                        <mx:Label text="参照编码:"/>
+                        <mx:TextInput id="tnp_ccode" width="100%" borderVisible="false"
+                                      change="tnp_ccode_changeHandler(event)"
+                                      text="{this.tre_tree.selectedItem.@ccode}"/>
+                        <mx:Label text="参照名称:"/>
+                        <mx:TextInput id="tnp_cname" width="100%" borderVisible="false"
+                                      text="{this.tre_tree.selectedItem.@cname}"/>
+                        <mx:Label text="数据权限控制:"/>
+                        <mx:CheckBox id="tnp_bdataauth" width="100%"
+                                     selected="{String(this.tre_tree.selectedItem.@bdataauth)=='true'}"/>
+                        <mx:Label text="是否启用多选:"/>
+                        <mx:CheckBox id="tnp_ballowmulti" width="100%"
+                                     selected="{String(this.tre_tree.selectedItem.@ballowmulti)=='true'}"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"/>
+                    <mx:HBox width="100%" paddingLeft="20" paddingRight="20" paddingTop="2"
+                             verticalAlign="middle" borderVisible="false">
+                        <mx:HBox width="50%">
+                            <mx:Label text="参照风格:"/>
+                            <mx:RadioButtonGroup id="rbtgn_sql"/>
+                            <mx:RadioButton id="rbtn_ctreesql" width="75" label="树参照"
+                                            click="rbtn_ctreesql_clickHandler(event)"
+                                            groupName="rbtgn_sql"
+                                            selected="{this.tre_tree.selectedItem.@itype==0}"
+                                            value="0"/>
+                            <mx:RadioButton id="rbtn_cgridsql" width="75" label="表参照"
+                                            click="rbtn_ctreesql_clickHandler(event)"
+                                            groupName="rbtgn_sql"
+                                            selected="{this.tre_tree.selectedItem.@itype==1}"
+                                            value="1"/>
+                            <mx:RadioButton id="rbtn_cconnsql" width="100" label="左树右表参照"
+                                            click="rbtn_ctreesql_clickHandler(event)"
+                                            groupName="rbtgn_sql"
+                                            selected="{this.tre_tree.selectedItem.@itype==2}"
+                                            value="2"/>
+                            <mx:RadioButton id="rbtn_cgridsql2" width="90" label="下拉框参照"
+                                            click="rbtn_ctreesql_clickHandler(event)"
+                                            groupName="rbtgn_sql"
+                                            selected="{this.tre_tree.selectedItem.@itype==3}"
+                                            value="3"/>
+                        </mx:HBox>
+                        <mx:HBox width="50%">
+                            <mx:Label text="关联程序:" id="lbl_sys"/>
+                            <comps:ConsultTextInput id="tnp_ifuncregedit" width="100%" iid="14" bindValueField="iid"
+                                                    bindLabelField="cname"
+                                                    styleName="contentTextInput" visibleIcon="{this.lbl_sys.enabled}"
+                                                    value="{this.tre_tree.selectedItem.@ifuncregedit}">
+                            </comps:ConsultTextInput>
+                            <mx:Label text="排序语句:" id="lbl_order"/>
+
+                            <mx:TextInput id="txt_order" width="100%" editable="false" styleName="contentTextInput"
+                                          borderStyle="none" text="{acConsultsetVo.cordersql}"/>
+
+
+                        </mx:HBox>
+                    </mx:HBox>
+                </mx:VBox>
+                <mx:Label paddingLeft="20" paddingRight="20" text="树SQL"></mx:Label>
+                <mx:VBox width="100%" borderStyle="inset" cornerRadius="8" paddingBottom="4"
+                         paddingTop="4" styleName="content">
+                    <mx:TextArea id="tnp_ctreesql" width="100%" height="20" borderVisible="false"
+                                 text="{acConsultsetVo.ctreesql}" verticalScrollPolicy="auto"/>
+                </mx:VBox>
+                <mx:Label paddingLeft="20" paddingRight="20" text="列SQL"></mx:Label>
+                <mx:VBox width="100%" borderStyle="inset" cornerRadius="8" paddingBottom="4"
+                         paddingTop="4" styleName="content">
+                    <mx:TextArea id="tnp_cgridsql" width="100%" height="30" borderVisible="false"
+                                 text="{acConsultsetVo.cgridsql}" verticalScrollPolicy="auto"/>
+                </mx:VBox>
+                <mx:Label paddingLeft="20" paddingRight="20" text="树列关联SQL"></mx:Label>
+                <mx:VBox width="100%" borderStyle="inset" cornerRadius="8" paddingBottom="4"
+                         paddingTop="4" styleName="content">
+                    <mx:TextArea id="tnp_cconnsql" width="100%" height="30" borderVisible="false"
+                                 text="{acConsultsetVo.cconnsql}" verticalScrollPolicy="auto"/>
+                </mx:VBox>
+                <mx:Label paddingLeft="20" paddingRight="20" text="列表信息"></mx:Label>
+                <mx:VBox id="vbx_grid" width="100%"
+                         paddingBottom="0" paddingRight="0" paddingTop="0" height="100%">
+                    <mx:HBox width="100%" height="100%">
+                        <mx:DataGrid id="dgrd_consultclm" width="100%" height="100%"
+                                     borderVisible="true" borderColor="#c4cccc" borderAlpha="1"
+                                     dataProvider="{resultArr}"
+                                     dragEnabled="{operType=='onEdit'}" dropEnabled="{operType=='onEdit'}"
+                                     dragMoveEnabled="{operType=='onEdit'}"
+                                     editable="false">
+                            <mx:columns>
+                                <mx:DataGridColumn width="50" dataField="ino" editable="false"
+                                                   headerText="序号" sortable="false" labelFunction="{doLineNum}"
+                                                   textAlign="center"></mx:DataGridColumn>
+                                <mx:DataGridColumn dataField="cfield" headerText="列名"
+                                                   sortable="false"></mx:DataGridColumn>
+                                <mx:DataGridColumn dataField="ccaption" headerText="默认标题"
+                                                   sortable="false"></mx:DataGridColumn>
+                                <mx:DataGridColumn dataField="cnewcaption" headerText="显示标题"
+                                                   sortable="false"></mx:DataGridColumn>
+                                <mx:DataGridColumn dataField="ifieldtype" editorDataField="value"
+                                                   headerText="数据类型"
+                                                   labelFunction="getIfieldtypeLabel"
+                                                   sortable="false">
+                                    <mx:itemEditor>
+                                        <fx:Component>
+                                            <mx:HBox>
+                                                <fx:Script>
+													<![CDATA[
+                                                    public function get value():Object {
+                                                        var obj:Object = cmb_ifieldtype.selectedItem;
+                                                        return obj.iid;
+                                                    }
+                                                    ]]>
+												</fx:Script>
+                                                <mx:ComboBox id="cmb_ifieldtype" width="100%"
+                                                             dataProvider="{outerDocument.ifieldtypeArr}"
+                                                             selectedIndex="{data.ifieldtype}" labelField="cname">
+                                                </mx:ComboBox>
+                                            </mx:HBox>
+                                        </fx:Component>
+                                    </mx:itemEditor>
+                                </mx:DataGridColumn>
+                                <mx:DataGridColumn dataField="icolwidth" headerText="列宽"
+                                                   sortable="false"></mx:DataGridColumn>
+                                <mx:DataGridColumn dataField="ialign" editorDataField="value"
+                                                   headerText="对齐方式"
+                                                   labelFunction="getIalignArrLabel"
+                                                   sortable="false">
+                                    <mx:itemEditor>
+                                        <fx:Component>
+                                            <mx:HBox horizontalAlign="center">
+                                                <fx:Script>
+														<![CDATA[
+                                                    import mx.collections.ArrayCollection;
+
+                                                    [Bindable]
+                                                    public var ialignArr:ArrayCollection = new ArrayCollection([
+                                                        {value:0, label:"居左对齐"},
+                                                        {value:1, label:"居中对齐"},
+                                                        {value:2, label:"居右对齐"}
+                                                    ]);
+
+                                                    public function get value():Object {
+                                                        var obj:Object = cmb_ialign.selectedItem;
+                                                        return obj.value;
+                                                    }
+                                                    ]]>
+													</fx:Script>
+                                                <mx:ComboBox id="cmb_ialign" width="100%"
+                                                             dataProvider="{ialignArr}"
+                                                             selectedIndex="{data.ialign}">
+                                                </mx:ComboBox>
+                                            </mx:HBox>
+                                        </fx:Component>
+                                    </mx:itemEditor>
+                                </mx:DataGridColumn>
+                                <mx:DataGridColumn dataField="cformat" headerText="显示格式"
+                                                   sortable="false"></mx:DataGridColumn>
+                                <mx:DataGridColumn width="60" editable="false" headerText="是否显示"
+                                                   sortable="false">
+                                    <mx:itemRenderer>
+                                        <fx:Component>
+                                            <mx:HBox horizontalAlign="center">
+                                                <fx:Script>
+													<![CDATA[
+                                                    protected function chk_bshow_changeHandler(event:Event):void {
+                                                        data.bshow = chk_bshow.selected;
+                                                    }
+                                                    ]]>
+												</fx:Script>
+                                                <mx:CheckBox id="chk_bshow"
+                                                             change="chk_bshow_changeHandler(event)"
+                                                             enabled="{outerDocument.tnp_ccode.editable}"
+                                                             selected="{data.bshow}">
+                                                </mx:CheckBox>
+                                            </mx:HBox>
+                                        </fx:Component>
+                                    </mx:itemRenderer>
+                                </mx:DataGridColumn>
+                                <mx:DataGridColumn width="60" editable="false" headerText="快速搜索"
+                                                   sortable="false">
+                                    <mx:itemRenderer>
+                                        <fx:Component>
+                                            <mx:HBox horizontalAlign="center">
+
+                                                <fx:Script>
+													<![CDATA[
+                                                    import yssoft.models.ConstsModel;
+                                                    import yssoft.tools.CRMtool;
+
+                                                    protected function chk_bsearch_changeHandler(event:Event):void {
+                                                        if (data.ifieldtype == 0) {
+                                                            data.bsearch = chk_bsearch.selected;
+                                                        }
+                                                        else {
+                                                            chk_bsearch.selected = false;
+                                                            data.bsearch = false;
+                                                            CRMtool.showAlert(ConstsModel.CONSULT_FASTSEARCHERR);
+                                                        }
+                                                    }
+                                                    ]]>
+												</fx:Script>
+
+                                                <mx:CheckBox id="chk_bsearch"
+                                                             change="chk_bsearch_changeHandler(event)"
+                                                             enabled="{outerDocument.tnp_ccode.editable}"
+                                                             selected="{data.bsearch}">
+                                                </mx:CheckBox>
+                                            </mx:HBox>
+                                        </fx:Component>
+                                    </mx:itemRenderer>
+                                </mx:DataGridColumn>
+                            </mx:columns>
+                        </mx:DataGrid>
+                        <mx:VBox height="100%" horizontalAlign="center" verticalAlign="middle" cornerRadius="0"
+                                 styleName="content" paddingRight="0">
+                            <mx:LinkButton id="lnk_upend"
+                                           click="CRMtool.rowMoveEndUp(dgrd_consultclm,'ino')"
+                                           icon="@Embed('/yssoft/assets/images/upend.png')"
+                                           toolTip="置顶">
+                            </mx:LinkButton>
+                            <mx:LinkButton id="lnk_up"
+                                           click="CRMtool.rowMoveUp(dgrd_consultclm,'ino')"
+                                           icon="@Embed('/yssoft/assets/images/up.png')" toolTip="上移">
+                            </mx:LinkButton>
+                            <mx:LinkButton id="lnk_down"
+                                           click="CRMtool.rowMoveDown(dgrd_consultclm,'ino')"
+                                           icon="@Embed('/yssoft/assets/images/down.png')"
+                                           toolTip="下移">
+                            </mx:LinkButton>
+                            <mx:LinkButton id="lnk_downend"
+                                           click="CRMtool.rowMoveEndDown(dgrd_consultclm,'ino')"
+                                           icon="@Embed('/yssoft/assets/images/downend.png')"
+                                           toolTip="置底">
+                            </mx:LinkButton>
+                        </mx:VBox>
+                    </mx:HBox>
+                </mx:VBox>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:HDividedBox>
+</mx:Canvas>

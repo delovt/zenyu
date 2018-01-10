@@ -1,0 +1,339 @@
+<ReportSettings version="1.1">
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>实施管理</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting"/>
+  </PageHeaderSettings>
+  <PageFooterSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>说明：实施管理</Value>
+          <Width>18</Width>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageFooterSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>5.6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>5.6</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>项目编号</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>ccode</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>项目名称</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>cname</BindingValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>客户名称</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>ccname</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>客户负责人</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>cpname</BindingValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>实施部门</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>depname</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实施人员</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>pcname</BindingValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>实施内容</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实施内容</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实施内容</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>实施内容</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>cdetail</BindingValue>
+          <Style>
+            <VerticalAlign>top</VerticalAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>4</ColSpan>
+          <RowSpan>7</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>开始时间</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>dfactbegin</BindingValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>结束时间</Value>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingValue>dfactend</BindingValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注：</Value>
+          <BindingValue>cmemo</BindingValue>
+          <Style>
+            <VerticalAlign>top</VerticalAlign>
+          </Style>
+          <ColSpan>4</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注</Value>
+          <ColSpan>4</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注</Value>
+          <ColSpan>4</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注</Value>
+          <ColSpan>4</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注</Value>
+          <ColSpan>4</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注</Value>
+          <ColSpan>4</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注</Value>
+          <ColSpan>4</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>备注</Value>
+          <ColSpan>4</ColSpan>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting"/>
+  </TableGroupSettings>
+</ReportSettings>

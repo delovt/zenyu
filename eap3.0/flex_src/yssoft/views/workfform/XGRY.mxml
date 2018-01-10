@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" verticalGap="0" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" label="相关人员" width="100%" height="100%" xmlns:comps="yssoft.comps.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.comps.ConsultList;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			[Bindable]
+			private var itemsXml:XML=<root>
+											<node pcname="负责人员" irole="-1"/>
+											<node pcname="相关人员" irole="-2"/>
+									  </root>;
+			[Bindable]
+			public var ifuncregedit:int=0;
+			[Bindable]
+			public var iinvoice:int=0;
+			
+			private var optType:String="";
+			private var param:Object;
+			
+			public function xgrySelectItems():void{
+				this.clearParam();
+				if(ifuncregedit<=0 || iinvoice <=0){
+					//CRMtool.tipAlert("表单信息不全[相关人员]");
+					return;
+				}
+				clearParam();
+				optType="selete";
+				param={};
+				param.ifuncregedit=ifuncregedit;
+				param.iinvoice=iinvoice;
+				AccessUtil.remoteCallJava("WorkFlowDest","xgrySelectItems",callBack,param,"正在获取相关人员...");
+			}
+			
+			private function xgryInsertItem(iperson:String,pcname:String,idepartment:String,dcname:String,irole:String):void{
+				optType="insert";
+				param={};
+				param.ifuncregedit=ifuncregedit;
+				param.iinvoice=iinvoice;
+				param.irole=irole;
+				param.iperson=iperson;
+				param.idepartment="";
+				param.pcname=pcname;
+				param.idepartment=idepartment;
+				param.dcname=dcname;
+				AccessUtil.remoteCallJava("WorkFlowDest","xgryInsertItem",callBack,param,"正在添加相关人员...");
+			}
+			
+			private function xgryDeleteItem():void{
+				if(checkIsFzr() == false){
+					CRMtool.tipAlert("非负责人员，不能删除！！");
+					return;
+				}
+				var item:Object=treeitems.selectedItem;
+				if(item == null || !item.hasOwnProperty("@iid")){
+					CRMtool.tipAlert("请选择后，再处理！！");
+					return;
+				}
+				var info:String="确认删除"+(String(item.@irole)=="1"?"负责人员":"相关人员")+"["+item.@pcname+"]";
+				CRMtool.tipAlert1(info,null,"AFFIRM",xgryDeleteItem1);
+				
+			}
+			
+			private function xgryDeleteItem1():void{
+				var item:Object=treeitems.selectedItem;
+				if(item == null || !item.hasOwnProperty("@iid")){
+					CRMtool.tipAlert("请选择后，再处理！！");
+					return;
+				}
+				optType="delete";
+				param={};
+				param.ifuncregedit=ifuncregedit;
+				param.iinvoice=iinvoice;
+				param.iid=String(item.@iid);
+				param.irole=String(item.@irole);
+				AccessUtil.remoteCallJava("WorkFlowDest","xgryDeleteItem",callBack,param,"正在删除相关人员...");
+			}
+			
+			private function callBack(event:ResultEvent):void{
+				if(optType=="selete"){
+					clearParam();
+					var retxml:XML=new XML(event.result);
+					(itemsXml..node.(@irole=="-1")[0] as XML).appendChild(retxml..node.(@irole=="1"));
+					(itemsXml..node.(@irole=="-2")[0] as XML).appendChild(retxml..node.(@irole=="2"));
+				}else if(optType=="delete"){
+					if((event.result as String)=="suc"){
+						CRMtool.tipAlert("删除人员，成功");
+						var iid:String=treeitems.selectedItem.@iid;
+						delete this.itemsXml..node.(hasOwnProperty("@iid") && @iid==iid)[0]
+					}else{
+						CRMtool.tipAlert(event.result as String);
+					}
+				}else if(optType=="insert"){
+					//Alert.show(""+isNaN(parseInt(event.result as String))+","+(event.result as String));
+					if(isNaN(parseInt(event.result as String))){
+						CRMtool.tipAlert(event.result as String);
+						return;
+					}else{
+						param.iid=event.result
+						if(bttype=="fz"){
+							(itemsXml..node.(@irole=="-1")[0] as XML).appendChild( new XML("<node iid='"+param.iid+"' pcname='"+param.pcname+"' irole='"+param.irole+"'/>"));
+						}else{
+							(itemsXml..node.(@irole=="-2")[0] as XML).appendChild(new XML("<node iid='"+param.iid+"' pcname='"+param.pcname+"' irole='"+param.irole+"'/>"));
+						}
+					}
+				}
+			}
+			private function lbfun(item:Object):String{
+				return item.@pcname
+			}
+			
+			public function clearParam():void{
+				itemsXml=<root>
+								<node pcname="负责人员" irole="-1"/>
+								<node pcname="相关人员" irole="-2"/>
+						  </root>;
+			}
+			
+			private var bttype:String="";
+			private function addFZXGR(type:String):void{
+				if(checkIsFzr() == false){
+					CRMtool.tipAlert("非负责人员，不能添加");
+					return;
+				}
+				if(ifuncregedit<=0 || iinvoice <=0){
+					CRMtool.tipAlert("表单信息不全[相关人员]");
+					return;
+				}
+				bttype=type;
+				new ConsultList(addCallBack,11,false);
+			}
+			
+			public function addCallBack(list:ArrayCollection):void{
+				//Alert.show("type["+bttype+"]"+mx.utils.ObjectUtil.toString(list));
+				if(list && list.length==1){
+					var item:Object=list.getItemAt(0);
+					if(bttype=="fz"){
+						xgryInsertItem(item.iid,item.cname,item.idepartment,item.dcname,"1");
+					}else{
+						xgryInsertItem(item.iid,item.cname,item.idepartment,item.dcname,"2");
+					}
+				}
+			}
+			
+			// 判断当前登录人，是不是，负责人
+			private function checkIsFzr():Boolean{
+				var curId:int=CRMmodel.userId;
+				var ret:int=(itemsXml..node.(@irole=="1" && hasOwnProperty("@iperson") && @iperson == curId) as XMLList).length();
+				if(ret <= 0){
+					return false;
+				}else{
+					return true;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<comps:TreeCompsVbox id="treeitems" width="100%" height="100%" dataProvider="{itemsXml}" labelFunction="lbfun" showRoot="false">	
+	</comps:TreeCompsVbox>
+	<comps:CrmDotLine width="100%"/>
+	<mx:HBox width="100%" horizontalGap="0" horizontalAlign="right" borderVisible="false" paddingBottom="5" paddingTop="5">
+		<mx:Button width="65"  styleName="xgrybutton" label="添加负责" click="addFZXGR('fz')"/>
+		<mx:Button width="65"  styleName="xgrybutton" label="添加相关" click="addFZXGR('xg')"/>
+		<mx:Button width="65"  styleName="xgrybutton" label="删除人员" click="xgryDeleteItem()"/>
+	</mx:HBox>
+</mx:VBox>

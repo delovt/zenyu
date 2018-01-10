@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<select id="DatadictionaryDest.getAcQueryclmList" parameterClass="int" resultClass="java.util.HashMap" >
+		select ac_queryclm.iid,ac_queryclm.ifuncregedit,cfield,ccaption,ifieldtype,dt.ctype ctype,iconsult,
+		ac_consultset.cname as iconsultname,cconsultbkfld,cconsultswfld,iqryno,bcommon,
+		icmtype,isortno,isttype,isnull(cdefault,'') cdefault,isnull(bunnull,0) bunnull,
+		isnull(bconsultendbk,0) bconsultendbk,cfixdefault,cconsultipvf,
+		ac_consultset.ifuncregedit consultifuncregedit,
+		 case when ac_consultset.itype=0 then ac_consultset.ctreesql
+		  else REPLACE(ac_consultset.cgridsql,'@join','') end consultSql,
+		 ac_consultset.itype,ac_consultset.bdataauth,
+		 case when iconsult is null then null when iconsult='' then null else 'false' end bconsultmtbk,cconsulttable,
+		 null cconsultcondition,null cconsultconfld,'3' iobjecttype,'TextInput' objecttype,case when iconsult is
+		  null then null when iconsult='' then null else 'true' end bconsultcheck,0 iconsultConfiguration,0 idatetype 
+		from ac_queryclm left join ac_consultset on ac_queryclm.iconsult=ac_consultset.iid 
+		left join as_datatype dt on dt.iid = ac_queryclm.ifieldtype
+		where ac_queryclm.ifuncregedit=#ifuncregedit# order by ac_queryclm.iqryno	 
+	</select>
+	<select id="DatadictionaryDest.getFWFConditionclmList" parameterClass="int" resultClass="java.util.HashMap" >
+
+        select A.iid,A.ifuncregedit,A.cfield,A.ccaption,A.idatatype as ifieldtype,D.ctype,B.iconsult,
+               C.cname as iconsultname,B.cconsultbkfld,B.cconsultswfld,0 as iqryno,convert(bit,1) as bcommon,
+               -1 as icmtype,0 as isortno,0 as isttype,'' cdefault,0 bunnull,
+               isnull(B.bconsultendbk,0) bconsultendbk,null cfixdefault,B.cconsultipvf,
+               C.ifuncregedit consultifuncregedit,
+               case when C.itype=0 then C.ctreesql else REPLACE(C.cgridsql,'@join','') end consultSql,
+		       C.itype,C.bdataauth, 
+               case when B.iconsult is null then null when B.iconsult='' then null else 'false' end bconsultmtbk,B.cconsulttable,
+		       null cconsultcondition,null cconsultconfld,'3' iobjecttype,'TextInput' objecttype,case when B.iconsult is
+		       null then null when iconsult='' then null else 'true' end bconsultcheck,0 iconsultConfiguration,0 idatetype 
+       from (select * from dbo.AC_datadictionary where bwfcd=1 and ifuncregedit=#ifuncregedit#) A 
+       left join Ac_consultConfiguration B  on A.iid=B.idatadictionary
+       left join ac_consultset C on B.iconsult=C.iid
+       left join as_datatype D on D.iid = A.idatatype
+	</select>
+	
+	<!-- 添加查询条件表信息 -->
+<!--	<insert id="add_Acqueryclm" parameterClass="java.util.HashMap">-->
+<!--		insert into ac_queryclm(ifuncregedit,cfield , ccaption , ifieldtype , iconsult , cconsultbkfld , cconsultswfld , -->
+<!--								iqryno , bcommon,icmtype,isortno,isttype) -->
+<!-- 						values(#ifuncregedit#,#cfield# , #ccaption# , #ifieldtype# , #iconsult# , #cconsultbkfld# , -->
+<!-- 								#cconsultswfld# , #iqryno# , #bcommon#,#icmtype#,#isortno#,#isttype#) -->
+<!-- 		<selectKey resultClass="int" keyProperty="iid" > -->
+<!--  				SELECT @@IDENTITY AS iid -->
+<!--	   </selectKey>-->
+<!--	</insert>-->
+	<insert id="add_Acqueryclm" parameterClass="java.util.HashMap">
+		$sqlvalue$
+	</insert>
+	
+	<delete id="delete_Acqueryclm" parameterClass="int">
+		delete from ac_queryclm where iid=#iid#
+	</delete>
+	
+	<update id="update_Acqueryclm" parameterClass="java.util.HashMap">
+		$sqlvalue$
+	</update>
+	
+	<update id="update_Acqueryclm_sort"  parameterClass="java.util.HashMap">
+		update AC_queryclm set isortno=#isortno#,isttype=#isttype# where iid=#iid#
+	</update>
+	
+	<update id="update_Acqueryclm_Condition"  parameterClass="java.util.HashMap">
+		update AC_queryclm set bcommon=#bcommon#,icmtype=#icmtype# where iid=#iid#
+	</update>
+	
+</sqlMap> 

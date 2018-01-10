@@ -1,0 +1,62 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+
+<sqlMap>
+
+	<select id="getSRfeedbackoniinvoice"  parameterClass="java.util.HashMap"  resultClass="java.util.HashMap" >
+		select iid from SR_feedback where ifuncregedit=#ifuncregedit# and iinvoice=#iinvoice#
+	</select>
+
+     <update id="SrBillDest.UpdateData" parameterClass="java.util.HashMap">
+     	$sqlValue$
+     </update>
+     
+     <update id="SrBillDest.UpdateDataForStatus" parameterClass="java.util.HashMap">
+		update sr_bill set istatus=#istatus#,imanager=#imanager#,dmanager=#dmanager#,
+		iclose=#iclose#,dclose=#dclose#
+		where iid = #iid#
+	</update>
+	<!-- 手工关闭服务工单，关闭跟踪时，修改cclose -->
+	<update id="SrBillDest.CloseDataForStatus" parameterClass="java.util.HashMap">
+		update sr_bill set istatus=#istatus#,imanager=#imanager#,dmanager=#dmanager#,
+		iclose=#iclose#,dclose=#dclose#,cclose=#cclose#
+		where iid = #iid#
+	</update>
+	
+	<update id="SrBillDest.UpdateDataForClose" parameterClass="java.util.HashMap">
+		update sr_bill set istatus=#istatus#,iclose=#iclose#,dclose=#dclose#
+		where iid = #iid#
+	</update>
+     
+     <update id="SrBillDest.UpdateDataForStatus2" parameterClass="java.util.HashMap">
+		update sr_bill set cdescription=#cdescription#,
+		cprocess=#cprocess#,dengineer=#dengineer#,cfeedback=#cfeedback#,
+		ffee=#ffee#,cmemo=#cmemo#,istatus=#istatus#,irecord=#irecord#,drecord=#drecord#,
+		iresult=#iresult#,ifeedback=#ifeedback#,
+		darrival=#darrival#,ddeparture=#ddeparture#,iengineer=#iengineer#
+		where iid = #iid#
+	</update>
+	
+	<update id="updateSrProject" parameterClass="java.util.HashMap">
+		update sr_project set iperson=#iperson#,
+		dplanbegin=#dplanbegin#,
+		dplanend=#dplanend#,
+		fplan=#fplan#
+		where iid = #iid#
+	</update>
+	
+	<update id="updateChangeSrProject" parameterClass="java.util.HashMap">
+		update sr_projectchange set istate=#istate#
+		where iid = #sr_projectchange_iid#
+	</update>
+	
+	<update id="updateDataForPerson" parameterClass="java.util.HashMap">
+        update sr_bill set iengineer=#iengineer#,iallot = #iallot#,dallot=GETDATE() where iid =#iid# and istatus=1
+	</update>
+	
+	<update id="updateDataForPersonAndDaskprocess" parameterClass="java.util.HashMap">
+	update sr_bill set iengineer=#iengineer#,daskprocess=#daskprocess#,iallot = #iallot#,dallot=GETDATE()
+		where iid =#iid# and istatus=1
+<!-- 		update sr_bill set iengineer=#iengineer#,daskprocess=isnull((select daskprocess from sr_bill where iid=#iid#),#daskprocess#) -->
+<!-- 		where iid =#iid# and istatus=1 -->
+	</update>
+</sqlMap>

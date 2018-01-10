@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:RichTextEditor xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   headerHeight="0" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
+				   dropShadowVisible="false" borderVisible="false"
+				   width="100%" height="100%" creationComplete="onCreationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.containers.ControlBar;
+			import mx.events.FlexEvent;
+			
+			protected function onCreationCompleteHandler(event:FlexEvent):void
+			{
+				this.fontFamilyArray=["宋体","Arial"];
+				
+				(this.toolbar.parent as ControlBar).setStyle("backgroundAlpha",0);
+				(this.toolbar.parent as ControlBar).setStyle("paddingBottom",0);
+				(this.toolbar.parent as ControlBar).setStyle("paddingLeft",0);
+				(this.toolbar.parent as ControlBar).setStyle("paddingRight",0);
+				(this.toolbar.parent as ControlBar).setStyle("paddingTop",0);
+				this.toolbar.setStyle("horizontalGap",3);
+				this.linkTextInput.visible=false;
+				this.linkTextInput.includeInLayout=false;
+				this.textArea.setStyle("borderVisible",false);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+</mx:RichTextEditor>

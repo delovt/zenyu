@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 查看由此单据生成的客商资产-->
+	<select id="getFditem"  resultClass="java.util.HashMap">
+		select * from sr_fditem order by ccode
+	</select>
+</sqlMap>

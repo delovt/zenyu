@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx" horizontalGap="1" verticalAlign="middle" horizontalAlign="right"
+         paddingRight="1" creationComplete="onCreationCompleteHandler(event)">
+    <fx:Metadata>
+        [Event(name="getPageComplete", type="yssoft.evts.GetPageComplete")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.evts.GetPageComplete;
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+
+        [Bindable]
+        private var _curPageNum:int = 1;			// 当前页
+
+        public function get curPageNum():int {
+            return this._curPageNum;
+        }
+
+        public function set curPageNum(val:int):void {
+            this._curPageNum = val;
+        }
+
+        //是否显示过度窗口，默认不显示
+        private var _showLoad:Boolean = false;
+
+        [Bindable]
+        private var _perPageNum:int = 30;		// 每页条数
+        [Bindable]
+        private var _allPageNum:int = 1;			// 总页数
+        public function get allPageNum():int {
+            return this._allPageNum;
+        }
+
+        [Bindable]
+        private var _selectedNum:int = 0;		// 当前被选中的条数，不能大于每页条数_perpagenum
+        [Bindable]
+        public var _allItemNum:int = 0;		// 数据总数
+        [Bindable]
+        private var _isRepeat:String = "0";	//是否每次都加载 0 不重复
+
+        [Bindalbe]
+        private var _optType:String = "Top";			// 当前操作类型
+
+        [Bindalbe]
+        private var datalist:ArrayCollection = new ArrayCollection();
+
+        public function set selectedNum(value:int):void {
+            this._selectedNum = value;
+        }
+
+        [Bindable]
+        private var _sqlid:String = "";			// sql id
+        [Bindable]
+        private var _params:Object;			// sql id 对应的 参数
+
+        public function set params(value:Object):void {
+            this._params = value;
+        }
+
+        public function get params():Object {
+            return this._params;
+        }
+
+        [Bindable]
+        public var callBack:Function;			// 回调函数
+
+        // 执行分页方法
+        public function initPageHandler(params:Object, callBack:Function):void {
+            if (params == null || !params.hasOwnProperty("sqlid") || !params.hasOwnProperty("pagesize") || !params.hasOwnProperty("curpage")) {
+                return;
+            }
+            this._params = params;
+            this.callBack = callBack;
+            if (params.hasOwnProperty("pagesize")) {
+                this._perPageNum = params.pagesize;
+            }
+            if (params.hasOwnProperty("curpage")) {
+                this._curPageNum = params.curpage;
+            }
+            this._sqlid = params.sqlid;
+            this._isRepeat = params.isRepeat;
+
+            if (_curPageNum != 0) //sdy
+                onTopHandler();
+            crmPage(_params.ifuncregedit);
+        }
+
+        // 处理点击 时间
+        private function pageHandler(event:MouseEvent = null):void {
+            _optType = event.currentTarget.name;
+            this["on" + _optType + "Handler"]();
+            crmPage();
+        }
+
+        // 获取总页数
+        private function getAllPageNum():int {
+            _allPageNum = (_allItemNum / _perPageNum < 0 ? 1 : Math.ceil(_allItemNum / _perPageNum));
+            if (_allPageNum == 0) {
+                _allPageNum = 1;
+            }
+
+            return _allPageNum;
+        }
+
+        // top
+        public function onTopHandler():void {
+            _curPageNum = 1;
+        }
+
+        //pre
+        public function onPreHandler():void {
+            _curPageNum = (_curPageNum - 1 < 1 ? 1 : _curPageNum - 1);
+        }
+
+        // next
+        public function onNextHandler():void {
+            _curPageNum = (_curPageNum + 1 > _allPageNum ? _allPageNum : _curPageNum + 1);
+        }
+
+        // tail
+        public function onTailHandler():void {
+            _curPageNum = _allPageNum;
+        }
+
+        //go
+        public function onGoHandler():void {
+            _curPageNum = parseInt(this.curPageTI.text);
+        }
+
+        // refresh
+        private function onRefreshHandler():void {
+
+        }
+
+        protected function onCreationCompleteHandler(event:FlexEvent):void {
+            //this.onTopHandler();
+            //pageHandler();
+        }
+
+        // 执行后台 方法
+
+        private function crmPage(ifuncregedit:int = 0):void {
+            if (ifuncregedit == 0)
+                if (_params == null) {
+                    return;
+                }
+            ifuncregedit = _params.ifuncregedit;
+            this._selectedNum = 0;
+            if (!params) {
+                return;
+            }
+            params.pagesize = this._perPageNum;
+            params.curpage = this._curPageNum;
+            if (isstart0) {
+                params.topsize = this._perPageNum * (this._curPageNum - 1);
+            } else {
+                params.topsize = this._perPageNum * this._curPageNum;
+            }
+            AccessUtil.remoteCallJava("WorkFlowDest", "crmPage", function (event:ResultEvent):void {
+                crmPageCallBack(event, ifuncregedit);
+            }, params, "正在获取数据", showLoad);
+            //AccessUtil.remoteCallJava("WorkFlowDest","crmPage",crmPageCallBack,params,null,false);
+        }
+
+        [Bindable]
+        private var _curpageitems:int = 0; // 当前页的记录条数
+        private function crmPageCallBack(event:ResultEvent, ifuncregedit:int):void {
+            var ret:Object = event.result;
+            _allItemNum = ret.count;
+
+            //计算完数量后，扔出事件，带有本列表注册码，合计数量
+            var myevent:GetPageComplete = new GetPageComplete("getPageComplete", ifuncregedit, ret.count);
+            this.dispatchEvent(myevent);
+
+            datalist = ret.list as ArrayCollection;
+            getAllPageNum();
+            this.callBack(datalist);
+            _curpageitems = datalist.length;
+
+
+        }
+
+        [Bindable]
+        public var isshowbt:Boolean = true;
+
+        [Bindable]
+        public var isstart0:Boolean = false; // 是从0开始的
+
+        public function get showLoad():Boolean {
+            return _showLoad;
+        }
+
+        public function set showLoad(value:Boolean):void {
+            _showLoad = value;
+        }
+
+        //验证输入值
+        private function curPageTI_changeHandler(event:Event):void {
+            var itext:String = this.curPageTI.text;
+            //Alert.show("parseInt(itext):"+parseInt(itext)+","+(!parseInt(itext)));
+            if (!parseInt(itext)) {
+                this.curPageTI.text = "1";
+                return;
+            }
+            if (parseInt(itext) < 1) {
+                this.curPageTI.text = "1";
+                return;
+            }
+            if (parseInt(itext) > this._allPageNum) {
+                this.curPageTI.text = "" + this._allPageNum;
+                return;
+            }
+            this.curPageTI.text = "" + parseInt(this.curPageTI.text);
+        }
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+
+    <mx:LinkButton click="pageHandler(event)" name="Top" icon="{ConstsModel.page_top}" width="24" height="100%"
+                   styleName="icon_over"/>
+    <mx:LinkButton click="pageHandler(event)" name="Pre" icon="{ConstsModel.page_pre}" width="24" height="100%"
+                   styleName="icon_over"/>
+    <mx:TextInput visible="false" includeInLayout="false" id="curPageTI" change="curPageTI_changeHandler(event)"
+                  contentBackgroundAlpha="0.0" paddingTop="0"
+                  paddingLeft="0" paddingRight="0" paddingBottom="0" color="#ff8100" width="30" height="19"
+                  text="{this._curPageNum}" borderVisible="true" textAlign="center" restrict="0-9"/>
+
+    <mx:LinkButton click="pageHandler(event)" name="Next" icon="{ConstsModel.page_next}" width="24" height="100%"
+                   styleName="icon_over"/>
+    <mx:LinkButton click="pageHandler(event)" name="Tail" icon="{ConstsModel.page_tail}" width="24" height="100%"
+                   styleName="icon_over"/>
+    <s:Spacer width="6"/>
+    <mx:LinkButton visible="false" includeInLayout="false" label="跳转" click="pageHandler(event)" styleName="jumpstyle"
+                   name="Go"/>
+
+    <mx:Text text="{this._curPageNum}/{this._allPageNum}" paddingTop="0" paddingBottom="0" color="#ff8100"/>
+    <mx:Text text=" 页" paddingTop="0" paddingBottom="0"/>
+    <mx:Text text="，共" visible="{isshowbt}" includeInLayout="{isshowbt}"/>
+    <mx:Text text="{this._allItemNum}" visible="{isshowbt}" includeInLayout="{isshowbt}" color="#ff8100"/>
+    <mx:Text text="条，已选" visible="{isshowbt}" includeInLayout="{isshowbt}" id="yixuan"/>
+    <mx:Text text="{this._selectedNum}" visible="{isshowbt}" includeInLayout="{isshowbt}" color="#ff8100" id="yixuan2"/>
+    <mx:Text text="条" visible="{isshowbt}" includeInLayout="{isshowbt}"/>
+</mx:HBox>

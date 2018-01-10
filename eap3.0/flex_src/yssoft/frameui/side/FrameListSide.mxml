@@ -1,0 +1,975 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                styleName="lefttree"
+                verticalGap="0"
+                width="100%" height="100%"
+                xmlns:side="yssoft.frameui.side.*"
+                creationComplete="vbox1_creationCompleteHandler(event)"
+        >
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+        <mx:VBox id="dateBox" width="237" paddingLeft="10" paddingBottom="10" paddingTop="5">
+            <mx:VBox width="100%" verticalGap="10">
+                <mx:HBox width="100%" verticalAlign="middle">
+					<s:Label text="开始日期："/>
+                    <mx:DateField width="100%" id="beginDate" formatString="YYYY-MM-DD" yearNavigationEnabled="true"
+                                  dayNames="['日','一','二','三','四','五','六']"
+                                  monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]"/>
+				</mx:HBox>					
+				<mx:HBox width="100%" verticalAlign="middle">
+                    <s:Label text="结束日期："/>
+                    <mx:DateField width="100%" id="endDate" formatString="YYYY-MM-DD" yearNavigationEnabled="true"
+                                  dayNames="['日','一','二','三','四','五','六']"
+                                  monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]"/>
+                </mx:HBox>
+                <mx:HBox width="100%" horizontalAlign="right">
+                    <s:Button id="dateSearch" label="查询" width="60" click="dateSearch_clickHandler(event)"/>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:VBox>
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.collections.ArrayList;
+        import mx.collections.IViewCursor;
+        import mx.collections.Sort;
+        import mx.collections.SortField;
+        import mx.controls.DateField;
+        import mx.controls.Tree;
+        import mx.controls.tabBarClasses.Tab;
+        import mx.controls.treeClasses.ITreeDataDescriptor;
+        import mx.events.FlexEvent;
+        import mx.events.IndexChangedEvent;
+        import mx.events.ListEvent;
+        import mx.formatters.DateFormatter;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.ObjectUtil;
+
+        import yssoft.comps.frame.FrameworkVBoxView;
+        import yssoft.models.CRMmodel;
+        import yssoft.models.DateHadle;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.views.listset.ListcdWindow;
+        import yssoft.views.person.FavoritesTitle;
+
+        private var searchViewButtonList:ArrayCollection;
+        private var nearEditButtonList:ArrayCollection;
+        private var relateFunButtonList:ArrayCollection;
+        private var relatePerButtonList:ArrayCollection;
+
+        private var allPanelList:ArrayCollection;
+        private var allButtonList:ArrayCollection;
+
+        private var _close:Boolean;
+        private var _parentBox:FrameworkVBoxView;
+
+        private var _ifuncregedit:int = 0;
+        private var iperson:int = CRMmodel.userId;
+
+        private var _ilistcd:int;
+
+        public function get ilistcd():int {
+            return _ilistcd;
+        }
+
+        public function set ilistcd(value:int):void {
+            _ilistcd = value;
+        }
+
+
+        [Bindable]
+        public var resultClassTree:ArrayCollection;
+
+        protected function vbox1_creationCompleteHandler(event:FlexEvent):void {
+            ininPanels();
+            initTitleButtonLists();
+            initPanelLists();
+
+            this.close = this.close;
+        }
+
+        private function ininPanels():void {
+
+            allPanelList = new ArrayCollection(panelContainer.getChildren());
+
+        }
+
+        private function initTitleButtonLists():void {
+            allButtonList = new ArrayCollection();
+            allButtonList.addItem({label: "加入", owner: myFavorite});
+            allButtonList.addItem({label: "移除", owner: myFavorite});
+            allButtonList.addItem({label: "维护", owner: myFavorite});
+
+
+            for each(var buttonItem:Object in allButtonList) {
+                buttonItem.buttonEventListener = panelButtonCallBack;
+            }
+
+            for each(var panelItem:CorePanelPro in allPanelList) {
+                var panelButtonList:ArrayCollection = new ArrayCollection();
+                for each(var buttonItem:Object in allButtonList) {
+                    if (buttonItem.owner == panelItem)
+                        panelButtonList.addItem(buttonItem);
+                }
+                panelItem.buttonList = panelButtonList;
+            }
+
+        }
+
+        private function initPanelLists():void {
+            //initmyFavoriteLists();
+            //initNearEditLists();
+        }
+
+        public function initmyFavoriteLists():void {
+            AccessUtil.remoteCallJava("favoritesDest", "getFavoritesList", function (event:ResultEvent):void {
+                var resultList:ArrayCollection = event.result as ArrayCollection;
+                if (resultList == null)
+                    return;
+
+                if (resultList.length == 0) {
+                    myFavorite.listDatas.removeAll();
+                    return;
+                }
+
+                var favoriteLists:ArrayCollection = new ArrayCollection();
+                for each(var item:Object in resultList) {
+                    item.cdetail = item.cdetail == null ? "" : item.cdetail;
+                    favoriteLists.addItem({mainLabel: item.cname, iid: item.iid, cdetail: item.cdetail});
+                }
+                myFavorite.listDatas.removeAll();
+                myFavorite.listDatas.addAll(favoriteLists);
+            }, {ifuncregedit: ifuncregedit, iperson: iperson}, null, false);
+
+            myFavorite.myList.addEventListener(ListEvent.ITEM_CLICK, function (event:ListEvent):void {
+                searchFavoriteDate();
+            });
+        }
+
+        public function initSearchViewLists():void {
+            AccessUtil.remoteCallJava("ACListsetDest", "getListcdList", function (event:ResultEvent):void {
+                var resultList:ArrayCollection = event.result as ArrayCollection;
+                if (resultList == null)
+                    return;
+
+                if (resultList.length == 0) {
+                    searchView.listDatas.removeAll();
+                    return;
+                }
+
+                var searchViewLists:ArrayCollection = new ArrayCollection();
+                for each(var item:Object in resultList) {
+                    item.cdetail = item.cdetail == null ? "" : item.cdetail;
+                    searchViewLists.addItem({mainLabel: item.cname, iid: item.iid});
+                }
+
+                searchView.listDatas.removeAll();
+                searchView.listDatas.addAll(searchViewLists);
+
+                if (ilistcd > 0)
+                    searchView.setListSelectItem(ilistcd);
+            }, {ifuncregedit: ifuncregedit}, null, false);
+        }
+
+        public function searchSearchViewDate(iid:int = 0):void {
+            if (searchView.myList.selectedItem == null)
+                return;
+
+            if (iid == 0)
+                iid = int(searchView.myList.selectedItem.iid);
+
+            var sql:String = "select * from AC_listcd where iid=" + iid;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var resultArr:ArrayCollection = event.result as ArrayCollection;
+                if (resultArr) {
+                    var sql:String = resultArr.getItemAt(0).csql;
+                    parentBox.itemObj.relatedSql = sql;
+                    parentBox.search();
+                }
+            }, sql);
+        }
+
+        private function searchFavoriteDate():void {
+            var condition:String = myFavorite.myList.selectedItem.cdetail;
+            if (condition == "") condition = "('')";
+            var strsql:String = parentBox.acListsetVo.csql1 + " and " + parentBox.ctable + ".iid in " + condition;
+            parentBox.listsql = strsql;
+
+            parentBox.search(1);
+        }
+
+        //add by lzx begin
+        private function initNearEditListsMaker():void {
+            var labelArr:Array = [
+                {label: "今天"},
+                {label: "本周"},
+                {label: "本月"},
+                {label: "本年"},
+                {label: "自定义"}
+            ];
+            var makerItemTextButtonList:ArrayCollection = new ArrayCollection(labelArr);
+            for each(var makeritem:Object in makerItemTextButtonList) {
+                makeritem.buttonEventListener = itemLabelButtonCallBack;
+            }
+            var listDatas:ArrayCollection = new ArrayCollection();
+
+            listDatas.addItem({mainLabel: "按制单时间", textButtonsList: makerItemTextButtonList});
+            nearEdit.listDatas.addAll(listDatas);
+            nearEdit.myList.addEventListener(ListEvent.ITEM_CLICK, function (event:ListEvent):void {
+                nearEdit.plusBox.removeAllChildren();
+            });
+        }
+
+        private function initNearEditListsModify():void {
+            var labelArr:Array = [
+                {label: "今天"},
+                {label: "本周"},
+                {label: "本月"},
+                {label: "本年"},
+                {label: "自定义"}
+            ];
+            var modifyItemTextButtonList:ArrayCollection = new ArrayCollection(labelArr);
+
+            for each(var modifyitem:Object in modifyItemTextButtonList) {
+                modifyitem.buttonEventListener = itemLabelButtonCallBack;
+            }
+
+            var listDatas:ArrayCollection = new ArrayCollection();
+
+            listDatas.addItem({mainLabel: "按修改时间", textButtonsList: modifyItemTextButtonList});
+            nearEdit.listDatas.addAll(listDatas);
+            nearEdit.myList.addEventListener(ListEvent.ITEM_CLICK, function (event:ListEvent):void {
+                nearEdit.plusBox.removeAllChildren();
+            });
+        }
+
+        //add by lzx end
+
+        private function itemLabelButtonCallBack(event:MouseEvent, data:Object):void {
+            var mainLabel:String = data.mainLabel;
+            var itemLabel:String = (event.target as Label).text;
+            nearEdit.plusBox.removeAllChildren();
+            if (itemLabel == "自定义") {
+                nearEdit.plusBox.addChild(dateBox);
+            }
+
+            var searchsql:String;
+            if (mainLabel == "按制单时间") {
+                nearEdit.refreshListHeight();
+                searchsql = getDateSql(itemLabel, "dmaker", parentBox.ctable);
+            }
+            if (mainLabel == "按修改时间") {
+                nearEdit.refreshListHeight();
+                searchsql = getDateSql(itemLabel, "dmodify", parentBox.ctable);
+            }
+            if (CRMtool.isStringNotNull(searchsql)) {
+                parentBox.sideChildSql = " and iid in ( select iid from " + parentBox.ctable + " where 1=1 " + searchsql + " ) ";
+                parentBox.search(3);
+            }
+        }
+
+        private function getDateSql(itemLabel:String, datefield:String, ctable:String):String {
+            var datestr:String = "";
+            var fmt:DateFormatter = new DateFormatter();
+            var date:Date = new Date();
+            var dcondition:String = "";
+
+            fmt.formatString = "YYYY-MM-DD";
+            dcondition = " and substring(convert(nvarchar(120)," + ctable + "." + datefield + ",120),0,11)";
+
+            switch (itemLabel) {
+                case "今天":
+                    datestr = dcondition + "='" + fmt.format(date) + "'";
+                    break;
+                case "本周":
+                    datestr = dcondition + " between '" + DateHadle.getFirstOfWeek() + "' and '" + DateHadle.getEndOfWeek() + "'";
+                    break;
+                case "本月":
+                    datestr = dcondition + " between '" + DateHadle.getFirstOfMonth() + "' and '" + DateHadle.getEndOfMonth() + "'";
+                    break;
+                case "本年":
+                    datestr = dcondition + " between '" + DateHadle.getYear() + "-01-01' and '" + DateHadle.getYear() + "-12-31'";
+                    break;
+                default:
+                    break;
+            }
+
+            return datestr;
+        }
+
+        private function panelButtonCallBack(event:MouseEvent):void {
+            var item:Label = event.target as Label;
+            if (item == getPanelButton(searchView, "维护")) {
+                var ass:ListcdWindow = new ListcdWindow();
+                ass.width = 700;
+                ass.csql1 = parentBox.acListsetVo.csql1;
+                ass.ifuncregedit = this._ifuncregedit;
+                ass.height = 500;
+                ass.owner = this;
+                CRMtool.openView(ass);
+            }
+            if (item == getPanelButton(myFavorite, "加入")) {
+                //加入修改代码
+                //if(parentBox.favoritesFlag!=100)
+                onFavoritesPublic(0);
+            }
+            if (item == getPanelButton(myFavorite, "移除")) {
+                onFavoritesPublic(1);
+            }
+            if (item == getPanelButton(myFavorite, "维护")) {
+                var favo:FavoritesTitle = new FavoritesTitle();
+                favo.width = 700;
+                favo.height = 500;
+                favo.ifuncregedit = _ifuncregedit;
+                favo.owner = this;
+                CRMtool.openView(favo);
+            }
+
+
+        }
+
+        private function onFavoritesPublic(flag:int):void {
+
+            var strflag:String = "加入";
+            var cdetail:String = "";
+            var listuniidArr:ArrayCollection = new ArrayCollection();
+            var listiidArr:ArrayCollection = new ArrayCollection();
+            var favori_iid:int;
+            var favori_ifuncregedit:int;
+
+            if (myFavorite.myList.selectedIndex == -1) {
+                CRMtool.tipAlert("请选择收藏目录!");
+                return;
+            }
+            cdetail = myFavorite.myList.selectedItem.cdetail;
+
+            if (flag == 1) {
+                if (cdetail == "") return;
+                strflag = "移除";
+                listuniidArr = this.parentBox.dgrd_person.getUnSelectRows();//获取未选中项
+            }
+
+            listiidArr = this.parentBox.dgrd_person.getSelectRows();//获取选中项(加入时作为加入集合，移除时作为移除集合)
+
+            if (listiidArr.length == 0) {
+                CRMtool.tipAlert("请选择需要" + strflag + "收藏的记录！");
+                return;
+            }
+
+            favori_iid = myFavorite.myList.selectedItem.iid;//选中收藏夹内码
+            favori_ifuncregedit = _ifuncregedit;//赋值加入收藏夹中注册内码
+
+            onFavorites(flag, favori_iid, listuniidArr, listiidArr);
+        }
+
+        private function onFavorites(flag:int, favori_iid:int, listuniidArr:ArrayCollection, listiidArr:ArrayCollection):void {
+
+            var objvalue:Object = {};
+            var striid:String = "";
+            var flag_label:String;
+            var cdetail:String;
+
+            objvalue.iid = favori_iid;
+
+            if (flag == 0) {//加入
+                objvalue.cdetail = onResolve(listiidArr);//加入时分解的是选中集合项
+                flag_label = "加入";
+
+            }
+            else {//移除
+                flag_label = "移除";
+
+                if (this.parentBox.favoritesFlag == 0) {
+                    CRMtool.tipAlert("请选择收藏夹列表！");
+                    return
+                }
+                ;
+
+                if (listuniidArr.length == 0)
+                    objvalue.cdetail = "";
+                else
+                    objvalue.cdetail = onConcatIID(listuniidArr);//移除时分解的是未选中集合项
+            }
+
+            cdetail = objvalue.cdetail;
+            var a:Array = cdetail.split(",")
+            if (a.length > 200) {
+                CRMtool.tipAlert("最多只允许收藏200条记录，请检查。");
+                return;
+            }
+
+            AccessUtil.remoteCallJava("favoritesDest", "updateFavoritesCdetail", function (evt:ResultEvent):void {
+                if (evt.result as String == "sucess") {
+                    //判断已经 添加的记录不在显示 成功添加多少条数据
+                    if (listiidArr.length != 0) {
+                        CRMtool.tipAlert("已经成功" + flag_label + " " + listiidArr.length + " 条记录！");
+                    }
+                    myFavorite.myList.selectedItem.cdetail = cdetail;
+                    if (flag_label == "移除")
+                        searchFavoriteDate();
+                }
+                else
+                    CRMtool.tipAlert(flag_label + "失败！");
+            }, objvalue);
+        }
+
+        //YJ Add 分解内码集合
+        private function onResolve(newarr:ArrayCollection):String {
+
+            //获取原始收藏记录
+            var oldCdetail:String = myFavorite.myList.selectedItem.cdetail + "";
+            var oldarr:ArrayCollection = new ArrayCollection();
+            var paramArr:ArrayCollection = new ArrayCollection();//参数记录集
+
+            if (oldCdetail != "") {
+                var strsub:String = oldCdetail;
+                var strsub1:String = strsub.substr(1, strsub.length);
+                var strsub2:String = strsub1.substr(0, strsub1.indexOf(")"));
+                var temparr:Array = strsub2.split(",");
+                if (temparr.length > 0) {
+                    for (var i:int = 0; i < temparr.length; i++) {
+                        var objitem:Object = {};
+                        objitem.iid = temparr[i];
+
+                        oldarr.addItem(objitem);
+                    }
+                }
+            }
+
+            //新旧数据比对分析
+            if (oldarr.length > 0) {
+
+                for (var j:int = 0; j < oldarr.length; j++) {
+
+                    var oldiid:String = oldarr[j]["iid"];
+
+                    for (var k:int = 0; k < newarr.length; k++) {
+
+                        var newiid:String = newarr[k]["iid"];
+
+                        if (newiid == oldiid) {
+                            newarr.removeItemAt(k);
+                            k--;
+                            break;
+                        }
+
+                    }
+
+                }
+
+                //将新数据添加至旧数据
+                for (var l:int = 0; l < newarr.length; l++) {
+                    var lnewiid:String = newarr[l]["iid"];
+                    var obj:Object = {};
+                    obj.iid = lnewiid;
+                    oldarr.addItem(obj);
+
+                }
+
+                paramArr = oldarr;
+
+            }
+            else
+                paramArr = newarr;
+
+            return onConcatIID(paramArr);
+
+        }
+
+        //拼接IID
+        private function onConcatIID(arr:ArrayCollection):String {
+
+            var strsql:String = "(";
+
+            for (var i:int = 0; i < arr.length; i++) {
+                var obj:Object = arr.getItemAt(i);
+
+                strsql += obj.iid + ",";
+            }
+
+            strsql = strsql.substr(0, strsql.lastIndexOf(",")) + ")";
+
+            return strsql;
+        }
+
+        protected function applicationcontrolbar_clickHandler(event:MouseEvent):void {
+            checkChildrenPanelAllClose();
+            if (close) {
+                close = false;
+            } else {
+                close = true;
+            }
+        }
+
+        public function get close():Boolean {
+            return _close;
+        }
+
+        public function set close(value:Boolean):void {
+            _close = value;
+            if (value) {
+                closeOrOpenAllPanel(true);
+            } else {
+                closeOrOpenAllPanel(false);
+            }
+        }
+
+        private function checkChildrenPanelAllClose():void {
+            for each(var panelItem:CorePanelPro in allPanelList) {
+                if (!panelItem.close) {
+                    _close = false;
+                    return;
+                }
+            }
+            _close = true;
+        }
+
+        private function closeOrOpenAllPanel(flag:Boolean):void {
+            for each(var panelItem:CorePanelPro in allPanelList) {
+                panelItem.close = flag;
+            }
+        }
+
+        private function getPanelButton(owner:CorePanelPro, label:String):Label {
+            for each(var buttonItem:Object in allButtonList) {
+                if (buttonItem.owner == owner && buttonItem.label == label)
+                    return buttonItem.button;
+            }
+            return null;
+        }
+
+        public function get parentBox():FrameworkVBoxView {
+            return _parentBox;
+        }
+
+        public function set parentBox(value:FrameworkVBoxView):void {
+            _parentBox = value;
+        }
+
+
+        private function dateSearch_clickHandler(event:MouseEvent):void {
+            if (this.beginDate.text == "" || this.endDate.text == "") {
+                CRMtool.tipAlert("请输入查询日期！");
+                return;
+            }
+
+            var FormatDate:DateFormatter = new DateFormatter();
+            FormatDate.formatString = "YYYY-MM-DD";
+
+            var dbegin:Date = DateField.stringToDate(this.beginDate.text, FormatDate.formatString);
+            var dend:Date = DateField.stringToDate(this.endDate.text, FormatDate.formatString);
+            var strsql:String = "";
+
+            if (ObjectUtil.dateCompare(dbegin, dend) == 1) {
+                CRMtool.tipAlert("开始日期不能大于结束日期！");
+                return;
+            }
+
+            if (nearEdit.myList.selectedIndex == 0) {//制单日期
+                strsql = " and substring(convert(nvarchar(120), " + parentBox.ctable + ".dmaker,120),0,11) between '" + this.beginDate.text + "' and '" + this.endDate.text + "'";
+            }
+            else {//按修改日期
+                strsql = " and substring(convert(nvarchar(120), " + parentBox.ctable + ".dmodify ,120),0,11) between '" + this.beginDate.text + "' and '" + this.endDate.text + "'";
+            }
+
+            parentBox.sideChildSql = " and iid in ( select iid from " + parentBox.ctable + " where 1=1 " + strsql + " ) ";
+            parentBox.search(3);
+        }
+
+        public function get ifuncregedit():int {
+            return _ifuncregedit;
+        }
+
+        public function set ifuncregedit(value:int):void {
+            _ifuncregedit = value;
+            initClassViewLists();//加载分类视图
+        }
+
+
+        protected function initNearEditLists():void {
+            initNearEditListsMaker();
+            initNearEditListsModify();
+        }
+
+        /**
+         *
+         * 功能：初始化分类视图
+         * 创建者：XZQWJ
+         * 创建时间：2012-10-10
+         *
+         * */
+        public var arr:ArrayList = new ArrayList();
+        public var str_iid:String = "(";
+        public var str_name:String = "(";
+
+        public function initClassViewLists():void {
+
+            AccessUtil.remoteCallJava("ACClassViewDest", "getListcdList", function (event:ResultEvent):void {
+                var resultList:String = event.result as String;
+                if (resultList == null)
+                    return;
+
+                if (resultList.length == 0) {
+                    classView.listDatas.removeAll();
+                    return;
+                }
+                classView.myTree.dataProvider = new XMLList(resultList);
+
+            }, {ifuncregedit: ifuncregedit}, null, false);
+
+            classView.myTree.addEventListener(ListEvent.ITEM_CLICK, function (event:ListEvent):void {
+//					searchClassViewDate();
+//					if(cb_class.selected)
+                str_iid = "(";
+                str_name = "(";
+                var dd:Object = classView.myTree.selectedItem;
+                if (cb_class.selected) {//包含下级视图
+
+                    walkTree(classView.myTree, classView.selectedItem);
+
+                } else {//不包含下级视图
+
+                    var ipid:String = classView.selectedItem.@iid;
+                    var arr_iid:Array = ipid.split(".");
+                    if (arr_iid.length == 3) {
+//							if(arr_iid[2]=="0"){//树形参照
+                        CRMtool.tipAlert("无数据，请确认!");
+//							}else if(arr_iid[2]=="2"){//树表参照，需选择包含下级分类
+
+//							}
+
+                        return;
+                    }
+                    str_iid = str_iid + "," + getIidfromTree(ipid);
+                    str_name = str_name + "','" + getNamefromTree(classView.selectedItem.@cname);
+                }
+
+                str_iid = " in " + str_iid.replace("(,", "(") + ")";
+                str_name = " in " + str_name.replace("(',", "(") + "')";
+                trace("-- QWJ :: ", str_iid, "Is Branch :: ");
+                searchClassViewDate();
+            });
+
+        }
+
+        /**
+         * 功能：选择分类视图的某个节点返回对应的单据数据
+         *
+         * */
+        public function searchClassViewDate():void {
+            if (classView.myTree.selectedItem == null)
+                return;
+            var str:String = classView.myTree.selectedItem.@iid;
+            var arr:Array = str.split(".");
+            var size:int = arr.length;
+            var sql:String = "select " + "\'" + String + "\' tree_iid, cclassviewcondition,ctable,cfield,cconsulttable,cconsultbkfld from Ac_consultConfiguration ao,AC_datadictionary ac where ao.idatadictionary=ac.iid and ao.iid=" + int(arr[0]);
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var resultArr:ArrayCollection = event.result as ArrayCollection;
+                if (resultArr) {
+                    var tree_iid = resultArr.getItemAt(0).tree_iid;
+                    var sql:String = resultArr.getItemAt(0).cclassviewcondition;
+                    var ctable:String = resultArr.getItemAt(0).ctable;
+                    var objInfo:Object = ObjectUtil.getClassInfo(CRMmodel.hrperson);
+                    var fieldName:Array = objInfo["properties"] as Array;
+                    var i_code:int = sql.search("=@ccode");
+                    var i_name:int = sql.search("=@cname");
+                    var sqlcondition:String = "";
+
+                    if (i_code != -1) {
+                        sqlcondition = convertSqlCondition("=@ccode", sql, str_iid, i_code);
+                    } else {
+                        sqlcondition = convertSqlCondition("=@cname", sql, str_name, i_name);
+                    }
+                    sql = " and iid in (select iid from " + ctable + " where " + sqlcondition + ")";
+//						sql=" and iid in (select iid from "+ctable+" where "+sql.replace("@=value",str_iid)+")";
+//						sql=sql.replace("=@value",str_iid);
+//						(isalesperson in @value or iservicesperson in @value)
+
+                    for each (var q:QName in fieldName) {
+                        var p:String = "@" + q.localName + "@";
+                        while (sql.search(p) > -1) {
+                            sql = sql.replace(p, CRMmodel.hrperson[q.localName]);
+                        }
+                    }
+
+
+                    AccessUtil.remoteCallJava("ACqueryclmDest", "getAcQueryclmList", function (event:ResultEvent):void {
+                        //onGetAcQueryclmListBack(sql,event);
+                        /******************* 先排序 ***********************/
+                        var arrDataList:ArrayCollection = event.result as ArrayCollection;
+                        var sort:Sort = new Sort();
+                        //按照优先序号升序排序
+                        sort.fields = [new SortField("iqryno")];
+                        arrDataList.sort = sort;
+
+                        var _commons:ArrayCollection = new ArrayCollection();
+
+                        var co:int = 1;
+                        var sortArr:ArrayCollection = new ArrayCollection();
+                        /******************* 找出所有常用条件 ***********************/
+                        for each(var obj:Object in arrDataList) {
+                            //找出常用条件
+                            if (String(obj.bcommon) == "true") {
+                                _commons.addItem(obj);
+                            }
+
+                            /******************* 封装排序 ***********************/
+                            var sortObj:Object = new Object();
+                            sortObj.isortno = co;
+                            sortObj.cfiled = obj.cfield;
+                            sortObj.isttype = obj.isttype;
+                            sortObj.iid = obj.iid;
+                            sortArr.addItem(sortObj);
+                            co++;
+                        }
+
+                        var c:int = 0;
+                        for each(var sortobj:Object in sortArr) {
+                            if (sortobj.isttype != "" || sortobj.isttype != "0") {
+                                if (c == 0) {
+                                    sql += " order by ";
+                                }
+                                else {
+                                    sql += ",";
+                                }
+                                var cfiled1:String = sortobj.cfiled as String;
+                                var start:int = cfiled1.lastIndexOf(".") + 1;
+                                var end:int = cfiled1.length;
+                                sql += cfiled1.substring(start, end);
+                                if (sortobj.isttype == "2") {
+                                    sql += " desc ";
+                                }
+                                c++;
+                            }
+                        }
+                        parentBox.pageInitBack(sql);
+                    }, int(_ifuncregedit));
+                }
+            }, sql);
+        }
+
+        /**
+         * 功能：获得选中节点的叶子节点
+         *
+         * **/
+        public function walkTree(tree:Tree, item:Object, startAtParent:Boolean = false):void {
+            // get the Tree's data descriptor
+
+            var descriptor:ITreeDataDescriptor = tree.dataDescriptor;
+            var cursor:IViewCursor;
+            var parentItem:Object;
+            var childItem:Object;
+            var childItems:Object;
+
+
+            // if the item is null, stop
+            if (item == null)
+                return;
+
+            // do we back up one level to the item's parent
+            if (startAtParent) {
+                // get the parent
+                parentItem = tree.getParentItem(item);
+                // is the parent real
+                if (parentItem) {
+                    trace("|-- Parent Node ", parentItem[tree.labelField]);
+                    // if the parent is a branch
+                    if (descriptor.isBranch(parentItem)) {
+                        // if the branch has children to run through
+                        if (descriptor.hasChildren(parentItem)) {
+                            // get the children of the branch
+                            // this part of the algorithm contains the item
+                            // passed
+                            childItems = descriptor.getChildren(parentItem);
+                        }
+                    }
+                    // if the branch has valid child items
+                    if (childItems) {
+                        // create our back step cursor
+                        cursor = childItems.createCursor();
+                        // loop through the items parent's children (item)
+                        while (!cursor.afterLast) {
+                            // get the current child item
+                            childItem = cursor.current;
+                            var label:String = childItem[tree.labelField];
+                            var iid:String = childItem[tree.dataTipField];
+                            var branch:Boolean = descriptor.isBranch(childItem);
+
+                            // good place for a custom method()
+                            trace("Sibling Nodes :: ", iid, label, "Is Branch :: ", branch);
+
+                            // if the child item is a branch
+                            if (descriptor.isBranch(childItem))
+                            // traverse the childs branch all the way down
+                            // before returning
+                                walkTree(tree, childItem);
+                            // do it again!
+                            cursor.moveNext();
+                        }
+                    }
+                }
+            }
+            else// we don't want the parent OR this is the second iteration
+            {
+                // if we are a branch
+                if (descriptor.isBranch(item)) {
+                    // if the branch has children to run through
+                    if (descriptor.hasChildren(item)) {
+                        // get the children of the branch
+                        childItems = descriptor.getChildren(item);
+                    }
+
+                    // if the child items exist
+                    if (childItems) {
+                        // create our cursor pointer
+                        cursor = childItems.createCursor();
+                        // loop through all of the children
+                        // if one of these children are a branch we will recurse
+                        while (!cursor.afterLast) {
+                            // get the current child item
+                            childItem = cursor.current;
+
+                            var label:String = childItem[tree.labelField];
+                            var ipid_label:String = item[tree.labelField];
+                            var branch:Boolean = descriptor.isBranch(childItem);
+                            var iid:String = childItem[tree.dataTipField];
+                            var ipid:String = item[tree.dataTipField];
+                            // good place for a custom method()
+                            trace("-- Sub Node :: ", label, "Is Branch :: ", branch);
+                            if (!branch) {
+                                arr.addItem(iid);
+                                var arr_iid:Array = ipid.split(".");
+                                str_iid = str_iid + "," + getIidfromTree(iid);
+                                str_name = str_name + "','" + getNamefromTree(label);
+                                if (arr_iid.length > 3) {
+                                    if (arr_iid[2] == "0") {
+                                        str_iid = str_iid + "," + getIidfromTree(ipid);
+                                        str_name = str_name + "','" + getNamefromTree(ipid_label);
+                                    }
+                                }
+//									str_iid=str_iid+","+getIidfromTree(iid)+","+getIidfromTree(ipid);
+                            }
+                            // if the child item is a branch
+                            if (descriptor.isBranch(childItem))
+                            // traverse the childs branch all the way down
+                            // before returning
+                                walkTree(tree, childItem);
+                            // check the next child
+                            cursor.moveNext();
+                        }
+                    }
+                } else {
+//						descriptor.
+                    str_iid = str_iid + "," + getIidfromTree(item[tree.dataTipField]);
+                    str_name = str_name + "','" + getNamefromTree(item[tree.labelField]);
+                }
+            }
+
+            trace("-- QWJ :: ", str_iid, "Is Branch :: ");
+            if (arr.length > 0) {
+                for (var i:int = 0; i < arr.length; i++) {
+                    trace("-- QWJ :: ", arr.getItemAt(i), "Is Branch :: ");
+                }
+            }
+        }
+
+
+        private function convertSqlCondition(p:String, sqlcondition:String, str_repace:String, i_num:int):String {
+            for (var i:int = 0; i < i_num; i++) {
+                sqlcondition = sqlcondition.replace(p, str_repace);
+            }
+            return sqlcondition;
+        }
+
+        /**
+         * 功能：获得节点的label
+         *
+         * */
+
+        private function getNamefromTree(str_name:String):String {
+            var name:String = "";
+            var start:int = str_name.lastIndexOf(")") + 1;
+            var end:int = str_name.length;
+            name = str_name.substring(start, end);
+            return name;
+        }
+
+        /**
+         * 功能：获得节点的iid
+         *
+         * */
+        private function getIidfromTree(str_iid:String):String {
+            var iid:String = "";
+            var arr:Array = str_iid.split(".");
+            var start:int = str_iid.lastIndexOf(".") + 1;
+            var end:int = str_iid.length;
+            iid = str_iid.substring(start, end);
+            return iid;
+        }
+
+        private function panellistItemClickHandler(event:Event):void {
+            //wxh add
+            (this.owner as FrameworkVBoxView).message.text = "";
+            (this.owner as FrameworkVBoxView).myDesktop.styleName = "popupbuttonskin_query_gray";
+            for each(var panelItem:CorePanelPro in allPanelList) {
+                if (panelItem != event.target)
+                    panelItem.clearSelecte();
+            }
+        }
+
+        protected function panelContainer_rollOverHandler(event:MouseEvent):void {
+            panelContainer.verticalScrollPolicy = "auto";
+
+        }
+
+        protected function panelContainer_rollOutHandler(event:MouseEvent):void {
+            //panelContainer.verticalScrollPolicy = "off";
+        }
+
+        public var bool:Boolean = false;
+
+        protected function myTab_changeHandler(event:IndexChangedEvent):void {
+            if (myTab.selectedIndex == 1) {
+                if (!bool) {
+                    initmyFavoriteLists();
+                    initSearchViewLists();
+                    initNearEditLists();
+
+                    searchView.myList.addEventListener(ListEvent.ITEM_CLICK, function (event:ListEvent):void {
+                        searchSearchViewDate();
+                    });
+                    bool = !bool;
+                }
+            }
+
+        }
+        ]]>
+	</fx:Script>
+    <mx:TabNavigator id="myTab" borderStyle="solid" tabWidth="129" tabHeight="32" height="100%" width="100%"
+                     change="myTab_changeHandler(event)" creationPolicy="all"
+                     paddingTop="0" paddingRight="0">
+        <mx:VBox paddingTop="-1" paddingLeft="-1" paddingRight="0" width="100%" borderStyle="none" height="100%"
+                 horizontalScrollPolicy="off" label="分类视图">
+            <side:CoreClassViewPanelPro height="100%" width="100%" id="classView"
+                                        listItemClick="panellistItemClickHandler(event)" label="分类视图"
+                                        owner="{this.owner}"/>
+            <mx:CheckBox id="cb_class" label="是否包含下级分类" selected="true" height="10%" paddingLeft="20"/>
+        </mx:VBox>
+        <mx:VBox id="panelContainer" paddingTop="-1" width="100%" borderStyle="none" height="100%"
+                 horizontalScrollPolicy="off"
+                 verticalScrollPolicy="off" label="列表助手"
+                 rollOut="panelContainer_rollOutHandler(event)" rollOver="panelContainer_rollOverHandler(event)">
+            <side:CorePanelPro id="searchView" title="查询视图" listItemClick="panellistItemClickHandler(event)"/>
+            <side:CorePanelPro id="myFavorite" title="我的收藏" listItemClick="panellistItemClickHandler(event)"/>
+            <side:CorePanelPro id="nearEdit" title="最近编辑" listItemClick="panellistItemClickHandler(event)"/>
+
+        </mx:VBox>
+
+    </mx:TabNavigator>
+
+
+</mx:VDividedBox>

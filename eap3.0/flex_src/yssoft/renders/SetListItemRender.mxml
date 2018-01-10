@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:comps="yssoft.comps.*" width="100%" verticalAlign="middle">
+	<fx:Script>
+		<![CDATA[
+			import yssoft.models.ConstsModel;
+		]]>
+	</fx:Script>
+	<s:Image source="{ConstsModel['png_menu'+((data.iimage==null || data.iimage=='')?1:data.iimage)]}" 
+			 visible="{data.imenu != '0'}" includeInLayout="{data.imenu != '0'}"/>
+	<s:Label text="{data.cname}" width="100%" visible="{data.imenu != '0'}" includeInLayout="{data.imenu != '0'}"/>
+	<comps:CrmDotLine width="100%" visible="{data.imenu == '0'}" includeInLayout="{data.imenu == '0'}"/>
+</mx:HBox>

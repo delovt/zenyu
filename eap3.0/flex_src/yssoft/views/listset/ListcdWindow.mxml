@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+                        close="PopUpManager.removePopUp(this)" title="视图查询"
+                        xmlns:comps="yssoft.comps.*" creationComplete="getDepartmentTreeXml();setColor()"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var paramObj:Object;
+
+        [Bindable]
+        private var _ifuncregedit:int;
+
+        private var parentForm:Object;
+
+        public function set ifuncregedit(value:int):void {
+            _ifuncregedit = value;
+        }
+
+        [Bindable]
+        private var itemType:String = ConstsModel.ONDELETE_LABLE;
+
+        private var _csql1:String;
+
+        public function set csql1(value:String):void {
+            this._csql1 = value;
+        }
+
+        /**
+         *
+         * 作者：zhong_jing
+         * 日期：2011-08-09
+         * 功能 查询部门
+         * 参数：无
+         * 返回值：无
+         * 修改人：
+         * 修改时间：
+         * 修改记录：
+         *
+         */
+        public function getDepartmentTreeXml():void {
+            parentForm = this.owner;
+            var paramObj:Object = new Object();
+            paramObj.ifuncregedit = _ifuncregedit;
+            AccessUtil.remoteCallJava("ACListsetDest", "getListcd", getEpartmencallBackHandler, paramObj);
+
+
+        }
+
+        private function getEpartmencallBackHandler(event:ResultEvent):void {
+            if (event.result != null) {
+                var result:String = event.result as String;
+                this.tre_department.treeCompsXml = new XML(result);
+                CRMtool.toolButtonsEnabled(this.lbr_Department, null, this.tre_department.treeCompsXml.length());
+            }
+            else {
+                CRMtool.toolButtonsEnabled(this.lbr_Department, null, 0);
+            }
+
+            CRMtool.containerChildsEnabled(this.myBorder, false);
+            //回车替代TAB键
+            CRMtool.setTabIndex(this.myBorder);
+        }
+
+        /**
+         *
+         * 作者：zhong_jing
+         * 日期：2011-08-09
+         * 功能 保存节点
+         * 参数：无
+         * 返回值：无
+         * 修改人：
+         * 修改时间：
+         * 修改记录：
+         *
+         */
+        public function onSave(event:Event):void {
+            if (!this.isFail) {
+                CRMtool.tipAlert("请验证后，再保存");
+                return;
+            }
+            if (CRMtool.isStringNull(this.tnp_ccode.text)) {
+                CRMtool.tipAlert("方案编码不能为空！！", this.tnp_ccode);
+                return;
+            }
+            if (CRMtool.isStringNull(this.tnp_cname.text)) {
+                CRMtool.tipAlert("方案名称不能为空！！", this.tnp_cname);
+                return;
+            }
+            //设置按钮互斥
+            CRMtool.toolButtonsEnabled(lbr_Department, "onSave");
+            if (this.itemType == "onNew" || (this.itemType == ConstsModel.ONEDIT_LABLE && this.tre_department.selectedItem.@ccode != this.tnp_ccode.text)) {
+                if (this.tre_department.isExistsCcode(this.tnp_ccode.text, ConstsModel.ROLE_CCODE_WARNMSG)) {
+                    return;
+                }
+            }
+            paramObj = new Object();
+            paramObj = getRoleItem();
+            if (itemType == "onNew") {
+                AccessUtil.remoteCallJava("ACListsetDest", "addListcd", saveTreecallBackHandler, paramObj);
+            }
+            else {
+                AccessUtil.remoteCallJava("ACListsetDest", "updateListcd", saveTreecallBackHandler, paramObj);
+            }
+        }
+
+        /**
+         *
+         * 作者：zhong_jing
+         * 日期：2011-08-09
+         * 功能 保存后执行操作
+         * 参数：无
+         * 返回值：无
+         * 修改人：
+         * 修改时间：
+         * 修改记录：
+         *
+         */
+        private function saveTreecallBackHandler(event:ResultEvent):void {
+            if (event.result.toString() != "fail") {
+                var result:String = event.result as String;
+                if (itemType == "onNew") {
+                    paramObj.iid = int(Number(event.result));
+                    var par:Object = new Object();
+                    par.iid = int(Number(event.result));
+                    par.ipid = paramObj.ipid;
+                    par.cname = paramObj.cname;
+                    par.ccode = paramObj.ccode;
+                    this.tre_department.AddTreeNode(par);
+                    //parentForm.tre_listcd.AddTreeNode(par);
+                    parentForm.initSearchViewLists();
+                    CRMtool.tipAlert("保存成功!!");
+                }
+                else if (itemType == "onDelete") {
+                    this.tre_department.DeleteTreeNode();
+                    //parentForm.tre_listcd.selectedIndex = this.tre_department.selectedIndex;
+                    //parentForm.tre_listcd.DeleteTreeNode();
+                    parentForm.initSearchViewLists();
+                    CRMtool.tipAlert("删除成功");
+                }
+                else if (itemType == "onEdit") {
+                    var par:Object = new Object();
+                    par.iid = paramObj.iid;
+                    par.ipid = paramObj.ipid;
+                    par.cname = paramObj.cname;
+                    par.ccode = paramObj.ccode;
+                    this.tre_department.EditTreeNode(par);
+                    //parentForm.tre_listcd.selectedIndex = this.tre_department.selectedIndex;
+                    //parentForm.tre_listcd.EditTreeNode(par);
+                    parentForm.initSearchViewLists();
+                    CRMtool.tipAlert("修改成功！！");
+                }
+                if (null == this.tre_department.treeCompsXml) {
+                    CRMtool.toolButtonsEnabled(this.lbr_Department, "onGiveUp", 0);
+                }
+                else {
+                    CRMtool.toolButtonsEnabled(this.lbr_Department, "onGiveUp", this.tre_department.treeCompsXml.length());
+                }
+                CRMtool.containerChildsEnabled(this.myBorder, false);
+                this.tre_department.enabled = true;
+            }
+            else {
+                CRMtool.tipAlert(ConstsModel.FAIL);
+            }
+        }
+
+        private function onGiveUp(event:Event):void {
+            this.tnp_ccode.text = "";
+            this.tnp_cname.text = "";
+            this.tnp_csql.text = "";
+            if (null == this.tre_department.treeCompsXml) {
+                CRMtool.toolButtonsEnabled(this.lbr_Department, "onGiveUp", 0);
+            }
+            else {
+                this.tre_department.selectedIndex = -1;
+                CRMtool.toolButtonsEnabled(this.lbr_Department, "onGiveUp", this.tre_department.treeCompsXml.length());
+            }
+            CRMtool.containerChildsEnabled(this.myBorder, false);
+            this.tre_department.enabled = true;
+        }
+
+        private function getRoleItem():Object {
+
+            var obj:Object = new Object();
+
+            obj.ifuncregedit = this._ifuncregedit;//YJ Add 功能注册内码
+            obj.ccode = this.tnp_ccode.text;
+            obj.cname = this.tnp_cname.text;
+
+            obj.csql = this.tnp_csql.text;
+
+            if (this.itemType == "onEdit") {
+                var iid:String = this.tre_department.selectedItem.@iid;
+                obj.iid = int(iid);
+                var ccode:String = this.tre_department.selectedItem.@ccode;
+                obj.oldCcode = ccode;
+            }
+            obj.ipid = this.tre_department.getIpid(this.tnp_ccode.text);
+            obj.bdesktop = this.chb_bdesktop.selected;
+            obj.ccolor = this.ui_ccolor.selectedColor.toString(16);
+            return obj;
+        }
+
+        public function onNew(event:Event):void {
+            onGiveUp(event);
+
+            this.itemType = "onNew";
+            CRMtool.toolButtonsEnabled(this.lbr_Department, "onNew");
+            CRMtool.containerChildsEnabled(this.myBorder, true);
+            this.tnp_ifuncregedit.editable = false;
+        }
+
+        public function onEdit(event:Event):void {
+            if (!this.tre_department.selectedItem) {
+                CRMtool.tipAlert(ConstsModel.CHOOSE_ROLE);
+                return;
+            }
+            this.tre_department.enabled = false;
+            this.itemType = "onEdit";
+            CRMtool.toolButtonsEnabled(this.lbr_Department, "onEdit");
+            CRMtool.containerChildsEnabled(this.myBorder, true);
+            this.tnp_ifuncregedit.editable = false;
+        }
+
+        /**
+         *
+         * 作者：zhong_jing
+         * 日期：2011-08-08
+         * 功能：确定删除树
+         * 参数：无
+         * 返回值：无
+         * 修改人：
+         * 修改时间：
+         * 修改记录：
+         *
+         */
+        public function onDelete(event:Event):void {
+            this.itemType = "onDelete";
+            if (this.tre_department.selectedItem) {
+                var ccode:String = this.tre_department.selectedItem.@ccode as String;
+                if (this.tre_department.isExistsChild(this.tre_department.selectedItem.@ccode, ConstsModel.DEPARTMENT_ROMEVE_PID)) {
+                    return;
+                }
+                CRMtool.tipAlert(ConstsModel.DETERMINE_HEAD + this.tre_department.selectedItem.@cname + "视图]?", null, "AFFIRM", this, "onDeleteTree");
+            }
+            else {
+                CRMtool.tipAlert("请选择要操作的记录");
+            }
+        }
+
+
+        /**
+         *
+         * 作者：zhong_jing
+         * 日期：2011-08-08
+         * 功能：删除树
+         * 参数：无
+         * 返回值：无
+         * 修改人：
+         * 修改时间：
+         * 修改记录：
+         *
+         */
+        public function onDeleteTree():void {
+            AccessUtil.remoteCallJava("ACListsetDest", "removeListcd", saveTreecallBackHandler, int(Number(this.tre_department.selectedItem.@iid)));
+        }
+
+        /**
+         *
+         * 函数名：
+         * 作者：钟晶
+         * 日期：2011-08-02
+         * 功能： 更新列
+         * 返回值：无
+         * 修改记录：
+         *
+         */
+        public function onTest(event:Event):void {
+            if (CRMtool.isStringNull(this.tnp_csql.text)) {
+                CRMtool.tipAlert("请输入条件语句后在测试", this.tnp_csql);
+                return;
+            }
+            /* 		var obj:Object = new Object();
+             obj.item = this.getItem();
+             obj.oldacListclmVos = this.acListclmVos; */
+
+
+            //lr 查询 可输入变量
+            var csql:String = this.tnp_csql.text;
+            csql = CRMtool.replaceSystemValues(csql);
+            var sql:String = "select top 1 * from (" + _csql1 + ") c where 1=1 " + csql;
+
+
+            AccessUtil.remoteCallJava("ACListsetDest", "testSql", function (event:ResultEvent):void {
+                if (event.result == "fail") {
+                    isFail = false;
+                    CRMtool.tipAlert("SQL语法错误！！\n" + sql, tnp_csql);
+                }
+                else {
+                    isFail = true;
+                    CRMtool.tipAlert("测试成功!!");
+                }
+            }, sql);
+        }
+
+        private var isFail:Boolean = false;
+
+        private function verificationSqlBack(event:ResultEvent):void {
+
+            if (event.result == "fail") {
+                isFail = false;
+                CRMtool.tipAlert("SQL语法错误！！", this.tnp_csql);
+            }
+            else {
+                isFail = true;
+                CRMtool.tipAlert("测试成功!!");
+            }
+
+        }
+
+        protected function tre_department_changeHandler():void {
+            var sql:String = "select * from AC_listcd where iid=" + int(this.tre_department.selectedItem.@iid);
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", call, sql);
+        }
+
+        private function call(event:ResultEvent):void {
+            var resultArr:ArrayCollection = event.result as ArrayCollection;
+            tnp_ccode.text = resultArr.getItemAt(0).ccode;
+            tnp_cname.text = resultArr.getItemAt(0).cname;
+            tnp_csql.text = resultArr.getItemAt(0).csql;
+            chb_bdesktop.selected = resultArr.getItemAt(0).bdesktop as Boolean;
+            isFail = false;
+        }
+        //收费预测，启用颜色
+        private function setColor():void {
+            if(_ifuncregedit==299 || _ifuncregedit==412){
+                this.ui_ccolorHBox.visible = true;
+                this.ui_ccolorHBox.includeInLayout = true;
+            }
+
+        }
+        ]]>
+	</fx:Script>
+    <mx:HDividedBox paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" width="100%" height="100%"
+                    creationComplete="getDepartmentTreeXml();" styleName="contentHDividedBox">
+        <!-- 角色树 -->
+        <mx:VBox width="27%" height="100%" styleName="lefttree">
+            <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                <mx:Label text="查询视图" styleName="contentTitle"/>
+            </mx:ApplicationControlBar>
+            <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                <comps:TreeCompsVbox id="tre_department" width="100%" height="100%"
+                                     itemClick="tre_department_changeHandler()"/>
+            </mx:HBox>
+        </mx:VBox>
+        <mx:VBox width="73%" height="100%" styleName="lefttree">
+            <mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+                <comps:LinkBarVboxComps id="lbr_Department" height="25" dataProvider="{ConstsModel.LISTCD_LBRITEM}"
+                                        styleName="contentButtonBar" onSaveEvent="onSave(event)"
+                                        onDeleteEvent="onDelete(event);" onGiveUpEvent="onGiveUp(event);"
+                                        onNewEvent="onNew(event)"
+                                        onEditEvent="onEdit(event)" onTestEvent="onTest(event);"/>
+                <s:Spacer width="100%"/>
+            </mx:ApplicationControlBar>
+            <mx:VBox width="100%" height="100%" id="myBorder" paddingLeft="10" paddingTop="10" paddingBottom="10"
+                     paddingRight="10">
+                <mx:VBox width="100%" height="100%" styleName="content">
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:HBox width="50%">
+                            <mx:Label text="关联功能：" styleName="contentLabel"/>
+                            <comps:ConsultTextInput id="tnp_ifuncregedit" width="100%" iid="14" bindValueField="iid"
+                                                    bindLabelField="cname"
+                                                    styleName="contentTextInput" enabled="false" visibleIcon="{true}"
+                                                    isChanageAcFuncregedit="true"
+                                                    value="{_ifuncregedit}">
+                            </comps:ConsultTextInput>
+                        </mx:HBox>
+                        <mx:HBox width="50%">
+                            <mx:Label text="方案编码：" styleName="contentLabel"/>
+                            <mx:TextInput id="tnp_ccode" styleName="contentTextInput" width="100%"/>
+                        </mx:HBox>
+                    </mx:HBox>
+                    <mx:HRule width="100%"/>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:HBox width="50%">
+                            <mx:Label text="方案名称：" styleName="contentLabel"/>
+                            <mx:TextInput id="tnp_cname" styleName="contentTextInput"
+                                          text="{this.tre_department.selectedItem.@cname}" width="100%"/>
+                        </mx:HBox>
+                        <mx:HBox width="50%">
+                            <mx:Label text="桌面显示：" styleName="contentLabel"/>
+                            <mx:CheckBox id="chb_bdesktop"/>
+                        </mx:HBox>
+                    </mx:HBox>
+
+                    <mx:HRule width="100%"/>
+                    <mx:HBox width="100%" id="ui_ccolorHBox" styleName="contentSubHbox" visible="false" includeInLayout="false">
+                        <mx:Label text="标记颜色：" styleName="contentLabel"/>
+                        <mx:ColorPicker id="ui_ccolor"
+                                        selectedColor="{new uint('0x'+this.tre_department.selectedItem.@ccolor)}"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"/>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label text="条件语句" styleName="contentLabel"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%" height="100%" paddingLeft="10" paddingBottom="10" paddingRight="10">
+                        <mx:TextArea id="tnp_csql" width="100%" height="100%" borderVisible="false"/>
+                    </mx:HBox>
+                </mx:VBox>
+
+            </mx:VBox>
+        </mx:VBox>
+    </mx:HDividedBox>
+</basic:BasicTitleWindow>

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<mx:LinkButton xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+               toolTip="{isMax?'还原':'最大化'}" click="isMax=!isMax" visible="{ownerBox!=null}"
+               includeInLayout="{ownerBox!=null}" icon="{isMax?reductionPng:maxPng}"
+        >
+    <!-- To change this template use File | Settings | File Templates. -->
+    <fx:Script><![CDATA[
+        import mx.containers.Canvas;
+
+        import yssoft.comps.frame.module.SingleVbox;
+
+        [Embed(source="/yssoft/assets/core/max.png")]
+        public var maxPng:Class;
+        [Embed(source="/yssoft/assets/core/hy.png")]
+        public var reductionPng:Class;
+
+        private var _isMax:Boolean = false;
+
+        public var meBox:SingleVbox;
+        [Bindable]
+        public var ownerBox:Canvas;
+
+        private var swapMyHeight:Number;
+        private var swapOwnerPosition:Number;
+
+        [Bindable]
+        public function get isMax():Boolean {
+            return _isMax;
+        }
+
+        public function set isMax(value:Boolean):void {
+            _isMax = value;
+            if (value) {
+                swapMyHeight = meBox.height;
+                swapOwnerPosition = ownerBox.verticalScrollPosition;
+                meBox.height = ownerBox.height - 8;
+
+                var pt:Point = new Point(this.x, this.y);//本地
+                pt = this.localToGlobal(pt);
+                pt = ownerBox.globalToContent(pt);
+
+                ownerBox.callLater(changePosition);
+                function changePosition() {
+                    ownerBox.verticalScrollPosition = pt.y - 15;
+                }
+
+            } else {
+                meBox.height = swapMyHeight;
+                ownerBox.verticalScrollPosition = swapOwnerPosition;
+            }
+        }
+
+
+        [Bindable("enabledChanged")]
+        [Inspectable(category="General", enumeration="true,false", defaultValue="true")]
+        override public function get enabled():Boolean {
+            return super.enabled;
+        }
+
+        override public function set enabled(value:Boolean):void {
+            super.enabled = true;
+        }
+        ]]></fx:Script>
+</mx:LinkButton>

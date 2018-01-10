@@ -1,0 +1,2635 @@
+<ReportSettings version="1.1">
+  <PageWidth>73</PageWidth>
+  <PageHeight>21</PageHeight>
+  <TopMargin>0.5</TopMargin>
+  <BottomMargin>0.5</BottomMargin>
+  <CanGrow>true</CanGrow>
+  <FitToPrintSize>true</FitToPrintSize>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>=Concat(公司计划分析_,Fields!年度.Value,_ ,Fields!计划指标.Value)</Value>
+          <Width>69.8</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting"/>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.2</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>4</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>项目</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>1月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>2月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>3月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>一季度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>4月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>5月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>6月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>二季度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>7月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>8月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>9月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>三季度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>10月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>11月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>12月</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>四季度</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>实际数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!devidemoney.Value, Fields!type.Value=="实际")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>计划数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))==Null,"",0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))==Null,"",0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=SumIf(Fields!devidemoney.Value,Fields!type.Value=="计划")</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>差异数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")-(If((Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))==Null,"",0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际")-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(0+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际"))-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际")-(0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=(SumIf(Fields!devidemoney.Value, Fields!type.Value=="实际"))-(SumIf(Fields!devidemoney.Value,Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>#,#2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>当期比率</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((If((Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))==Null,"",0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际"))/(If((Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))==Null,"",0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(SumIf(Fields!devidemoney.Value,Fields!type.Value=="计划")==0,1,SumIf(Fields!devidemoney.Value, Fields!type.Value=="实际")/SumIf(Fields!devidemoney.Value,Fields!type.Value=="计划"))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>累计比率</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((If((Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))==Null,"",0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((If((Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))==Null,"",0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划"))+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If((0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划"))==0,1,(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="实际")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="实际"))/(0+Get(Fields!devidemoney.Value,Fields!月份.Value==1 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==2 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==3 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==4 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==5 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==6 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==7 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==8 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==9 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==10 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==11 &amp;&amp; Fields!type.Value=="计划")+Get(Fields!devidemoney.Value,Fields!月份.Value==12 &amp;&amp; Fields!type.Value=="计划")))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <Format>P2</Format>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ffc</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <Height>10</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>12</FontSize>
+            <Border>false</Border>
+          </Style>
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <EndBackgroundColor>#ffffff</EndBackgroundColor>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>1950</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <XAxisName/>
+              <YAxisName/>
+              <YAxisLabelField>=Split(Fields!Y.Value, Str(,))</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>#,#2</Format>
+          <ColSpan>18</ColSpan>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;0</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>12</FontSize>
+          </Style>
+          <Format>P2</Format>
+          <ColSpan>18</ColSpan>
+          <ConditionStyleSettings>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&gt;=1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#018ccf</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="ConditionStyleSetting">
+              <Condition>=Val()&lt;1</Condition>
+              <Style>
+                <TextAlign>right</TextAlign>
+                <TextColor>#ff8100</TextColor>
+                <FontSize>12</FontSize>
+                <FontBold>true</FontBold>
+              </Style>
+            </ItemSetting>
+          </ConditionStyleSettings>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <ColSpan>18</ColSpan>
+          <Control type="Column3DMS">
+            <Chart type="Column3DMS">
+              <PaddingLeft>45</PaddingLeft>
+              <LabelField>=Series(Fields!type.Value)</LabelField>
+              <ColumnValueField>=Series(Fields!devidemoney.Value)</ColumnValueField>
+              <CanvasWidth>710</CanvasWidth>
+              <CanvasBackgroundColor>16777215</CanvasBackgroundColor>
+              <CanvasBarColor>16777215</CanvasBarColor>
+              <YAxisLabelField>Y</YAxisLabelField>
+              <XAxisLabelField>=Series(Fields!月份.Value)</XAxisLabelField>
+              <DataSource>
+                <Serieses>
+                  <Series name="Y">
+                    <Value>0</Value>
+                    <Value>50000</Value>
+                    <Value>100000</Value>
+                    <Value>150000</Value>
+                    <Value>200000</Value>
+                    <Value>250000</Value>
+                  </Series>
+                </Serieses>
+              </DataSource>
+              <Colors>
+                <Value>#018ccf</Value>
+                <Value>#ff8100</Value>
+              </Colors>
+            </Chart>
+          </Control>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <GroupSize>0</GroupSize>
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+
+	<!-- 累加帖子浏览计数 -->
+	<update id="project_update_ffact" parameterClass="java.util.HashMap">
+		$sqlValue$
+	</update>
+	
+	
+	
+</sqlMap>

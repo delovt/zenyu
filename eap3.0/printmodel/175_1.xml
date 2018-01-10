@@ -1,0 +1,215 @@
+<ReportSettings version="1.1">
+  <PageHeight>9.3</PageHeight>
+  <TopMargin>0.5</TopMargin>
+  <BottomMargin>0</BottomMargin>
+  <TableHeaderRepeat>true</TableHeaderRepeat>
+  <TableFooterRepeat>true</TableFooterRepeat>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>其他出库单</Value>
+          <Width>18</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+    <ItemSetting type="CaptionRowSetting">
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>客商名称：</Value>
+          <BindingValue>客商名称</BindingValue>
+          <Width>8.3</Width>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>出库日期：</Value>
+          <BindingValue>出库日期</BindingValue>
+          <Width>5</Width>
+          <Format>yyyy-MM-dd</Format>
+        </ItemSetting>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>出库单号：</Value>
+          <BindingValue>出库单号</BindingValue>
+          <Width>4.8</Width>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>1.6</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.4</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.5</Width>
+    </ItemSetting>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>产品名称</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>加密盒号</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>单位</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>数量</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>单价</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>金额</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <Height>0.7</Height>
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>产品名称</BindingColumn>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>加密盒号</BindingColumn>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>单位</BindingColumn>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>数量</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>单价</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+          <Format>#,#2</Format>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>金额</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+          </Style>
+          <Format>#,#2</Format>
+          <ShowNullValue>false</ShowNullValue>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <GroupSize>4</GroupSize>
+      <Enabled>true</Enabled>
+      <FitToGroupSize>true</FitToGroupSize>
+      <TableGroupFooterSettings>
+        <ItemSetting type="TableRowSetting">
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>合计</Value>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting">
+              <Value>=SUM(Fields!数量.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting"/>
+            <ItemSetting type="TableCellSetting">
+              <Value>=SUM(Fields!金额.Value,GroupStartIndex(),GroupEndIndex())</Value>
+              <Style>
+                <TextAlign>right</TextAlign>
+              </Style>
+              <Format>#,#2</Format>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+        <ItemSetting type="TableRowSetting">
+          <Height>0.7</Height>
+          <TableCellSettings>
+            <ItemSetting type="TableCellSetting">
+              <Value>主管：</Value>
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>财务：</Value>
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Value>仓库：</Value>
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <BindingValue>制单人</BindingValue>
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+            <ItemSetting type="TableCellSetting">
+              <Style>
+                <Border>false</Border>
+              </Style>
+            </ItemSetting>
+          </TableCellSettings>
+        </ItemSetting>
+      </TableGroupFooterSettings>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

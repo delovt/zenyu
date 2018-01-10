@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<select id="select_log" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		 
+		 select c.* from 
+		(
+			  SELECT TOP $pagesize$ b.* FROM
+			  (
+			     SELECT TOP $topsize$ a.* FROM 		
+			     (
+			     	  select as_operlog.iid,as_operlog.cip , as_operlog.cworkstation , as_operlog.iperson , convert(varchar,as_operlog.doperate,120) 'doperate' ,as_operlog.ifuncregedit , as_operlog.cnode , as_operlog.cfunction , 
+			     	  as_operlog.cresult , as_operlog.iinvoice,as_operlog.cplace , hr_person.cname,as_funcregedit.cname as funname  
+		  			 from as_operlog 
+					 left join hr_person on iperson=hr_person.iid 
+					 left join as_funcregedit on as_operlog.ifuncregedit=as_funcregedit.iid 
+					
+			      ) a order by a.iid desc
+			  ) b  order by b.iid
+		 ) c 
+		 
+		  where 1=1 
+		
+		<isNotEmpty property="userName"  prepend="and">
+			as_operlog.iperson in (select iid from hr_person where cname like '%'+#userName#+'%' )
+		</isNotEmpty>	
+		<isNotEmpty property="modules"  prepend="and">
+			as_operlog.ifuncregedit in (select iid from as_funcregedit where cname like '%'+modules+'%') 
+		</isNotEmpty>
+		<isNotEmpty property="endDate"  prepend="and">
+			as_operlog.doperate between #startdate# and #endDate# 
+		</isNotEmpty>
+		<isNotEmpty property="operate"  prepend="and">
+			as_operlog.cfunction like '%'+operate+'%' 
+		</isNotEmpty>
+			order by as_operlog.iid desc
+	</select>
+	
+	<select id="select_log_sum" parameterClass="java.util.HashMap" resultClass="int">
+	     	  select count(*)  from as_operlog 
+			 left join hr_person on iperson=hr_person.iid 
+			 left join as_funcregedit on as_operlog.ifuncregedit=as_funcregedit.iid 
+			where 1=1
+		
+		<!-- isNotEmpty property="userName"  prepend="and">
+			c.iperson in (select iid from hr_person where cname like '%'+#userName#+'%' )
+		</isNotEmpty>	
+		<isNotEmpty property="modules"  prepend="and">
+			c.ifuncregedit in (select iid from as_funcregedit where cname like '%'+modules+'%') 
+		</isNotEmpty>
+		<isNotEmpty property="endDate"  prepend="and">
+			c.doperate between #startdate# and #endDate# 
+		</isNotEmpty>
+		<isNotEmpty property="operate"  prepend="and">
+			c.cfunction like '%'+operate+'%' 
+		</isNotEmpty> -->
+	</select>	
+	
+	
+	
+	
+	<insert id="add_log"  parameterClass="yssoft.vos.LogPerateVo">
+		insert into as_operlog( cip , cworkstation , iperson , doperate , ifuncregedit , cnode , cfunction , cresult , iinvoice)
+	    values( #cip# , #cworkstation# , #iperson# , #doperate# , #ifuncregedit# , #cnode# , #cfunction# , #cresult# , #iinvoice# )	  
+	</insert>
+	
+	<delete id="delete_log"  parameterClass="java.util.HashMap">
+		delete as_operlog where doperate between #delDate#  and  #beginDate#
+	</delete>
+	
+	
+	<select id="select_page_sql"  parameterClass="String"  resultClass="java.util.HashMap">
+		$pagesql$
+	</select>
+	
+	<select id="select_module_number" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" >
+		select f.cname,c.number from(
+		select ifuncregedit,count(*) number  from as_operlog
+		<isNotEmpty property="dbegin"  prepend="where">
+			convert(varchar(10),doperate,120) between #dbegin# and #dend#  
+		</isNotEmpty>
+		  group by ifuncregedit having ifuncregedit >0) c 
+		left join AS_funcregedit f on f.iid=c.ifuncregedit order by number desc
+	</select>
+	
+	<select id="select_person_number" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	    select B.ccode,B.cname,count(distinct convert(varchar(10),A.doperate,120)) as number from as_operlog A inner join hr_person B 
+        on convert(varchar(10),A.doperate,120) between #dbegin# and #dend# and A.iperson=B.iid
+        group by B.iid,B.ccode,B.cname order by count(distinct convert(varchar(10),A.doperate,120)) desc
+    </select>
+    
+    <select id="select_doperate_number" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" >
+		select doperate cname,count(doperate) number from (select distinct iperson,
+		convert(varchar(10),doperate,120) doperate from as_operlog 
+		<isNotEmpty property="dbegin"  prepend="where">
+			convert(varchar(10),doperate,120) between #dbegin# and #dend#  
+		</isNotEmpty>
+		)  A group by doperate  
+	</select>
+</sqlMap> 

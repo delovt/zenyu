@@ -1,0 +1,519 @@
+<ReportSettings version="1.1">
+  <PageWidth>42.7</PageWidth>
+  <PageHeaderSettings>
+    <ItemSetting type="CaptionRowSetting">
+      <Height>2.8</Height>
+      <CaptionCellSettings>
+        <ItemSetting type="CaptionCellSetting">
+          <Value>客户业务统计表</Value>
+          <Width>39.7</Width>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>16</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </CaptionCellSettings>
+    </ItemSetting>
+  </PageHeaderSettings>
+  <TableColumnSettings>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.9</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>3.1</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.8</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting">
+      <Width>2.3</Width>
+    </ItemSetting>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting"/>
+    <ItemSetting type="TableColumnSetting"/>
+  </TableColumnSettings>
+  <TableHeaderSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>客户编码</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>客户名称</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务员</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售行动</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>2</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售行动</Value>
+          <ColSpan>2</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务行动</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务行动</Value>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务行动</Value>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>服务行动</Value>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务建立</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务建立</Value>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务建立</Value>
+          <ColSpan>3</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务达成</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务达成</Value>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务达成</Value>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务达成</Value>
+          <ColSpan>4</ColSpan>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>业务员</Value>
+          <RowSpan>2</RowSpan>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>上门活动</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>电话其他活动</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>现场服务</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>远程服务</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>电话服务</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>客户回访</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售线索</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>销售商机</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>商机金额</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合同数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>合同额</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>回款数</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>回款额</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableHeaderSettings>
+  <TableDetailSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>custcode</BindingColumn>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>custname</BindingColumn>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>hname</BindingColumn>
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>sitecount</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>othercount</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>bill368count</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>bill369count</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>bill370count</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>feedbackcunt</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>cluecount</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>oppcount</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>ffact</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>ordercount</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>orderfsum</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>rpinvoicecount</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <BindingColumn>spmoney</BindingColumn>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableDetailSettings>
+  <TableFooterSettings>
+    <ItemSetting type="TableRowSetting">
+      <TableCellSettings>
+        <ItemSetting type="TableCellSetting">
+          <Value>合计</Value>
+          <Style>
+            <TextAlign>center</TextAlign>
+            <FontSize>11.5</FontSize>
+            <FontBold>true</FontBold>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Style>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!sitecount.Value)==0,"",Sum(Fields!sitecount.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!othercount.Value)==0,"",Sum(Fields!othercount.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!bill368count.Value)==0,"",Sum(Fields!bill368count.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!bill369count.Value)==0,"",Sum(Fields!bill369count.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!bill370count.Value)==0,"",Sum(Fields!bill370count.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!feedbackcunt.Value)==0,"",Sum(Fields!feedbackcunt.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!cluecount.Value)==0,"",Sum(Fields!cluecount.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!oppcount.Value)==0,"",Sum(Fields!oppcount.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!ffact.Value)==0,"",Sum(Fields!ffact.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!ordercount.Value)==0,"",Sum(Fields!ordercount.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!orderfsum.Value)==0,"",Sum(Fields!orderfsum.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!rpinvoicecount.Value)==0,"",Sum(Fields!rpinvoicecount.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+        <ItemSetting type="TableCellSetting">
+          <Value>=If(Sum(Fields!spmoney.Value)==0,"",Sum(Fields!spmoney.Value))</Value>
+          <Style>
+            <TextAlign>right</TextAlign>
+            <FontSize>11.5</FontSize>
+          </Style>
+        </ItemSetting>
+      </TableCellSettings>
+    </ItemSetting>
+  </TableFooterSettings>
+  <TableGroupSettings>
+    <ItemSetting type="TableGroupSetting">
+      <PageBreakAtEnd>false</PageBreakAtEnd>
+    </ItemSetting>
+  </TableGroupSettings>
+</ReportSettings>

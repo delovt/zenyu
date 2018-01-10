@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			import yssoft.evts.FWREvent;
+			
+			protected function onItemClickHandler(event:ItemClickEvent,type:String):void
+			{
+					this.dispatchEvent(new FWREvent(FWREvent.FWRTYPE,event.item.opt,event.label,type,event.item));	
+			}
+			
+			protected function onChangeHandler(event:IndexChangeEvent,type:String):void
+			{
+					var item:Object=(event.currentTarget as ComboBox).selectedItem;
+					this.dispatchEvent(new FWREvent(FWREvent.FWRTYPE,item.opt,item.label,type,item));		
+			}
+			
+			//获取 更多操作，打印模板
+			
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+		[Event(name="onFwrEvent",type="yssoft.evts.FWREvent")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:ButtonBar width="220" itemClick="onItemClickHandler(event,'Form')">
+		<mx:dataProvider>
+			<fx:Array>
+				<fx:Object label="增加" opt="Add"/>
+				<fx:Object label="修改" opt="Edit"/>
+				<fx:Object label="删除" opt="Delete"/>
+				<fx:Object label="保存" opt="Save"/>
+				<fx:Object label="放弃" opt="Giveup"/>
+			</fx:Array>
+		</mx:dataProvider>
+	</mx:ButtonBar>
+	
+	<mx:ButtonBar width="132" itemClick="onItemClickHandler(event,'Coop')">
+		<mx:dataProvider>
+			<fx:Array>
+				<fx:Object label="提交" opt="Submit"/>
+				<fx:Object label="撤销" opt="Revocation"/>
+				<fx:Object label="打印" opt="Print"/>
+			</fx:Array>
+		</mx:dataProvider>
+	</mx:ButtonBar>
+	
+	<s:ComboBox width="100" selectedIndex="0" change="onChangeHandler(event,'Template')">
+		<s:ArrayList>
+			<fx:Object label="没有打印模板" opt="no"/>
+		</s:ArrayList>
+	</s:ComboBox>
+	<s:Spacer width="100%"/>
+	
+	<mx:ButtonBar width="125" itemClick="onItemClickHandler(event,'Browse')">
+		<mx:dataProvider>
+			<fx:Array>
+				<fx:Object label="&lt;&lt;" opt="Pre"/>
+				<fx:Object label="1/99" opt=""/>
+				<fx:Object label=">>" opt="Next"/>
+			</fx:Array>
+		</mx:dataProvider>
+	</mx:ButtonBar>
+	
+	<s:ComboBox width="80" selectedIndex="0"  change="onChangeHandler(event,'More')">
+		<s:ArrayList>
+			<fx:Object label="更多操作" opt="no"/>
+		</s:ArrayList>
+	</s:ComboBox>
+</s:HGroup>

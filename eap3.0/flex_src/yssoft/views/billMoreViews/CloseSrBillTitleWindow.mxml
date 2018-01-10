@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="关闭跟踪"
+                        width="514" height="160"
+                        xmlns:module="yssoft.comps.frame.module.*"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.formats.Float;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.controls.TextInput;
+			import mx.events.DataGridEvent;
+			import mx.events.DataGridEventReason;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import yssoft.comps.CRMDataGridForCheckBox;
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var iid:int;
+			private var crmeap:CrmEapRadianVbox;
+			
+			private var ui_iresult:CrmEapTextInput;
+			private var ui_ifeedback:CrmEapTextInput;
+			
+			private var icustomer:int;
+
+			
+			public function myinit(iid:int,crmeap:CrmEapRadianVbox):void
+			{
+				this.iid = iid;
+				this.crmeap = crmeap;
+				CRMtool.openView(this);
+			}
+				
+
+			
+			private function verification():Boolean{
+
+				if(!verificationItem(cclose)){
+					return false;
+				}		
+				return true;
+				
+			}
+			
+			private function verificationItem(textInput:Object):Boolean{
+				var bool:Boolean = true;
+				if(CRMtool.isStringNull(textInput.text)){
+					bool=false;
+					//CRMtool.showAlert(textInput.id+"  必填");
+					textInput.setFocus();
+				}
+				return bool;
+			}	
+			
+			public function onSubmitSrBillCloseYes(event:MouseEvent):void{
+				var myMainValue:Object =this.crmeap.getValue() as Object;
+				if(verification()==false){
+					return;
+				} 
+				if(myMainValue&&myMainValue.hasOwnProperty("iid"))
+				{		
+					var iid:int = myMainValue.iid;
+					
+					myMainValue.istatus = 4;
+					myMainValue.iclose = CRMmodel.userId.toString();
+					myMainValue.dclose = CRMtool.getFormatDateString("YYYY-MM-DD HH:NN:SS",new Date());
+					myMainValue.cclose = cclose.text;
+					
+					AccessUtil.remoteCallJava("SrBillDest","onCloseSrBillStatus",function():void{
+						CRMtool.tipAlert("关闭成功！");
+						var obj:Object = new Object();
+						obj.mainValue = myMainValue;
+						crmeap.setValue(obj,1,1);
+						onCloseHandler();
+					},myMainValue);		
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:VBox id="myBorder" width="100%" height="110" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" verticalGap="10" >
+		<mx:VBox width="100%" height="100%" styleName="content" paddingTop="5" paddingLeft="15" paddingRight="15" verticalGap="5" paddingBottom="10">
+			<s:Label  text="关闭内容" color="red"/>
+			<s:TextInput id="cclose" borderVisible="false" width="100%" height="100%"/>
+		</mx:VBox>
+		<mx:HBox  verticalAlign="middle" paddingRight="10" paddingLeft="10" horizontalAlign="right" width="100%">
+			<s:Spacer width="270"/>
+			<s:Button label="确定" click="onSubmitSrBillCloseYes(event)"/>
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

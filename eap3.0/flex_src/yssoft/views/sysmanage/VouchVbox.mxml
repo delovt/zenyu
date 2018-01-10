@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:comps="yssoft.comps.*"
+				xmlns:checkBoxColumn="yssoft.comps.checkBoxColumn.*"
+				width="100%" height="100%" creationComplete="iniTreeMenu();" 
+				implements="yssoft.impls.ICRMWindow">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.core.UIComponent;
+			import mx.events.ListEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.components.gridClasses.GridItemRenderer;
+			
+			import yssoft.comps.dataGridRenderer.ItemRendererCheckBox;
+			import yssoft.comps.dataGridRenderer.ItemRendererTextInputNumber;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			
+			[Bindable]public var arrDataList:ArrayCollection = new ArrayCollection();	//数据集
+			
+		/* 	[Bindable]public var arr_onNew1:ArrayList = new ArrayList(["登录用户名","登录用户职员ID","登录用户职务ID","登录用户部门ID","服务器当前日期","服务器当前时间","本机当前日期","本机当前时间",""]); */
+			
+			[Bindable]public var arr_onNew1:ArrayCollection = new ArrayCollection([
+				{label:"",value:""},
+				{label:"登录用户名",value:"登录用户名"},
+				{label:"登录用户职员ID",value:"登录用户职员ID"},
+				{label:"登录用户职务ID",value:"登录用户职务ID"},
+				{label:"登录用户部门ID",value:"登录用户部门ID"},
+				{label:"服务器当前日期",value:"服务器当前日期"},
+				{label:"服务器当前时间",value:"服务器当前时间"},
+				{label:"本机当前日期",value:"本机当前日期"},
+				{label:"本机当前时间",value:"本机当前时间"}
+			]);
+				
+			[Bindable] public var objecttype:ArrayCollection = new ArrayCollection([
+				{label:"组",value:0},
+				{label:"标签",value:1},
+				{label:"文本录入",value:2},
+				{label:"文本域录入",value:3},
+				{label:"编辑器",value:4},
+				{label:"下拉框",value:5},
+				{label:"复选框",value:6},
+				{label:"表格",value:7},
+				{label:"单选框",value:8}
+			]);
+			
+			[Bindable]
+			public var idatetypeArr:ArrayCollection = new ArrayCollection([
+				{label:"",value:"3"},
+				{label:"纯日期",value:"0"},
+				{label:"日期时间",value:"1"},
+				{label:"纯时间",value:"2"}
+			]);
+			
+			[Bindable]public var myenabled:Boolean=true;
+			
+			//初始化按钮值
+			[Bindable]
+			private var itemType:String=ConstsModel.ONDELETE_LABLE;
+			
+			private var voucharr:ArrayCollection=new ArrayCollection();
+			
+			[Bindable]
+			private var tableArr:ArrayCollection = new ArrayCollection();
+			
+			
+			private var deleteVouchFormArr:ArrayCollection = new ArrayCollection();
+			
+			private var objArr:ArrayCollection = new ArrayCollection([
+				{dataField:"bmain",headerText:"主子属性",type:"checkBox",enabled:false},
+				{dataField:"ctable",headerText:"表名",type:"textInput"},
+				{dataField:"cfield",headerText:"字段",type:""},
+				{dataField:"ccaption",headerText:"标题",type:"textInput"},
+				{dataField:"idecimal",headerText:"小数位数",type:"textInputNumber"},
+				{dataField:"bunnull",headerText:"是否必输",type:"checkBox",isa:false},
+				{dataField:"bread",headerText:"是否只读",type:"checkBox",isa:false},
+				{dataField:"cnewdefault",headerText:"新增默认值",type:"comboBox",dataProvider:arr_onNew1},
+				{dataField:"cnewdefaultfix",headerText:"新增默认常量值",type:"textInput"},
+				{dataField:"ceditdefault",headerText:"修改默认值",type:"comboBox",dataProvider:arr_onNew1},
+				{dataField:"cobjectname",headerText:"创建对象名",type:"textInput"},
+				{dataField:"iobjecttype",headerText:"创建对象类型",type:"comboBox",dataProvider:objecttype},
+				{dataField:"igroupno",headerText:"分组控件位置序号",type:"textInputNumber"},
+				{dataField:"igrouprow",headerText:"分组控件内置列数",type:"textInputNumber"},
+				{dataField:"ipgroup",headerText:"所属分组",type:"textInput"},
+				{dataField:"ichildno",headerText:"控件在分组内的位置序号",type:"textInputNumber"},
+				{dataField:"iwidth",headerText:"字段宽占位",type:"textInputNumber"},
+				{dataField:"iheight",headerText:"字段高占位",type:"textInputNumber"},
+				{dataField:"bshow",headerText:"是否显示",type:"checkBox",isa:false},
+				{dataField:"idatetype",headerText:"日期型字段格式",type:"comboBox",dataProvider:idatetypeArr}
+			]);
+			
+			private function iniTreeMenu():void{
+				this.dgrd_vouch.enabled = false;
+				var objvalue:Object = new Object();
+				objvalue.sqlcondition = " bdictionary=1";
+				objvalue.single="";
+				AccessUtil.remoteCallJava("DatadictionaryDest","getTreeMenuList",onGetTreeMenuListBack,objvalue);
+			}
+			
+			private function onGetTreeMenuListBack(event:ResultEvent):void{
+				if(event.result!=null)
+				{
+					var treexml:XML = new XML(event.result as String);
+					this.tre_vouch.treeCompsXml = treexml;
+					InitColumns();
+					CRMtool.toolButtonsEnabled(this.lbr_vouch,null,this.tre_vouch.treeCompsXml.length());
+				}
+				else
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_vouch,null,0);
+				}
+				CRMtool.containerChildsEnabled(this.myBorder,false);
+				//回车替代TAB键
+				CRMtool.setTabIndex(this.myBorder);
+			}
+			
+			private var bitrender:ClassFactory; 
+			public function InitColumns():void
+			{
+				this.dgrd_vouch.InitColumns();
+				
+				for(var i:int=0;i<this.objArr.length;i++)
+				{
+					var obj:Object = this.objArr.getItemAt(i);
+					var column:DataGridColumn = new DataGridColumn();
+					column.dataField = obj.dataField;
+					column.headerText =obj.headerText;
+					switch(obj.type)
+					{
+						case "checkBox":
+						{
+							bitrender = new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererCheckBox);
+							column.itemRenderer = bitrender;
+							column.editable = false;
+							 bitrender.properties = {isEnabled:myenabled};
+							if(!obj.hasOwnProperty("enabled")||obj.enabled)
+							{
+								bitrender.properties = {enabled:true};
+							}
+							else
+							{
+								bitrender.properties = {enabled:false};
+							} 
+							break;
+						}
+						case "textInputNumber":
+						{
+							column.itemEditor = new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererTextInputNumber);
+							break;
+						}
+						case "comboBox":
+						{
+							var cbrender:ClassFactory = new ClassFactory(yssoft.comps.dataGridRenderer.ItemRendererComboBox);
+							var cbrenderArr:ArrayCollection = obj.dataProvider as ArrayCollection;
+							cbrender.properties = {dataProvider:cbrenderArr};
+							column.itemRenderer = cbrender;
+					/* 		coulmn.editorDataField = "value"; */
+							column.editable = false; 
+							break;
+						}
+						case "textInput":
+						{
+							column.itemEditor = new ClassFactory(TextInput);
+							break;
+						}
+						default:
+						{
+							column.editable = true;
+							break;
+						}
+					}
+					dgrd_vouch.columns =dgrd_vouch.columns.concat(column);
+				}
+			}
+			
+			private function treeMenu_itemClickHandler():void
+			{
+				if(!this.tre_vouch.selectedItem)
+				{
+					this.tnp_ccode.text="";
+					this.tnp_cname.text="";
+					this.arrDataList.removeAll();
+					Alert.show("请选择一条记录!");
+					return;
+				}
+				if(this.tre_vouch.selectedItem.@ctable!="")
+				{
+					var param:Object = new Object();
+					param.ifuncregedit= int(this.tre_vouch.selectedItem.@iid);
+					AccessUtil.remoteCallJava("DatadictionaryDest","getVouch",getVouchBack,param);
+				}
+				else
+				{
+					this.tableArr.removeAll();
+					this.arrDataList.removeAll();
+					this.tnp_ccode.text="";
+					this.tnp_cname.text="";
+				}
+			}
+			
+			private function getVouchBack(event:ResultEvent):void
+			{
+				voucharr = event.result.vouchList as ArrayCollection;
+				tableArr = event.result.taleList as ArrayCollection;
+				this.lst_table.dataProvider=tableArr;
+				if(voucharr.length>0)
+				{
+					this.tnp_ccode.text=voucharr.getItemAt(0).ccode;
+					this.tnp_cname.text=voucharr.getItemAt(0).cname;
+					var newArr:ArrayCollection = event.result.vouchFormList as ArrayCollection;
+					var i:int=1;
+					for each(var item:Object in newArr)
+					{
+						item.sort_id=i++;
+					}
+					this.arrDataList = newArr;
+				}
+				else if(tableArr.length==0)
+				{
+					this.tableArr.removeAll();
+					this.arrDataList.removeAll();
+					this.tnp_ccode.text="";
+					this.tnp_cname.text="";
+				}
+				else
+				{
+					this.arrDataList.removeAll();
+					this.tnp_ccode.text="";
+					this.tnp_cname.text="";
+				}
+			}
+			
+			private function iniDataList(tablename:String,ifuncregedit:int):void{	
+				arrDataList.removeAll();
+				var param:Object = new Object();
+				param.ctable=tablename;
+				param.ifuncregedit = ifuncregedit;
+				AccessUtil.remoteCallJava("DatadictionaryDest","getVouchForm",onGetDataListBack,param);
+			}
+			private function onGetDataListBack(evt:ResultEvent):void{
+				arrDataList = evt.result as ArrayCollection;
+			}
+			
+			private function onNew(event:Event):void
+			{
+				if(this.tre_vouch.selectedItem==null)
+				{
+					CRMtool.tipAlert("请选择一条记录");
+					return;
+				}
+				else if(this.voucharr.length>0)
+				{
+					CRMtool.tipAlert("单据已经存在，无需新建");
+					return;
+				}
+				this.tnp_ccode.text ="";
+				this.tnp_cname.text ="";
+				this.itemType ="onNew";
+				lbr_roleUser.enabled=true;
+				this.addDate.enabled = true;
+				this.myenabled=true;
+				this.dgrd_vouch.enabled = true;
+				CRMtool.toolButtonsEnabled(this.lbr_vouch,"onNew",this.tre_vouch.treeCompsXml.length());
+				CRMtool.containerChildsEnabled(this.myBorder,true);
+			}
+			
+			public function onEdit(event:Event):void
+			{
+				if(this.tre_vouch.selectedItem)
+				{
+					if(this.voucharr.length==0)
+					{
+						CRMtool.tipAlert("请选择一条有效记录");
+						return;
+					}
+					
+					var ctable:String=this.tre_vouch.selectedItem.@ctable;
+					this.dgrd_vouch.enabled = true;
+					CRMtool.containerChildsEnabled(this.myBorder,true);
+					this.dgrd_vouch.editable = true;
+					this.myenabled=true;
+					lbr_roleUser.enabled=true;
+					this.addDate.enabled = true;
+					this.dgrd_vouch.enabled = true;
+					this.dgrd_vouch.invalidateList();
+					this.tre_vouch.enabled= false;
+					this.itemType ="onEdit";
+					for(var i:int=0;i<this.arrDataList.length;i++)
+					{
+						this.arrDataList.getItemAt(i).enabled=1;
+					}
+					CRMtool.toolButtonsEnabled(this.lbr_vouch,"onEdit",this.tre_vouch.treeCompsXml.length());
+				}
+				else
+				{
+					CRMtool.tipAlert("请选择一条记录");
+				}
+			}
+			
+			public function onSave(event:Event):void
+			{
+				if(CRMtool.isStringNull(this.tnp_ccode.text))
+				{
+					CRMtool.tipAlert("请输入编码",this.tnp_ccode);
+					return;
+				}
+				else if(CRMtool.isStringNull(this.tnp_cname.text))
+				{
+					CRMtool.tipAlert("请输入名称",this.tnp_cname);
+					return;
+				}
+				
+				itemType = itemType;
+				var ifuncregedit:int=0;
+				if(this.tre_vouch.selectedItem.@ctable=="")
+				{
+					ifuncregedit=int(this.tre_vouch.selectedItem.@ipid);
+				}
+				else
+				{
+					ifuncregedit=int(this.tre_vouch.selectedItem.@iid);
+				}
+			 	var param:Object = new Object();
+				param.ccode=this.tnp_ccode.text;
+				param.cname=this.tnp_cname.text;
+				param.ifuncregedit=ifuncregedit;
+				param.arrDataList=this.arrDataList;
+				
+				/* if(!chooseGroup())
+				{
+					return;
+				}
+				
+				if(!checkCobjectname())
+				{
+					return;
+				} */
+				
+				
+				if(itemType=="onNew")
+				{
+					AccessUtil.remoteCallJava("DatadictionaryDest","addVouch",saveTreecallBackHandler,param); 
+				}
+				else
+				{
+					param.ivouch = this.voucharr.getItemAt(0).iid;
+					AccessUtil.remoteCallJava("DatadictionaryDest","updateVouch",saveTreecallBackHandler,param);
+				}
+			}
+			
+			//判断对象名是否重复
+			private function checkCobjectname():Boolean
+			{
+				var cobjectname:String="";
+				var ipgroup:String="";
+				for each(var item:Object in this.arrDataList)
+				{
+					if(cobjectname==""&&item.cobjectname!=null&&item.cobjectname!="")
+					{
+						cobjectname=item.cobjectname;
+					}
+					else if(item.cobjectname!=cobjectname&&item.cobjectname!=null&&item.cobjectname!="")
+					{
+						cobjectname=item.cobjectname;
+					}
+					
+					if(ipgroup==""&&item.ipgroup!=null&&item.ipgroup!=""&&item.ipgroup!="0")
+					{
+						ipgroup=item.ipgroup;
+					}
+					else if(item.ipgroup!=ipgroup&&item.ipgroup!=null&&item.ipgroup!=null&&item.ipgroup!=""&&item.ipgroup!="0")
+					{
+						ipgroup=item.ipgroup;
+					}
+					var count:int=0;
+					var igroupnocount:int=0;
+					for each(var item2:Object in this.arrDataList)
+					{
+						if(cobjectname==item2.cobjectname)
+						{
+							count++;
+						}
+						if(ipgroup!=null&&ipgroup!=""&&"0"!=ipgroup)
+						{
+							if(ipgroup==item2.cobjectname)
+							{
+								igroupnocount++;
+							}
+						}
+					}
+					
+					if(count>1)
+					{
+						Alert.show("对象名为["+cobjectname+"]重复，请重新输入");
+						return false;
+					}
+					
+					
+					if(igroupnocount==0&&ipgroup!="")
+					{
+						Alert.show("所属分组为["+ipgroup+"]不存在，请重新输入");
+						return false;
+					}
+					
+				}
+				return true;
+				
+			}
+			
+			//判断是否选择分组
+			private function chooseGroup():Boolean
+			{
+				for each(var item:Object in this.arrDataList)
+				{
+					if(item.cobjectname==null||""==item.cobjectname)
+					{
+						CRMtool.tipAlert("对象名不能为空！！");
+						return false;
+					}
+					if(int(item.iobjecttype)!=0)
+					{
+						if(null==item.ipgroup||"0"==item.ipgroup)
+						{
+							CRMtool.tipAlert("请输入所属分组");
+							return false;
+						}
+						
+						if(null==item.ichildno||"0"==item.ichildno)
+						{
+							CRMtool.tipAlert("请输入控件在分组内的位置序号");
+							return false;
+						}
+					}
+					else
+					{
+						if(item.cfield!=null&&item.cfield!="")
+						{
+							Alert.show("字段名不为空时，不能选择组控件");
+							return false;
+						}
+						
+						if(item.ctable!=null&&item.ctable!="")
+						{
+							Alert.show("表名不为空时，不能选择组控件");
+							return false;
+						}
+						
+						if(item.igroupno==null||item.igroupno=="0")
+						{
+							CRMtool.tipAlert("请输入分组控件位置序号");
+							return false;
+						}
+						
+						if(item.igrouprow==null||item.igrouprow=="0")
+						{
+							CRMtool.tipAlert("请输入分组控件内置列数");
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 保存后执行操作
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			private function saveTreecallBackHandler(event:ResultEvent):void
+			{
+				if(event.result.message!="fail")
+				{
+					if(itemType =="onNew")
+					{
+						var result:String = event.result.iid as String;
+						var vouchObj:Object = new Object();
+						vouchObj.ccode= this.tnp_ccode.text;
+						vouchObj.cname= this.tnp_cname.text;
+						vouchObj.iid=result;
+						this.voucharr.addItem(vouchObj);
+						CRMtool.tipAlert("新增成功！！");
+					}
+					else if(itemType=="onDelete")
+					{
+						this.tnp_ccode.text="";
+						this.tnp_cname.text="";
+						this.arrDataList.removeAll();
+						this.voucharr.removeAll();
+						CRMtool.tipAlert("删除成功！！");
+					}
+					else if(itemType=="onEdit")
+					{
+						this.voucharr.getItemAt(0).ccode=this.tnp_ccode.text;
+						this.voucharr.getItemAt(0).cname=this.tnp_cname.text;
+						CRMtool.tipAlert("修改成功！！"); 
+						this.tre_vouch.enabled=true;
+					}
+					onGiveUp(event); 
+				}
+				else
+				{
+					this.tnp_ccode.text="";
+					this.tnp_cname.text="";
+					CRMtool.tipAlert(ConstsModel.FAIL);
+				}
+			}
+			
+			public function onDelete(event:Event):void
+			{
+				this.itemType ="onDelete";
+				if(!this.tre_vouch.selectedItem)
+				{
+					CRMtool.tipAlert("请选择一条有效记录");
+					return;
+				}
+				else if(this.voucharr.length==0)
+				{
+					CRMtool.tipAlert("请选择一条有效记录");
+					return;
+				}
+				if(this.tre_vouch.selectedItem.@ctable!="")
+				{
+					CRMtool.tipAlert(ConstsModel.DETERMINE_HEAD+this.tre_vouch.selectedItem.@ccname+"单据配置】？",null,"AFFIRM",this,"onDeleteTree");
+				}
+			}
+			
+			public function onDeleteTree():void
+			{
+				AccessUtil.remoteCallJava("DatadictionaryDest","removeVouch",saveTreecallBackHandler,int(Number(this.voucharr.getItemAt(0).iid)));
+			}
+			
+			private function onGiveUp(event:Event):void
+			{
+				this.tnp_ccode.text ="";
+				this.tnp_cname.text ="";
+				this.arrDataList.removeAll();
+				this.itemType ="onGiveUp";
+				CRMtool.toolButtonsEnabled(this.lbr_vouch,"onGiveUp",this.tre_vouch.treeCompsXml.length());
+				CRMtool.containerChildsEnabled(this.myBorder,false);
+				this.tre_vouch.enabled = true;
+				lbr_roleUser.enabled=false;
+				this.addDate.enabled = false;
+				this.dgrd_vouch.editable =false;
+				this.myenabled=false;
+			}
+			
+			public function openRoleUserWin():void
+			{
+				if(!this.lst_table.selectedItem)
+				{
+					CRMtool.tipAlert("请选择要配置的表名");
+					return;
+				}
+				var addVouchForm:AddVouchForm = new AddVouchForm();
+				addVouchForm.width=700;
+				addVouchForm.height=500;
+				var ifuncregedit:int=int(this.tre_vouch.selectedItem.@iid);
+				addVouchForm.ifuncregedit =ifuncregedit;
+				addVouchForm.ctable = this.lst_table.selectedItem.cname;
+				addVouchForm.owner = this; 
+				
+				var addCfield:ArrayCollection = new ArrayCollection();
+				for each(var item:Object in arrDataList)
+				{
+					if(CRMtool.isStringNotNull(item.cfield)&&CRMtool.isStringNotNull(item.ctable))
+					{
+						if(item.ctable==this.lst_table.selectedItem.cname)
+						{
+							addCfield.addItem(item);
+						}
+					}
+				}
+				
+				addVouchForm.roleUserArr=addCfield;
+				addVouchForm.romveUserArr =this.deleteVouchFormArr;
+				CRMtool.openView(addVouchForm);
+			}
+			
+			public function queryVorchByTable(ifuncregedit:int,ctable:String):void
+			{
+				var param:Object = new Object();
+				param.ifuncregedit =  ifuncregedit;
+				param.ctable = ctable;
+				AccessUtil.remoteCallJava("DatadictionaryDest","getVouchForm",qugerVorchForm,param);
+			}
+			
+			private function qugerVorchForm(event:ResultEvent):void
+			{
+				arrDataList=event.result as ArrayCollection;
+			}
+			
+			public function deleteVouchForm(event:Event):void
+			{
+				if(this.dgrd_vouch.getSelectRows().length==0)
+				{
+					CRMtool.tipAlert("请选择待删除的字段后，再执行移除操作！");
+					return;
+				}
+				AccessUtil.remoteCallJava("DatadictionaryDest","deleteVouchForm",deleteRoleBack,this.dgrd_vouch.getSelectRows());
+			}
+			
+			private function deleteRoleBack(event:ResultEvent):void
+			{
+				queryVorchByTable(this.tre_vouch.selectedItem.@ipid,this.tre_vouch.selectedItem.@cname);
+				Alert.show(event.result.message);
+			}
+			
+			private function addNewItem():void
+			{
+				if(null==this.lst_table.selectedItem)
+				{
+					CRMtool.tipAlert("请选择表名");
+					return;
+				}
+				var vouch:Object = new Object();
+				vouch.sort_id=this.arrDataList.length+1;
+				vouch.bmain=false;
+				vouch.bshow=true;
+				vouch.bunnull=false;
+				vouch.bread=false;
+				vouch.idatetype=3;
+				vouch.ctable=this.lst_table.selectedItem.cname;
+				
+				if(this.arrDataList.length>0)
+				{
+					vouch.ivouch=this.arrDataList.getItemAt(0).iid;
+				}
+				else
+				{
+					vouch.ivouch=0;
+				}
+				this.arrDataList.addItem(vouch);
+				this.dgrd_vouch.editable=true; 
+			}
+			
+			private function deleteItem():void
+			{
+				if(this.dgrd_vouch.selectedItem)
+				{
+					deleteVouchFormArr.addItem(this.dgrd_vouch.selectedItem);
+					this.arrDataList.removeItemAt(this.dgrd_vouch.selectedIndex);
+				}
+				else
+				{
+					CRMtool.tipAlert("请选择一条记录");
+				}
+			}
+			
+			private function removeAll():void
+			{
+				for each(var item:Object in arrDataList)
+				{
+					if(CRMtool.isStringNotNull(item.cfield))
+					{
+						this.deleteVouchFormArr.addItem(item);
+					}
+				}
+				
+				this.arrDataList.removeAll();
+			}
+			
+			public function addCfield(romveUserArr:ArrayCollection,addUserArr:ArrayCollection):void
+			{
+				for(var i:int=0;i<romveUserArr.length;i++)
+				{
+					var romeveObj:Object = romveUserArr.getItemAt(i);
+					for(var j:int=0;j<arrDataList.length;j++)
+					{
+						var arrData:Object=arrDataList.getItemAt(j);
+						if(romeveObj.cfield==arrData.cfield)
+						{
+							arrDataList.removeItemAt(j);
+							break;
+						}
+					}
+				} 
+				
+				for each(var item2:Object in addUserArr)
+				{
+					if(!this.arrDataList.contains(item2))
+					{
+						item2.ctable=this.lst_table.selectedItem.cname;
+						item2.bmain =(this.lst_table.selectedItem.bmain==0)?false:true;
+						item2.bshow=true;
+						item2.bunnull=false;
+						item2.bread=false;
+						item2.idatetype=3;
+						this.arrDataList.addItem(item2);
+					}
+				}
+			}
+			
+			public function getVouchForm():void
+			{
+				var param:Object = new Object();
+				param.ifuncregedit=int(this.tre_vouch.selectedItem.@iid);
+				param.ctable= this.lst_table.selectedItem.cname;
+				AccessUtil.remoteCallJava("DatadictionaryDest","getVouchForm",getVouchFormBack,param);
+			}
+			
+			private function getVouchFormBack(event:ResultEvent):void
+			{
+				this.arrDataList = event.result as ArrayCollection;
+				var i:int=1;
+				for each(var item:Object in arrDataList)
+				{
+					item.sort_id=i++;
+				}
+			}
+			
+			//窗体初始化
+			public function onWindowInit():void
+			{
+				
+			}
+			//窗体打开
+			public function onWindowOpen():void
+			{
+				this.tnp_ccode.text="";
+				this.tnp_cname.text="";
+				arrDataList.removeAll();
+				this.tableArr.removeAll();
+				this.tre_vouch.enabled=true;
+				iniTreeMenu();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void
+			{
+				
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<!-- 角色树 -->
+	<mx:VBox width="20%" height="100%" verticalGap="10">
+		<mx:VBox width="100%" height="50%" styleName="lefttree">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<mx:Label text="功能目录" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+				<comps:TreeCompsVbox id="tre_vouch" width="100%" height="100%" click="treeMenu_itemClickHandler()"/>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="50%" styleName="lefttree" >
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<mx:Label text="表名" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+				<s:List id="lst_table" borderVisible="false" width="100%" height="100%" 
+						labelField="cname" dataProvider="{tableArr}"/>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:VBox>
+	
+	<!-- 右边 -->
+	<mx:VBox width="80%" height="100%" styleName="centerbg4">
+		
+		<mx:ApplicationControlBar styleName="centertop" width="100%" height="32" >
+			<comps:LinkBarVboxComps id="lbr_vouch" width="15%"  dataProvider="{ConstsModel.LBRITEM}"
+									 height="25" styleName="contentButtonBar" onNewEvent="onNew(event)"
+									 onEditEvent="onEdit(event)" onDeleteEvent="onDelete(event)"
+									 onSaveEvent="onSave(event)" onGiveUpEvent="onGiveUp(event)"/>
+			<mx:HBox width="100%" horizontalAlign="right">
+				<mx:Button label="添加字段" id="lbr_roleUser" click="openRoleUserWin();" enabled="false"/>
+			</mx:HBox>
+		</mx:ApplicationControlBar>
+		
+		
+		<mx:VBox width="100%" height="100%" styleName="contentHbox" verticalGap="10">
+			
+			<mx:VBox id="myBorder" width="100%"  styleName="content">
+				<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+					<mx:Label  text="编码" styleName="contentLabel"/>
+					<mx:TextInput id="tnp_ccode" width="100%" styleName="contentTextInput"/>
+				</mx:HBox>
+				<mx:HRule width="100%"/>
+				<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+					<mx:Label text="标题" styleName="contentLabel"/>
+					<mx:TextInput id="tnp_cname" width="100%" styleName="contentTextInput"/>
+				</mx:HBox>
+			</mx:VBox>
+			
+			<mx:VBox width="100%" height="100%"  styleName="content" verticalGap="0">
+				<mx:HBox id="addDate" horizontalAlign="right" width="100%" height="2%"  enabled="false">
+					<mx:LinkButton icon="{ConstsModel._ADDITIONICON}" toolTip="增行" click="addNewItem()"/>
+					<mx:LinkButton icon="{ConstsModel._SUBTRACTIONICON}" toolTip="删行" click="deleteItem()"/>
+					<mx:LinkButton icon="{ConstsModel._CLEARICON}" toolTip="清空" click="removeAll();"/>
+				</mx:HBox>
+				<mx:HRule width="100%"/>
+				<mx:HBox width="100%" height="100%">
+					<comps:CRMDataGridForCheckBox width="100%" height="100%" id="dgrd_vouch" 
+												  horizontalScrollPolicy="auto" doubleClickEnabled="false"
+												  dataProvider="{arrDataList}" editable="{myenabled}" borderStyle="none"
+												  verticalScrollPolicy="auto" lockedColumnCount="4">
+						
+					</comps:CRMDataGridForCheckBox>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:VBox>
+</mx:HDividedBox>

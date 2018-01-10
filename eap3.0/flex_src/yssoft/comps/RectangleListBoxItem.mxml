@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         paddingLeft="3" horizontalScrollPolicy="off"
+         backgroundColor="#e7e7e7">
+
+    <fx:Script>
+		<![CDATA[
+        private var _iid:int;
+        [Bindable]private var _title:String;
+        [Bindable]private var _item:Object;
+
+        public function get item():Object
+        {
+            return _item;
+        }
+
+        public function set item(value:Object):void
+        {
+            _item = value;
+        }
+
+
+        public function get title():String
+        {
+            return _title;
+        }
+
+        public function set title(value:String):void
+        {
+            _title = value;
+        }
+
+
+        public function get iid():int
+        {
+            return _iid;
+        }
+
+        public function set iid(value:int):void
+        {
+            _iid = value;
+        }
+
+        protected function remove_clickHandler(event:MouseEvent):void
+        {
+            if(item){
+                item.checked = false;
+                this.dispatchEvent(new Event("itemRemoved"));
+            }
+        }
+
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <s:Label text="{_title}" width="200" maxDisplayedLines="1" showTruncationTip="true"/>
+    <s:Image source="@Embed(source='/yssoft/assets/smartButtonIcon/cha_black.png')" buttonMode="true"
+             visible="{!_item.locked}"
+             click="remove_clickHandler(event)"/>
+
+    <!--<mx:LinkButton icon=""  text="{_title}"/>-->
+</mx:HBox>

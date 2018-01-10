@@ -1,0 +1,38 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：sa_clue
+ * 创建人：刘磊
+ * 创建时间：2011-9-26 16:40:02
+ * 修改人：刘磊
+ * 修改时间：2011-9-26 16:40:02
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_sa_clue" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,isourceregedit,isource,csubject,cdetail,ipriority,icustomer,icustperson,ccustpersonpost,ccustpersonmobile,ccustpersontel,iisource,csourceperson from sa_clue 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_sa_clue" parameterClass="java.util.HashMap">
+            insert into sa_clue(isourceregedit,isource,csubject,cdetail,ipriority,icustomer,icustperson,ccustpersonpost,ccustpersonmobile,ccustpersontel,iisource,csourceperson) 
+            values (#isourceregedit#,#isource#,#csubject#,#cdetail#,#ipriority#,#icustomer#,#icustperson#,#ccustpersonpost#,#ccustpersonmobile#,#ccustpersontel#,#iisource#,#csourceperson#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_sa_clue" parameterClass="java.util.HashMap">
+            update sa_clue set isourceregedit=#isourceregedit#,isource=#isource#,csubject=#csubject#,cdetail=#cdetail#,ipriority=#ipriority#,icustomer=#icustomer#,icustperson=#icustperson#,ccustpersonpost=#ccustpersonpost#,ccustpersonmobile=#ccustpersonmobile#,ccustpersontel=#ccustpersontel#,iisource=#iisource#,csourceperson=#csourceperson# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_sa_clue" parameterClass="String">
+            delete from sa_clue
+            where $condition$
+     </delete>
+</sqlMap>

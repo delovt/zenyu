@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="1000" height="1000"
+		 xmlns:bmcontrols="yssoft.comps.bmcontrols.*">
+	
+	<fx:Script source="../../scripts/ProductConfigScript.as"/>
+	
+	<mx:HDividedBox width="100%" height="100%" horizontalGap="0" styleName="contentHDividedBox">
+		<mx:VBox width="80%" height="100%" paddingBottom="0" paddingTop="0" styleName="freeCoVbox"  verticalGap="0">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<mx:ButtonBar id="btn_menubar" width="10%" height="80%" 
+							  creationComplete="CRMtool.toolButtonsEnabled(btn_menubar,null)"
+							  dataProvider="{arr_menubar}" styleName="contentButtonBar"/>
+			</mx:ApplicationControlBar>
+			
+			<mx:HBox width="100%" height="40" styleName="contentVBox" verticalAlign="middle">
+				<mx:Text id="lbl_title" width="90%" fontSize="15" fontWeight="bold" paddingLeft="22"
+						 text="BOM管理"/>
+			</mx:HBox>
+			
+			<mx:HRule width="100%"/>
+			
+			<mx:VBox width="100%" height="100%" verticalGap="0">
+				<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" styleName="contentVBox">
+					<mx:VBox id="container" width="100%" height="100%" top="20" styleName="FrameHbox" paddingBottom="0" paddingTop="0">
+						<mx:VBox width="100%" cornerRadius="8" styleName="content">
+							<mx:HBox width="100%" styleName="contentSubHbox">
+								<mx:Label fontWeight="bold" text="产品编码:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="ccode" width="50%" height="100%"
+											  borderVisible="false" styleName="contentTextInput"/>
+								<mx:Label fontWeight="bold" text="产品名称:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="cname" width="50%" height="100%" borderVisible="false" styleName="contentTextInput"/>
+							</mx:HBox>
+							
+							<mx:HRule width="100%"/>
+							
+							<mx:HBox width="100%" styleName="contentSubHbox">
+								<mx:Label fontWeight="bold" text="配置版本:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="ccode1" width="50%" height="100%" borderVisible="false" styleName="contentTextInput"/>
+								<mx:Label fontWeight="bold" text="备注:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="cname1" width="50%" height="100%" borderVisible="false" styleName="contentTextInput"/>
+							</mx:HBox>
+						</mx:VBox>
+						
+						<mx:VBox width="100%" cornerRadius="8">
+							<bmcontrols:customerDataGrid height="150" dgcolumns="{this.pcolumns}" dgdatapriover="{this.pdata}" lblcaptionisVisible="true"
+														 lblcaptiontext="产品模块" btnisVisible="true" isEdit="true"/>
+						</mx:VBox>
+						
+						<mx:VBox width="100%" cornerRadius="8">
+							<bmcontrols:customerDataGrid height="150" dgcolumns="{this.fixnumcolumns}" dgdatapriover="{this.fdata}" lblcaptionisVisible="true"
+														 lblcaptiontext="固定基数" btnisVisible="true" isEdit="true"/>
+						</mx:VBox>
+						
+						<mx:VBox width="100%" cornerRadius="8" styleName="content">
+							<mx:HBox width="100%" styleName="contentSubHbox">
+								<mx:Label fontWeight="bold" text="固定增量数量:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="fixqua" width="50%" height="100%"
+											  borderVisible="false" styleName="contentTextInput"/>
+								<mx:Label fontWeight="bold" text="固定增量价格:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="fixprice" width="50%" height="100%" borderVisible="false" styleName="contentTextInput"/>
+							</mx:HBox>
+							
+							<mx:HRule width="100%"/>
+							
+							<mx:HBox width="100%" styleName="contentSubHbox">
+								<mx:Label fontWeight="bold" text="固定增量扣除数量:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="fixkc" width="100%" height="100%" borderVisible="false" styleName="contentTextInput"/>
+							</mx:HBox>
+						</mx:VBox>
+						
+						<mx:VBox width="100%" cornerRadius="8">
+							<bmcontrols:customerDataGrid height="150" dgcolumns="{this.stepnumcolumns}" dgdatapriover="{this.sdata}" lblcaptionisVisible="true"
+														 lblcaptiontext="阶梯增量" btnisVisible="true" isEdit="true"/>
+						</mx:VBox>
+						
+						<mx:VBox width="100%" cornerRadius="8" styleName="content">
+							<mx:HBox width="100%" styleName="contentSubHbox">
+								<mx:Label fontWeight="bold" text="制单人:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="imaker" width="50%" height="100%"
+											  borderVisible="false" styleName="contentTextInput"/>
+								<mx:Label fontWeight="bold" text="制单时间:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="idate" width="50%" height="100%" borderVisible="false" styleName="contentTextInput"/>
+							</mx:HBox>
+							
+							<mx:HRule width="100%"/>
+							
+							<mx:HBox width="100%" styleName="contentSubHbox">
+								<mx:Label fontWeight="bold" text="修改人:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="imodify" width="50%" height="100%" borderVisible="false" styleName="contentTextInput"/>
+								<mx:Label fontWeight="bold" text="修改时间:" height="100%" styleName="contentLabel"/>
+								<mx:TextInput id="mdate" width="50%" height="100%" borderVisible="false" styleName="contentTextInput"/>
+							</mx:HBox>
+						</mx:VBox>
+					</mx:VBox>
+				</mx:Canvas>
+			</mx:VBox>
+			
+		</mx:VBox>	
+	</mx:HDividedBox>
+</mx:HBox>

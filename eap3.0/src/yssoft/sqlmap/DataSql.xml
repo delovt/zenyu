@@ -1,0 +1,38 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+<!--	YJ Add 20110822 获取档案数据树菜单-->
+	<select id="DataDest.getMenuList" parameterClass="int" resultClass="java.util.HashMap">
+		Select  iid,ipid, ccode, cname, cmnemonic,cmemo,cabbreviation,bbuse,coutkey from aa_data where 1=1
+		and iclass=#iclass#
+		order by ccode
+	</select>
+	
+<!--	YJ Add 20110822 获取档案分类数据-->
+	<select id="DataDest.getMenuListByClass" parameterClass="int" resultClass="java.util.HashMap">
+		Select  iid,ipid, ccode, cname, bsystem,coperauth,cmemo from aa_dataclass where bsystem=#bsystem#
+		order by ccode
+	</select>
+
+	
+<!--	YJ Add 20110823 添加档案数据 	-->
+	<insert id="DataDest.addData" parameterClass="yssoft.vos.AsDataVO">
+		insert into aa_data(iclass,ipid,ccode,cname,cmnemonic,cmemo,cabbreviation,coutkey,bbuse) 
+						  values(#iclass#,#ipid#,#ccode#,#cname#,#cmnemonic#,#cmemo#,#cabbreviation#,#coutkey#,#bbuse#)
+		<selectKey resultClass="int" keyProperty="iid" >
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey>
+	</insert>
+	
+<!--	YJ Add 20110823 删除档案数据 	-->
+	<delete id="DataDest.delData" parameterClass="int">
+		delete aa_data where iid=#iid#
+	</delete>
+	
+<!--	YJ Add 20110823 更新档案数据   	-->
+	<update id="DataDest.updateData" parameterClass="yssoft.vos.AsDataVO">
+	  begin
+          Update aa_data SET iclass=#iclass#,ipid=#ipid#,ccode=#ccode#,cname=#cname#,cmnemonic=#cmnemonic#,cmemo=#cmemo#,cabbreviation=#cabbreviation#,bbuse=#bbuse#,coutkey=#coutkey#   Where iid=#iid#;
+          update aa_data set ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCcode#)),#oldCcode#,#ccode#)+SUBSTRING(ccode,len(#oldCcode#)+1,len(ccode)) where iclass=#iclass# and ccode like #oldCcode#+'%';
+      end; 
+	</update>
+</sqlMap>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="分类名称"
+                        width="260" height="65"
+                        xmlns:module="yssoft.comps.frame.module.*"
+                        creationComplete="myinit(event)"
+                        keyDown="keyDownHandler(event)"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]public var ownerBox:MainPlanListItem;
+
+			
+			private var _iplans:int;//修改时 传入计划内码
+			[Bindable]private var _ctype:String;
+
+			
+			public function get ctype():String
+			{
+				return _ctype;
+			}
+
+			public function set ctype(value:String):void
+			{
+				_ctype = value;
+			}
+
+			
+
+			protected function submit():void
+			{				
+				if(CRMtool.isStringNull(ui_ctype.text)){
+					CRMtool.showAlert("名称不能为空",ui_ctype);
+					return;
+				}
+				
+				if(CRMtool.isStringNotNull(ctype)){
+					var sql:String="update oa_plans set ctype='"+ StringUtil.trim(ui_ctype.text)+"' where iid in (" +
+						"select oa_plans.iid from oa_plans left join oa_plan on oa_plans.iplan = oa_plan.iid " +
+						"where oa_plan.iperson="+CRMmodel.userId+" and oa_plans.ctype='"+ctype+"')"
+					
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+						if(ownerBox){
+							ownerBox.mydata.ctype=StringUtil.trim(ui_ctype.text);
+							ownerBox.mydata=ownerBox.mydata;
+						}
+						onCloseHandler();
+					},sql);
+				}
+			}
+			
+			protected function myinit(event:FlexEvent):void
+			{
+				ui_ctype.setFocus();
+				ui_ctype.addEventListener(KeyboardEvent.KEY_DOWN,function(event:KeyboardEvent):void{
+					if(event.keyCode==Keyboard.ENTER){
+						submit();
+					}
+				});
+			}
+			
+			override protected function keyDownHandler(event:KeyboardEvent):void
+			{
+				if(event.keyCode==Keyboard.ESCAPE){
+					onCloseHandler();
+				}			
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" paddingLeft="5" paddingRight="5">
+		<s:TextInput id="ui_ctype" text="{_ctype}" width="100%" restrict="^'"/>
+		<s:Button label="确定" click="submit()"/>
+	</mx:HBox>
+</basic:BasicTitleWindow>

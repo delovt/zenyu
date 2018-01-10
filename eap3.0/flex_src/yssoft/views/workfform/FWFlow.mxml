@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%"
+				height="100%" 
+				currentState="draw"
+				horizontalGap="0"
+				styleName="contentHDividedBox" 
+				xmlns:workfform="yssoft.views.workfform.*" xmlns:workflow="yssoft.views.workflow.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.ItemClickEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+
+			
+			private var optType:String;
+			
+			private function optbb_itemClickHandler(event:ItemClickEvent):void{
+				Alert.show(""+event.label);
+				optType=event.item.opt;
+				this[optType]();
+			}
+			
+			private function onSave():void{
+			
+			}
+			
+			private function onTest():void{
+				
+			}
+			
+			private function onGiveup():void{
+				
+			}
+			
+			protected function onTest1():void{
+				var oaid:int=parseInt(this.iid.text);
+				this.workflow.getFormWorkFlow(47,oaid);
+			}
+			//-----------测试------------
+			private function onTest2():void{
+				var param:Object={};
+				param.ifuncregedit=47;
+				param.iinvoice=parseInt(this.iid.text);
+				AccessUtil.remoteCallJava("WorkFlowDest","coopHandler",onTestCallBack,param);
+			}
+			private var newOaInvoice:int=0; // 协同保存成功后的，iid
+			private function onTestCallBack(event:ResultEvent):void{
+				var ret:String=event.result as String;
+				if(isNaN(parseInt(ret))){
+					Alert.show(ret);
+				}else{
+					newOaInvoice=parseInt(ret);
+					Alert.show("返回的iid["+newOaInvoice+"]");
+				}
+			}
+			
+			private function onTest3():void{
+				this.fwfatt.iid=newOaInvoice;
+				this.fwfatt.ifuncregedit=11; // 表单
+				this.fwfatt.uploadHandler();
+				
+				
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.fwfreply.submit_clickHandler();
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:states>
+		<s:State name="desciption"/>
+		<s:State name="draw" />
+	</mx:states>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="80%" height="100%" styleName="contentVBox" verticalGap="0">
+		<mx:ApplicationControlBar dock="true" height="32" width="100%" verticalAlign="middle">
+			<mx:ButtonBar id="optbb" styleName="contentButtonBar" height="25" itemClick="optbb_itemClickHandler(event)">
+				<s:ArrayCollection>
+					<fx:Object label="保存" opt="onSave"/>
+					<fx:Object label="测试" opt="onTest"/>
+					<fx:Object label="放弃" opt="onGiveup"/>
+				</s:ArrayCollection>
+			</mx:ButtonBar>
+			<mx:Label id="optlb" text="" styleName="contentTitle" includeInLayout="false" visible="false"/>
+			<s:Button label="获取工作流节点" click="onTest1()"/>
+			<s:TextInput id="iid" text="1"/>
+			<s:Button includeIn="draw" label="生成" click="onTest2()"/>
+			<s:Button includeIn="draw" label="回复与上传" click="onTest3()"/>
+			<s:Button includeIn="draw" label="发送回复" click="button1_clickHandler(event)"/>
+		</mx:ApplicationControlBar>
+		<mx:VBox width="100%" height="100%" styleName="contentHbox">
+			<mx:VBox width="100%" height="100%" includeIn="desciption"  borderStyle="solid" borderVisible="true" borderAlpha="0.5">
+				
+			</mx:VBox>
+<!--			<workfform:FWFPaintView id="workflow" width="100%" height="100%" includeIn="draw"  borderStyle="solid" borderVisible="true" borderAlpha="0.5"/>
+			-->
+			<workfform:FWFDrawView id="workflow" owner="{this}" includeIn="draw" width="100%" height="100%" styleName="CoPaintViewMainDraw"  borderStyle="solid" borderVisible="true" borderAlpha="0.3"/>
+		</mx:VBox>
+		<s:Group width="100%" height="32" styleName="contentHbox">
+<!--			<mx:Text x="5" y="6" htmlText="状态:  &lt;font color='#ff0000'&gt;进程中&lt;font&gt;" visible="false">
+			</mx:Text>-->
+			<mx:HBox width="100%" horizontalAlign="center" height="100%" verticalAlign="middle" horizontalGap="5">
+				<mx:RadioButton id="descbt" click="{this.currentState='desciption'}"  styleName="radioButton" toolTip="返回主界面" useHandCursor="true" buttonMode="true" mouseChildren="false"/>
+				<mx:RadioButton id="drawbt" click="{this.currentState='draw'}" styleName="radioButton" selected="true" toolTip="绘制工作流"  useHandCursor="true" buttonMode="true" mouseChildren="false"/>
+			</mx:HBox>
+		</s:Group>
+	</mx:VBox>
+	<mx:Accordion id="ac" width="20%" height="100%" headerHeight="32" creationPolicy="all">
+		<workfform:FWFReplyView id="fwfreply" width="100%" height="100%" owner="{this}"/>
+		<workfform:FWFAttachment id="fwfatt" width="100%" height="100%"/>
+	</mx:Accordion>
+</mx:HDividedBox>

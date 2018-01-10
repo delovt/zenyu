@@ -1,0 +1,56 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：
+ * SqlMap表名：As_fcrelation
+ * 孙东亚
+ * 
+ -->
+<sqlMap>
+
+    <!-- 获取注册表 相关对象管理为true -->
+    <select id="get_ac_fcrelation_tree" resultClass="java.util.HashMap">
+        select * from as_funcregedit where brelation = 1 or ipid = -1 order by ccode
+    </select>
+
+    <!--获得记录列表-->
+    <select id="get_as_fcrelation_list" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+
+        select as_fcrelation.iid,as_fcrelation.ifuncregedit,afo.ifuncregedit as
+        outifuncregedit,ifcrelation,as_fcrelation.cname,cfcrlfield,cfcrlcondit,iopen,ino,as_fcrelation.buse,as_fcrelation.csql
+        from as_fcrelation
+        left join as_funcregedit afo on as_fcrelation.ifuncregedit=afo.iid
+        where 1=1
+        <isNotEmpty prepend="and" property="iid">
+            as_fcrelation.ifcrelation = #iid#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="buse">
+            as_fcrelation.buse=#buse#
+        </isNotEmpty>
+        order by as_fcrelation.ino
+    </select>
+    <!--增加一条记录-->
+    <insert id="add_as_fcrelation" parameterClass="java.util.HashMap">
+        insert into as_fcrelation( ifuncregedit,ifcrelation,cname,cfcrlfield,cfcrlcondit,iopen,ino,buse,csql)
+        values ( #ifuncregedit#,#ifcrelation#,#cname#,#cfcrlfield#,#cfcrlcondit#,#iopen#,#ino#,#buse#,#csql#)
+    </insert>
+
+    <!--更新一条记录-->
+    <update id="update_as_fcrelation" parameterClass="java.util.HashMap">
+        update as_fcrelation set ifuncregedit=#ifuncregedit#,ifcrelation =#ifcrelation#,cname
+        =#cname#,cfcrlfield=#cfcrlfield#,cfcrlcondit=#cfcrlcondit#,
+        iopen=#iopen#,ino=#ino#,buse=#buse#,csql=#csql#
+        where iid =#iid#
+    </update>
+    <!--删除记录列表-->
+    <delete id="delete_as_fcrelation" parameterClass="String">
+        delete as_fcrelation where iid =#iid#
+    </delete>
+
+    <!-- 根据注册码获取当前相关对象数据表的字段列表 -->
+    <select id="get_cfield_by_ifuncregedit" parameterClass="string" resultClass="java.util.HashMap">
+        select cfield,ccaption,ctable from AC_datadictionary where ifuncregedit = #ifuncregedit#
+    </select>
+
+
+</sqlMap>

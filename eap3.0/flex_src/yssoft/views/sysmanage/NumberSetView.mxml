@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 xmlns:comps="yssoft.comps.*"
+		 creationComplete="ini()" xmlns:renders="yssoft.renders.*" implements="yssoft.impls.ICRMWindow">
+	
+	<!--载入对应的脚本类-->
+	<fx:Script source="../../scripts/AcNumberSetViewScript.as"/>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="itype" selectedValue="0"  change="itype_changeHandler(event)"/>
+	</fx:Declarations>
+	
+	<fx:Style>  
+		.dataGridHearderStyles  
+		{  
+			textAlign: center;  
+		}  
+	</fx:Style>
+	
+	<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+		<mx:VBox width="20%" height="100%"  styleName="lefttree">
+			<mx:ApplicationControlBar id="menuBar1" width="100%" height="32" dock="true">
+				<mx:Label text="功能目录" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" styleName="lefttree1">
+			<comps:TreeCompsVbox id="treeMenu" width="100%" height="100%" 
+								 dataProvider="{treeCompsXml}" dropShadowVisible="false"
+								 itemClick="treeMenu_itemClickHandler(event)"/>	
+			</mx:VBox>
+		</mx:VBox>
+		<mx:Canvas width="80%" height="100%" styleName="centerbg4">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="32" dock="true">
+				<mx:ButtonBar id="btn_menubar"  height="80%" dataProvider="{arr_menubar}"
+							  styleName="contentButtonBar"
+							  creationComplete="CRMtool.toolButtonsEnabled(btn_menubar,null)"
+							  itemClick="btn_menubar_itemClickHandler(event)"/>
+				<!--提示区-->
+				<mx:VBox width="100%">
+					<s:Label id="lblmessage" color="red" fontWeight="bold" visible="false"/>
+				</mx:VBox>
+			</mx:ApplicationControlBar>
+			
+			
+			
+			<mx:VBox id="container"  width="100%" height="100%" top="42" left="10" right="10" cornerRadius="8" verticalGap="10">
+				<mx:VBox id="v1" width="100%"  verticalAlign="middle" cornerRadius="8" styleName="content">
+					
+					<mx:HBox styleName="contentSubHbox">
+						<mx:Label  text="单据名称：" height="100%" styleName="contentLabel"/>
+						<s:Spacer width="1%"/>
+						<mx:TextInput id="ccode" width="100%" styleName="contentTextInput" />
+						<mx:Label  text="编码方案：" textAlign="center" height="100%" styleName="contentLabel"/>
+						<s:HGroup width="100%" height="100%">
+							<s:RadioButton label="完全手工" value="0" groupName="itype"/>
+							<s:RadioButton label="纯流水"  value="1" groupName="itype"/>
+							<s:RadioButton label="系统规则" value="2" groupName="itype"/>
+						</s:HGroup>
+						
+					</mx:HBox>
+					
+				</mx:VBox>				
+				
+				
+				<mx:VBox id="v2" width="100%" cornerRadius="8"  styleName="content">
+					<mx:HBox height="30" verticalAlign="middle" styleName="contentSubHbox">
+						<mx:Label text="编码前缀1：" height="100%" styleName="contentLabel"/>
+						<mx:ComboBox id="cb1" width="200" change="cb_changeHandler(event)"/>
+						<mx:Label  text="值" height="100%" styleName="contentLabel"/>
+						<mx:HBox id="v21" width="200" height="100%" borderVisible="false"/>
+						<mx:CheckBox id="bprefix1rule" label="流水依据" visible="false"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox height="30" styleName="contentSubHbox">
+						<mx:Label text="编码前缀2：" height="100%" styleName="contentLabel"/>
+						<mx:ComboBox id="cb2" width="200" change="cb_changeHandler(event)"/>
+						<mx:Label text="值" height="100%" styleName="contentLabel"/>
+						<mx:HBox id="v22" width="200" height="100%" borderVisible="false"/>
+						<mx:CheckBox id="bprefix2rule" label="流水依据" visible="false"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox height="30" styleName="contentSubHbox">
+						<mx:Label text="编码前缀3：" height="100%" styleName="contentLabel"/>
+						<mx:ComboBox id="cb3" width="200" change="cb_changeHandler(event)" top="10"/>
+						<mx:Label text="值" height="100%" styleName="contentLabel"/>
+						<mx:HBox id="v23" width="200" height="100%" borderVisible="true"/>
+						<mx:CheckBox id="bprefix3rule" label="流水依据" visible="false"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				
+				
+				<mx:VBox id="v3" width="100%" cornerRadius="8" styleName="content">
+					<mx:HBox styleName="contentSubHbox">
+						<mx:Label verticalCenter="true" text="流水长度：" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="ilength" width="100%" styleName="contentTextInput" text="{treeMenu.selectedItem.@ilength}" restrict="0-9"/>
+						<mx:Label text="流水步长：" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="istep" width="100%" styleName="contentTextInput"  text="{treeMenu.selectedItem.@istep}" restrict="0-9"/>
+						<mx:Label text="流水起始值：" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="ibegin" width="100%" styleName="contentTextInput" text="{treeMenu.selectedItem.@ibegin}" restrict="0-9"/>
+					</mx:HBox>
+				</mx:VBox>
+					
+				
+				
+				<mx:VBox id="v4" width="100%" cornerRadius="8" styleName="content">
+					<mx:HBox styleName="contentSubHbox">
+						<mx:Label text="单据编号：" height="100%" styleName="contentLabel"/>
+						<s:Spacer width="1%"/>
+						<mx:TextInput  width="100%" styleName="contentTextInput"
+									  text="{vouchNumber}"/>
+						<mx:Label text="方案效果：" height="100%" styleName="contentLabel"/>
+						<mx:TextInput  width="100%" styleName="contentTextInput"
+									  text="{projectEffect}"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				
+				<mx:VBox id="v5" width="100%" height="100%" >
+					<mx:HBox  width="100%" height="100%" paddingBottom="10">
+						<mx:DataGrid id="dg"  borderAlpha="1" width="100%" height="100%" textAlign="center" rowCount="5">
+							<mx:columns>
+								<mx:DataGridColumn headerText="流水依据" dataField="cprefix" editable="false"/>
+								<mx:DataGridColumn headerText="流水号" dataField="inumber" headerStyleName="dataGridHearderStyles" textAlign="right" editable="false"/>
+								<mx:DataGridColumn headerText="操作" itemRenderer="yssoft.renders.itemRenderDataGridLinkButton" editable="false"/>
+							</mx:columns>
+						</mx:DataGrid>
+					</mx:HBox>
+				</mx:VBox>
+				
+			</mx:VBox>			
+		</mx:Canvas>
+	</mx:HDividedBox>
+</mx:HBox>

@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:comps="yssoft.comps.*" xmlns:s="library://ns.adobe.com/flex/spark"
+         width="100%" height="100%" styleName="topcontent"
+         implements="yssoft.impls.ICRMWindow"
+         creationComplete="getMainTreeXml();CRMtool.containerChildsEnabled(container,false);">
+
+    <fx:Script source="../../scripts/MenuMainViewScript.as"/>
+    <fx:Script><![CDATA[
+        [Bindable]
+        private var _mainMenuCcode:String = "";
+        [Bindable]
+        private var _mainMenuCname:String = "";
+
+        private function new_clickHandler():void {
+            checkAndSave("onNew")
+        }
+
+        private function edit_clickHandler():void {
+            checkAndSave("onEdit")
+        }
+
+        private function checkAndSave(type:String):void {
+            if (CRMtool.isStringNull(_mainMenuCcode)) {
+                mainCcodeUInput.setFocus();
+                return;
+            }
+
+            if (CRMtool.isStringNull(_mainMenuCname)) {
+                mainCnameUInput.setFocus();
+                return;
+            }
+
+
+            if (type == "onNew" && main_menu.isExistsCcode(_mainMenuCcode, ConstsModel.MENU_CCODE_WARNMSG)) {
+                return;
+            }
+
+            if (!main_menu.isExistsParent(_mainMenuCcode, ConstsModel.MENU_PID_WARNMSG)) {
+                return;
+            }
+
+            var ipid = this.main_menu.getIpid(_mainMenuCcode);
+
+            var sql:String
+            if (type == "onNew") {
+                sql = "insert into as_menup(ccode,ipid,cname) values('" + _mainMenuCcode + "'," + ipid + ",'" + _mainMenuCname + "')";
+            } else {
+                var iid = main_menu.selectedItem.@iid;
+                sql = "update as_menup set ccode = '" + _mainMenuCcode + "',ipid=" + ipid + ",cname='" + _mainMenuCname + "' where iid = " + iid;
+            }
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                getMainTreeXml();
+            }, sql, null, false);
+        }
+
+        private function delete_clickHandler():void {
+
+            CRMtool.tipAlert1("确认删除菜单方案？", null, "AFFIRM", del)
+
+            function del():void {
+                var iid = main_menu.selectedItem.@iid;
+                var csql:String = "select iid,cname from hr_person where bjobstatus=1 and imenup = " + iid;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var ac:ArrayCollection = event.result as ArrayCollection;
+                    if (ac && ac.length > 0) {
+                        CRMtool.showAlert("该方案已被" + ac[0].cname + "等人使用，无法删除。");
+                    } else {
+                        var sql:String = "delete as_menup where iid=" + iid;
+                        AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                            getMainTreeXml();
+                        }, sql, null, false);
+                    }
+                }, csql, null, false);
+            }
+        }
+
+        private function allocation_clickHandler():void {
+            var tw:AllocationMenuTitleWindow = new AllocationMenuTitleWindow();
+            tw.imenup = main_menu.selectedItem.@iid;
+            tw.cname = main_menu.selectedItem.@cname;
+            tw.open();
+        }
+
+        public function getMainTreeXml():void {
+            var sql:String = "select iid,ipid,ccode,cname from as_menup";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var ac:ArrayCollection = event.result as ArrayCollection;
+                if (ac && ac.length > 0) {
+                    AccessUtil.remoteCallJava("UtilViewDest", "buildTreeXML", function (e:ResultEvent):void {
+                        var result:String = e.result as String;
+                        if (result.length > 0) {
+                            main_menu.treeCompsXml = new XML(result);
+                        } else {
+                            main_menu.treeCompsXml = <node></node>;
+                        }
+
+                        _mainMenuCcode = "";
+                        _mainMenuCname = "";
+
+                        main_menu.expandAll();
+
+                        tre_menu.treeCompsXml = null;
+                        InitItems(false);
+                    }, {list: ac});
+                }
+            }, sql, null, false);
+        }
+
+        private function mainMenuClick():void {
+            if (main_menu.selectedItem) {
+                _mainMenuCcode = main_menu.selectedItem.@ccode;
+                _mainMenuCname = main_menu.selectedItem.@cname;
+
+                getTreeXml();
+                InitItems(false);
+            }
+        }
+
+        private function import_clickHandler():void {
+            var iw:ImportMenuTitleWindow = new ImportMenuTitleWindow();
+            iw.thisiid = main_menu.selectedItem.@iid;
+            iw.open();
+        }
+        ]]></fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+        <mx:VBox width="18%" height="100%" styleName="lefttree" enabled="{operType!='onNew'  &amp;&amp;   operType!='onEdit'}">
+            <!-- 菜单树 -->
+            <mx:ApplicationControlBar width="100%" height="32" dock="true">
+                <s:Label text="菜单方案" styleName="contentTitle"/>
+            </mx:ApplicationControlBar>
+            <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                <comps:TreeCompsVbox id="main_menu" width="100%" height="100%" borderVisible="false"
+                        itemClick="mainMenuClick()"/>
+            </mx:HBox>
+            <mx:VBox width="100%" paddingLeft="5">
+                <mx:HBox width="100%" horizontalAlign="center">
+                    <mx:Label text="编码："/>
+                    <mx:TextInput id="mainCcodeUInput" width="70%" text="{_mainMenuCcode}" change="{_mainMenuCcode = mainCcodeUInput.text}" restrict="^'"/>
+                </mx:HBox>
+                <mx:Spacer height="3"/>
+                <mx:HBox width="100%" horizontalAlign="center">
+                    <mx:Label text="名称："/>
+                    <mx:TextInput id="mainCnameUInput" width="70%" text="{_mainMenuCname}" change="{_mainMenuCname = mainCnameUInput.text}" restrict="^'"/>
+                </mx:HBox>
+            </mx:VBox>
+            <mx:Spacer height="5"/>
+            <mx:HBox width="100%" horizontalAlign="center">
+                <mx:Button label="新增" width="45" click="new_clickHandler()"/>
+                <mx:Button label="修改" width="45" click="edit_clickHandler()" enabled="{main_menu.selectedIndex>-1}"/>
+                <mx:Button label="删除" width="45" click="delete_clickHandler()" enabled="{main_menu.selectedIndex>-1}"/>
+                <mx:Button label="分配" width="45" click="allocation_clickHandler()" enabled="{main_menu.selectedIndex>-1}"/>
+            </mx:HBox>
+            <mx:Spacer height="5"/>
+        </mx:VBox>
+        <mx:VBox width="18%" height="100%" styleName="lefttree">
+            <!-- 菜单树 -->
+            <mx:ApplicationControlBar id="menuBar1" width="100%" height="32" dock="true">
+                <s:Label text="菜单管理{main_menu.selectedItem == null?'':'：'+main_menu.selectedItem.@cname}" styleName="contentTitle"/>
+                <mx:Spacer width="100%"/>
+               <!-- <mx:LinkButton label="引入" width="45" click="import_clickHandler()" visible="{tre_menu.treeCompsXml == null  &amp;&amp; main_menu.selectedIndex>-1}"/>-->
+                <mx:Spacer width="5"/>
+            </mx:ApplicationControlBar>
+            <mx:HBox width="100%" height="100%" styleName="lefttree1">
+                <comps:TreeCompsVbox id="tre_menu" width="100%" height="100%"
+                                     change="CRMtool.toolButtonsEnabled(lbr_toolbar,null);CRMtool.containerChildsEnabled(container,false);get_cname_FuncregeditByID();"
+                                     borderVisible="false"/>
+            </mx:HBox>
+        </mx:VBox>
+        <!-- 菜单信息维护 -->
+        <mx:VBox width="64%" height="100%" styleName="centerbg4" creationComplete="CRMtool.setTabIndex(this.container)">
+            <!-- 标签 -->
+            <mx:ApplicationControlBar styleName="centertop" id="menuBar2" width="100%" height="32" dock="true"
+                                      enabled="{main_menu.selectedIndex>-1}">
+                <mx:ButtonBar id="lbr_toolbar" styleName="contentButtonBar" height="25"
+                              creationComplete="CRMtool.toolButtonsEnabled(lbr_toolbar,null)"
+                              dataProvider="{lbrItem}"
+                              itemClick="lbr_toolbar_itemClickHandler(event)"/>
+            </mx:ApplicationControlBar>
+            <mx:HBox width="100%" height="100%" styleName="contentHbox">
+                <mx:VBox id="container" width="100%" styleName="content">
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="菜单编码:"/>
+                        <mx:TextInput id="tnp_ccode" width="100%" styleName="contentTextInput"
+                                      text="{this.tre_menu.selectedItem.@ccode}"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="菜单名称:"/>
+                        <mx:TextInput id="tnp_cname" width="100%" styleName="contentTextInput"
+                                      text="{this.tre_menu.selectedItem.@cname}"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="菜单图标:"/>
+                        <mx:ComboBox id="dplt_icons" width="120" styleName="contentComboBox"
+                                     dataProvider="{CRMmodel.menuArray}"
+                                     selectedIndex="{this.tre_menu.selectedItem.@iimage-1}">
+                        </mx:ComboBox>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="菜单类型:"/>
+                        <mx:RadioButtonGroup id="rbtgn_syln"/>
+                        <mx:RadioButton id="rbtn_sys" label="系统程序" click="rbtn_sys_clickHandler()"
+                                        styleName="contentRadioButton" width="75"
+                                        groupName="rbtgn_syln"
+                                        selected="{this.tre_menu.selectedItem.@itype==1}" value="1"/>
+                        <mx:RadioButton id="rbtn_link" width="75" label="外部链接"
+                                        click="rbtn_sys_clickHandler()" groupName="rbtgn_syln"
+                                        selected="{this.tre_menu.selectedItem.@itype==0}"
+                                        styleName="contentRadioButton" value="0"/>
+                        <mx:RadioButton id="rbtn_menu" width="75" label="菜单目录"
+                                        click="rbtn_sys_clickHandler()" groupName="rbtgn_syln"
+                                        selected="{this.tre_menu.selectedItem.@itype==2}"
+                                        styleName="contentRadioButton" value="2"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="系统程序:" id="lbl_sys"/>
+                        <comps:ConsultTextInput id="tnp_sys" width="100%" iid="14" bindValueField="iid"
+                                                bindLabelField="cname"
+                                                styleName="contentTextInput" editable="false"
+                                                visibleIcon="{this.lbl_sys.enabled}"
+                                                value="{this.tre_menu.selectedItem.@ifuncregedit}">
+                        </comps:ConsultTextInput>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="链接程序:"/>
+                        <mx:TextInput id="tnp_link" width="100%" styleName="contentTextInput"
+                                      text="{this.tre_menu.selectedItem.@cprogram}"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="调用参数:"/>
+                        <mx:TextInput id="tnp_cparameter" width="100%" styleName="contentTextInput"
+                                      text="{this.tre_menu.selectedItem.@cparameter}"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="相关程序:"/>
+                        <comps:ConsultTextInput id="tnp_irfuncregedit" width="100%" iid="14" bindValueField="iid"
+                                                bindLabelField="cname"
+                                                styleName="contentTextInput" editable="false"
+                                                visibleIcon="{this.lbl_sys.enabled}"
+                                                value="{this.tre_menu.selectedItem.@irfuncregedit}">
+                        </comps:ConsultTextInput>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="相关标题:"/>
+                        <mx:TextInput id="tnp_crname" width="100%" styleName="contentTextInput"
+                                      text="{this.tre_menu.selectedItem.@crname}"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="打开方式:"/>
+                        <mx:RadioButtonGroup id="rbtgn_shpo"/>
+                        <mx:RadioButton id="rbtn_sheet" label="页签式" enabled="true" styleName="contentRadioButton"
+                                        groupName="rbtgn_shpo" width="75"
+                                        selected="{this.tre_menu.selectedItem.@iopentype==1}"
+                                        value="1"/>
+                        <mx:RadioButton id="rbtn_popup" label="弹出式" enabled="true" styleName="contentRadioButton"
+                                        groupName="rbtgn_shpo" width="75"
+                                        selected="{this.tre_menu.selectedItem.@iopentype==0}"
+                                        value="0"/>
+                    </mx:HBox>
+                    <mx:HRule width="100%"></mx:HRule>
+                    <mx:HBox width="100%" styleName="contentSubHbox">
+                        <mx:Label height="100%" styleName="contentLabel" text="菜单状态:"/>
+                        <mx:RadioButtonGroup id="rbtgn_shhi"/>
+                        <mx:RadioButton id="rbtn_show" label="显示" enabled="true" styleName="contentRadioButton"
+                                        groupName="rbtgn_shhi" width="75"
+                                        selected="{this.tre_menu.selectedItem.@bshow==1||this.tre_menu.selectedItem.@bshow==true}"
+                                        value="1"/>
+                        <mx:RadioButton id="rbtn_hide" label="隐藏" enabled="true" styleName="contentRadioButton"
+                                        groupName="rbtgn_shhi" width="75"
+                                        selected="{this.tre_menu.selectedItem.@bshow==0||this.tre_menu.selectedItem.@bshow==false}"
+                                        value="0"/>
+                    </mx:HBox>
+
+                </mx:VBox>
+            </mx:HBox>
+        </mx:VBox>
+    </mx:HDividedBox>
+
+</mx:HBox>

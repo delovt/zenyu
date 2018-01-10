@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow  cornerRadius="8" xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="150"
+			   close="PopUpManager.removePopUp(this)" creationComplete="ini()">
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.RadianVbox;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var parentForm:Object;
+			
+			private var iid:int;
+			
+			private function ini():void{
+				parentForm = this.owner;
+			}
+			
+			private function onEdit():void
+			{
+				iid = int(parentForm.curiid);
+				if(CRMtool.isStringNull(this.txt_citemcode.text))
+				{
+					CRMtool.tipAlert1("项目令号不能为空！！",this.txt_citemcode);
+				}
+				else
+				{
+					var paramObj:Object = new Object();
+					paramObj.tableName = parentForm.funcregeditObj.ctable;
+					paramObj.citemcode = this.txt_citemcode.text;
+					AccessUtil.remoteCallJava("prconfirmDest","queryPrconfirmById",onSeachBack,paramObj);
+				}
+			}
+			
+			private function onSeachBack(event:ResultEvent):void
+			{
+				var resutObj:Object = event.result as Object;
+				if(resutObj!=null)
+				{
+					CRMtool.tipAlert1("项目令号已经存在，请重新输入！！",this.txt_citemcode);
+				}
+				else
+				{
+					var paramObj:Object = new Object();
+					paramObj.iid = iid;
+					paramObj.citemcode=this.txt_citemcode.text;
+					paramObj.tableName = parentForm.funcregeditObj.ctable;
+					AccessUtil.remoteCallJava("prconfirmDest","updatePrconfirm",updatePrconfirmBack,paramObj);
+				}
+			}
+			
+			private function updatePrconfirmBack(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				if(result=="fail")
+				{
+					CRMtool.tipAlert1("修改项目令号失败");
+				}
+				else
+				{
+					var objup:Object = new Object();
+					objup.citemcode=this.txt_citemcode.text;
+					for(var i:int=0;i<parentForm._frameArr.length;i++)
+					{
+						var obj:Object = parentForm._frameArr.getItemAt(i);
+						var customerVbox:RadianVbox  = obj.customerVbox as RadianVbox;
+						customerVbox.parametersObj = objup;
+						customerVbox.reset();
+					}
+					CRMtool.tipAlert1("修改项目令号成功");
+					PopUpManager.removePopUp(this);
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<mx:HBox width="100%" paddingLeft="30" paddingBottom="30" paddingRight="30" paddingTop="30" verticalAlign="middle" horizontalAlign="center">
+		<mx:Label text="项目令号"/>
+		<mx:TextInput id="txt_citemcode"/>
+		<mx:Button label="确定" click="onEdit()"/>
+	</mx:HBox>
+</s:TitleWindow>

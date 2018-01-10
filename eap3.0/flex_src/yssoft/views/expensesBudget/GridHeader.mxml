@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="62">
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		.grid{
+			horizontalGap:0;
+			verticalGap:0; 
+			borderStyle:solid;
+			borderColor:black;
+			borderWeight:Number;
+		}
+		
+		.item{
+			horizontalGap:0;
+			verticalGap:0; 
+		}
+		
+		
+	</fx:Style>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import yssoft.tools.CRMtool;
+			
+			
+			[Bindable]
+			private var _x_percent:Array = new Array();
+			
+			[Bindable]
+			private var x_ac:ArrayCollection;
+			
+			public function set x_percent(value:Array):void{
+				this._x_percent=value;
+				if(value.length != 0){
+					x_ac=new ArrayCollection(value);
+				}
+				
+			}
+			
+			public function get x_percent():Array{
+				return this._x_percent;
+			}
+			
+			private function onChange1():void{
+				this.tnp_1_sum.text   = (parse(tnp_1_0.text) + parse(tnp_1_1.text) +parse(tnp_1_2.text) )+"%";	
+			}
+			
+			private function onChange2():void{
+				this.tnp_2_sum.text   = (parse(tnp_2_0.text) + parse(tnp_2_1.text) +parse(tnp_2_2.text) )+"%";
+			}
+			
+			private function onChange3():void{
+				this.tnp_3_sum.text  = (parse(tnp_3_0.text) + parse(tnp_3_1.text) +parse(tnp_3_2.text) )+"%";
+			}
+			
+			private function onChange4():void{
+				this.tnp_4_sum.text  =( parse(tnp_4_0.text) + parse(tnp_4_1.text) +parse(tnp_4_2.text) )+"%";
+			}
+			
+			private function parse(str:String):Number{
+				str = str.replace("%","");
+				return Number(str);
+			}
+			
+			//更改 X 轴 百分比
+			private function default_x_percent():void{
+				var str:String=(parse(tnp_1_sum.text)+parse(tnp_2_sum.text)+parse(tnp_3_sum.text)+parse(tnp_4_sum.text) )+"%";
+				this.lbl_x_percent.text ="X:"+ str; 	
+				str == "100%"?lbl_x_percent.setStyle("color","black"):lbl_x_percent.setStyle("color","#FF0F1F");
+			}
+			
+			//更改 Y 轴 百分比
+			public function default_y_percent(array:Array):void{
+				var num:Number = 0;
+				for(var i:int=0; i <array.length;i++){
+					num += parse(array[i] +"");
+				}
+				var str:String = num+"%"
+				this.lbl_x_percent.text ="Y:"+ str; 	
+				str == "100%"?lbl_x_percent.setStyle("color","black"):lbl_x_percent.setStyle("color","#FF0F1F");
+			}
+			
+			
+			public function get_1_0():Number{
+				return parseNum(this.tnp_1_0.text);	
+			}
+			public function get_1_1():Number{
+				return parseNum(this.tnp_1_1.text);	
+			}
+			public function get_1_2():Number{
+				return parseNum(this.tnp_1_2.text);	
+			}
+			public function get_1_sum():Number{
+				return parseNum(this.tnp_1_sum.text);	
+			}
+			
+			public function get_2_0():Number{
+				return parseNum(this.tnp_2_0.text);	
+			}
+			public function get_2_1():Number{
+				return parseNum(this.tnp_2_1.text);	
+			}
+			public function get_2_2():Number{
+				return parseNum(this.tnp_2_2.text);	
+			}
+			public function get_2_sum():Number{
+				return parseNum(this.tnp_2_sum.text);	
+			}
+			
+			public function get_3_0():Number{
+				return parseNum(this.tnp_3_0.text);	
+			}
+			public function get_3_1():Number{
+				return parseNum(this.tnp_3_1.text);	
+			}
+			public function get_3_2():Number{
+				return parseNum(this.tnp_3_2.text);	
+			}
+			public function get_3_sum():Number{
+				return parseNum(this.tnp_3_sum.text);	
+			}
+			
+			public function get_4_0():Number{
+				return parseNum(this.tnp_4_0.text);	
+			}
+			public function get_4_1():Number{
+				return parseNum(this.tnp_4_1.text);	
+			}
+			public function get_4_2():Number{
+				return parseNum(this.tnp_4_2.text);	
+			}
+			public function get_4_sum():Number{
+				return parseNum(this.tnp_4_sum.text);	
+			}
+			
+			public function get_sum():Number{
+				return Number(this.tnp_sum.text);
+			}
+			
+			//动态更改表头值
+			public function set_sum(val:String):void{
+				this.tnp_sum.text = val;
+			}
+			
+			private function parseNum(percent:Object):Number{
+				var str:String = percent+"";
+				str = str.replace("%","");
+				var num:Number = Number(str) / 100;
+				return num;
+			}
+			
+			
+			//隐藏显示部门列
+			public function HideDisplayDepart(flag:Boolean):void{
+				if(!flag){
+					this.department_0.width = 0;
+					this.department_1.width = 1;
+					this.department_2.width = 2;
+				}else{
+					this.department_0.percentWidth = 8;
+					this.department_1.percentWidth = 8;
+					this.department_2.percentWidth = 8;
+				}
+			}
+			
+			//更改表头
+			public function chanageHeader(val:Number):void{ 
+				if(val == 0) lbl_header.text = "收入项目";
+				else if(val == 1) lbl_header.text = "收入项目";
+				else if(val == 2) lbl_header.text = "人员";
+			}
+			
+			//获取X百分比
+			public function getX_percent():String{
+				var str:String = this.tnp_1_0.text+","+this.tnp_1_1.text+","+this.tnp_1_2.text+","+this.tnp_1_sum.text+","+this.tnp_2_0.text+","+this.tnp_2_1.text+","+this.tnp_2_2.text+","+this.tnp_2_sum.text+","+this.tnp_3_0.text
+									+","+this.tnp_3_1.text+","+this.tnp_3_2.text+","+this.tnp_3_sum.text+","+this.tnp_4_0.text+","+this.tnp_4_1.text+","+this.tnp_4_2.text+","+this.tnp_4_sum.text;
+				return str;
+			}
+			
+			//验证非空
+			public function getCheckNull():void{
+				var flag:Boolean = true;
+				if(this.tnp_1_0.text !="" && this.tnp_1_1.text !="" && this.tnp_1_2.text !="" && this.tnp_2_0.text != ""){
+					flag = false;
+				}
+				if(this.tnp_2_1.text !="" && this.tnp_2_2.text !="" && this.tnp_3_0.text !="" && this.tnp_3_1.text != "")
+				{
+					flag = false;
+				}
+				if(this.tnp_3_2.text !="" && this.tnp_4_0.text !="" && this.tnp_4_1.text !="" && this.tnp_4_2.text != "")
+				{
+					flag = false;
+				}
+				if(!flag) { CRMtool.tipAlert("12月百分比不允许为空！")}
+			}
+			
+			//清空所有
+			public function clearAllText():void{
+				this.tnp_1_0.text = "";this.tnp_3_1.text = "";
+				this.tnp_1_1.text = "";this.tnp_3_2.text = "";
+				this.tnp_1_2.text = "";this.tnp_4_0.text = "";
+				this.tnp_2_0.text = "";this.tnp_4_1.text = "";
+				this.tnp_2_1.text = "";this.tnp_4_2.text = "";
+				this.tnp_2_2.text = "";this.tnp_1_sum.text="";
+				this.tnp_3_0.text = "";this.tnp_2_sum.text="";
+				this.tnp_3_sum.text="";this.tnp_4_sum.text="";
+				this.tnp_sum.text="";
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:Grid id="myGrid" width="100%" styleName="grid">
+		
+		<!-- 表头开始部分 -->
+		
+		<mx:GridRow width="100%" backgroundColor="#5DB9DA">
+			
+			<!-- 部门 -->
+			<mx:GridItem  id="department_0"  width="0">  
+				<mx:Label width="100%" textAlign="center" text="部门"  /> <mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			
+			
+			<mx:GridItem  width="10%">  <mx:Label width="100%" textAlign="center" text="预算项目" id="lbl_header" /> <mx:VRule  height="20" strokeWidth="1"/></mx:GridItem>
+			<mx:GridItem  width="5%">   <mx:Label width="100%" textAlign="center" text=" 比 例 " />     <mx:VRule  height="20" strokeWidth="1"/></mx:GridItem>
+			<mx:GridItem styleName="item"  colSpan="4" width="20%"> <mx:VBox width="100%" styleName="item"> <mx:Label width="100%" textAlign="center" text=" 1季度 " /><mx:HRule width="100%"  strokeWidth="1"  /></mx:VBox> <mx:VRule  height="20" strokeWidth="1"/></mx:GridItem>
+			<mx:GridItem styleName="item"  colSpan="4" width="20%"> <mx:VBox width="100%" styleName="item"> <mx:Label width="100%" textAlign="center" text=" 2季度 "/> <mx:HRule width="100%"  strokeWidth="1"  /></mx:VBox> <mx:VRule  height="20" strokeWidth="1"/></mx:GridItem>
+			<mx:GridItem styleName="item"  colSpan="4" width="20%"> <mx:VBox width="100%" styleName="item"> <mx:Label width="100%" textAlign="center" text=" 3季度 " /> <mx:HRule width="100%"  strokeWidth="1"  /></mx:VBox><mx:VRule  height="20" strokeWidth="1"/></mx:GridItem>
+			<mx:GridItem styleName="item"  colSpan="4" width="20%"> <mx:VBox width="100%" styleName="item"><mx:Label width="100%" textAlign="center" text=" 4季度 " /> <mx:HRule width="100%"  strokeWidth="1"  /></mx:VBox> <mx:VRule  height="20" strokeWidth="1"/></mx:GridItem>
+			<mx:GridItem styleName="item"  width="5%"> <mx:VBox width="100%" styleName="item"><mx:Label width="100%" textAlign="center" text=" 合计 " fontWeight="bold" fontSize="15" /></mx:VBox> <mx:VRule  height="20" strokeWidth="1"/></mx:GridItem>		
+			
+		</mx:GridRow>
+		
+		<mx:GridRow width="100%"  backgroundColor="#5DB9DA">
+			
+			<!-- 部门 -->
+			<mx:GridItem styleName="item"  id="department_1"  width="0"> 
+				<mx:VBox width="100%" height="100%" styleName="item" verticalAlign="bottom">
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<!-- end -->
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" height="100%" styleName="item" verticalAlign="bottom">
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" height="100%" styleName="item" verticalAlign="bottom">
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" > 
+				 <mx:VBox width="100%" styleName="item">
+					 <mx:Label width="100%" textAlign="center" text=" 1 " />
+					 <mx:HRule width="100%"  strokeWidth="1"  />
+				 </mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 2 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 3 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem styleName="item" >
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 合计 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>	 
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 4 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 5 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 6 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem styleName="item" >
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 合计 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>	
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 7 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 8 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 9 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem styleName="item" >
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 合计 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 10 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 11 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem styleName="item" > 
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 12 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>	
+				<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			<mx:GridItem styleName="item" >
+				<mx:VBox width="100%" styleName="item">
+					<mx:Label width="100%" textAlign="center" text=" 合计 " />
+					<mx:HRule width="100%"  strokeWidth="1"  />
+				</mx:VBox>
+				<mx:VRule  height="20" strokeWidth="1"/> 
+			</mx:GridItem>
+			
+			<mx:GridItem styleName="item" > 
+			<mx:VBox width="100%" height="100%" styleName="item" verticalAlign="bottom">
+				<mx:HRule width="100%"  strokeWidth="1"  />
+			</mx:VBox>
+			<mx:VRule  height="20" strokeWidth="1"/>
+			</mx:GridItem>
+			
+		</mx:GridRow>
+		
+		<!-- 表头结束部分 -->
+		
+		
+		<mx:GridRow width="100%" mouseOver="default_x_percent()">
+			
+			<!-- 部门 -->
+			<mx:GridItem backgroundColor="#D4D2FF" id="department_2"  width="0"></mx:GridItem> 
+				
+			<mx:GridItem backgroundColor="#D4D2FF" width="10%" > </mx:GridItem>
+			<mx:GridItem backgroundColor="#D4D2FF" width="5%"> 
+					<mx:Label width="100%" textAlign="center" text="X:100%"  id="lbl_x_percent" fontWeight="bold"/>
+			</mx:GridItem>
+			
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{ x_ac.getItemAt(0)=='null'?'':x_ac.getItemAt(0) }"  id="tnp_1_0" change="onChange1();default_x_percent();" /> </mx:GridItem>
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{ x_ac.getItemAt(1)=='NaN'||x_ac.getItemAt(1)==0?'':x_ac.getItemAt(1) }"  id="tnp_1_1" change="onChange1();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{x_ac.getItemAt(2)}"  id="tnp_1_2" change="onChange1();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem width="5%" backgroundColor="#D4D2FF"> <mx:Label width="100%" textAlign="center" text="{x_ac.getItemAt(3)} " id="tnp_1_sum"/> </mx:GridItem>
+			
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{x_ac.getItemAt(4)}" id="tnp_2_0" change="onChange2();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{x_ac.getItemAt(5)}" id="tnp_2_1" change="onChange2();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{x_ac.getItemAt(6)} " id="tnp_2_2" change="onChange2();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem width="5%" backgroundColor="#D4D2FF"> <mx:Label width="100%" textAlign="center" text=" {x_ac.getItemAt(7)} " id="tnp_2_sum"/> </mx:GridItem>
+			
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text=" {x_ac.getItemAt(8)}" id="tnp_3_0" change="onChange3();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text=" {x_ac.getItemAt(9)}" id="tnp_3_1" change="onChange3();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem width="5%"> <mx:TextInput  width="100%" textAlign="center" text=" {x_ac.getItemAt(10)}"   id="tnp_3_2" change="onChange3();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem width="5%" backgroundColor="#D4D2FF"> <mx:Label width="100%" textAlign="center" text="{x_ac.getItemAt(11)}"  id="tnp_3_sum"/> </mx:GridItem>
+			
+			<mx:GridItem  width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{x_ac.getItemAt(12)}"  id="tnp_4_0" change="onChange4();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem  width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{x_ac.getItemAt(13)}" id="tnp_4_1"  change="onChange4();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem  width="5%"> <mx:TextInput  width="100%" textAlign="center" text="{x_ac.getItemAt(14)}" id="tnp_4_2"  change="onChange4();default_x_percent();"/> </mx:GridItem>
+			<mx:GridItem  width="5%" backgroundColor="#D4D2FF"> <mx:Label width="100%" textAlign="center" text="{x_ac.getItemAt(15)}" id="tnp_4_sum"/> </mx:GridItem>
+			
+			<mx:GridItem  width="8%"> <mx:TextInput  width="100%" textAlign="center" text=" {x_ac.getItemAt(16)}" id="tnp_sum"/> </mx:GridItem>		
+			
+		</mx:GridRow>
+		
+	</mx:Grid>
+</mx:Canvas>

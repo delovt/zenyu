@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:basic="yssoft.comps.frame.module.Basic.*"
+						xmlns:comps="yssoft.comps.*"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						creationComplete="creationCompleteHandler(event)"
+						width="700" height="500" title="高亮方案">
+	<fx:Script><![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.events.ItemClickEvent;
+		import mx.events.ColorPickerEvent;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		import yssoft.tools.AccessUtil;
+		import yssoft.tools.CRMtool;
+		import yssoft.vos.ListclmVo;
+
+		private var _fieldList:ArrayCollection;
+
+		private var _ccode:String;
+		private var _cname:String;
+		private var _cfield:String;
+		private var _cbcolor:String = "FFFFFF";
+		private var _cfcolor:String = "000000";
+		private var _csql:String;
+		private var _itype:int = 0;
+		private var _ifuncregedit:int;
+
+		[Bindable]
+		private var footText:String;
+
+		private var buttonLabelAc:ArrayCollection = new ArrayCollection([
+			{label: "增加", name: "onNew"        },
+			{label: "修改", name: "onEdit"        },
+			{label: "删除", name: "onDelete"    },
+			{label: "保存", name: "onSave"        },
+			{label: "放弃", name: "onGiveUp"    }
+		]);
+
+		private function treeCompsVbox_itemClickHandler(event:ListEvent):void {
+			setDataByTree();
+		}
+
+		private function setDataByTree():void{
+			var item:Object = treeCompsVbox.selectedItem;
+			if (item == null)
+				return;
+
+			ccode = item.@ccode;
+			cname = item.@cname;
+
+			var sql:String = "select * from AC_liststyle where iid="+item.@iid;
+			AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+				var ac:ArrayCollection = event.result as ArrayCollection;
+				if(ac&&ac.length>0){
+					itype = ac[0].itype;
+					if(CRMtool.isStringNotNull(ac[0].cbcolor))
+						cbcolor = ac[0].cbcolor;
+                    else
+                        cbcolor = "FFFFFF";
+					csql = ac[0].csql;
+				}
+
+			},sql,null,false);
+
+		}
+
+		private function linkBarVboxComps_onSaveEventHandler(event:Event):void {
+			if (CRMtool.isStringNull(ccode)) {
+				CRMtool.showAlert("请输入编码");
+				return;
+			}
+			if (CRMtool.isStringNull(cname)) {
+				CRMtool.showAlert("请输入名称");
+				return;
+			}
+			var obj:Object = new Object();
+			obj.ccode = ccode;
+			obj.cname = cname;
+			obj.itype = itype;
+			if(cbcolor=="FFFFFF"||cbcolor=="ffffff")
+				obj.cbcolor = null;
+			else
+				obj.cbcolor = cbcolor;
+
+
+			obj.csql = csql;
+			obj.ifuncregedit = ifuncregedit;
+
+			obj.ipid = treeCompsVbox.getIpid(ccode);
+			if(treeCompsVbox.selectedItem)
+				obj.iid = treeCompsVbox.selectedItem.@iid+"";
+
+			CRMtool.toolButtonsEnabled(linkBarVboxComps,"onSave");
+			AccessUtil.remoteCallJava("ACListsetDest", "saveListStyle",saveBack, obj);
+		}
+
+		public function saveBack(e:ResultEvent):void{
+			if (e.result.toString() != "fail") {
+				initTree();
+				CRMtool.containerChildsEnabled(myBorder,false);
+				CRMtool.tipAlert("保存成功!!");
+			}
+
+            treeCompsVbox.enabled = true;
+		}
+
+		private function linkBarVboxComps_onDeleteEventHandler(event:Event):void {
+			if (treeCompsVbox.selectedItem) {
+				var iid:Number = treeCompsVbox.selectedItem.@iid;
+				AccessUtil.remoteCallJava("ACListsetDest", "deleteListStyle", function(e:ResultEvent):void{
+					if (e.result.toString() != "fail") {
+						initTree();
+						CRMtool.tipAlert("删除成功!!");
+                        treeCompsVbox.enabled = true;
+					}
+				}, iid);
+			}
+
+		}
+
+		private function linkBarVboxComps_onGiveUpEventHandler(event:Event):void {
+
+			if(treeCompsVbox.selectedItem){
+				setDataByTree();
+			}else{
+				ccode = "";
+				cname = "";
+				itype = 0;
+				cbcolor = "ffffff";
+				csql = "";
+			}
+
+			CRMtool.toolButtonsEnabled(linkBarVboxComps,"onGiveUp");
+			CRMtool.containerChildsEnabled(this.myBorder,false);
+            treeCompsVbox.enabled = true;
+		}
+
+		private function linkBarVboxComps_onNewEventHandler(event:Event):void {
+			ccode = "";
+			cname = "";
+			itype = 0;
+			cbcolor = "ffffff";
+			csql = "";
+			this.treeCompsVbox.selectedIndex = -1;
+
+			CRMtool.toolButtonsEnabled(linkBarVboxComps,"onNew");
+			CRMtool.containerChildsEnabled(myBorder,true);
+
+            treeCompsVbox.enabled = false;
+		}
+
+		private function linkBarVboxComps_onEditEventHandler(event:Event):void {
+			if(treeCompsVbox.selectedItem){
+				CRMtool.toolButtonsEnabled(linkBarVboxComps,"onEdit");
+				CRMtool.containerChildsEnabled(myBorder,true);
+                treeCompsVbox.enabled = false;
+			}
+		}
+
+		[Bindable]
+		public function get fieldList():ArrayCollection {
+			return _fieldList;
+		}
+
+		public function set fieldList(value:ArrayCollection):void {
+			_fieldList = new ArrayCollection(CRMtool.ObjectCopy(value.toArray()));
+			if (value) {
+				footText = "";
+				for each(var item:ListclmVo in value) {
+					footText += item.ccaption + "[" + item.cfield + "]" + "   ";
+				}
+				_fieldList.addItemAt(new ListclmVo(),0);
+			}
+		}
+
+		private function getCfieldLabel(item:Object):String {
+			if(CRMtool.isStringNull(item.ccaption))
+				return "";
+			else
+				return item.ccaption + "[" + item.cfield + "]";
+		}
+
+		private function creationCompleteHandler(event:FlexEvent):void {
+			initTree();
+
+			CRMtool.containerChildsEnabled(this.myBorder,false);
+			CRMtool.setTabIndex(this.myBorder);
+		}
+
+		private function initTree():void {
+			if (ifuncregedit > 0) {
+				AccessUtil.remoteCallJava("ACListsetDest", "getListStyle", function (e:ResultEvent):void {
+					var s:String = e.result as String;
+					if(CRMtool.isStringNotNull(s))
+						treeCompsVbox.treeCompsXml = new XML(s);
+				}, {ifuncregedit: ifuncregedit});
+			}
+		}
+
+		public function get ifuncregedit():int {
+			return _ifuncregedit;
+		}
+
+		public function set ifuncregedit(value:int):void {
+			_ifuncregedit = value;
+		}
+
+		[Bindable]
+		public function get itype():int {
+			return _itype;
+		}
+
+		public function set itype(value:int):void {
+			_itype = value;
+		}
+
+		[Bindable]
+		public function get ccode():String {
+			return _ccode;
+		}
+
+		public function set ccode(value:String):void {
+			if (_ccode == value) return;
+			_ccode = value;
+		}
+
+		[Bindable]
+		public function get cname():String {
+			return _cname;
+		}
+
+		public function set cname(value:String):void {
+			if (_cname == value) return;
+			_cname = value;
+		}
+
+		[Bindable]
+		public function get cbcolor():String {
+			return _cbcolor;
+		}
+
+		public function set cbcolor(value:String):void {
+			if (_cbcolor == value) return;
+			_cbcolor = value;
+        }
+
+		[Bindable]
+		public function get csql():String {
+			return _csql;
+		}
+
+		public function set csql(value:String):void {
+			if (_csql == value) return;
+			_csql = value;
+		}
+
+		private function ui_cbcolor_changeHandler(event:ColorPickerEvent):void {
+			cbcolor = ui_cbcolor.selectedColor.toString(16);
+
+		}
+	]]></fx:Script>
+
+	<mx:HDividedBox paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" width="100%" height="100%"
+					styleName="contentHDividedBox">
+		<!-- 角色树 -->
+		<mx:VBox width="27%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<s:Label text="高亮方案" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+				<comps:TreeCompsVbox id="treeCompsVbox" width="100%" height="100%"
+									 itemClick="treeCompsVbox_itemClickHandler(event)"
+									 change="CRMtool.toolButtonsEnabled(linkBarVboxComps,null);"/>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox width="73%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+				<comps:LinkBarVboxComps id="linkBarVboxComps" height="25" dataProvider="{buttonLabelAc}"
+										creationComplete="CRMtool.toolButtonsEnabled(linkBarVboxComps,null)"
+										styleName="contentButtonBar"
+										onSaveEvent="linkBarVboxComps_onSaveEventHandler(event)"
+										onDeleteEvent="linkBarVboxComps_onDeleteEventHandler(event)"
+										onGiveUpEvent="linkBarVboxComps_onGiveUpEventHandler(event)"
+										onNewEvent="linkBarVboxComps_onNewEventHandler(event)"
+										onEditEvent="linkBarVboxComps_onEditEventHandler(event)"/>
+				<s:Spacer width="100%"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" id="myBorder" paddingLeft="10" paddingTop="10" paddingBottom="10"
+					 paddingRight="10">
+				<mx:VBox width="100%" height="100%" styleName="content">
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:HBox width="100%">
+							<mx:Label text="方案编码：" styleName="contentLabel" color="red"/>
+							<mx:TextInput id="ui_ccode" styleName="contentTextInput" width="100%" text="{ccode}"
+										  change="ccode = ui_ccode.text"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Label text="方案名称：" styleName="contentLabel" color="red"/>
+							<mx:TextInput id="ui_cname" styleName="contentTextInput" width="100%" text="{cname}"
+										  change="cname = ui_cname.text"/>
+						</mx:HBox>
+                        <mx:HBox width="100%">
+                            <mx:Label text="背景颜色：" styleName="contentLabel"/>
+                            <mx:ColorPicker id="ui_cbcolor" change="ui_cbcolor_changeHandler(event)"
+                                            selectedColor="{new uint('0x'+cbcolor)}"/>
+                        </mx:HBox>
+					</mx:HBox>
+					<mx:HRule width="100%"/>
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label text="条件语句:" styleName="contentLabel"/>
+					</mx:HBox>
+					<mx:VBox width="100%" height="100%" paddingLeft="10" paddingBottom="10" paddingRight="10">
+						<mx:TextArea id="ui_csql" width="100%" height="100%" borderVisible="false" text="{csql}"
+									 change="csql = ui_csql.text"/>
+						<mx:TextArea editable="false" text="{footText}" height="75" width="100%" borderVisible="false"/>
+					</mx:VBox>
+				</mx:VBox>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:HDividedBox>
+</basic:BasicTitleWindow>

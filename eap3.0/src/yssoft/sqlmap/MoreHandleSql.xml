@@ -1,0 +1,38 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+
+<sqlMap>
+
+ 	<!--调用客商并户存储过程-->
+     <parameterMap class="java.util.HashMap" id="p_customermergeParams"> 
+		<parameter property="bcustomer" javaType="int" jdbcType="int" mode="IN" />   
+		<parameter property="ecustomer" javaType="int" jdbcType="int" mode="IN" />   
+	 </parameterMap> 
+	
+	 <procedure id="p_customermerge" parameterMap="p_customermergeParams">
+		<![CDATA[   
+			{call p_customermerge(?,?)}
+		  ]]>
+	 </procedure>
+
+    <delete id="p_delete" parameterClass="string">
+        $sql$
+    </delete>
+
+     <update id="MoreHandleDest.onCheck" parameterClass="java.util.HashMap" >
+     	$sqlValue$
+     </update>
+     
+     <!--调用资产并户存储过程-->
+     <parameterMap class="java.util.HashMap" id="p_custproductmergeParams"> 
+		<parameter property="bcustproduct" javaType="int" jdbcType="int" mode="IN" />   
+		<parameter property="ecustproduct" javaType="int" jdbcType="int" mode="IN" />   
+	 </parameterMap> 
+	
+	 <procedure id="p_custproductmerge" parameterMap="p_custproductmergeParams">
+		<![CDATA[   
+			{call p_custproductmerge(?,?)}
+		  ]]>
+	 </procedure>
+	 
+	 
+</sqlMap>

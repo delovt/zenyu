@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window:CRMwindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+				  xmlns:s="library://ns.adobe.com/flex/spark"
+				  xmlns:mx="library://ns.adobe.com/flex/mx"
+				  xmlns:flexpaper="com.devaldi.controls.flexpaper.*"
+				  xmlns:window="yssoft.comps.window.*"
+				  width="100%" height="100%" isMove="false" isReSize="false" isShowMinButton="false"
+				  myClose="onCloseHandler()" title="预览文件{swfFilePath}">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.BMPDecoder;
+			import yssoft.tools.LoginTool;
+			[Bindable]
+			public var swfFilePath:String;
+			
+			[Bindable]
+			public var iswf:Boolean=true;
+			
+			public function swfViewer():void{
+				if(swfFilePath==null || swfFilePath==""){
+					return;
+				}
+				swicthContent(iswf);
+				if(iswf){
+					paperviewer.loadSwf("./swf/"+swfFilePath);
+				}else{//预览图片
+					loadBGIMGFile(swfFilePath);
+				}
+			}
+			
+			protected function onCloseHandler():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function paperviewer_onDocumentLoadedErrorHandler(event:ErrorEvent):void
+			{
+				LoginTool.showAlert("预览失败，请下载后，在预览");
+			}
+			
+			private function loadBGIMGFile(filename:String):void{
+				var param:Object={};
+				param.fileName=filename;
+				//param.fileType="jpg";
+				param.downType="1";
+				AccessUtil.remoteCallJava("FileDest","downFile",loadIconCallBack,param,"图片下载中...",false);
+			}
+			private function loadIconCallBack(event:ResultEvent):void{
+				if(event.result){
+					try{
+						var sourceBMP:Bitmap=null;
+						var ba:ByteArray=event.result as ByteArray;
+						
+						if(swfFilePath.toLowerCase().indexOf(".bmp") == swfFilePath.length-4){
+							var decoder:BMPDecoder = new BMPDecoder();
+							var bd:BitmapData = decoder.decode(ba);
+							sourceBMP = new Bitmap(bd,"auto",true);
+							bgiimg.source=sourceBMP;
+						}
+						var loader:Loader = new Loader();
+						loader.contentLoaderInfo.addEventListener(Event.COMPLETE,function(event:Event):void{
+							sourceBMP= event.currentTarget.loader.content as Bitmap;
+							sourceBMP.smoothing=true;
+							bgiimg.source=sourceBMP;
+						});
+						loader.loadBytes(ba);
+					}catch(e:Error){
+					}
+				}
+			}
+			
+			private function swicthContent(iswf:Boolean=true):void{
+				paperviewer.visible=iswf;
+				paperviewer.includeInLayout=iswf;
+				
+				imagecontent.visible=!iswf;
+				imagecontent.includeInLayout=!iswf;
+			}
+			
+			//双击 等比例放缩
+			protected function bgiimg_doubleClickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				fangsuoimage();
+			}
+			
+			private function fangsuoimage():void{
+				if((bgiimg.contentWidth/bgiimg.contentHeight)>=(this.width)/(this.height)){
+					//如果宽高比大于或等于场景的宽高比，按高的比例缩放
+					bgiimg.percentHeight=100;
+					bgiimg.width=Math.round(bgiimg.contentWidth*(this.height)/bgiimg.contentHeight);
+				}else{//如果宽高比小于场景的宽高比，按宽的比例缩放
+					bgiimg.width=this.width;
+					bgiimg.height=Math.round(bgiimg.contentHeight*(this.width)/bgiimg.contentWidth);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<flexpaper:FlexPaperViewer id="paperviewer" x="0" y="0" width="100%" height="100%"
+							   onDocumentLoadedError="paperviewer_onDocumentLoadedErrorHandler(event)"
+							   Scale="1" visible="false"/>
+	<mx:Canvas id="imagecontent" width="100%" height="100%" visible="false" includeInLayout="false">
+		<mx:Image id="bgiimg" height="100%" width="100%" horizontalAlign="center" scaleContent="true"
+				  doubleClickEnabled="true" doubleClick="bgiimg_doubleClickHandler(event)"/>
+	</mx:Canvas>
+</window:CRMwindow>

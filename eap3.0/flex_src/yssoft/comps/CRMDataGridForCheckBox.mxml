@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+			 xmlns:s="library://ns.adobe.com/flex/spark"
+			 xmlns:mx="library://ns.adobe.com/flex/mx"
+			 left="1" right="1" height="100%" 
+			 rowHeight="25" borderVisible="false"
+			 change="datagrid1_changeHandler(event)" click="datagrid1_clickHandler(event)"
+			 creationComplete="datagrid1_creationCompleteHandler(event)"
+			 horizontalScrollPolicy="auto" lockedColumnCount="3" headerRelease="datagrid1_headerReleaseHandler(event)" updateComplete="datagrid1_updateCompleteHandler(event)">
+	<fx:Metadata>
+		[Event(name="onGridClick",type="flash.events.Event")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.LinkButton;
+			import mx.controls.ToolTip;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.dataGridClasses.DataGridItemRenderer;
+			import mx.core.UIComponent;
+			import mx.events.DataGridEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.ToolTipManager;
+			
+			import spark.components.CheckBox;
+			
+			import yssoft.renders.DGCheckBox;
+			import yssoft.renders.DGHeaderCheckBox;
+			import yssoft.tools.CRMtool;
+			
+			//是否点击选项框
+			public var clickbox:Boolean=false;
+			//可选是否只读
+			[Bindable]
+			public var readonly:Boolean=false;
+			
+			//选中全选全消状态
+			[Bindable]
+			public var allchecked:Boolean;
+			
+			//排序方式 0:不排序 1：升序 2：降序
+			public var sortindex:int=0;
+			private var lastsortfield:String="";
+			
+			//获得选中记录
+			public function getSelectRows():ArrayCollection
+			{
+				var selectRows:ArrayCollection=new ArrayCollection();
+				for each(var item:Object in this.dataProvider)
+				{
+					if (item.checked)
+					{
+						selectRows.addItem(item);
+					}
+				}
+				return selectRows;
+			}
+			
+			//获得未选中记录
+			public function getUnSelectRows():ArrayCollection
+			{
+				var selectRows:ArrayCollection=new ArrayCollection();
+				for each(var item:Object in this.dataProvider)
+				{
+					if (!item.checked)
+					{
+						selectRows.addItem(item);
+					}
+				}
+				return selectRows;
+			}
+			
+			//是否多选属性
+			private var _allowMulti:Boolean;
+			public function get allowMulti():Boolean
+			{
+				return _allowMulti;
+			}
+			
+			public function set allowMulti(value:Boolean):void
+			{
+				_allowMulti = value;
+			}
+			
+			//行选择处理
+			private function dataGridSelectCheckBox():void
+			{
+				if (this.allowMulti)
+				{
+					this.addEventListener("onClickBox",onClickBoxCallBack);
+					this.addEventListener(ListEvent.ITEM_CLICK,onselectrow);
+				}
+			}
+			
+			private function onClickBoxCallBack(evt:Event):void
+			{
+				this.clickbox=true;
+			}
+			
+			private function onselectrow(event:ListEvent):void
+			{
+				
+				if (this.readonly)
+				{
+					return;
+				}
+				if (this.clickbox)
+				{
+					this.clickbox=false;
+					return;
+				}
+				
+				for each(var item:Object in collection)
+				{
+					item.checked=false;
+				}
+				
+				for each(var selitem:Object in this.selectedItems)
+				{
+					selitem.checked=true;
+				} 
+				this.updateList();
+			}
+			
+			protected function datagrid1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				//dgrd_department_itemRollOutHandler();
+				
+				if (this.readonly)
+				{
+					return;
+				}
+				if (this.allowMulti)
+				{
+					if (event.target.hasOwnProperty("uid") && event.target.hasOwnProperty("selected"))
+					{
+						if (String(event.target.uid).indexOf("DataGridHeader")>-1)
+						{		
+							//全选全消处理
+							var bodyArr:ArrayCollection=event.currentTarget.dataProvider as ArrayCollection;
+							for each (var item:Object in bodyArr){
+								item.checked=event.target.selected;
+							}
+							/* 							for (var i:int = 0; i < bodyArr.length; i++) 
+							{
+							var obj:Object=bodyArr.getItemAt(i);
+							
+							//this.allchecked=obj.checked;
+							//bodyArr.setItemAt(obj,i);
+							} */
+							this.allchecked=event.target.selected;
+							bodyArr.refresh();
+							this.dispatchEvent(new Event("onGridClick"));
+							return;
+						}
+					}
+					if (String(event.target).indexOf("DataGridItemRenderer"))
+					{
+						this.setAllCheckState(bodyArr);		
+					}
+				}
+				this.dispatchEvent(new Event("onGridClick"));
+			}
+			
+			//设置全选全消状态
+			public function setAllCheckState(arr:ArrayCollection):void
+			{
+				if(arr!=null)
+				{
+					var ct:int=0;
+					for (var i:int = 0; i < arr.length; i++) 
+					{
+						var obj:Object=arr.getItemAt(i);
+						if (obj.checked)
+						{
+							ct++;
+						}
+						else
+						{
+							break;
+						}
+					}
+					if (arr.length>0)
+					{
+						this.allchecked=(ct==arr.length);
+					}
+					else
+					{
+						this.allchecked=false;
+					}
+				}
+			}
+			
+			//设置序号 
+			private function setnum(item:Object,column:DataGridColumn):String
+			{
+				//lr modify
+/* 				var num:int=(collection as ArrayCollection).getItemIndex(item);
+				return (num+1).toString();
+				 */
+
+				var lineNum:int = dataProvider.getItemIndex(item)+1;
+				item.sort_id = 	lineNum;
+				return lineNum+"";
+			}
+			
+			public function InitColumns():void
+			{
+				var columns:Array=new Array();
+				//添加序号列colnum
+				var colnum:DataGridColumn=new DataGridColumn();
+				colnum.dataField="sort_id";
+				colnum.headerText="序号";
+				colnum.width=46;
+				colnum.editable=false;
+				colnum.sortable=false;
+				colnum.resizable=false;
+				colnum.setStyle("textAlign","center");
+				colnum.labelFunction=setnum;
+				
+				if (this.allowMulti)
+				{
+					this.allowMultipleSelection=this.allowMulti;
+					//添加选择列
+					var render:ClassFactory=new ClassFactory(yssoft.renders.DGCheckBox);
+					var col0:DataGridColumn=new DataGridColumn();
+					var headerrender:ClassFactory=new ClassFactory(yssoft.renders.DGHeaderCheckBox);
+					col0.headerRenderer=headerrender;
+					col0.width=46;
+					col0.sortable=false;
+					col0.resizable=false;
+					col0.setStyle("textAlign","center");
+					col0.editable=false;
+					col0.itemRenderer=render;
+					columns.push(col0);
+					columns.push(colnum);
+					this.columns=columns;
+					dataGridSelectCheckBox();
+				}
+				else
+				{
+					columns.push(colnum);
+					this.columns=columns;					
+				}
+			}
+			
+			protected function datagrid1_creationCompleteHandler(event:FlexEvent):void
+			{
+				this.InitColumns();
+			}
+			
+			protected function datagrid1_changeHandler(event:ListEvent):void
+			{
+				var bodyArr:ArrayCollection=event.currentTarget.dataProvider as ArrayCollection;
+				
+				if (!this.allowMulti)
+				{
+					//处理单选
+					for each(var item:Object in bodyArr)
+					{
+						item.checked=false;
+					}
+					var obj:Object=bodyArr.getItemAt(event.rowIndex);
+					obj.checked=!obj.checked;
+					bodyArr.setItemAt(obj,event.rowIndex);
+				}
+			}
+			
+			/* private var myToolTip:ToolTip;   
+			protected function dgrd_department_itemRollOverHandler(event:ListEvent):void
+			{			
+				var data:DataGridItemRenderer =  event.itemRenderer as DataGridItemRenderer;
+				if(data==null){
+					return;
+				}
+				if(data.listData==null){
+					return;
+				}
+				
+				
+				var _point:Point = new Point(this.x, this.y);  
+				_point = this.localToGlobal(_point);
+				
+				var tipLable:String= data.listData.label;    			
+				
+				if (myToolTip != null){      
+					ToolTipManager.destroyToolTip(myToolTip);   
+				}   
+				if(CRMtool.isStringNotNull(tipLable)){		
+					if(tipLable.search("[\u4e00-\u9fa5]+")>-1&&tipLable.length>5){//包含汉字
+						myToolTip= ToolTipManager.createToolTip(tipLable, _point.x +mouseX+15,   _point.y+mouseY-40) as ToolTip; 
+					}else if(tipLable.length>11){//不包含汉字
+						myToolTip= ToolTipManager.createToolTip(tipLable, _point.x +mouseX+15,   _point.y+mouseY-40) as ToolTip; 
+					}
+					
+					if(tipLable.length>200){
+						myToolTip.width=420;
+					}
+					
+				}
+			}
+			
+			protected function dgrd_department_itemRollOutHandler():void
+			{
+				// TODO Auto-generated method stub
+				if (myToolTip is ToolTip){   
+					ToolTipManager.destroyToolTip(myToolTip);         
+				}   
+				myToolTip=null;
+			} */
+			
+			protected function datagrid1_updateCompleteHandler(event:FlexEvent):void
+			{
+				if (sortindex==2)
+				{
+					collection.sort=null;
+					sortindex=0;
+					lastsortfield="";
+					collection.refresh();
+				}
+				else
+				{
+					if (sortindex==0 &&collection&& collection.sort!=null)
+					{
+						collection.sort.fields[0].descending=false;
+						sortindex=1;
+						collection.refresh();
+					}
+				}
+			}
+			
+			protected function datagrid1_headerReleaseHandler(event:DataGridEvent):void
+			{
+				if (collection.sort==null)
+				{
+					sortindex=0;
+				}
+				else
+				{
+					if (this.columns[event.columnIndex].dataField!=lastsortfield)
+					{
+						sortindex=0;
+					}
+					else
+					{
+						if (collection.sort.fields[0].descending==false)
+						{
+							sortindex=1;
+						}
+						else
+						{
+							sortindex=2;
+						}
+					}
+				}
+				lastsortfield=this.columns[event.columnIndex].dataField;
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+</mx:DataGrid>

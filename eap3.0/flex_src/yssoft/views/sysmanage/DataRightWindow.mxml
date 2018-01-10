@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:Basic="yssoft.comps.frame.module.Basic.*"
+						title="批改" close="PopUpManager.removePopUp(this)" creationComplete="creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.events.FlexEvent;
+		import mx.managers.PopUpManager;
+
+		private var rowArr:ArrayCollection = new ArrayCollection([
+			{value: "ifind", label: "组织查询权限"},
+			{value: "iedit", label: "组织修改权限"},
+			{value: "idelete", label: "组织删除权限"}
+		]);
+
+		[Bindable]
+		public var groupArr:ArrayCollection = new ArrayCollection([
+			{value: 0, label: ""},
+			{value: 1, label: "无权限"},
+			{value: 2, label: "负责人员"},
+			{value: 3, label: "相关人员"},
+			{value: 4, label: "本部门"},
+			{value: 5, label: "本部门及下级部门"},
+			{value: 6, label: "全部人员"}
+		]);
+
+		public var clinkFun:Function;
+
+		override protected function onSubmit():void {
+			super.onSubmit();
+			clinkFun(cmb_row.selectedItem, cmb_group.selectedItem);
+			PopUpManager.removePopUp(this);
+		}
+
+		private function creationCompleteHandler(event:FlexEvent):void {
+			this.height = 65;
+			this.width = 360;
+		}
+		]]>
+	</fx:Script>
+	<Basic:layout>
+		<s:HorizontalLayout paddingLeft="8" paddingRight="8" paddingTop="5" paddingBottom="5"/>
+	</Basic:layout>
+	<mx:ComboBox id="cmb_row" width="130"
+				dataProvider="{rowArr}"/>
+	<mx:ComboBox id="cmb_group" width="130"
+				dataProvider="{groupArr}"/>
+	<mx:Button width="70" label="确定" click="onSubmit()"/>
+
+</Basic:BasicTitleWindow>

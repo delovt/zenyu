@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:comps="yssoft.comps.*"
+						title="批量插入客商计划"
+						width="700" height="600"
+						close="onCloseHandler()"
+						xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.module.CrmEapTextInput;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			private var ui_itype:CrmEapTextInput;
+			private var ui_imaker:CrmEapTextInput;
+			private var allocationBillList:ArrayCollection;
+			public var iid:Number;
+			public var imaker:Number;
+			[Bindable]
+			private var isLocale:Boolean = false;
+			private var _isAllchecked:Boolean;
+			public function get isAllchecked():Boolean
+			{
+				return _isAllchecked;
+			}
+
+			public function set isAllchecked(value:Boolean):void
+			{
+				_isAllchecked = value;
+				if (value) {
+					for each(var item:Object in allocationBillList) {
+						item.chicks = 1;
+					}
+					
+				} else {
+					for each(var item:Object in allocationBillList) {
+						item.chicks = 0;
+					}
+				
+				}
+				myDataGrid.dataProvider.refresh();
+			}
+
+			public function myinit(obj:Object):void
+			{
+				this.allocationBillList = obj.asc;
+				initConsult();
+				initConsult2();
+				CRMtool.openView(this);					
+			}
+			
+			private function initConsult():void {
+			
+				var obj1:Object = new Object();
+				obj1.cobjectname = "ui_itype";
+				obj1.ifuncregedit = "35";
+				obj1.cfield = "itype";
+				
+				AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+					
+					if (evt.result != null) {
+						var consultObj:Object = evt.result;
+						
+						ui_itype = new CrmEapTextInput();
+						ui_itype.percentWidth = 100;
+						ui_itype.name = "UI_C1";
+						consultObj.cobjectname = "UI_C1";
+						ui_itype.singleType = consultObj;
+						ui_itype_box.addChild(ui_itype);
+						ui_itype.addEventListener("valueChange",function(e:Event):void{
+							if(ui_itype.text=="" ||ui_itype.text==null){
+								return;
+							}
+							iid=ui_itype.consultList[0].iid;
+						});
+						
+					}
+				}, obj1);
+				
+			}
+			private function initConsult2():void {
+				
+				var obj2:Object = new Object();
+				obj2.cobjectname = "ui_imaker";
+				obj2.ifuncregedit = "35";
+				obj2.cfield = "imaker";
+				
+				AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+					
+					if (evt.result != null) {
+						var consultObj:Object = evt.result;
+						
+						ui_imaker = new CrmEapTextInput();
+						ui_imaker.percentWidth = 100;
+						ui_imaker.name = "UI_C1";
+						consultObj.cobjectname = "UI_C1";
+						ui_imaker.singleType = consultObj;
+						ui_imaker_box.addChild(ui_imaker);
+						//ui_imaker.text=CRMmodel.userId+"";
+						ui_imaker.addEventListener("valueChange",function(e:Event):void{
+							if(ui_imaker.text=="" ||ui_imaker.text==null){
+								return;
+							}
+							imaker=ui_imaker.consultList[0].iid;
+						});
+						
+					}
+				}, obj2);
+				
+			}
+			private function verificationItem(textInput:Object):Boolean {
+				var bool:Boolean = true;
+				if (CRMtool.isStringNull(textInput.text)) {
+					bool = false;
+					//CRMtool.showAlert(textInput.id+"  必填");
+					textInput.setFocus();
+				}
+				return bool;
+			}
+			private function verification():Boolean {
+		
+				if (!verificationItem(ui_dbegin)) {
+					return false;
+				}
+				if (!verificationItem(ui_dend)) {
+					return false;
+				}
+				if (!verificationItem(ui_dmessage)) {
+					return false;
+				}
+				if (!verificationItem(ui_imaker)) {
+					return false;
+				}
+				
+				return true;
+				
+			}
+			
+			private function lineNumColFunction(item:Object, column:DataGridColumn):String {
+				if (myDataGrid.dataProvider) {
+					for (var i:int = 1; i <= myDataGrid.dataProvider.length; i++) {
+						if (myDataGrid.dataProvider[i - 1] == item) {
+							item.sort_id = i;
+							return i + "";
+						}
+					}
+					
+				}
+				return "0";
+			}
+
+
+			public function submitExpense(event:MouseEvent):void
+			{
+				if (verification() == false) {
+					CRMtool.tipAlert("红色为必输项！");
+					return;
+				}
+				var flag:Boolean=true;
+				
+				var allocationList:ArrayCollection = myDataGrid.dataProvider as ArrayCollection;
+				for(var i:int=0;i<allocationList.length;i++){
+					if(allocationList[i].chicks==1 || allocationList[i].chicks=="true"){
+						flag=false;
+					}
+				}
+				if(flag){
+					CRMtool.tipAlert("请选择记录！");
+					return;
+				}
+				var obj:Object=new Object();
+				obj.allocationList=allocationList;
+				obj.imakers=CRMmodel.userId;
+				obj.imaker=imaker;
+				obj.cname=ui_cname.text;
+				obj.dbegin=ui_dbegin.text;
+				obj.dend=ui_dend.text;
+				obj.cdetail=ui_cdetail.text;
+				obj.dmessage=ui_dmessage.text;
+				obj.itype=iid;
+				AccessUtil.remoteCallJava("UtilViewDest", "insertOaWorkPlan", function (event:ResultEvent):void { 
+					var msg:String=event.result as String;
+					CRMtool.tipAlert(msg);
+					if(msg=="批量插入客商计划成功！"){
+					close();
+					}
+				}, obj);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="10">
+				<mx:HBox width="100%" height="30"   paddingTop="2">
+					<mx:HBox width="50%">
+						<mx:Label text="计划主题:"  />
+						<mx:TextInput id="ui_cname"  borderStyle="none"  width="100%"/>
+					</mx:HBox>
+					<mx:HBox width="50%" id="ui_itype_box" >
+						<mx:Label text="计划类型:" />
+					</mx:HBox>
+				</mx:HBox>
+				<mx:HBox width="100%" height="30" >
+					<mx:HBox width="50%">
+						<mx:Label text="开始时间:"  color="red" styleName="contentLabel"/>
+						<comps:DateControl id="ui_dbegin" isStyle="true" width="100%"  borderStyle="none" />
+					</mx:HBox>
+					<mx:HBox width="50%" >
+						<mx:Label text="结束时间:" color="red"  styleName="contentLabel"/>
+						<comps:DateControl id="ui_dend" isStyle="true" width="100%"   borderStyle="none"/>
+					</mx:HBox>
+				</mx:HBox>
+				<mx:HBox width="100%" height="30"  >
+					<mx:HBox width="50%">
+						<mx:Label text="计划内容:" />
+						<mx:TextInput id="ui_cdetail" borderStyle="none" width="100%"  />
+					</mx:HBox>
+					<mx:HBox width="50%">
+						<mx:Label text="提醒时间:"  color="red" styleName="contentLabel"/>
+						<comps:DateControl id="ui_dmessage" isStyle="true" width="100%"  height="30" borderStyle="none"/>
+					</mx:HBox>
+				</mx:HBox>
+				<mx:HBox width="100%" height="30" >
+						<mx:HBox width="50%" color="red" id="ui_imaker_box">
+							<mx:Label text="执行人员:" />
+						</mx:HBox>
+				</mx:HBox>
+		
+		<mx:DataGrid id="myDataGrid" width="100%" height="100%"  allowMultipleSelection="true"
+					 dataProvider="{allocationBillList}"
+					 horizontalScrollPolicy="auto" >
+			<mx:columns>	
+				<mx:DataGridColumn id="ck" editable="false" width="30" headerText=" " dataField="chicks"
+								   sortable="false">
+					<mx:headerRenderer>
+						<fx:Component>
+							<mx:HBox verticalAlign="middle" horizontalAlign="center" width="100%">
+								<mx:CheckBox id="allCheckBox" change="allCheckBox_changeHandler(event)" />
+								<fx:Script><![CDATA[
+									private function allCheckBox_changeHandler(event:Event):void {
+									if (outerDocument.myDataGrid.dataProvider.length > 0) {
+										outerDocument.isAllchecked = allCheckBox.selected;
+									}
+									}
+								]]></fx:Script>
+							</mx:HBox>
+						</fx:Component>
+					</mx:headerRenderer>
+					<mx:itemRenderer>
+						<fx:Component>
+							<mx:HBox horizontalAlign="center" verticalAlign="middle" width="100%">
+								<mx:CheckBox id="selectBox" textAlign="center" click="selectBox_clickHandler(event)"
+											 selected="{(data.chicks==1)?true:false}">
+									<fx:Script><![CDATA[
+										private function selectBox_clickHandler(event:MouseEvent):void {
+											data.chicks = !data.chicks;
+										
+										}
+									]]></fx:Script>
+								</mx:CheckBox>
+							</mx:HBox>
+						</fx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="序号" dataField="sort_id" editable="false"
+								   labelFunction="lineNumColFunction" width="40" textAlign="center"/>
+				<mx:DataGridColumn headerText="客商编号" dataField="ccode" width="70" />
+				<mx:DataGridColumn headerText="客户名称" dataField="custcname" width="200"/>
+				<mx:DataGridColumn headerText="行业" dataField="iindustry" width="70"  />
+				<mx:DataGridColumn headerText="销售状态" dataField="isalesstatus" width="70" />
+				<mx:DataGridColumn headerText="级别" dataField="ivaluelevel" width="70" />
+				<mx:DataGridColumn headerText="客商内码" dataField="iid" width="70"  visible="false"/>
+			</mx:columns>
+		</mx:DataGrid>
+			
+		<mx:VBox width="100%" height="33" verticalGap="0">
+			<mx:HBox height="100%" width="100%" verticalAlign="middle" paddingRight="10" paddingLeft="10" paddingBottom="5">
+				<s:Spacer width="100%"/>
+				<s:Button label="确定" click="submitExpense(event)" />
+				<s:Button label="放弃"  click="onCloseHandler()"/>
+			</mx:HBox>
+		</mx:VBox>
+		
+	</mx:VBox>
+</basic:BasicTitleWindow>

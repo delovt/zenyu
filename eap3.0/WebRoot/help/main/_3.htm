@@ -1,0 +1,385 @@
+<html>
+
+<head>
+  <title>2.1 、管理用户与权限 - 综合业务管理软件_帮助手册</title>
+  <meta http-equiv=Content-Type content="text/html; charset=x-cp20936">
+  <meta name="GENERATOR" content="Macrobject Word-2-CHM">
+  <link rel="stylesheet" href="Word2Chm.css" type="text/css">
+  <link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+
+<body lang=ZH-CN link=blue vlink=purple style='text-justify-trim:punctuation'>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td class="moHeader">&nbsp;2.1 、管理用户与权限</td>
+    </tr>
+  </table>
+  
+  <p></p>
+
+<div class=Section1 style='layout-grid:15.6pt'>
+
+
+
+<p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+line-height:125%;font-family:宋体;color:#F79646'>【功能概述】</span></b></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>以系统预置的</span><b><span
+lang=EN-US style='font-size:12.0pt;line-height:150%'>admin</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>用户（初始密码</span><b><span
+lang=EN-US style='font-size:12.0pt;line-height:150%'>111111</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>）登录后，首先要完成的就是进行系统用户的定义与权限的分配，以便于让业务人员参与系统的使用。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><b><span style='font-size:12.0pt;
+line-height:150%;font-family:宋体;color:#F79646'>【重要提示】</span></b></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>角色，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>系统以角色为授权对象，进行操作权限、数据权限的分配，一个角色可以拥有多个用户，一个用户也可以属于多个角色。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>用户，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>用户是通过职员档案进行设置的，设置职员档案的“是否操作员”、“操作员账号”属性便可以同时完成用户的定义。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>用户通过继承隶属的角色来获得操作权限、数据权限，因此系统中不需再对用户进行单独的权限分配。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>操作权限，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>控制到各业务点的功能按钮，操作权限会控制到菜单是否可用。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体;color:#F79646'>数据权限，</span></b><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>同一业务功能对不同的角色可以分别设置不同的权限控制策略，包括：</span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt;line-height:150%'><span
+style='font-size:12.0pt;line-height:150%;font-family:楷体_GB2312'>以用户为中心的数据权限控制；以客户为中心的数据权限控制；以用户与客户组合的数据权限控制。</span></p>
+
+<p class=MsoNormal style='text-indent:21.0pt;line-height:125%'><span
+lang=EN-US style='font-size:12.0pt;line-height:125%;font-family:楷体_GB2312'>&nbsp;</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>以用户为中心的数据权限控制，包括对查询、修改、删除三个层面的分别控制，适用于一些复杂的业务单据权限管控，如线索、商机、协同等：</span></p>
+
+<p class=ListParagraph style='margin-left:42.05pt;text-indent:-21.0pt;
+line-height:150%'><span lang=EN-US style='font-size:12.0pt;line-height:150%;
+font-family:Wingdings'>ü<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b><span style='font-size:12.0pt;line-height:150%;font-family:
+宋体;color:#F79646'>无权限，</span></b><span style='font-size:12.0pt;line-height:
+150%;font-family:宋体'>不能对该业务节点下的任何数据执行相关操作。</span></p>
+
+<p class=ListParagraph style='margin-left:42.05pt;text-indent:-21.0pt;
+line-height:150%'><span lang=EN-US style='font-size:12.0pt;line-height:150%;
+font-family:Wingdings'>ü<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b><span style='font-size:12.0pt;line-height:150%;font-family:
+宋体;color:#F79646'>负责人员，</span></b><span style='font-size:12.0pt;line-height:
+150%;font-family:宋体'>只能对本人为该业务单据负责人的数据执行相关操作。各业务单据默认制单人为负责人，负责人可以再分配或删除其他的负责人或相关人，系统中任一单据都会有一个负责人。</span></p>
+
+<p class=ListParagraph style='margin-left:42.05pt;text-indent:-21.0pt;
+line-height:150%'><span lang=EN-US style='font-size:12.0pt;line-height:150%;
+font-family:Wingdings'>ü<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b><span style='font-size:12.0pt;line-height:150%;font-family:
+宋体;color:#F79646'>相关人员，</span></b><span style='font-size:12.0pt;line-height:
+150%;font-family:宋体'>能对本人为该业务单据相关人的数据执行相关操作。相关人由该业务单据的负责人分配而来。</span></p>
+
+<p class=ListParagraph style='margin-left:42.0pt;text-indent:-21.0pt;
+line-height:150%'><span lang=EN-US style='font-size:12.0pt;line-height:150%;
+font-family:Wingdings'>ü<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b><span style='font-size:12.0pt;line-height:150%;font-family:
+宋体;color:#F79646'>本部门，</span></b><span style='font-size:12.0pt;line-height:
+150%;font-family:宋体'>能对本部门任何人拥有权限的业务单据执行相关操作，单据的所属部门根据各业务负责人、相关人的所属部门而来。本部门不包括下级部门。</span></p>
+
+<p class=ListParagraph style='margin-left:42.0pt;text-indent:-21.0pt;
+line-height:150%'><span lang=EN-US style='font-size:12.0pt;line-height:150%;
+font-family:Wingdings'>ü<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b><span style='font-size:12.0pt;line-height:150%;font-family:
+宋体;color:#F79646'>本部门及下级部门，</span></b><span style='font-size:12.0pt;line-height:
+150%;font-family:宋体'>能对本部门及下级部门中任何人拥有权限的业务单据执行相关操作，单据的所属部门根据各业务负责人、相关人的所属部门而来，包括本部门内及下级各部门。</span></p>
+
+<p class=ListParagraph style='margin-left:42.0pt;text-indent:-21.0pt;
+line-height:150%'><span lang=EN-US style='font-size:12.0pt;line-height:150%;
+font-family:Wingdings'>ü<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b><span style='font-size:12.0pt;line-height:150%;font-family:
+宋体;color:#F79646'>全部人员，</span></b><span style='font-size:12.0pt;line-height:
+150%;font-family:宋体'>可以看到所有的业务数据。</span></p>
+
+<p class=MsoNormal style='margin-left:21.05pt;line-height:125%'><span
+lang=EN-US style='font-size:12.0pt;line-height:125%'>&nbsp;</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>以客户为中心的权限控制，如业务单据涉及到客户，则只要拥有客户权限即拥有该业务单据权限，适用按客户进行一般权限控制的单据，如服务单、实施单等。</span></p>
+
+<p class=MsoNormal style='line-height:150%'><span lang=EN-US style='font-size:
+12.0pt;line-height:150%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='font-size:12.0pt;line-height:150%;font-family:宋体'>以用户与客户组合的权限控制，分并且、或者两层关系。</span></p>
+
+<p class=ListParagraph style='margin-left:42.05pt;text-indent:-21.0pt;
+line-height:150%'><span lang=EN-US style='font-size:12.0pt;line-height:150%;
+font-family:Wingdings'>ü<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span style='font-size:12.0pt;line-height:150%;font-family:宋体'>并且关系，同时满足用户权限、客户权限才行。</span></p>
+
+<p class=ListParagraph style='margin-left:42.05pt;text-indent:-21.0pt;
+line-height:150%'><span lang=EN-US style='font-size:12.0pt;line-height:150%;
+font-family:Wingdings'>ü<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span style='font-size:12.0pt;line-height:150%;font-family:宋体'>或者关系，用户权限、客户权限只要满足一个即可。</span></p>
+
+<p class=MsoNormal style='line-height:125%'><span lang=EN-US style='font-size:
+12.0pt;line-height:125%'>&nbsp;</span></p>
+
+<p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+line-height:125%;font-family:宋体;color:#F79646'>【操作步骤】</span></b><b><span
+lang=EN-US style='font-size:12.0pt;line-height:125%;color:#F79646'>&nbsp;&nbsp; </span></b></p>
+
+<div align=center>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr style='height:143.8pt'>
+  <td width=561 colspan=2 valign=top style='width:420.7pt;border:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt;height:143.8pt'>
+  <p class=MsoNormal align=center style='text-align:center;line-height:125%'><span
+  lang=EN-US><img width=530 height=173 src="temp.files/image012.gif"></span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>1</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、增加部门岗位</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>机构职员</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>部门岗位</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>部门编码体系，参见通用操作规范的说明</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>部门主管、分管主管、分管领导，在增加完职员档案后再进行设置，用于工作流的推进</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>部门保存后再增加其包涵的岗位，岗位一是用于人事标识，另用于工作流的配置</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>2</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、增加职务体系</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>机构职员</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>职务体系</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>职类保存后再设置其下属的职务档案</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>职务一是用于人事标识，另用于工作流的配置</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>3</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、增加职员用户</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>机构职员</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>职员管理</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>职员设置“是否在职、是否操作员、操作员账号”属性后便可以以此账号登录系统进行使用，去掉“是否操作员”属性后便可以禁止用户登录</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>只有使用系统的职员才需设置为用户</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>用户的初始密码为</span><b><span lang=EN-US style='font-size:12.0pt;line-height:
+  125%;color:#F79646'>111111</span></b></p>
+  <p class=ListParagraph style='text-indent:0cm;line-height:125%'><span
+  lang=EN-US style='font-size:12.0pt;line-height:125%'>&nbsp;&nbsp;&nbsp; </span><b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体;color:#F79646'>初始密码可以通过系统管理</span></b><b><span
+  lang=EN-US style='font-size:12.0pt;line-height:125%;color:#F79646'>---</span></b><b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体;color:#F79646'>公共设置</span></b><b><span
+  lang=EN-US style='font-size:12.0pt;line-height:125%;color:#F79646'>---</span></b><b><span
+  style='font-size:12.0pt;line-height:125%;font-family:宋体;color:#F79646'>系统选项，安全策略选项卡更改。</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>忘记密码时，可以让管理人员通过“更多</span><span lang=EN-US style='font-size:12.0pt;
+  line-height:125%'>---</span><span style='font-size:12.0pt;line-height:125%;
+  font-family:宋体'>密码重置”重新恢复初始的</span><b><span lang=EN-US style='font-size:12.0pt;
+  line-height:125%;color:#F79646'>111111</span></b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>密码</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>4</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、增加角色关联</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>角色权限</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>角色管理</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>角色保存后，选择“关联职员、移除职员”实现增加或减少该角色所拥有的用户</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>根据管理需求合理规划角色，可以大大减少权限的分配复杂度</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>5</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、操作权限分配</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>角色权限</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>操作权限</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>先选中角色，点击“修改”，再选中对应的功能节点，勾选明细的操作权限，然后点击“保存”</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=136 valign=top style='width:101.95pt;border:solid #7F7F7F 1.0pt;
+  border-top:none;padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>6</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>、数据权限分配</span></p>
+  </td>
+  <td width=425 valign=top style='width:318.75pt;border-top:none;border-left:
+  none;border-bottom:solid #7F7F7F 1.0pt;border-right:solid #7F7F7F 1.0pt;
+  padding:0cm 5.4pt 0cm 5.4pt'>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>程序路径：</span></b></p>
+  <p class=MsoNormal style='line-height:125%'><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体'>基础设置</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>角色权限</span><span lang=EN-US
+  style='font-size:12.0pt;line-height:125%'>---</span><span style='font-size:
+  12.0pt;line-height:125%;font-family:宋体'>数据权限</span></p>
+  <p class=MsoNormal style='line-height:125%'><b><span style='font-size:12.0pt;
+  line-height:125%;font-family:宋体;color:#F79646'>注意事项：</span></b></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>先选中角色，点击“修改”，然后分别下拉选择“组织查询权限、组织修改权限、组织删除权限”下的各权限控制方式，然后点击“保存”</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>如系统已勾选了“启用客户权限”，则“与客户权限关系”可以下拉选择二种权限的控制关系</span></p>
+  <p class=ListParagraph style='margin-left:21.0pt;text-indent:-21.0pt;
+  line-height:125%'><span lang=EN-US style='font-size:12.0pt;line-height:125%;
+  font-family:Wingdings'>l<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span></span><span style='font-size:12.0pt;line-height:125%;font-family:
+  宋体'>权限控制的意义参见上面的数据权限说明</span></p>
+  </td>
+ </tr>
+</table>
+
+</div>
+
+<p class=MsoNormal style='line-height:125%'><span lang=EN-US style='font-size:
+12.0pt;line-height:125%'>&nbsp;</span></p>
+
+
+</div>
+  <p></p>
+
+</body>
+
+</html>

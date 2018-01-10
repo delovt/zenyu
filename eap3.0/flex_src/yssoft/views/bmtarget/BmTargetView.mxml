@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" 
+				height="100%"  
+				xmlns:comps="yssoft.comps.*" 
+				xmlns:checkBoxColumn="yssoft.comps.checkBoxColumn.*"  
+				creationComplete="ini();CRMtool.containerChildsEnabled(container,false);" implements="yssoft.impls.ICRMWindow">
+	<fx:Script source="BmTargetViewScript.as">
+	</fx:Script>
+	
+	<!-- 角色树 -->
+	<mx:HDividedBox width="100%" height="100%" styleName="contentHDividedBox">
+		<mx:VBox width="20%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<s:Label text="指标列表" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+				<comps:TreeCompsVbox id="tree" width="100%" height="100%" 
+									 change="CRMtool.toolButtonsEnabled(btn_menubar,null);CRMtool.containerChildsEnabled(container,false)"	 dropShadowVisible="false" itemClick="tree_itemClickHandler(event)"/>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:Canvas width="80%" height="100%" styleName="centerbg4" creationComplete="CRMtool.setTabIndex(this.container)">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="32" dock="true">
+				<mx:ButtonBar id="btn_menubar" width="10%" height="80%" 
+							  creationComplete="CRMtool.toolButtonsEnabled(btn_menubar,null)"
+							  dataProvider="{arr_menubar}" styleName="contentButtonBar"
+							  itemClick="btn_menubar_itemClickHandler(event)"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox  width="100%" height="100%" top="42" left="10" right="10" verticalGap="10" id="container">
+				<mx:VBox width="100%" cornerRadius="8" styleName="content" id="tabVbox">
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="指标编码:" height="100%" styleName="contentLabel" color="red"/>
+						<mx:TextInput id="ccode" width="50%" height="100%" text="{tree.selectedItem.@ccode}"
+									  borderVisible="false" styleName="contentTextInput" restrict="0-9\."/>
+						<mx:Label  text="指标名称:" height="100%" styleName="contentLabel" color="red"/>
+						<mx:TextInput id="cname" width="50%" height="100%" text="{tree.selectedItem.@cname}"
+									  borderVisible="false" styleName="contentTextInput"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:HBox width="50%">
+							<mx:Label  text="取值表名:" height="100%" styleName="contentLabel"/>
+							<mx:TextInput id="cvaluetable" width="100%" height="100%" text="{tree.selectedItem.@cvaluetable}"
+										  borderVisible="false" styleName="contentTextInput"/>
+						</mx:HBox>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:HBox width="50%">
+							<mx:Label  text="取值字段:" height="100%" styleName="contentLabel"/>
+							<mx:TextInput id="cvaluefield" width="100%" height="100%" text="{tree.selectedItem.@cvaluefield}"
+										  borderVisible="false" styleName="contentTextInput"/>
+						</mx:HBox>
+						<mx:HBox width="50%">
+							<mx:Label  text="取值类型:" height="100%" styleName="contentLabel"/>
+							<mx:ComboBox id="ivaluetype" width="120" styleName="contentComboBox"
+										 dataProvider="{this.menuArray}"
+										 selectedIndex="{this.tree.selectedItem.@ivaluetype-1}">
+							</mx:ComboBox>
+						</mx:HBox>	
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="部门字段:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="cdepartmentfield" width="100%" height="100%" text="{tree.selectedItem.@cdepartmentfield}"
+									  borderVisible="false" styleName="contentTextInput"/>
+						
+						<mx:Label  text="人员字段:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="cpersonfield" width="100%" height="100%" text="{tree.selectedItem.@cpersonfield}"
+									  borderVisible="false" styleName="contentTextInput"/>
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:HBox width="50%">
+							<mx:Label  text="期间字段:" height="100%" styleName="contentLabel"/>
+							<mx:TextInput id="cdatefield" width="100%" height="100%" text="{tree.selectedItem.@cdatefield}"
+										  borderVisible="false" styleName="contentTextInput"/>
+						</mx:HBox>	
+						<mx:HBox width="50%">
+							<mx:Label  text="备        注:" height="100%" styleName="contentLabel"/>
+							<mx:TextInput id="cmemo" width="100%" height="100%" text="{tree.selectedItem.@cmemo}"
+										  borderVisible="false" styleName="contentTextInput"/>
+						</mx:HBox>	
+					</mx:HBox>
+					
+				</mx:VBox>
+				
+				
+				
+				<mx:VBox left="20" right="20" width="100%" 
+						 borderStyle="inset" cornerRadius="8" styleName="content">
+					
+					<mx:Label paddingLeft="20" paddingRight="20" text="预算维度条件"></mx:Label>
+					<mx:VBox width="100%" paddingLeft="10" paddingRight="10" styleName="content" borderVisible="false">
+						<mx:TextArea id="csqlcd" width="100%" height="100" styleName="contentTextInput"/>
+					</mx:VBox>				
+					
+				</mx:VBox>
+				
+				<mx:VBox left="20" right="20" width="100%" 
+						 borderStyle="inset" cornerRadius="8" styleName="content">
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label text="制  单  人:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="imaker" width="100%" height="100%" text="{tree.selectedItem.@imaker}"
+									  borderVisible="false" styleName="contentTextInput" enabled="false" />
+						<mx:Label  text="制单时间:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="dmaker" width="100%" height="100%" text="{tree.selectedItem.@dmaker}"
+									  borderVisible="false" styleName="contentTextInput"  enabled="false" />
+					</mx:HBox>
+					
+					<mx:HRule width="100%"/>
+					
+					<mx:HBox width="100%" styleName="contentSubHbox">
+						<mx:Label  text="修  改  人:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="imodify" width="100%" height="100%" text="{tree.selectedItem.@imodify}"
+									  borderVisible="false" styleName="contentTextInput"  enabled="false" />
+						<mx:Label  text="修改时间:" height="100%" styleName="contentLabel"/>
+						<mx:TextInput id="dmodify" width="100%" height="100%" text="{tree.selectedItem.@dmodify}"
+									  borderVisible="false" styleName="contentTextInput"  enabled="false" />
+					</mx:HBox>
+					
+				</mx:VBox>
+				
+			</mx:VBox>			
+		</mx:Canvas>
+	</mx:HDividedBox>
+</mx:HDividedBox>

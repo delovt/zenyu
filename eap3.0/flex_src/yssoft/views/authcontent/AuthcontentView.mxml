@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:comps="yssoft.comps.*"
+                creationComplete="getAuthcontentTree();">
+    <fx:Script>
+		<![CDATA[
+        import yssoft.models.ConstsModel;
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script source="../../../yssoft/scripts/AuthcontentViewScript.as"/>
+    <!-- 角色树 -->
+    <mx:VBox width="20%" height="100%" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="32" dock="true">
+            <s:Label text="权限目录" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_authcontent" width="100%" height="100%"/>
+        </mx:HBox>
+    </mx:VBox>
+
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="contentVBox">
+
+        <mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+            <comps:LinkBarVboxComps id="lbr_authcontent" width="15%" height="25" dataProvider="{ConstsModel.LBRITEM}"
+                                    styleName="contentButtonBar" onSaveEvent="onSave(event)" onNewEvent="onNew(event)"
+                                    onDeleteEvent="onDelete(event)" onEditEvent="onEdit(event)"
+                                    onGiveUpEvent="onGiveUp(event);"
+                    />
+            <s:Spacer width="95%"/>
+        </mx:ApplicationControlBar>
+
+
+        <mx:VBox width="100%" height="100%" styleName="rolecontentHbox" id="myBorder">
+            <mx:VBox width="100%" height="30%" styleName="content">
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="权限编码" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_ccode" height="100%" text="{this.tre_authcontent.selectedItem.@ccode}"
+                                  styleName="contentTextInput"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label text="权限名称" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_cname"
+                                  text="{this.tre_authcontent.selectedItem.@cname}" styleName="contentTextInput"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="权限参数" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_coperauth" styleName="contentTextInput"
+                                  text="{this.tre_authcontent.selectedItem.@coperauth}"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="是否启用" styleName="contentLabel"/>
+                    <mx:CheckBox id="chbx_buse" selected="{String(this.tre_authcontent.selectedItem.@buse)=='true'}"/>
+                </mx:HBox>
+                <mx:HRule width="100%"/>
+                <mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+                    <mx:Label height="100%" text="备注" styleName="contentLabel"/>
+                    <mx:TextInput id="tnp_cmemo" styleName="contentTextInput"
+                                  text="{this.tre_authcontent.selectedItem.@cmemo}"/>
+                </mx:HBox>
+            </mx:VBox>
+        </mx:VBox>
+    </mx:VBox>
+</mx:HDividedBox>

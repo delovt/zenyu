@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         height="18" backgroundColor="#C0E0F8" backgroundAlpha="0"
+         horizontalGap="5" verticalAlign="middle" paddingLeft="4"
+         width="100%" mouseOver="mouseOverHandler(event)" mouseOut="mouseOutHandler(event)"
+         click="openListView()">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.containers.VBox;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.frameui.formopt.OperDataAuth;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+        import yssoft.vos.ListclmVo;
+        import yssoft.vos.ListsetVo;
+
+        //权限相关
+        private var authSql:String;
+        private var auth:OperDataAuth;
+
+        private var acListsetVo:ListsetVo;
+
+        [Bindable]
+        private var itemNumber:int;
+
+        private var _itemObj:Object;
+
+        public function get itemObj():Object {
+            return _itemObj;
+        }
+
+        public function set itemObj(value:Object):void {
+            _itemObj = value;
+            if (value) {
+                getListSet();
+            }
+        }
+
+        public function openListView():void {
+            var parmString:String = "ifuncregedit:" + itemObj.ifuncregedit + ",ctable:" + itemObj.ctable + ",outifuncregedit:"
+                    + itemObj.outifuncregedit + ",outtitle:" + itemObj.outtitle + ",formTriggerType:fromWarn,ilistcd:" + itemObj.ilistcd;
+
+            var parmobj:Object = new Object();
+            parmobj = CRMtool.getObject(parmString);
+            parmobj.relatedSql = itemObj.csql;
+
+            CRMtool.openMenuItemFormOther("yssoft.comps.frame.FrameworkVBoxView", parmobj, itemObj.title, "");
+        }
+
+        private function getListSet():void {
+            var acListclmVo:ListclmVo = new ListclmVo();
+
+            acListclmVo.ilist = int(itemObj.ifuncregedit);
+            acListclmVo.iperson = CRMmodel.userId;
+            AccessUtil.remoteCallJava("ACListsetDest", "getListset", getListSetBack, acListclmVo, null, false);
+        }
+
+        private function getListSetBack(event:ResultEvent):void {
+
+            acListsetVo = event.result.acListsetVo as ListsetVo;
+            if (acListsetVo) {
+                if (acListsetVo.ifuncregedit == itemObj.ifuncregedit) {
+                    //加载完毕列表sql之后，加载权限。
+                    getAuth();
+                } else {
+                    acListsetVo = null;
+                }
+            }
+
+        }
+
+        private function getAuth():void {
+            auth = new OperDataAuth();
+            //****注操作权限功能注册内码分开，数据权限功能注册内码以单据为准****//
+            //---------------加载操作权限 刘磊 20111014 begin---------------//
+            var params:Object = new Object();
+            params.ifuncregedit = itemObj.ifuncregedit;
+            params.iperson = CRMmodel.userId;
+            auth.get_funoperauth(params);
+            //---------------加载操作权限 刘磊 20111014 end---------------//
+
+            //---------------加载数据权限 刘磊 20111015 begin---------------//
+            auth.addEventListener("onGet_FundataauthSucess", setcondition);
+            var params2:Object = new Object();
+            params2.ifuncregedit = itemObj.outifuncregedit;
+            params2.iperson = CRMmodel.userId;
+            auth.get_fundataauth(params2);
+            //---------------加载数据权限 刘磊 20111015 end---------------//
+        }
+
+        //获得数据权限条件串
+        private function setcondition(evt:Event):void {
+            if (itemObj.outifuncregedit == null || itemObj.ctable == null)
+                return;
+
+            authSql = auth.getdataauthcondition("01", itemObj.outifuncregedit, CRMmodel.userId, CRMmodel.hrperson.idepartment, itemObj.ctable, 1);
+
+            var sql:String = "select count(*) as count from (" + acListsetVo.csql1 + ")" + itemObj.ctable + " where 1=1 " + authSql + itemObj.csql;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", getNumBack, sql, null, false);
+        }
+
+        private function getNumBack(event:ResultEvent):void {
+            var eventAC:ArrayCollection = event.result as ArrayCollection;
+
+            if (this.owner)
+                this.owner.dispatchEvent(new Event("warnItemComplete"));
+
+            itemNumber = eventAC[0].count as int;
+            if (parent != null && itemNumber == 0)
+                (parent as VBox).removeChild(this);
+        }
+
+        private function mouseOverHandler(event:MouseEvent):void {
+            this.setStyle("backgroundAlpha", "1");
+        }
+
+        private function mouseOutHandler(event:MouseEvent):void {
+            this.setStyle("backgroundAlpha", "0");
+        }
+        ]]>
+	</fx:Script>
+
+    <s:Image source="@Embed(source='/yssoft/assets/images/icon2.png')"/>
+    <s:Label text="{itemObj.cname}" fontSize="12" width="100%" maxDisplayedLines="1"
+             toolTip="{itemObj.cname}"/>
+    <s:Label text="{itemNumber}" color="#ff8100" paddingRight="7"/>
+</mx:HBox>

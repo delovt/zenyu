@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:comps="yssoft.comps.*"
+		   xmlns:renders="yssoft.renders.*"
+		   width="100%" height="100%"  verticalGap="0">
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.getQualifiedClassName;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.TileList;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.evts.EventDispatcherFactory;
+			import yssoft.evts.TwitterEvent;
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.tools.DateUtil;
+			import yssoft.views.twitter.TwitterMainView;
+			import yssoft.vos.TwitterVo;
+			
+			[Bindable]
+			public var headerIcon:Object=ConstsModel.wf_inodetype_0;
+			
+			[Bindable]
+			public var obj:Object = new Object();
+
+			[Bindable]
+			override public function set data(value:Object):void{
+				super.data=value;
+				if(data != null && data.hasOwnProperty("imaker")){
+//					Alert.show(""+data.imaker);
+					loadUserHeaderIcon(data.imaker);	
+				}
+			}
+			
+//			
+//			protected function linkbutton1_clickHandler():void
+//			{
+//				//				//this.owner. = "list";
+//				//				Alert.show(""+flash.utils.getQualifiedClassName(this.owner));
+//				//				if((this.owner as TileList).owner && (this.owner as TileList).owner is TwitterMainView ){
+//				//					((this.owner as TileList).owner as TwitterMainView).currentState="list";
+//				//				}
+//				//EventDispatcherFactory.getEventDispatcher().dispatchEvent(new TwitterEvent(TwitterEvent.onMainViewRender2ListClick));
+//				obj.ccode = data.ccode;
+//				
+//				EventDispatcherFactory.getEventDispatcher().dispatchEvent(new TwitterEvent(TwitterEvent.onMainViewRender2ListClick, obj) );
+//			}	
+			
+			/**
+			 * 根据用户iid 来获取头像
+			 */
+			private function loadUserHeaderIcon(iid:int):void{
+				if(iid <=0 ){
+					return;
+				}
+/* 				if(CRMmodel.userId == iid){
+					headerImage.source=CRMmodel.headerIcon;
+					return;
+				} */
+				//headerIcon=ConstsModel.wf_inodetype_0;
+				var param:Object={};
+				param.fileName=""+iid;
+				param.fileType="jpg";
+				param.downType="0";
+				AccessUtil.remoteCallJava("FileDest","downFile",loadHeaderIconCallBack,param,"图片下载中...",false);
+			}
+			private function loadHeaderIconCallBack(event:ResultEvent):void{
+				if(event.result){
+					try{
+						var ba:ByteArray=event.result as ByteArray;
+						var loader:Loader = new Loader();
+						loader.contentLoaderInfo.addEventListener(Event.COMPLETE,function(event:Event):void{
+							var sourceBMP:Bitmap = event.currentTarget.loader.content as Bitmap;
+							headerIcon=sourceBMP;
+						});
+						loader.loadBytes(ba);
+					}catch(e:Error){
+						Alert.show("---获取头像出错---");
+					}
+				}
+			}
+			
+			protected function initializeHandler():void
+			{
+				if(data != null && data.hasOwnProperty("imaker")){
+					loadUserHeaderIcon(data.imaker);	
+				}
+			}
+			
+			protected function linkbutton1_clickHandler(event:MouseEvent):void
+			{
+				obj.twitterIid = data.iid;
+				obj.itype = data.itype;
+				
+				EventDispatcherFactory.getEventDispatcher().dispatchEvent(
+					new TwitterEvent(TwitterEvent.onListViewItemClick, obj) );
+			}
+			
+			protected function addCream_clickHandler(event:MouseEvent):void
+			{
+				CRMtool.showAlert("确定置为精华帖？", null, "AFFIRM", this, "addCreamTwitter");
+			}
+			
+			public function addCreamTwitter():void{
+				AccessUtil.remoteCallJava("TwitterDest","addCream_twitter",onAddCreamBack, data.iid );
+			}
+			
+			private function onAddCreamBack(evt:ResultEvent):void{
+				if( evt.result.toString()!="failed")
+				{
+					CRMtool.tipAlert(ConstsModel.TWITTER_UPDATE_SUCCESS_INFO);
+					EventDispatcherFactory.getEventDispatcher().dispatchEvent(
+						new TwitterEvent(TwitterEvent.onListViewRefresh) );
+					EventDispatcherFactory.getEventDispatcher().dispatchEvent(
+						new TwitterEvent(TwitterEvent.onMainViewRefresh) );
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.TWITTER_UPDATE_FAILED_INFO);
+				}
+			}
+			
+			protected function delete_clickHandler(event:MouseEvent):void
+			{
+				CRMtool.showAlert("确定删帖？", null, "AFFIRM", this, "deleteTwitter");
+			}
+			
+			public function deleteTwitter():void{
+				
+				//begin 删除富文本图片
+				var imagesForDelObj:Object = new Object();
+				var imagesForDelNew:ArrayCollection = new ArrayCollection();
+				if( CRMtool.isStringNotNull(data.cdetail) ) {
+					imagesForDelNew.addItem(data.cdetail);	
+					var sql:String = "select cdetail from  OA_twitters where itwitter="+data.iid;
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+						if(event.result&&(event.result as ArrayCollection).length>0){
+							var resultArr:ArrayCollection = event.result as ArrayCollection;
+							for(var i:int; i < resultArr.length; i++) {
+								imagesForDelNew.addItem(resultArr[i]);
+							}							
+						}
+						if(imagesForDelNew.length > 0) {
+							imagesForDelObj.imagesForDelNew = imagesForDelNew;
+							var status:ArrayCollection = new ArrayCollection();
+							var object:String = "delete";
+							status.addItem(object);
+							imagesForDelObj.status = status;
+							AccessUtil.remoteCallJava("FileDest","deleteImage",null,imagesForDelObj,"",false);
+						}
+						//删除图片后在删贴
+						AccessUtil.remoteCallJava("TwitterDest","deleteTwitter",onDeleteBack, data.iid );
+						imagesForDelNew.removeAll();
+					},sql,"",false);
+				}
+				
+				//end
+			}
+			
+			private function onDeleteBack(evt:ResultEvent):void{
+				if( evt.result.toString()!="failed")
+				{
+					CRMtool.tipAlert(ConstsModel.TWITTER_DELETE_SUCCESS_INFO);
+					EventDispatcherFactory.getEventDispatcher().dispatchEvent(
+						new TwitterEvent(TwitterEvent.onListViewRefresh) );
+					EventDispatcherFactory.getEventDispatcher().dispatchEvent(
+						new TwitterEvent(TwitterEvent.onMainViewRefresh) );
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.TWITTER_DELETE_FAILED_INFO);
+				}
+			}
+			
+			protected function reIssue_clickHandler(event:MouseEvent):void
+			{
+				CRMtool.showAlert("确定重新发布？", null, "AFFIRM", this, "reIssueTwitter");
+			}
+			
+			public function reIssueTwitter():void{
+				AccessUtil.remoteCallJava("TwitterDest","reIssue_twitter",onReIssueBack, data.iid );
+			}
+			
+			private function onReIssueBack(evt:ResultEvent):void{
+				if( evt.result.toString()!="failed")
+				{
+					CRMtool.tipAlert(ConstsModel.TWITTER_UPDATE_SUCCESS_INFO);
+					EventDispatcherFactory.getEventDispatcher().dispatchEvent(
+						new TwitterEvent(TwitterEvent.onListViewRefresh) );
+					EventDispatcherFactory.getEventDispatcher().dispatchEvent(
+						new TwitterEvent(TwitterEvent.onMainViewRefresh) );
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.TWITTER_UPDATE_FAILED_INFO);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+
+	<mx:HBox width="100%" height="100%">
+		<mx:Image id="headerImage" source="{headerIcon}" width="60" height="60" click="linkbutton1_clickHandler(event)"  buttonMode="true"/>
+			
+		<mx:VBox width="100%" height="100%">
+			<mx:HBox width="100%" height="100%">
+				<mx:LinkButton  fontWeight="bold" styleName="LinkButtonnew" textAlign="left" label="{data.typeName + '：'  + data.cname}" click="linkbutton1_clickHandler(event)" />
+			</mx:HBox>
+			
+			<mx:HBox width="100%" height="100%">
+				<mx:HBox width="100%" height="100%" horizontalAlign="left">
+					<mx:LinkButton  buttonMode="false"  styleName="noskin" textAlign="left" label="{data.iname+DateUtil.formateDate( data.dmaker )}" />
+				</mx:HBox>
+				
+				<mx:HBox width="100%" height="100%" horizontalAlign="center">
+					<mx:Button id="addCream" label="置精华帖" visible="{ (data.auth>0) &amp;&amp; (data.bpopclassic==false)}" click="addCream_clickHandler(event)" />
+					<mx:Button id="delete" label="删除" visible="{ data.auth>0 }" click="delete_clickHandler(event)" />
+					<mx:Button id="reIssue" label="重新发布" visible="{ (data.imaker == CRMmodel.userId) &amp;&amp; (data.istatus == 0) }" 
+							   click="reIssue_clickHandler(event)"  />
+				</mx:HBox>
+				
+				<mx:HBox width="100%" height="100%" horizontalAlign="right" horizontalGap="10">
+					<mx:Text text="{'回复/查看： '+data.ibrowse+ '/' +data.iread}" />
+					<mx:Text text="{'最后回复： '+data.smaker + ' ' + DateUtil.formateDate( data.dwriteback ) }" />
+					
+				</mx:HBox>
+			</mx:HBox>
+				
+
+		</mx:VBox>
+	</mx:HBox>
+	
+	<mx:HRule width="100%" />
+		
+	
+</mx:VBox>

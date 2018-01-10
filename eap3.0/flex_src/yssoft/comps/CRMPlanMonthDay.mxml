@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" fontFamily="Times New Roman" fontWeight="bold" horizontalAlign="center" creationComplete="hbox1_creationCompleteHandler(event)"
+		 verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
+	<fx:Metadata>
+		[Event(name="selectChange",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.DateField;
+			import mx.events.ChildExistenceChangedEvent;
+			import mx.events.FlexEvent;
+			import mx.events.IndexChangedEvent;
+			import mx.events.ItemClickEvent;
+			
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.CRMtool;
+			//选中色
+			public var selcolor:int=0xFFFF00;
+			//背景色
+			public var backcolor:int=0xFFFFFF;
+			//当前日期
+			public var curdate:Date=new Date();
+			//当前年
+			public var curyear:int=curdate.fullYear;
+			//当前月
+			public var curmonth:int=curdate.month+1;
+			//当前日
+			public var curday:int=curdate.date;
+			//选中日索引
+			public var selindex:int;
+			//选中月
+			public var selmonth:String=curmonth.toString();
+			//选中日
+			public var selday:String=curday.toString();
+			
+			//上一次选中日
+			public var preSelday:String;
+			
+			//选中月天数
+			public var selmonthdays:int;
+			//选中年月日
+			[Bindable]
+			public var bindyearmonthday:String;
+			[Bindable]
+			private var _selmonthday:String;
+			public function get selmonthday():String
+			{
+				return _selmonthday;
+			}
+			public function set selmonthday(value:String):void
+			{
+				_selmonthday=value;
+				this.dispatchEvent(new Event("selectChange"));
+			}
+			[Bindable]
+			public var arr:ArrayCollection=new ArrayCollection([{label:"month1",oper:"lnk_month1"},
+				{label:"month2",oper:"lnk_donth2"},{label:"<",oper:"lnk_lt"},{label:"1",oper:"lnk_d1"},
+				{label:"2",oper:"lnk_d2"},{label:"3",oper:"lnk_d3"},{label:"4",oper:"lnk_d4"},
+				{label:"5",oper:"lnk_d5"},{label:"6",oper:"lnk_d6"},{label:"7",oper:"lnk_d7"},
+				{label:"8",oper:"lnk_d8"},{label:"9",oper:"lnk_d9"},{label:"10",oper:"lnk_d10"},
+				{label:"11",oper:"lnk_d11"},{label:"12",oper:"lnk_d12"},{label:"13",oper:"lnk_d13"},
+				{label:"14",oper:"lnk_d14"},{label:"15",oper:"lnk_d15"},{label:"16",oper:"lnk_d16"},
+				{label:"17",oper:"lnk_d17"},{label:"18",oper:"lnk_d18"},{label:"19",oper:"lnk_d19"},
+				{label:"20",oper:"lnk_d20"},{label:"21",oper:"lnk_d21"},{label:"22",oper:"lnk_d22"},
+				{label:"23",oper:"lnk_d23"},{label:"24",oper:"lnk_d24"},{label:"25",oper:"lnk_d25"},
+				{label:"26",oper:"lnk_d26"},{label:"27",oper:"lnk_d27"},{label:"28",oper:"lnk_d28"},
+				{label:"29",oper:"lnk_d29"},{label:"30",oper:"lnk_d30"},{label:"31",oper:"lnk_d31"},
+				{label:">",oper:"lnk_rt"},	{label:"month3",oper:"lnk_donth3"},{label:"month4",oper:"lnk_donth4"}]);
+
+			
+/* 			//选中日更新颜色
+			public function setLnkBackColor(lnkbtn:LinkButton,color:int):void
+			{
+				lnkbtn.graphics.beginFill(color);   
+				var len:int=lnkbtn.label.length;
+				var x:int=(len==1?lnkbtn.height-lnkbtn.height/1.75:lnkbtn.height-lnkbtn.height/1.8);
+				lnkbtn.graphics.drawCircle(x, lnkbtn.height/2, lnkbtn.height/3);   
+				lnkbtn.graphics.endFill();
+			} */
+			
+			//获得选中月天数
+			public function GetSelMonthDays(month:int):int
+			{
+				return CRMtool.getMonthDays(curyear,month);
+			}
+			
+			//单独更新月天数
+			public function RefreshMonthDays():void
+			{
+				this.selmonthdays=this.GetSelMonthDays(int(this.selmonth));
+				for each (var item:Object in arr) 
+				{
+					var s:String=item.label;
+					var i:int=arr.getItemIndex(item);
+					var cur:LinkButton=this.lnk_tool.getChildAt(i) as LinkButton;
+					if (!isNaN(Number(s)) && s.length==2)
+					{
+							cur.width=21;
+							if (int(s)>this.selmonthdays)
+							{
+								cur.width=0;
+							}
+					} 
+				}
+			}
+			
+			//刷新工具栏格式
+			public function RefreshStyle():void
+			{
+				this.selmonthdays=this.GetSelMonthDays(this.curmonth);
+
+				for each (var item:Object in arr) 
+				{
+					var s:String=item.label;
+					var i:int=arr.getItemIndex(item);
+					var cur:LinkButton=this.lnk_tool.getChildAt(i) as LinkButton;
+					cur.setStyle("textAlign","center");
+					cur.setStyle("paddingLeft",0);
+					cur.setStyle("paddingRight",0);
+					if (s.indexOf("月")>-1)
+					{
+						cur.setStyle("color","black");
+						if (s.length<3)
+						{
+							cur.width=34;
+						}
+						else
+						{
+							cur.width=46;
+						}
+						cur.setStyle("paddingRight","2.5");
+					}
+	 				else
+					{
+						if (s.length<2)
+						{
+							cur.width=15;
+						}
+						else
+						{
+							    cur.width=21;
+								if (int(s)>this.selmonthdays)
+								{
+									cur.width=0;
+									
+								}
+						}
+					} 
+					if (this.GetLowNumber(s)==curmonth.toString())
+					{
+						cur.setStyle("textDecoration","underline");
+					}
+					var lnkmonth1:LinkButton=this.lnk_tool.getChildAt(0) as LinkButton;
+					var lnkmonth2:LinkButton=this.lnk_tool.getChildAt(1) as LinkButton;
+					var lnkmonth3:LinkButton=this.lnk_tool.getChildAt(35) as LinkButton;
+					var lnkmonth4:LinkButton=this.lnk_tool.getChildAt(36) as LinkButton;
+					if ((Number(this.GetLowNumber(lnkmonth1.label))==curmonth||Number(this.GetLowNumber(lnkmonth2.label))==curmonth||
+						Number(this.GetLowNumber(lnkmonth3.label))==curmonth||Number(this.GetLowNumber(lnkmonth4.label))==curmonth) 
+						&& s ==curday.toString())
+					{
+						cur.setStyle("textDecoration","underline");
+					}
+				}
+			}
+			
+			
+			//根据输入月参数值,更新月工具栏
+			public function RefreshMonth(curmonth:int):void
+			{
+				var month1:Object=arr.getItemAt(0);
+				var month2:Object=arr.getItemAt(1);
+				var month3:Object=arr.getItemAt(35);
+				var month4:Object=arr.getItemAt(36);
+
+				if (curmonth<11)
+				{
+					if (curmonth>1)
+					{
+					   month1.label=this.GetUpNumber(String(curmonth-1));
+					}
+					else
+					{
+						month1.label=this.GetUpNumber(String(12));
+					}
+					month2.label=this.GetUpNumber(String(curmonth));
+				    month3.label=this.GetUpNumber(String(curmonth+1));
+				    month4.label=this.GetUpNumber(String(curmonth+2));
+			    }
+				else
+				{
+					month1.label=this.GetUpNumber(String(curmonth-1));
+					month2.label=this.GetUpNumber(String(curmonth)); 
+					month3.label=this.GetUpNumber(String(curmonth%12+1));
+					month4.label=this.GetUpNumber(String((curmonth+1)%12+1));
+				}
+				arr.setItemAt(month1,0);
+				arr.setItemAt(month2,1);
+				arr.setItemAt(month3,35);
+				arr.setItemAt(month4,36);
+			}
+			
+			//数字小写转大写
+			public function GetUpNumber(num:String):String
+			{
+				var upnum:String;
+				switch(num)
+				{
+					case "1":
+					{
+						
+						upnum = "一";
+						break;
+					}
+					case "2":
+					{
+						
+						upnum = "二";
+						break;
+					}
+					case "3":
+					{
+						upnum = "三";
+						break;
+					}
+					case "4":
+					{
+					
+						upnum = "四";
+						break;
+					}
+					case "5":
+					{
+						upnum = "五";
+						break;
+					}
+					case "6":
+					{
+						upnum = "六";
+						break;
+					}
+					case "7":
+					{
+						upnum = "七";
+						break;
+					}
+					case "8":
+					{
+						upnum = "八";
+						break;
+					}
+					case "9":
+					{
+						upnum = "九";	
+						break;
+					}
+					case "10":
+					{
+						upnum = "十";
+						break;
+					}
+					case "11":
+					{
+						upnum = "十一";	
+						break;
+					}
+					case "12":
+					{
+						upnum = "十二"
+						break;
+					}
+				}	
+				return upnum+"月";
+			}
+			
+			//数字大写转小写
+			public function GetLowNumber(num:String):String
+			{
+				var lownum:String;
+				switch(num.replace("月",""))
+				{
+					case "一":
+					{
+						
+						lownum = "1";
+						break;
+					}
+					case "二":
+					{
+						
+						lownum = "2";
+						break;
+					}
+					case "三":
+					{
+						lownum = "3";
+						break;
+					}
+					case "四":
+					{
+						
+						lownum = "4";
+						break;
+					}
+					case "五":
+					{
+						lownum = "5";
+						break;
+					}
+					case "六":
+					{
+						lownum = "6";
+						break;
+					}
+					case "七":
+					{
+						lownum = "7";
+						break;
+					}
+					case "八":
+					{
+						lownum = "8";
+						break;
+					}
+					case "九":
+					{
+						lownum = "9";	
+						break;
+					}
+					case "十":
+					{
+						lownum = "10";
+						break;
+					}
+					case "十一":
+					{
+						lownum = "11";	
+						break;
+					}
+					case "十二":
+					{
+						lownum = "12"
+						break;
+					}
+				}	
+				return lownum;
+			}
+			
+			public function hbox1_creationCompleteHandler(event:FlexEvent=null):void
+			{
+			    RefreshMonth(curmonth);
+			}
+			
+			protected function lnk_tool_childAddHandler(event:ChildExistenceChangedEvent):void
+			{
+				if (lnk_tool.getChildren().length==37)
+				{
+					RefreshStyle();
+					setSelMonthDay();
+				}
+			}
+			
+			protected function lnk_tool_itemClickHandler(event:ItemClickEvent):void
+			{
+				var cur:LinkButton=this.lnk_tool.getChildAt(this.lnk_tool.selectedIndex) as LinkButton;
+				if (isNaN(Number(cur.label)) && cur.label.length>1)
+				{
+					this.RefreshMonth(int(this.GetLowNumber(arr.getItemAt(this.lnk_tool.selectedIndex).label)));
+				}
+				
+				setSelMonthDay();
+				
+				for each (var item:LinkButton in this.lnk_tool.getChildren()) 
+				{
+					if (!isNaN(Number(event.label))&&item.label.indexOf("月")==-1)
+					{
+							if (event.label==item.label)
+							{
+								item.setStyle("color","blue");
+							}
+							else
+							{
+								item.setStyle("color","gray");
+							}
+					}
+				}
+			}
+			
+			protected function linkbutton1_clickHandler(event:MouseEvent):void
+			{
+				if (arr.getItemAt(35).label=="一月") return;
+			    this.RefreshMonth(Number(this.GetLowNumber(arr.getItemAt(1).label))+1);
+				setSelMonthDay();
+			}
+			
+			protected function linkbutton2_clickHandler(event:MouseEvent):void
+			{
+				if (arr.getItemAt(0).label=="一月") return;
+				this.RefreshMonth(Number(this.GetLowNumber(arr.getItemAt(1).label))-1);
+				setSelMonthDay();
+			}
+			
+			public function setSelMonthDay():void
+			{
+				if (arr.getItemAt(1).label.indexOf("month")>-1)
+				{
+					selmonth=curmonth.toString();
+				}
+				else
+				{
+					selmonth=this.GetLowNumber(arr.getItemAt(1).label);
+				}
+				selday=curday.toString();
+				if (this.lnk_tool.selectedIndex>2 && this.lnk_tool.selectedIndex<37)
+				{
+					var label:String=arr.getItemAt(this.lnk_tool.selectedIndex).label;
+					if (!isNaN(Number(label)))
+					{
+					  selday=label;
+					  preSelday = label; //sdy add
+					}
+				}
+				
+				/** SDY add***/
+				if(preSelday == "0" || preSelday==null){
+					preSelday = selday
+				}
+				
+				if(this.lnk_tool.selectedIndex > -1){
+					if( arr.getItemAt(this.lnk_tool.selectedIndex).label == ">" )
+					{	
+						if(Number(preSelday) <= Number(arr[arr.length - 5].label) )
+						{
+							selday = (Number(preSelday)+1)+"";
+							preSelday = selday;
+						}
+					}
+					else if( arr.getItemAt(this.lnk_tool.selectedIndex).label == "<" )
+					{
+						if(Number(preSelday)  >1 )
+						{
+							selday = (Number(preSelday)-1)+"";
+							preSelday = selday;
+						}
+					}
+					selday = preSelday;
+				}
+				
+				/** end **/
+				
+				
+				
+				this.selmonthday=selmonth+"月"+selday+"日";
+				try
+				{
+				   RefreshMonthDays();
+				}
+				catch(err)
+				{}
+				this.bindyearmonthday=this.curyear.toString()+"年"+this.selmonthday;
+			}
+			
+			protected function linkbutton3_clickHandler(event:MouseEvent):void
+			{
+				this.RefreshMonth(this.curmonth);
+				try
+				{
+					(this.lnk_tool.getChildAt(1) as LinkButton).setStyle("textDecoration","underline");
+				}
+				catch(err)
+				{
+					//mx.controls.Alert.show(err);
+				}
+				setSelMonthDay();
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:LinkButton width="34" label="本日" click="linkbutton3_clickHandler(event)" fontSize="11"
+				   paddingLeft="0" paddingRight="2" textAlign="center"/>
+	<mx:LinkButton icon="{ConstsModel.leftarrow}" width="20" click="linkbutton2_clickHandler(event)" paddingLeft="0" paddingRight="0"/>
+	<mx:HBox borderStyle="solid" verticalGap="0" horizontalGap="0" verticalAlign="middle" paddingLeft="10" paddingRight="10" paddingBottom="-6" paddingTop="-6" cornerRadius="12">
+		<mx:LinkBar id="lnk_tool" childAdd="lnk_tool_childAddHandler(event)" color="gray"
+					dataProvider="{arr}" horizontalGap="0" paddingLeft="0" paddingRight="0"
+					separatorWidth="0" verticalGap="0"  itemClick="lnk_tool_itemClickHandler(event)" fontSize="11">
+		</mx:LinkBar>
+	</mx:HBox>
+	<mx:LinkButton icon="{ConstsModel.rightarrow}" width="20" click="linkbutton1_clickHandler(event)" paddingLeft="0" paddingRight="0"/>
+</mx:HBox>

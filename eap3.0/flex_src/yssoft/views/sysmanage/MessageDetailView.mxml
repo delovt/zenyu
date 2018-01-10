@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" title="详细信息" close="close()" width="500" height="500"
+                        creationComplete="init()" xmlns:comps="yssoft.comps.*"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.events.ModelChange;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.vos.HrPersonVo;
+			
+			public var rightList:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var leftContent:Object = new Object();
+			
+			private function init():void
+			{
+			}
+
+		]]>
+	</fx:Script>
+	<basic:layout>
+		<s:VerticalLayout gap="0" paddingLeft="10"  paddingTop="10" paddingRight="10" paddingBottom="10"/>
+	</basic:layout>
+	
+	<mx:VBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+		<mx:VBox width="99%" height="98%" backgroundColor="white">
+			<mx:VBox width="100%" height="100%">
+				
+				<mx:Grid width="100%" height="100%">
+					<mx:GridRow width="100%">
+						<mx:GridItem  horizontalAlign="center" width="100%">
+							<mx:VBox>
+								<s:Spacer height="8" />
+								<s:Label id="titlename"  text="消息通知" color="red" fontSize="14" fontWeight="bold" height="20"/>
+							</mx:VBox>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow width="100%" height="26">
+						<mx:GridItem>
+							<mx:HBox width="100%" height="24" horizontalAlign="center" verticalAlign="bottom" >
+								<s:Label id="typename" text="{leftContent.funname}" color="#7594D6"/>
+								<s:Label   text="发起人:"  /> <s:Label id="pcname"  text="{leftContent.cname}"  />
+								<s:Label   text="发布时间:"  /> <s:Label id="dmaker"  text="{leftContent.dsend}"  />
+							</mx:HBox>
+						</mx:GridItem>
+						
+					</mx:GridRow>
+					
+					<mx:GridRow width="100%">
+						<mx:GridItem width="100%">
+							<comps:CrmDotLine width="100%" />
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow width="100%" height="100%" >
+						<mx:GridItem width="100%"> 
+							
+							<mx:TextArea id="content" width="100%" height="100%" text="{leftContent.cdetail}" borderVisible="false" styleName="contentTextInput" editable="false">	
+							</mx:TextArea>
+							
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+			</mx:VBox>
+				
+		</mx:VBox>
+	
+	</mx:VBox>
+</basic:BasicTitleWindow>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" label="关联录入" enabled="false"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" creationComplete="onCreationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.comps.NodeElement;
+			import yssoft.evts.FWFChangeEvent;
+			import yssoft.models.ConstsModel;
+			private var _ifuncregedit:int;
+			private var _inodeid:String;
+			
+			[Bindable]
+			public var nodeElement:NodeElement=new NodeElement();
+			
+			[Bindable]
+			public var _dd_items:ArrayCollection=new ArrayCollection(); // 原始的
+			
+			[Bindable]
+			public var items:ArrayCollection=new ArrayCollection();
+			
+			public function set dd_items(value:ArrayCollection):void{
+				this._dd_items=value;
+				items=ObjectUtil.copy(this._dd_items) as ArrayCollection;
+				items.filterFunction=itemsFilter;
+				items.refresh();
+			}
+			public function get dd_items():ArrayCollection{
+				return this._dd_items;
+			}
+			
+			public function set ifuncregedit(value:int):void{
+				this._ifuncregedit=value;
+			}
+			public function get ifuncregedit():int{
+				return this._ifuncregedit;
+			}
+			
+			public function set inodeid(value:String):void{
+				this._inodeid=value;
+			}
+			public function get inodeid():String{
+				return this._inodeid;
+			}
+			
+			private function itemsFilter(item:Object):Boolean{
+				if(item.hasOwnProperty("bwfentry") && item.bwfentry=="1"){
+					return true;
+				}
+				return false;
+			}
+			
+			private function onCreationCompleteHandler(event:FlexEvent):void
+			{
+				this.stage.addEventListener(FWFChangeEvent.SOURCEOBJECTCHANGE,onSourceChange);
+			}
+			
+			private var relats:ArrayCollection;
+			private function onSourceChange(event:FWFChangeEvent):void{
+				this.nodeElement=event.source as NodeElement;
+				
+				if(nodeElement.ipnodeid=="startnode"){
+					this.enabled=false;
+					return;
+				}
+				this.enabled=true;;
+				/* if(this.nodeElement.fwfentry.length==0){
+					relats=(this.owner as FWFPaintView).mainDraw.getNodeRelats(nodeElement.inodeid);
+					this.nodeElement.fwfentry=relats;
+				}else{ */
+					relats=this.nodeElement.fwfentry;
+				//}
+				
+				for each(var item:Object in items){
+					item.cvalue="";
+					for each(var relat:Object in relats){
+						if(String(relat.cfield)==String(item.cfield)){
+							item.cvalue=relat.cvalue;
+						}
+					}
+				}
+				entrydg.dataProvider=items;
+			}
+		]]>
+	</fx:Script>
+<!--	<mx:HBox horizontalAlign="right" width="100%">
+		<mx:LinkButton icon="{ConstsModel._ADDITIONICON}" toolTip="增行" width="18"/>
+		<mx:LinkButton icon="{ConstsModel._SUBTRACTIONICON}" toolTip="删行" width="18"/>
+		<mx:LinkButton icon="{ConstsModel._CLEARICON}"  toolTip="清空" width="18"/>
+	</mx:HBox>-->
+	<mx:DataGrid id="entrydg" width="100%" height="100%" draggableColumns="false" resizableColumns="false" showHeaders="false">
+		<mx:columns>
+			<mx:DataGridColumn dataField="ccaption" headerText="字段" width="65"/>
+			<mx:DataGridColumn dataField="cvalue" headerText="值" itemRenderer="yssoft.renders.FWFEntryRender"/>
+		</mx:columns>
+	</mx:DataGrid>
+</mx:VBox>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		

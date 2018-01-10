@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window:CRMwindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                  keyDown="onKeyDownHandler(event)"
+                  windowMove="titlewindow1_windowMoveHandler(event)" xmlns:window="yssoft.comps.window.*"
+                  myClose="onCloseHandler()"
+                  isReSize="false">
+    <fx:Script>
+        <![CDATA[
+        import mx.managers.PopUpManager;
+
+        import spark.events.TitleWindowBoundsEvent;
+
+        import yssoft.tools.CRMtool;
+
+        public var isBreakSubmit:Boolean = false;//是否确定关闭窗口时可以被打断的，如果被打断，那就由自己代码控制关闭窗口
+
+        protected function onCloseHandler():void {
+            this.dispatchEvent(new Event("onClose"));
+            PopUpManager.removePopUp(this);
+        }
+
+        public function close():void {
+            onCloseHandler();
+        }
+
+        public function open():void {
+            CRMtool.openView(this);
+        }
+
+        protected function onKeyDownHandler(event:KeyboardEvent):void {
+            if (event.keyCode == Keyboard.ESCAPE) {
+                onCloseHandler();
+            }
+            if (event.ctrlKey && event.keyCode == Keyboard.ENTER) {
+                onSubmit();
+            }
+        }
+
+        protected function onSubmit():void {
+            this.dispatchEvent(new Event("onSubmit"));
+            if (!isBreakSubmit)
+                PopUpManager.removePopUp(this);
+        }
+
+        //用户拖动窗口的响应
+        protected function titlewindow1_windowMoveHandler(event:TitleWindowBoundsEvent):void {
+            event.target.x = event.target.x < 0 ? 0 : event.target.x;
+            event.target.x = (event.target.x + event.target.width > event.target.parent.width) ?
+                    (event.target.parent.width - event.target.width) : event.target.x;
+            event.target.y = event.target.y < 0 ? 0 : event.target.y;
+            event.target.y = (event.target.y + event.target.height > event.target.parent.height) ?
+                    event.target.parent.height - event.target.height : event.target.y;
+        }
+        ]]>
+
+    </fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+</window:CRMwindow>

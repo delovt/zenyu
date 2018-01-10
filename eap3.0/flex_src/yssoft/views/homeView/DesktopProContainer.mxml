@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+				   borderVisible="false"
+				   creationComplete="myinit()">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.HomeViewPro;
+			
+			[Bindable]
+			private var desktopList:ArrayCollection = null;
+			
+			private var _ownerBox:HomeViewPro;
+			
+			public function get ownerBox():HomeViewPro
+			{
+				return _ownerBox;
+			}
+
+			public function set ownerBox(value:HomeViewPro):void
+			{
+				_ownerBox = value;
+			}
+
+			protected function myinit():void
+			{
+				AccessUtil.remoteCallJava("ExplorerDest","getDesktopList",getDesktopListBack,{iperson:CRMmodel.userId},null,false);				
+			}
+			
+			private function getDesktopListBack(event:ResultEvent):void{
+				desktopViewStack.removeAllChildren();
+				buttonBox.removeAllChildren();
+				
+				desktopList = event.result as ArrayCollection;
+				var i:int =1;
+				for each(var item:Object in desktopList){						
+					var button:SmartButton = new SmartButton();
+					button.typeid = 4;
+					button.text = i+"";
+					button.useHandCursor = true;
+					if(item.ccaption){
+						var ccaption:String = item.ccaption;
+						if(ccaption.search("双击编辑")==-1)
+							button.toolTip = item.ccaption;
+					}
+
+					var desktop:DesktopItemContainer = new DesktopItemContainer();
+					desktop.idesktop = item.iid;
+					desktop.desktopProContainer = this;
+					desktopViewStack.addChild(desktop);						
+					button.binadbleObj = desktop;							
+					
+					button.addEventListener(MouseEvent.CLICK,function(event:MouseEvent):void{
+						for each(var s:SmartButton in buttonBox.getChildren()){
+							s.selected = false;
+						}
+						(event.currentTarget as SmartButton).selected = true;
+						
+						desktopViewStack.selectedChild = (event.currentTarget as SmartButton).binadbleObj;
+						((event.currentTarget as SmartButton).binadbleObj as DesktopItemContainer).getData();
+					});
+					
+					buttonBox.addChild(button);
+					if(i==1)
+						button.dispatchEvent(new MouseEvent(MouseEvent.CLICK)); 
+					i++;
+				} 
+				
+				
+				
+				var cofigbutton:SmartButton = new SmartButton();
+				cofigbutton.typeid = 4;
+				cofigbutton.text = "*";
+				cofigbutton.toolTip = "桌面设置";
+				cofigbutton.useHandCursor = true;
+				cofigbutton.addEventListener(MouseEvent.CLICK,setDesktop_clickHandler);
+				buttonBox.addChild(cofigbutton);
+				
+				if(desktopList.length==0)
+					loadingText.text = "请单击屏幕下方的设置按钮，设置您的快捷桌面。";
+			}
+			
+			protected function setDesktop_clickHandler(event:MouseEvent):void
+			{
+				var editSmartDesktopTitleWindow:EditSmartDesktopTitleWindow =  new EditSmartDesktopTitleWindow();
+				editSmartDesktopTitleWindow.addEventListener("desktopChange",function(event:Event):void{
+					myinit();
+				});
+				CRMtool.openView(editSmartDesktopTitleWindow,true,this._ownerBox,false);			
+			}		
+			
+			public function refSubHome():void{
+				for each(var dic:DesktopItemContainer in desktopViewStack.getChildren()){
+					dic.refSubHome();
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+		<s:Label id="loadingText"  fontSize="40" text="正在加载桌面数据..." color="#c3c3c3"/>
+	</mx:VBox>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="0" horizontalAlign="center">
+		<mx:ViewStack id="desktopViewStack" width="100%" height="100%" />
+		<mx:HBox id="buttonBox"  paddingLeft="15" paddingRight="15" verticalAlign="bottom"/>
+	</mx:VBox>
+</s:BorderContainer>

@@ -1,0 +1,38 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：OA_workplan
+ * 创建人：刘磊
+ * 创建时间：2012-3-30 16:35:02
+ * 修改人：刘磊
+ * 修改时间：2012-3-30 16:35:02
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_OA_workplan" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,icorp,ifuncregedit,iinvoice,itype,iyear,imonth,iweek,iday,cname,cdetail,dbegin,dend,icustomer,ipriority,istatus,fcplrate,cfeedback,bpublic,bnomessage,imaker,dmaker,iifuncregedit from OA_workplan 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_OA_workplan" parameterClass="java.util.HashMap">
+            insert into OA_workplan(icorp,ifuncregedit,iinvoice,itype,iyear,imonth,iweek,iday,cname,cdetail,dbegin,dend,icustomer,ipriority,istatus,fcplrate,cfeedback,bpublic,bnomessage,imaker,dmaker,iifuncregedit) 
+            values (#icorp#,#ifuncregedit#,#iinvoice#,#itype#,#iyear#,#imonth#,#iweek#,#iday#,#cname#,#cdetail#,#dbegin#,#dend#,#icustomer#,#ipriority#,#istatus#,#fcplrate#,#cfeedback#,#bpublic#,#bnomessage#,#imaker#,#dmaker#,#iifuncregedit#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_OA_workplan" parameterClass="java.util.HashMap">
+            update OA_workplan set icorp=#icorp#,ifuncregedit=#ifuncregedit#,iinvoice=#iinvoice#,itype=#itype#,iyear=#iyear#,imonth=#imonth#,iweek=#iweek#,iday=#iday#,cname=#cname#,cdetail=#cdetail#,dbegin=#dbegin#,dend=#dend#,icustomer=#icustomer#,ipriority=#ipriority#,istatus=#istatus#,fcplrate=#fcplrate#,cfeedback=#cfeedback#,bpublic=#bpublic#,bnomessage=#bnomessage#,imaker=#imaker#,dmaker=#dmaker#,iifuncregedit=#iifuncregedit# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_OA_workplan" parameterClass="String">
+            delete from OA_workplan
+            where $condition$
+     </delete>
+</sqlMap>

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="280" height="340" mouseDownOutside="close()"
+                        isAllowMax="false" title="任务管理"
+                        creationComplete="vbox1_creationCompleteHandler(event)"
+                        show="vbox1_creationCompleteHandler(event)" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.containers.ViewStack;
+        import mx.controls.Alert;
+        import mx.controls.CheckBox;
+        import mx.controls.LinkButton;
+        import mx.events.FlexEvent;
+        import mx.events.FlexMouseEvent;
+        import mx.events.ListEvent;
+
+        import yssoft.frameui.FrameCore;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.CRMtool;
+
+        //YJ Add 用于关闭所有单据窗体
+        private var editcounter:int = 0;//编辑状态计数器
+        private var editMessage:String = "";//编辑弹出信息
+        private var alertMessage:String = "当前单据[";//弹出信息
+
+
+        [Bindable]
+        private var selectedItems:int = 1;
+        [Bindable]
+        private var sumItems:int = 0;
+
+        [Bindable]
+        private var _items:ArrayCollection = new ArrayCollection();
+
+        public function set items(value:ArrayCollection):void {
+            this._items = value;
+            if (value)
+                sumItems = value.length
+        }
+
+        public function get items():ArrayCollection {
+            return this._items;
+        }
+
+        public var viewStack:ViewStack;
+
+        private var _linkbar:CRMLinkBar;
+
+        public function set linkbar(value:CRMLinkBar):void {
+            this._linkbar = value;
+        }
+
+        private var _closeFun:Function;
+
+        public function set closeFun(value:Function):void {
+            this._closeFun = value;
+        }
+
+
+        public function selectedChange(event:Event):void {
+
+            var cb:CheckBox = (event.currentTarget as CheckBox);
+            var lb:String = cb.label;
+            setItemChecked(lb, cb.selected);
+
+            if (!cb.selected) {
+                selectedItems = selectedItems - 1;
+            } else {
+                selectedItems = selectedItems + 1;
+            }
+            sumItems = items.length;
+        }
+
+        private function setItemChecked(label:String, bool:Boolean = false):void {
+            for each(var item:Object in items) {
+                if (item.label == label) {
+                    item.checked = (bool ? "1" : "0");
+                    return;
+                }
+            }
+        }
+
+        private function alls_clickHandler():void {
+            onSelectedChange("1");
+        }
+
+        private function fxcs_clickHandler():void {
+            onSelectedChange("0");
+        }
+
+        private function fall_clickHandler():void {
+            var tpitems:int = 0;
+            for each(var item:Object in items) {
+                if (item.checked == "1") {
+                    item.checked = "0";
+                } else {
+                    item.checked = "1";
+                }
+                if (item.checked == "1") {
+                    tpitems = tpitems + 1;
+                }
+            }
+
+            tablist.dataProvider = items;
+            selectedItems = tpitems;
+            sumItems = items.length;
+        }
+
+        private function onSelectedChange(checked:String = "1"):void {
+            for each(var item:Object in items) {
+                item.checked = checked;
+            }
+            tablist.dataProvider = items;
+            if (checked == "1") {
+                selectedItems = items.length;
+            } else {
+                selectedItems = 0;
+            }
+            sumItems = items.length;
+        }
+
+        private function clsbt_clickHandler(event:MouseEvent):void {
+            if (this.viewStack == null) {
+                return;
+            }
+            var len:int = items.length - 1;
+            for (var i:int = len; i >= 0; i--) {
+                if (items.getItemAt(i).checked == "1") {
+
+                    if (items.getItemAt(i).label != "我的桌面") {
+
+                        closeAllWindowBefore(i);
+
+                    }
+
+                }
+            }
+
+            onCloseAllWindow();
+
+            //(this.owner as PopUpButton).close();
+            close();
+        }
+
+        //YJ Add 关闭所有打开单据
+        private function closeAllWindowBefore(index:int):void {
+
+            if (index < 0 || index > this.viewStack.numChildren - 1) {
+                return;
+            }
+
+            var child:Object = this.viewStack.getChildAt(index);
+
+            if (child is FrameCore) {
+
+                var editstate:Boolean = ((child as FrameCore).curButtonStatus == "onNew" || (child as FrameCore).curButtonStatus == "onEdit");
+
+                if (editstate) {//编辑状态
+
+                    editcounter++;
+                    editMessage += (this._linkbar.getChildAt(index) as LinkButton).label + ",";
+
+                }
+            }
+        }
+
+        private function onCloseAllWindow():void {
+
+            if (editcounter > 0)//存在编辑状态的单据
+            {
+                alertMessage += editMessage + "]正处在编辑状态，您确定关闭窗口？";
+
+                CRMtool.tipAlert1(alertMessage, null, "AFFIRM", function ():void {
+                    onCloseAllOpenWindow();
+                });
+            }
+            else {
+                onCloseAllOpenWindow();
+            }
+
+            editcounter = 0;
+            editMessage = "";
+            alertMessage = "当前单据[";
+        }
+
+        //真正关闭全部打开单据
+        private function onCloseAllOpenWindow():void {
+
+            var len:int = items.length - 1;
+            for (var i:int = len; i >= 0; i--) {
+                if (items.getItemAt(i).checked == "1") {
+                    if (items.getItemAt(i).label != "我的桌面" && items.getItemAt(i).label != "常用功能") {
+                        this.viewStack.removeChildAt(i);
+                    }
+                }
+            }
+        }
+
+
+        protected function vbox1_creationCompleteHandler(event:FlexEvent):void {
+            this.x = 8;
+            this.y = 84;
+            this.selectedItems = this.sumItems - 1;
+        }
+
+        protected function tablist_itemDoubleClickHandler(event:ListEvent):void {
+            this.viewStack.selectedIndex = this.tablist.selectedIndex;
+            this._linkbar.selectedIndex = this.tablist.selectedIndex;
+            //(this.owner as PopUpButton).close();
+
+            close();
+        }
+
+        //lr add
+        private function tablist_valueCommitHandler(event:FlexEvent):void {
+            sumItems = tablist.dataProvider.length;
+            var i:int = 0;
+            for each(var item:Object in tablist.dataProvider) {
+                if (item.checked == 1)
+                    i++;
+            }
+            selectedItems = i;
+        }
+
+        ]]>
+	</fx:Script>
+    <mx:VBox width="100%" height="100%"
+             verticalGap="0">
+        <mx:HBox width="100%" height="100%" backgroundColor="#ffffff" borderVisible="false">
+            <mx:List id="tablist" paddingLeft="7" width="100%" height="100%" dataProvider="{_items}"
+                     borderVisible="false"
+                     itemDoubleClick="tablist_itemDoubleClickHandler(event)" doubleClickEnabled="true"
+                     valueCommit="tablist_valueCommitHandler(event)">
+                <mx:itemRenderer>
+                    <fx:Component>
+                        <mx:CheckBox label="{data.label}" width="100%" selected="{data.checked=='1'?true:false}"
+                                     change="outerDocument.selectedChange(event)"/>
+                    </fx:Component>
+                </mx:itemRenderer>
+            </mx:List>
+        </mx:HBox>
+        <mx:HBox width="100%" height="32" verticalAlign="middle" paddingRight="5" paddingLeft="5"
+                 backgroundColor="{CRMmodel.basicColorArray[0]}">
+            <mx:Button id="alls" label="全选" click="alls_clickHandler()" color="#333333" width="55"/>
+            <mx:Button id="fxcs" label="全消" click="fxcs_clickHandler()" color="#333333" width="55"/>
+            <mx:Button id="fall" label="反选" click="fall_clickHandler()" color="#333333" width="55"/>
+            <s:Spacer width="100%"/>
+            <mx:Button id="clsbt" label="关闭选中" click="clsbt_clickHandler(event)" color="#333333"/>
+        </mx:HBox>
+    </mx:VBox>
+</basic:BasicTitleWindow>

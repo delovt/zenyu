@@ -1,0 +1,62 @@
+<html>
+
+<head>
+  <title>4.6. 客商、合同为何审核通过后，状态不改变呢  - 综合业务管理软件_百疑解答</title>
+  <meta http-equiv=Content-Type content="text/html; charset=gb2312">
+  <meta name="GENERATOR" content="Macrobject Word-2-CHM">
+  <link rel="stylesheet" href="Word2Chm.css" type="text/css">
+  <link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+
+<body lang=ZH-CN link=blue vlink=purple style='text-justify-trim:punctuation'>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td class="moHeader">&nbsp;6.7.客商、合同为何审核通过后，状态不改变呢？</td>
+    </tr>
+  </table>
+  
+  <p></p>
+
+<div class=Section1 style='layout-grid:15.6pt'>
+
+
+
+<div align=center>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr style='height:115.15pt'>
+  <td width=119 style='width:89.4pt;border:solid silver 1.0pt;border-right:
+  solid white 1.0pt;padding:0cm 5.4pt 0cm 5.4pt;height:115.15pt'>
+  <p class=MsoNormal><span lang=EN-US><img border=0 width=77 height=77
+  src="temp.files/image001.gif"></span></p>
+  </td>
+  <td width=449 valign=top style='width:337.0pt;border:solid silver 1.0pt;
+  border-left:none;padding:0cm 5.4pt 0cm 5.4pt;height:115.15pt'>
+  <p class=MsoNormal><b><span lang=EN-US style='color:#333399'>&nbsp;</span></b></p>
+  <p class=MsoNormal><b><span style='font-family:宋体;color:#0070C0'>客商、合同为何审核通过后，状态不改变呢？</span></b></p>
+  <p class=MsoNormal><b><span lang=EN-US style='color:#333399'>&nbsp;</span></b></p>
+  <p class=MsoNormal><span style='font-size:9.0pt;font-family:宋体'>需要从系统管理——流程设置，找到新建客商档案，打开改流程，点击最后一个节点，右边的关联执行，复制这段语句后保存</span></p>
+    <p class=MsoNormal><span style='font-size:9.0pt;font-family:宋体'>update cs_customer set istatus=1 where iid=@iid@ and '@wftype@'='处理'
+update cs_customer set istatus=0 where iid=@iid@ and '@wftype@'='撤销'</span></p>
+  <p class=MsoNormal><span style='font-size:9.0pt;font-family:宋体'>每个合同的操作也是同样，只是复制的语句不一样，合同的语句如下</span></p>
+    <p class=MsoNormal><span style='font-size:9.0pt;font-family:宋体'>update sc_order set istatus=1 where iid=@iid@ and '@wftype@'='处理'
+update sc_order set istatus=0 where iid=@iid@ and '@wftype@'='撤销'</span></p>
+  <p class=MsoNormal><span lang=EN-US style='font-size:9.0pt'>&nbsp;</span></p>
+  <p class=MsoNormal><span lang=EN-US style='font-size:9.0pt'>&nbsp;</span></p>
+  <p class=MsoNormal><span lang=EN-US style='font-size:9.0pt;color:#FFC000'>&nbsp;</span></p>
+  </td>
+ </tr>
+</table>
+
+</div>
+
+<p class=MsoNormal style='text-indent:21.0pt'><span lang=EN-US>&nbsp;</span></p>
+
+
+</div>
+  <p></p>
+
+</body>
+
+</html>

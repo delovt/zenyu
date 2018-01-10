@@ -1,0 +1,38 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!--
+ * 
+ * 项目名称：yssoft
+ * SqlMap表名：sa_quotation
+ * 创建人：刘磊
+ * 创建时间：2011-10-8 9:37:37
+ * 修改人：刘磊
+ * 修改时间：2011-10-8 9:37:37
+ * 修改备注：无
+ * @version 1.0
+ * 
+ -->
+<sqlMap>
+     <!--获得记录列表-->
+     <select id="get_bywhere_sa_quotation" parameterClass="String" resultClass="java.util.HashMap">
+            select iid,isourceregedit,isource,itype,ccode,icustomer,icustperson,ccustpersontel,ccustpersonfax,iperson,idepartment,cpersontel,ddate,citemcode,fsum,csum,cdelivery,cpayment,cmemo from sa_quotation 
+			where $condition$
+     </select>
+     <!--增加一条记录-->
+     <insert id="add_sa_quotation" parameterClass="java.util.HashMap">
+            insert into sa_quotation(isourceregedit,isource,itype,ccode,icustomer,icustperson,ccustpersontel,ccustpersonfax,iperson,idepartment,cpersontel,ddate,citemcode,fsum,csum,cdelivery,cpayment,cmemo) 
+            values (#isourceregedit#,#isource#,#itype#,#ccode#,#icustomer#,#icustperson#,#ccustpersontel#,#ccustpersonfax#,#iperson#,#idepartment#,#cpersontel#,#ddate#,#citemcode#,#fsum#,#csum#,#cdelivery#,#cpayment#,#cmemo#)
+            <selectKey resultClass="int" keyProperty="iid" > 
+  				select @@identity as iid
+	        </selectKey> 
+	 </insert>
+     <!--更新一条记录-->
+     <update id="update_sa_quotation" parameterClass="java.util.HashMap">
+            update sa_quotation set isourceregedit=#isourceregedit#,isource=#isource#,itype=#itype#,ccode=#ccode#,icustomer=#icustomer#,icustperson=#icustperson#,ccustpersontel=#ccustpersontel#,ccustpersonfax=#ccustpersonfax#,iperson=#iperson#,idepartment=#idepartment#,cpersontel=#cpersontel#,ddate=#ddate#,citemcode=#citemcode#,fsum=#fsum#,csum=#csum#,cdelivery=#cdelivery#,cpayment=#cpayment#,cmemo=#cmemo# 
+            where iid=#iid#
+     </update>
+     <!--删除记录列表-->
+     <delete id="delete_bywhere_sa_quotation" parameterClass="String">
+            delete from sa_quotation
+            where $condition$
+     </delete>
+</sqlMap>

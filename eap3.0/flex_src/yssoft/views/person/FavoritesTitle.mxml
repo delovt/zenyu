@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" title="我的收藏夹"
+                        creationComplete="getDepartmentTreeXml();" close="PopUpManager.removePopUp(this);" width="100%"
+                        height="100%" xmlns:comps="yssoft.comps.*" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			private var paramObj:Object;
+			
+			private var _ifuncregedit:int;
+			
+			private var parentForm:Object;
+			
+			public function set ifuncregedit(value:int):void
+			{
+				_ifuncregedit = value;
+			}
+			
+			[Bindable]
+			private var itemType:String=ConstsModel.ONDELETE_LABLE;
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 查询部门
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			public function getDepartmentTreeXml():void
+			{
+				var paramObj:Object = new Object();
+				paramObj.ifuncregedit =_ifuncregedit;
+				paramObj.iperson = CRMmodel.userId;
+				parentForm=this.owner;
+				AccessUtil.remoteCallJava("favoritesDest","getFavorites",getEpartmencallBackHandler,paramObj);
+			}
+			
+			private function getEpartmencallBackHandler(event:ResultEvent):void
+			{
+				/*	this.tnp_ilead.visibleIcon = false;
+				*/	if(event.result!=null)
+				{
+					var result:String = event.result as String;
+					this.tre_department.treeCompsXml = new XML(result);
+					CRMtool.toolButtonsEnabled(this.lbr_Department,null,this.tre_department.treeCompsXml.length());
+				}
+				else
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_Department,null,0);
+				}
+				
+				CRMtool.containerChildsEnabled(this.myBorder,false);
+				//回车替代TAB键
+				CRMtool.setTabIndex(this.myBorder);
+			}
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 保存节点
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			public function onSave(event:Event):void
+			{
+				paramObj = new Object();
+				paramObj = getRoleItem();
+				if(itemType=="onNew")
+				{
+					AccessUtil.remoteCallJava("favoritesDest","addFavorites",saveTreecallBackHandler,paramObj); 
+				}
+				else
+				{
+					AccessUtil.remoteCallJava("favoritesDest","updateFavorites",saveTreecallBackHandler,paramObj);
+				}
+			}
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-09 
+			 * 功能 保存后执行操作
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			private function saveTreecallBackHandler(event:ResultEvent):void
+			{
+				if(event.result.toString()!="fail")
+				{
+					var result:String = event.result as String;
+					if(itemType =="onNew")
+					{
+						paramObj.iid =int(Number(event.result));
+						this.tre_department.AddTreeNode(paramObj);
+						/* 					parentForm.tre_favorites.AddTreeNode(paramObj); */
+						//CRMtool.tipAlert("保存成功!!");
+					}
+					else if(itemType=="onDelete")
+					{
+						this.tre_department.DeleteTreeNode();
+						/* 				parentForm.tre_favorites.selectedIndex=this.tre_department.selectedIndex;
+						parentForm.tre_favorites.DeleteTreeNode(); */
+						//CRMtool.tipAlert("删除成功");
+					}
+					else if(itemType=="onEdit")
+					{
+					this.tre_department.EditTreeNode(paramObj);
+					/* 					parentForm.tre_favorites.selectedIndex=this.tre_department.selectedIndex;
+						parentForm.tre_favorites.EditTreeNode(paramObj); */
+						//CRMtool.tipAlert("修改成功！！");
+					}
+					parentForm.initmyFavoriteLists();
+					onGiveUp(event);
+					PopUpManager.removePopUp(this);
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.FAIL);
+				}
+			}
+			
+			private function onGiveUp(event:Event):void
+			{
+				this.tnp_ccode.text ="";
+				this.tnp_cname.text ="";
+				this.tnp_dmaker.text ="";
+				if(null==this.tre_department.treeCompsXml)
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_Department,"onGiveUp",0);
+				}
+				else
+				{
+					CRMtool.toolButtonsEnabled(this.lbr_Department,"onGiveUp",this.tre_department.treeCompsXml.length());
+				}
+				CRMtool.containerChildsEnabled(this.myBorder,false);
+				this.tre_department.enabled = true;
+			}
+			
+			private function getRoleItem():Object
+			{
+				
+				var obj:Object = new Object();
+				
+				obj.ifuncregedit = this._ifuncregedit;//YJ Add 功能注册内码
+				obj.ccode = this.tnp_ccode.text;
+				obj.cname = this.tnp_cname.text;
+				obj.iperson = CRMmodel.userId;
+				obj.imaker = CRMmodel.userId;
+				
+				if(this.itemType=="onEdit")
+				{
+					var iid:String = this.tre_department.selectedItem.@iid;
+					obj.iid = int(iid);
+					var ccode:String = this.tre_department.selectedItem.@ccode;
+					obj.oldCcode = ccode;
+				}
+				obj.ipid = this.tre_department.getIpid(this.tnp_ccode.text);
+				return obj;
+			}
+			
+			public function onNew(event:Event):void
+			{
+				onGiveUp(event);
+	
+				this.itemType ="onNew";
+				CRMtool.toolButtonsEnabled(this.lbr_Department,"onNew");
+				CRMtool.containerChildsEnabled(this.myBorder,true);
+				this.tnp_dmaker.editable = false;
+				this.tnp_imaker.editable = false;
+				this.tnp_iperson.editable = false;
+			}
+			
+			public function onEdit(event:Event):void
+			{
+				if(!this.tre_department.selectedItem)
+				{
+					CRMtool.tipAlert(ConstsModel.CHOOSE_ROLE);
+					return;
+				}
+				this.tre_department.enabled= false;
+				this.itemType ="onEdit";
+				CRMtool.toolButtonsEnabled(this.lbr_Department,"onEdit");
+				CRMtool.containerChildsEnabled(this.myBorder,true);
+				this.tnp_dmaker.editable = false;
+				this.tnp_imaker.editable = false;
+				this.tnp_iperson.editable = false;
+			}
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-08 
+			 * 功能：确定删除树
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			public function onDelete(event:Event):void
+			{
+				this.itemType ="onDelete";
+				var ccode:String = this.tre_department.selectedItem.@ccode as String;
+				if(this.tre_department.isExistsChild(this.tre_department.selectedItem.@ccode,ConstsModel.DEPARTMENT_ROMEVE_PID))
+				{
+					return;
+				}
+				CRMtool.tipAlert(ConstsModel.DETERMINE_HEAD+this.tre_department.selectedItem.@ccname+"收藏夹]",null,"AFFIRM",this,"onDeleteTree");
+			}
+			
+			
+			/**
+			 * 
+			 * 作者：zhong_jing
+			 * 日期：2011-08-08 
+			 * 功能：删除树
+			 * 参数：无
+			 * 返回值：无
+			 * 修改人：
+			 * 修改时间：
+			 * 修改记录：
+			 * 
+			 */ 
+			public function onDeleteTree():void
+			{
+				AccessUtil.remoteCallJava("favoritesDest","removeFavorites",saveTreecallBackHandler,int(Number(this.tre_department.selectedItem.@iid)));
+			}
+
+		]]>
+	</fx:Script>
+
+	<mx:HDividedBox paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" width="100%" height="100%" creationComplete="getDepartmentTreeXml();"  styleName="contentHDividedBox" >
+		<!-- 角色树 -->
+		<mx:VBox width="27%" height="100%" styleName="lefttree">
+			<mx:ApplicationControlBar width="100%" height="32" dock="true">
+				<s:Label text="我的收藏" styleName="contentTitle"/>
+			</mx:ApplicationControlBar>
+			<mx:HBox width="100%" height="100%" styleName="lefttree1">
+				<comps:TreeCompsVbox id="tre_department" width="100%" height="100%" />
+			</mx:HBox>
+		</mx:VBox>
+		
+		<!-- 右边 -->
+		<mx:VBox width="73%" height="100%"  styleName="lefttree">
+			<mx:ApplicationControlBar styleName="centertop" width="100%" height="32">
+				<comps:LinkBarVboxComps   id="lbr_Department" height="25"  dataProvider="{ConstsModel.LBRITEM}"
+										  styleName="contentButtonBar" onSaveEvent="onSave(event)" 
+										  onDeleteEvent="onDelete(event);" onGiveUpEvent="onGiveUp(event);" onNewEvent="onNew(event)"
+										  onEditEvent="onEdit(event)"/>
+				<s:Spacer width="100%"/>
+			</mx:ApplicationControlBar>
+			<mx:VBox width="100%" height="100%" paddingLeft="10" paddingTop="10" paddingRight="10">
+				<mx:VBox width="100%" styleName="content"  id="myBorder">
+					<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+						<mx:HBox width="50%">
+							<mx:Label text="收藏夹编码:" styleName="contentLabel"/>
+							<mx:TextInput id="tnp_ccode" height="100%" text="{this.tre_department.selectedItem.@ccode}" 
+										  styleName="contentTextInput" width="120"/>
+							<!--<comps:CRMReferTextInput id="tnp_ccode" styleName="contentTextInput" iid="19" width="100%" text="{this.tre_department.selectedItem.@ccode}"
+							visibleIcon="{tnp_ccode.editable}" />-->
+						</mx:HBox>
+						<mx:HBox width="50%">
+							<mx:Label text="收藏夹名称:" styleName="contentLabel" />
+							<mx:TextInput id="tnp_cname" 
+										  text="{this.tre_department.selectedItem.@cname}" styleName="contentTextInput" width="120"/>
+							<!--	<comps:CRMReferTextInput id="tnp_cname" styleName="contentTextInput" iid="20" width="100%"
+							text="{this.tre_department.selectedItem.@cname}"  visibleIcon="{tnp_ccode.editable}" />-->
+						</mx:HBox>
+					</mx:HBox>
+					
+					<mx:HRule width="100%" />
+					<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+						<mx:HBox width="50%">
+							<mx:Label text="收藏夹归属:" styleName="contentLabel"/>
+							<mx:TextInput id="tnp_iperson" width="120" height="100%" editable="false"
+										  styleName="contentTextInput"
+										  text="{CRMmodel.hrperson.cname}"/>
+							<!--<comps:CRMReferTextInput id="tnp_ihead" styleName="contentTextInput" iid="22" width="100%" visibleIcon="{tnp_ccode.editable}" />-->
+						</mx:HBox>
+						<mx:HBox width="50%">
+							<mx:Label text="创建人员:" styleName="contentLabel"/>
+							<mx:TextInput id="tnp_imaker" width="132" height="100%" editable="false"
+										  styleName="contentTextInput"
+										  text="{CRMmodel.hrperson.cname}"/>
+							<!--<comps:CRMReferTextInput id="tnp_icharge" styleName="contentTextInput" iid="21" width="100%" visibleIcon="{tnp_icharge.editable}"  />-->
+						</mx:HBox>
+					</mx:HBox>
+					<mx:HRule width="100%" />
+					<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+						<mx:HBox width="50%">
+							<mx:Label text="创建时间:" styleName="contentLabel"/>
+						    <mx:TextInput id="tnp_dmaker" height="100%"  width="132"
+							text="{this.tre_department.selectedItem.@dmaker}" styleName="contentTextInput" editable="false"/>
+							<!--<comps:CRMReferTextInput te="{this.tre_department.selectedItem.@ilead}" id="tnp_ilead" styleName="contentTextInput" iid="24" width="100%"  visibleIcon="{tnp_ilead.editable}" />-->
+						</mx:HBox>
+					</mx:HBox>	
+				</mx:VBox>
+		</mx:VBox>
+		</mx:VBox>
+	</mx:HDividedBox>
+</basic:BasicTitleWindow>

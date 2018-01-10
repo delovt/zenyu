@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						title="待核销明细"
+						width="880" height="400"
+						close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.controls.TextInput;
+			import mx.events.DataGridEvent;
+			import mx.events.DataGridEventReason;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var ac:ArrayCollection;
+			[Bindable]
+			public var myfmoney:Number;
+			private var irpinvoice:int;
+			private var iifuncregedit:int;
+			private var realfmoney:Number;
+			public var swapNum:Number = 0;
+			public var flag:Number = 0;
+			private var crmeap:CrmEapRadianVbox;
+			private var sc_ctrpclosetable:ArrayCollection;
+			
+			public function init(icustomer:int, fmoney:Number, irpinvoice:int, iifuncregedit:int, sc_ctrpclosetable:ArrayCollection, crmeap:CrmEapRadianVbox):void {
+				getCheckSalesData(icustomer);
+				this.myfmoney = fmoney;
+				this.irpinvoice = irpinvoice;
+				this.iifuncregedit = iifuncregedit;
+				this.crmeap = crmeap;
+				this.sc_ctrpclosetable = sc_ctrpclosetable;
+				
+				for each(var sco:Object in sc_ctrpclosetable) {
+					this.myfmoney = myfmoney - sco.fclosemoney;
+				}
+				this.realfmoney = myfmoney;
+			}
+			
+			private function getCheckSalesData(icustomer:int):void {
+				AccessUtil.remoteCallJava("checkSalesDest", "getOrderAndPlanInfoByIcustomer", function (event:ResultEvent):void {
+					
+					//待核销总金额
+					var allwaitfclosemoney:Number = 0;
+					if (event.result != null) {
+						ac = event.result as ArrayCollection;
+						//ac.length
+						for (var i:int = ac.length - 1; i >= 0; i--) {
+							
+							var o:Object = ac.getItemAt(i);
+							
+							//计算待核销金额
+							o.waitfclosemoney = o.fmoney - o.fclosemoney;
+							o.thisfclosemoney = 0;
+							o.irpinvoice = irpinvoice;
+							o.iifuncregedit = iifuncregedit;
+							o.dmaker = CRMtool.getFormatDateString("YYYY-MM-DD", new Date());
+							o.imaker = CRMmodel.userId.toString();
+							
+							allwaitfclosemoney = allwaitfclosemoney + o.waitfclosemoney;
+							if (o.waitfclosemoney == 0) {
+								ac.removeItemAt(ac.getItemIndex(o));
+							}
+							
+						}
+						
+						if (allwaitfclosemoney == 0) {
+							CRMtool.showAlert("禁止核销。原因：未找到待核销明细记录");
+							onCloseHandler();
+							return;
+						}
+						
+						for each(var item:Object in ac){
+							getOrderApportion(item);
+						}
+					}
+					
+				}, icustomer);
+			}
+			
+			private function getOrderApportion(item):void{
+				if(item.o_iid>0){
+					var sql:String = "select ss.*,isnull(hp.bjobstatus,0) bjobstatus,isnull(hd.istatus,0) istatus  from sc_orderapportion ss  " +
+						"left join hr_person hp on hp.iid=ss.iperson " +
+						"left join hr_department hd on hd.iid = ss.idepartment " +
+						"where ss.iorder="+item.o_iid;
+					AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(e:ResultEvent):void{
+						item.orderApportionList = e.result as ArrayCollection;
+					},sql,null,false);
+				}
+			}
+			
+			private function checkSales():void {
+				if (myfmoney == 0) {
+					//金额都分配出去了
+					return;
+				}
+				
+				for each(var o:Object in ac) {
+					if (o.thisfclosemoney == 0) {//还未核销，现在填入的核销金额为0
+						//如果剩余金额大于等于待核销的金额，就填入待核销的金额，反之，填入剩余金额
+						o.thisfclosemoney = myfmoney >= o.waitfclosemoney ? o.waitfclosemoney : myfmoney;
+						myfmoney =Number((Math.round((myfmoney - o.thisfclosemoney)*100)/100).toFixed(2));
+						
+					}
+					/* else if(o.thisfclosemoney>0){//已核销，已经填入核销金额
+					myfmoney = myfmoney - o.thisfclosemoney;
+					} */
+				}
+				//myDataGrid.invalidateList();
+				ac.refresh();
+				//csButton.enabled = false;
+			}
+			
+			
+			protected function myDataGrid_itemFocusInHandler(event:DataGridEvent):void {
+				// TODO Auto-generated method stub
+				var nowText:TextInput = myDataGrid.itemEditorInstance as TextInput;
+				nowText.editable=true;
+				swapNum = parseFloat(nowText.text);
+			}
+			
+			
+			protected function myDataGrid_itemEditEndHandler(event:DataGridEvent):void {
+				
+				var nowText:TextInput = event.currentTarget.itemEditorInstance as TextInput;
+				var waitfclosemoney:Number = parseFloat(ac.getItemAt(event.rowIndex).waitfclosemoney);
+				var n:Number = parseFloat(nowText.text);
+				
+				if (event.reason == DataGridEventReason.CANCELLED) {
+					return;
+				}
+				
+				if (n > waitfclosemoney) {//填入金额大于待核销金额
+					nowText.text = "0";				
+					var allthisfclosemoney:Number = 0;				
+					//求出本次总核销金额，把本次核销金额为0的从list里面剔除
+					for (var i:int = ac.length - 1; i >= 0; i--) {
+						var o:Object = ac.getItemAt(i);
+						var f:Number = 0;
+						if(parseFloat(nowText.text) == f){
+							myDataGrid.selectedItem.thisfclosemoney = 0;
+						}
+						var nthisfclosemoney:Number = parseFloat(o.thisfclosemoney);
+						allthisfclosemoney = allthisfclosemoney + nthisfclosemoney;					
+					}				
+					myfmoney = realfmoney - allthisfclosemoney;
+					return;
+				}
+				
+				if(myDataGrid.selectedItem.sort_id == flag){
+					return;
+				}
+				if (n < 0) {//填入的核销金额小于0
+					myfmoney = myfmoney + swapNum;
+					nowText.text = "0";
+					return;
+				}
+				
+				if (myfmoney + swapNum - n >= 0) {//剩余金额不小于0
+					myfmoney = myfmoney + swapNum - n;
+					nowText.text = n + "";
+				} else {//剩余金额小于0，单元格置0，总金额加上原始数据
+					myfmoney = myfmoney + swapNum;
+					nowText.text = "0";
+				}
+				
+				//YJ Add 20140721 销售回款，处理小数点四舍五入问题
+				myfmoney = Number((Math.round(myfmoney*100)/100).toFixed(2));
+				flag = myDataGrid.selectedItem.sort_id;
+				
+			}
+			
+			protected function submit(event:MouseEvent):void {
+				var allthisfclosemoney:Number = 0;
+				
+				//求出本次总核销金额，把本次核销金额为0的从list里面剔除
+				for (var i:int = ac.length - 1; i >= 0; i--) {
+					var o:Object = ac.getItemAt(i);
+					
+					var nthisfclosemoney:Number = parseFloat(o.thisfclosemoney);
+					allthisfclosemoney = allthisfclosemoney + nthisfclosemoney;
+					
+					if (nthisfclosemoney == 0) {
+						ac.removeItemAt(ac.getItemIndex(o));
+					}
+				}
+				
+				if(allthisfclosemoney==0){
+					return;
+				}
+				
+				
+				if (allthisfclosemoney > realfmoney) {
+					CRMtool.showAlert("金额分配超出，请重新分配。");
+					return;
+				}
+				
+				for each(var item:Object in ac){
+					var orderApportionList:ArrayCollection = item.orderApportionList;
+					if(orderApportionList&&orderApportionList.length>0){
+						for each(var o:Object in orderApportionList){
+							
+							if(o.iperson==0||o.iperson==null){
+								CRMtool.showAlert(item.o_ccode+" 绑定业绩分摊规则中未指定人员，不允许核销，请检查");
+								return;
+							}
+							
+							if(o.idepartment==0||o.idepartment==null){
+								CRMtool.showAlert(item.o_ccode+" 绑定业绩分摊规则中未指定部门，不允许核销，请检查");
+								return;
+							}
+							
+							if(o.bjobstatus==0){
+								CRMtool.showAlert(item.o_ccode+" 绑定业绩分摊规则中存在已离职人员，不允许核销，请检查");
+								return;
+							}
+							
+							if(o.istatus==2){
+								CRMtool.showAlert(item.o_ccode+" 绑定业绩分摊规则中存在已撤销部门，不允许核销，请检查");
+								return;
+							}
+							
+						}
+						
+					}else{
+						CRMtool.showAlert(item.o_ccode+" 尚未绑定业绩分摊规则，不允许核销，请检查");
+						return;
+					}
+				}
+				
+				AccessUtil.remoteCallJava("checkSalesDest", "checkSalesSubmit", function (event:ResultEvent):void {
+					var iidAl:ArrayList;
+					if (event.result != null) {
+						iidAl = event.result as ArrayList;
+					}
+					
+					//计算序号使用
+					var length:int = sc_ctrpclosetable.length;
+					
+					//sc_ctrpclosetable添加数据
+					if (iidAl.length == ac.length) {
+						for (var i:int = 0; i < iidAl.length; i++) {
+							var o:Object = ac.getItemAt(i);
+							o.sort_id = i + length + 1;
+							o.fclosemoney = o.thisfclosemoney;
+							o.imaker_Name = CRMmodel.hrperson.cname;
+							o.iorder_Name = o.o_ccode;
+							o.ictrpplan_Name = o.o_cname + "_" + o.o_ccode + "_" + o.op_cname;
+							o.ictrpplan = o.op_iid;
+							o.iid = iidAl.getItemAt(i);
+							o.iorder = o.o_iid;
+							sc_ctrpclosetable.addItem(o);
+						}
+					}
+					
+					//更新表单数据
+					var value:Object = new Object();
+					var mainValue:Object = crmeap.getValue();
+					var fclosemoney:Number;
+					if (mainValue.fclosemoney != null)
+						fclosemoney = parseFloat(mainValue.fclosemoney);
+					else
+						fclosemoney = 0;
+					
+					mainValue.fclosemoney = fclosemoney + allthisfclosemoney;
+					
+					value.mainValue = mainValue;
+					//SZC  判断单据状态
+					if(mainValue.fclosemoney==mainValue.fmoney){
+						mainValue.istatus=5;//全部核销
+						var upSql:String="update sc_rpinvoice set istatus=5 where iid="+mainValue.iid;
+						AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql",null ,upSql);
+					}else{
+						mainValue.istatus=4;//部分核销
+						var upSql:String="update sc_rpinvoice set istatus=4 where iid="+mainValue.iid;
+						AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql",null ,upSql);
+					}
+					//end
+					value.sc_ctrpclose = sc_ctrpclosetable;
+					crmeap.setValue(value, 1, 1);
+					onCloseHandler();
+				}, {"ac": ac, "irpinvoice": irpinvoice,"ddate":crmeap.getValue().ddate});
+				
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox id="dataGridHbox" width="100%" height="320">
+			<basic:BasicMxDataGrid itemFocusIn="myDataGrid_itemFocusInHandler(event)" width="100%" itemEditEnd="myDataGrid_itemEditEndHandler(event)"
+								   id="myDataGrid" editable="true" dataProvider="{ac}" height="100%" horizontalScrollPolicy="auto"
+								   isShowLineNum="true" isAllowMulti="false">
+				<basic:columns>
+					<mx:DataGridColumn headerText="客户编码" dataField="c_ccode" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="客户名称" dataField="c_cname" width="90" editable="false"/>
+					<mx:DataGridColumn headerText="合同类别" dataField="o_cname" width="85" editable="false"/>
+					<mx:DataGridColumn headerText="合同编号" dataField="o_ccode" width="65" editable="false"/>
+					<mx:DataGridColumn headerText="收款期次" dataField="op_cname" width="60" editable="false"/>
+					<mx:DataGridColumn headerText="收款条件" dataField="cmemo" width="140" editable="false"/>
+					<mx:DataGridColumn headerText="计划日期" dataField="dplan" width="70" editable="false" labelFunction="CRMtool.formatDate"/>
+					<mx:DataGridColumn headerText="计划金额" dataField="fmoney" width="65" editable="false"  labelFunction="CRMtool.formatDate"/>
+					<mx:DataGridColumn headerText="累计回款" dataField="fclosemoney" width="65" editable="false"/>
+					<mx:DataGridColumn headerText="待核销金额" dataField="waitfclosemoney" width="65" editable="false"/>
+					<mx:DataGridColumn headerText="本次核销金额" dataField="thisfclosemoney" width="65" editable="true"/>
+				</basic:columns>
+			</basic:BasicMxDataGrid>
+		</mx:HBox>
+		<mx:HRule width="100%"/>
+		<mx:HBox height="38" width="100%" verticalAlign="middle" paddingRight="10" paddingLeft="10">
+			<s:Button label="自动匹配" id="csButton" click="checkSales()" />
+			<s:Label  width="150" text="待核销余额：{myfmoney.toString()}"/>
+			<s:Spacer width="100%"/>
+			<s:Button label="确定" click="submit(event)" />
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx" width="400" title="字段对应关系配置"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.List;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			//本表字段
+			[Bindable]
+			public var bbFieldName:String="";
+			
+			//list 组件引用
+			[Bindable]
+			public var curFieldList:ArrayCollection=new ArrayCollection();
+			
+			[Bindable]
+			public var curFiledIndex:int=-1;
+			
+			[Bindable]
+			public var curFieldName:String="";
+
+			
+			//保存 配置
+			private function onSure():void
+			{
+				
+				//Alert.show("["+curFiledIndex+"],"+ObjectUtil.toString(curFieldList));
+				//cfunction 公式
+				// 判断 数据 合法性
+				if(curFiledIndex<0 || curFieldList==null || curFieldList.length==0 || curFieldList.length < curFiledIndex){
+					onCloseHandler();
+					return;
+				}
+				//curFieldList.getItemAt(curFiledIndex).cfield="zmm,"+curFieldList.getItemAt(curFiledIndex).cfield;
+				curFieldList.getItemAt(curFiledIndex).dyfunction=StringUtil.trim(cfunction.text);
+				curFieldList.getItemAt(curFiledIndex).dyfield=bbFieldName;
+				curFieldList.refresh();
+				onCloseHandler();
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<basic:layout>
+		<s:VerticalLayout gap="2" paddingLeft="10" paddingRight="10" paddingTop="2"/>
+	</basic:layout>
+	<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="center">
+		<s:Label text="本表字段:"/>
+		<s:TextInput text="{bbFieldName}" editable="false" width="50%"/>
+		<s:Label text="当前字段:"/>
+		<s:TextInput id="cfunction" text="{curFieldName}" editable="false" width="50%"/>
+	</s:HGroup>
+	<s:Label text="配置计算公式:"/>
+	<s:TextArea width="100%" height="80"/>
+	<s:HGroup width="100%" height="38" verticalAlign="middle" horizontalAlign="right" gap="2">
+		<s:Button label="确定" click="onSure()"/>
+		<s:Button label="关闭" click="onCloseHandler()"/>
+	</s:HGroup>
+</basic:BasicTitleWindow>

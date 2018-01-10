@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:Basic="yssoft.comps.frame.module.Basic.*" width="600" height="400"
+						xmlns:comps="yssoft.comps.*"
+						creationComplete="myinit(event)" title="计划协同">
+	<Basic:layout>
+		<s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+	</Basic:layout>
+	<fx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.rpc.events.ResultEvent;
+
+		import yssoft.models.CRMmodel;
+		import yssoft.tools.AccessUtil;
+		import yssoft.tools.CRMtool;
+
+		[Bindable]
+		private var departmentAc:XML;
+		[Bindable]
+		private var personAc:ArrayCollection;
+		[Bindable]
+		private var personAcFilter:ArrayCollection = new ArrayCollection();
+
+		public var ownerBox:PlanMainView;
+
+		//当前计划细则数据
+		public var itemObj:Object;
+
+		private function getDepartmentTreeXml():void {
+			AccessUtil.remoteCallJava("RoleDest", "getDepartment", function (event:ResultEvent):void {
+				if (event.result != null) {
+					var result:String = event.result as String;
+					departmentAc = new XML(result);
+				}
+			}, "", null, false);
+		}
+
+		private function getPersonAc():void {
+			var sql:String = "select iid,cname,idepartment from hr_person where bjobstatus=1 and cname !='admin' and iid!= " + CRMmodel.userId;
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var ac:ArrayCollection = event.result as ArrayCollection;
+				for each(var item:Object in ac) {
+					item.selected = false;
+				}
+				personAc = ac;
+				getAlreadyCoopPersonList();
+			}, sql, null, false);
+		}
+
+		private function getAlreadyCoopPersonList():void {
+			var sql:String = "select hr_person.iid,hr_person.cname,oa_plans.istatus,oa_plans.csummary,oa_plans.cinstruction from hr_person left join oa_plan on oa_plan.iperson = hr_person.iid " +
+					"left join oa_plans on oa_plans.iplan = oa_plan.iid where oa_plans.iplans = " + itemObj.iid;
+			if (itemObj.iplans > 0)
+				sql += " or oa_plans.iplans = " + itemObj.iplans + " or oa_plans.iid = " + itemObj.iplans;
+
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var ac:ArrayCollection = event.result as ArrayCollection;
+
+				for each(var personAlreadyCoop:Object in ac) {
+					for each(var person:Object in personAc) {
+						if (personAlreadyCoop.iid == person.iid) {
+							person.selected = true;
+							person.alreadyCoop = true;
+							if (itemObj.iplans > 0)
+								person.locked = true;
+							else if ((personAlreadyCoop.istatus && personAlreadyCoop.istatus != 0)
+									|| CRMtool.isStringNotNull(personAlreadyCoop.csummary)
+									|| CRMtool.isStringNotNull(personAlreadyCoop.cinstruction)) {
+								person.locked = true;
+							}
+						}
+					}
+				}
+
+				refreshData();
+			}, sql, null, false);
+		}
+
+		//部门树 单击
+		protected function department_itemClickHandler(event:ListEvent):void {
+			personAcFilter.removeAll();
+			for each(var item:Object in personAc) {
+				if (departmentTree.selectedItem && item.idepartment == departmentTree.selectedItem.@iid) {
+					personAcFilter.addItem(item);
+				}
+			}
+		}
+
+		protected function myinit(event:FlexEvent):void {
+			getDepartmentTreeXml();
+			getPersonAc();
+		}
+
+		//人员数据单击
+		protected function person_itemClickHandler(event:ListEvent):void {
+			if (personDG.selectedItem.locked)
+				return;
+
+			personDG.selectedItem.selected = !personDG.selectedItem.selected;
+			refreshData();
+		}
+
+		//已选人员窗口数据改变
+		protected function rlb_listChangedHandler(event:Event):void {
+			refreshData();
+		}
+
+		//全选
+		protected function selectAll_clickHandler(event:MouseEvent):void {
+			var flag:Boolean = true;
+			for each(var item:Object in personAcFilter) {
+				if (!item.selcted)
+					flag = false;
+			}
+
+			if (flag) {
+				for each(var item:Object in personAcFilter) {
+					item.selcted = false;
+				}
+			} else {
+				for each(var item:Object in personAcFilter) {
+					item.selcted = true;
+				}
+			}
+
+			refreshData();
+		}
+
+		private function refreshData():void {
+			personAc.refresh();
+			personAcFilter.refresh();
+			rlb.dataProvider = personAc;
+		}
+
+		override protected function onSubmit():void {
+			if (itemObj.iid > 0) {
+				for each(var item:Object in personAc) {
+					if (item.selected && !item.alreadyCoop)
+						coopPlan(item);
+					else if (!item.selected && item.alreadyCoop) {
+						delCoopPlan(item);
+					}
+				}
+			}
+			super.onCloseHandler();
+		}
+
+		private function delCoopPlan(personObj:Object):void {
+			var sql:String = " delete as_communication where ifuncregedit=321 and itype=11 and iinvoice in (" +
+                    " select iid from oa_plans where iplans=" + itemObj.iid + " and iplan in (select iid from oa_plan where iperson=" + personObj.iid + ")" +
+                    ")"+
+                    "delete oa_plans where iplans=" + itemObj.iid + " and iplan in (select iid from oa_plan where iperson=" + personObj.iid + ")" +
+					" delete oa_plan where iid not in (select iplan from oa_plans)";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				dispatchEvent(new Event("coopChange"));
+			}, sql, null, false);
+		}
+
+		private function coopPlan(personObj:Object):void {
+
+			var getIplanSql:String;
+			if (itemObj.itype == 4) {
+				getIplanSql = "select top 1 iid from oa_plan where " +
+						"isnull(itype,0)=(select isnull(itype,0) from oa_plan where iid=#iid#) and " +
+						"isnull(dbegin,0)=(select isnull(dbegin,0) from oa_plan where iid=#iid#) and " +
+						"isnull(dend,0)=(select isnull(dend,0) from oa_plan where iid=#iid#) and " +
+						"iperson=" + personObj.iid;
+			} else {
+				getIplanSql = "select top 1 iid from oa_plan where " +
+						"isnull(itype,0)=(select isnull(itype,0) from oa_plan where iid=#iid#) and " +
+						"isnull(iyear,0)=(select isnull(iyear,0) from oa_plan where iid=#iid#) and " +
+						"isnull(iseason,0)=(select isnull(iseason,0) from oa_plan where iid=#iid#) and " +
+						"isnull(imonth,0)=(select isnull(imonth,0) from oa_plan where iid=#iid#) and " +
+						"iperson=" + personObj.iid;
+			}
+
+			while (getIplanSql.search("#iid#") > -1) {
+				getIplanSql = getIplanSql.replace("#iid#", itemObj.iplan);
+			}
+
+			AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+				var ac:ArrayCollection = event.result as ArrayCollection;
+				if (ac && ac.length > 0) {
+					var iplan:int = ac[0].iid;
+					addPlans(iplan);
+				} else {
+					var obj:Object = new Object();
+					obj.itype = ownerBox.winParam.itype;
+					obj.year = ownerBox.winParam.year;
+					obj.month = ownerBox.winParam.month;
+					obj.quarter = ownerBox.winParam.quarter;
+					obj.week = ownerBox.winParam.week;
+					obj.cname = "";
+					//obj.idepartment =CRMmodel.hrperson.idepartment;
+					obj.iperson = personObj.iid;
+					obj.dmaker = CRMtool.getNowDateHNS();
+					if (ownerBox.winParam.itype == 4) {
+						obj.dbegin = CRMtool.formatDateNoHNS(CRMtool.firstDayInWeek(ownerBox.winParam.year, ownerBox.winParam.week));
+						obj.dend = CRMtool.formatDateNoHNS(CRMtool.endDayInWeek(ownerBox.winParam.year, ownerBox.winParam.week));
+					}
+
+					AccessUtil.remoteCallJava("OADest", "addPlan", function (event:ResultEvent):void {
+						if (int(event.result) > 0) {
+							iplan = int(event.result);
+							addPlans(iplan);
+							dispatchEvent(new Event("coopChange"));
+						} else
+							CRMtool.showAlert("保存失败。");
+					}, obj);
+				}
+
+				function addPlans(iplan:int):void {
+					var obj:Object = new Object();
+					obj.iplan = iplan;
+					if (itemObj.iplans > 0)
+						obj.iplans = itemObj.iplans;
+					else
+						obj.iplans = itemObj.iid;
+					obj.ctype = "协同计划";
+					obj.cdetail = itemObj.cdetail;
+					obj.dmaker = CRMtool.getNowDateHNS();
+					obj.dmodify = CRMtool.getNowDateHNS();
+					obj.iquadrant = itemObj.iquadrant;
+					obj.dmessage = itemObj.dmessage;
+					obj.icustomer = itemObj.icustomer;
+
+					AccessUtil.remoteCallJava("OADest", "addPlans", function (event:ResultEvent):void {
+						if (int(event.result) > 0) {
+							dispatchEvent(new Event("coopChange"));
+						}
+						else
+							CRMtool.showAlert("保存失败。");
+					}, obj);
+				}
+			}, getIplanSql, null, false);
+		}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:HBox width="100%" height="100%" horizontalGap="0" borderStyle="inset" borderVisible="true">
+		<comps:TreeCompsVbox id="departmentTree" width="30%" height="100%" dataProvider="{departmentAc}"
+							 itemClick="department_itemClickHandler(event)"/>
+		<mx:VRule height="100%" width="1"/>
+		<mx:VBox width="30%" height="100%">
+			<mx:DataGrid id="personDG" width="100%" height="100%" dataProvider="{personAcFilter}"
+						 itemClick="person_itemClickHandler(event)"
+						 showHeaders="false" alternatingItemColors="[#ffffff,#ffffff]" borderVisible="false">
+				<mx:columns>
+					<mx:DataGridColumn headerText="" dataField="selected" width="25">
+						<mx:itemRenderer>
+							<fx:Component>
+								<s:MXDataGridItemRenderer width="100%">
+									<mx:HBox width="100%" horizontalAlign="right">
+										<s:CheckBox selected="{data.selected}" enabled="false"/>
+									</mx:HBox>
+								</s:MXDataGridItemRenderer>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="人员" dataField="cname"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VBox>
+		<mx:VRule height="100%" width="1"/>
+		<comps:RectangleListBox id="rlb" width="40%" height="100%" paddingLeft="10" paddingTop="5"
+								dataProvider="{personAc}" listChanged="rlb_listChangedHandler(event)"/>
+	</mx:HBox>
+	<mx:HBox width="100%">
+		<s:Spacer width="100%"/>
+		<s:Button label="确定" click="onSubmit()"/>
+		<s:Button label="关闭" click="onCloseHandler()"/>
+	</mx:HBox>
+</Basic:BasicTitleWindow>

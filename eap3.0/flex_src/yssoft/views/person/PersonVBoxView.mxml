@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx" width="100%"
+                height="100%"
+                xmlns:comps="yssoft.comps.*"
+                implements="yssoft.impls.ICRMWindow" creationComplete="getDepartmentTreeXml();"
+                xmlns:customer="yssoft.views.customer.*">
+    <fx:Script>
+		<![CDATA[
+        import yssoft.models.ConstsModel;
+        import yssoft.tools.CRMtool;
+        ]]>
+	</fx:Script>
+    <fx:Script source="../../../yssoft/scripts/PersonVBoxViewScript.as"/>
+    <mx:states>
+        <s:State name="person"/>
+        <s:State name="customer"/>
+    </mx:states>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <!-- 角色树 -->
+    <mx:VBox width="20%" verticalGap="0" height="100%" id="personVBox" includeIn="person" styleName="lefttree">
+        <mx:ApplicationControlBar width="100%" height="31" dock="true">
+            <s:Label text="部门归属" styleName="contentTitle"/>
+        </mx:ApplicationControlBar>
+        <mx:HRule width="100%" height="1" strokeColor="#c4cccc"/>
+        <mx:HBox width="100%" height="100%" styleName="lefttree1">
+            <comps:TreeCompsVbox id="tre_department" width="100%" height="100%" click="onChange()"/>
+        </mx:HBox>
+        <mx:HBox width="100%" height="5%" paddingLeft="10" paddingRight="10" paddingBottom="10">
+            <mx:Button label="部门刷新" height="25" width="50%" click="getDepartmentTreeXml(1);"/>
+            <mx:Button label="部门维护" height="25" width="50%"
+                       click="CRMtool.openMenuItemFormOther('yssoft.views.department.DepartmentView',null,'','')"/>
+        </mx:HBox>
+    </mx:VBox>
+
+    <mx:VBox width="20%" height="100%" id="customerVBox" includeIn="customer">
+        <customer:CusomerAccordion width="100%" csql1="{acListsetVo.csql1}"/>
+    </mx:VBox>
+    <mx:VRule includeIn="customer" height="100%">
+    </mx:VRule>
+    <!-- 右边 -->
+    <mx:VBox width="80%" height="100%" styleName="contentVBox">
+        <mx:ApplicationControlBar width="100%" height="32">
+            <comps:LinkBarVboxComps id="lbr_role" height="25" width="15%" dataProvider="{ConstsModel.PERSONLBRITEM}"
+                                    itemClick="onOpenPerson(event)"/>
+            <mx:PopUpMenuButton label="更多操作" height="25" dataProvider="{menuData}" itemClick="onClick(event);"/>
+            <mx:HBox width="100%" horizontalAlign="right">
+                <mx:Label height="0" visible="false" id="val" color="red" fontWeight="bold"/>
+                <comps:CrmTextInput id="tnp_bjobstatus" search="search();"/>
+            </mx:HBox>
+        </mx:ApplicationControlBar>
+        <mx:HBox id="hbx_person" width="100%" height="92%">
+            <comps:CRMDataGridForCheckBox allowMulti="true" width="100%" height="100%" id="dgrd_person"
+                                          horizontalScrollPolicy="auto" dataProvider="{personArr}"
+                                          doubleClick="onDouble()" doubleClickEnabled="true"
+                                          onGridClick="onGridClick(event)">
+            </comps:CRMDataGridForCheckBox>
+        </mx:HBox>
+        <mx:HBox width="100%" height="8%">
+            <mx:HBox width="40%" height="100%" paddingTop="10" paddingBottom="10" verticalAlign="middle" id="personHbox"
+                     includeIn="person">
+                <mx:Label text="状态:"/>
+                <mx:CheckBox id="cmbx_working" label="在职" selected="true"/>
+                <mx:CheckBox label="离职" id="cmbx_left"/>
+            </mx:HBox>
+            <mx:HBox width="40%" height="100%" paddingTop="10" paddingBottom="10" verticalAlign="middle"
+                     id="customerHbox" includeIn="customer">
+                <mx:Label text="状态:"/>
+                <mx:CheckBox id="cmbx_unaudited" label="未审"/>
+                <mx:CheckBox label="已审" id="cmbx_audited" selected="true"/>
+                <mx:CheckBox label="关闭" id="cmbx_close"/>
+                <mx:CheckBox label="删除" id="cmbx_delete"/>
+            </mx:HBox>
+            <mx:HBox width="60%" height="100%" verticalAlign="middle" horizontalAlign="right">
+                <comps:PageBar paddingRight="10" id="pageBar" selectedNum="{dgrd_person.getSelectRows().length}"/>
+            </mx:HBox>
+        </mx:HBox>
+    </mx:VBox>
+</mx:HDividedBox>

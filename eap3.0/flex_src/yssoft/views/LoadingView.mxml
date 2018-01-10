@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   backgroundColor="black" backgroundAlpha="0.2"
+				   width="294" height="54" cornerRadius="5" doubleClick="doubleClickHandler()"
+				   doubleClickEnabled="true"
+				   toolTip="双击关闭过渡窗口">
+
+	<fx:Script><![CDATA[
+		import mx.managers.PopUpManager;
+
+		[Bindable]
+		private var _loadingText:String = "数据处理中...";
+		public function set loadingText(value:String):void {
+			if (value == null || value == "") {
+				value = "数据处理中...";
+			}
+			this._loadingText = value;
+		}
+
+		public function get loadingText():String {
+			return this._loadingText;
+		}
+
+		private function doubleClickHandler():void {
+			PopUpManager.removePopUp(this);
+		}
+
+		[Embed(source="/yssoft/assets/swf/loading_black.swf")]
+		private var swf:Class;
+		]]></fx:Script>
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+	</s:layout>
+	<s:BorderContainer backgroundColor="#f4f4f4"
+					   width="290" height="50" cornerRadius="5">
+		<s:layout>
+			<s:HorizontalLayout horizontalAlign="center" verticalAlign="middle"/>
+		</s:layout>
+		<mx:SWFLoader source="{swf}" width="40" height="40" left="5" top="10"/>
+		<mx:Spacer width="10"/>
+		<mx:Label text="{_loadingText}" fontSize="14" textAlign="center"  left="45" right="0"
+				  top="19"/>
+	</s:BorderContainer>
+</s:BorderContainer>

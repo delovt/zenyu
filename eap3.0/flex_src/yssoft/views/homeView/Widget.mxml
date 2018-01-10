@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   borderVisible="false" visible="false"
+                   creationComplete="myinit(event)"
+                   width="100%" height="100%" xmlns:comps="yssoft.comps.*" xmlns:homeView="yssoft.views.homeView.*" xmlns:frame="yssoft.comps.frame.*" xmlns:widget="yssoft.views.homeView.widget.*">
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Alert;
+        import mx.events.FlexEvent;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.comps.frame.FrameworkVBoxView;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]private var _type:String;
+        [Bindable]private var _mydata:Object;
+        [Bindable]private var _subTitle:String="";
+        [Bindable]private var _listTitle:String="";
+
+        private var relatedSql:String;
+
+        private var listBox:FrameworkVBoxView;
+
+        private var me:Widget = this as Widget;
+
+        public function get subTitle():String
+        {
+            return _subTitle;
+        }
+
+        public function set subTitle(value:String):void
+        {
+            _subTitle = value;
+        }
+
+        public function get mydata():Object
+        {
+            return _mydata;
+        }
+
+        public function set mydata(value:Object):void
+        {
+            _mydata = value;
+            if(value){
+                this.visible = true;
+                subHome.mydata = value;
+
+                if(value.itype==1){
+                    var sql:String="select * from as_funcregedit where iid="+value.ifuncregedit;
+                    AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent):void{
+                        if((event.result as ArrayCollection).length>0){
+                            var obj:Object = (event.result as ArrayCollection).getItemAt(0);
+                            obj.outifuncregedit = obj.ifuncregedit;
+                            obj.ifuncregedit = obj.iid;
+                            obj.widget = "";
+
+                            var sql2:String="select * from ac_listcd where iid="+value.ifuncregedits;
+                            AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent){
+                                if(event.result){
+                                    var acitem:Object = (event.result as ArrayCollection).getItemAt(0);
+                                    if(acitem){
+                                        obj.relatedSql = acitem.csql;
+                                        relatedSql = acitem.csql;
+                                        _listTitle = acitem.cname;
+
+                                        listBox = new FrameworkVBoxView();
+                                        listBox.percentHeight=100;
+                                        listBox.percentWidth=100;
+                                        listBox.ownerWidget = me;
+                                        listBox.itemObj = obj;
+
+                                        listVbox.addChildAt(listBox,1);
+                                        //listBox.search(0);
+                                        //listBox.init();
+                                    }
+
+                                }
+                            },sql2);
+                        }
+                    },sql);
+                }
+
+                if(value.itype==2){
+                    var sql:String="select * from as_funcregedit where iid="+value.ifuncregedit;
+                    AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent){
+                        if((event.result as ArrayCollection).length>0){
+                            var obj:Object = (event.result as ArrayCollection).getItemAt(0);
+                            obj.outifuncregedit = obj.ifuncregedit;
+                            obj.ifuncregedit = obj.iid;
+                            obj.widget = true;
+                            staBox.itemObj = obj;
+                            //staBox.init();
+                        }
+                    },sql);
+                }
+
+                if(value.itype==3){
+                    var sql:String="select * from as_funcregedit where iid="+value.ifuncregedit;
+                    AccessUtil.remoteCallJava("CommonalityDest","assemblyQuerySql",function(event:ResultEvent){
+                        if((event.result as ArrayCollection).length>0){
+                            var obj:Object = (event.result as ArrayCollection).getItemAt(0);
+                            //Alert.show(obj.cprogram);
+                            var item = CRMtool.createObjectByClassName(obj.cprogram);
+                            otherBox.addChild(item);
+                            //staBox.init();
+                        }
+                    },sql);
+                }
+            }
+        }
+
+        public function get type():String
+        {
+            return _type;
+        }
+
+        public function set type(value:String):void
+        {
+            _type = value;
+        }
+
+        protected function myinit(event:FlexEvent):void
+        {
+
+        }
+
+        public function refSubHome():void{
+            if(_mydata&&_mydata.itype==0)
+                subHome.getDatas();
+
+            if (listBox != null)
+                listBox.refreshGrid();
+        }
+
+        protected function noMore_clickHandler():void
+        {
+            if(_mydata.itype==0){
+                subHome.noMore_clickHandler();
+            }else if (_mydata.itype==1){
+                var obj:Object = listBox.itemObj;
+                obj.relatedSql = relatedSql;
+                obj.widget = null;
+                obj.formTriggerType="fromWarn";
+                obj.ilistcd=_mydata.ifuncregedits;
+                CRMtool.openMenuItemFormOther("yssoft.comps.frame.FrameworkVBoxView",obj,_mydata.ccaption);
+            }else if(_mydata.itype==2){
+                var obj:Object = staBox.itemObj;
+                obj.widget = false;
+                CRMtool.openMenuItemFormOther("yssoft.comps.frame.StatementsVBox",obj,_mydata.ccaption);
+            }
+        }
+
+        ]]>
+	</fx:Script>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <!--s:Label text="{_title}"/>-->
+    <mx:VBox width="100%" height="100%">
+        <mx:HBox width="100%" verticalAlign="middle" height="28"  horizontalGap="0">
+            <mx:Image source="yssoft/assets/index/icon.png"/>
+            <s:Spacer width="8"/>
+            <s:Label id="title" text="{_mydata.ccaption}" height="32" color="#333333" verticalAlign="middle" fontWeight="bold" styleName="linkBar1" buttonMode="true"
+                    toolTip="点此刷新数据" click="refSubHome()"/>
+            <s:Label visible="{_listTitle.length>0}" includeInLayout="{_listTitle.length>0}" text=":{_listTitle}" verticalAlign="middle" color="#333333"/>
+            <s:Label  visible="{_subTitle.length>0}" includeInLayout="{_subTitle.length>0}" text="（{_subTitle}）" verticalAlign="middle" color="#333333"/>
+            <s:Spacer width="100%"/>
+            <mx:LinkButton styleName="more2" id="noMore"  width="27" height="15" click="noMore_clickHandler()" visible="{_mydata.itype!=3}" />
+        </mx:HBox>
+        <s:BorderContainer visible="{_mydata.itype==0}" width="100%" height="1" borderColor="#dedede" />
+        <s:Spacer height="4"/>
+        <mx:ViewStack width="100%" height="100%" borderVisible="false" selectedIndex="{_mydata.itype}">
+            <widget:WidgetSubHome id="subHome"   ownerBox="{this}" width="100%" height="100%"/>
+            <mx:VBox width="100%" height="100%" >
+                <mx:VBox id="listVbox" visible="true" width="100%" height="100%">
+                    <s:BorderContainer width="100%" height="1" borderColor="#c4cccc" />
+                    <s:BorderContainer width="100%" height="1" borderColor="#c4cccc" />
+                </mx:VBox>
+            </mx:VBox>
+            <frame:StatementsVBox id="staBox" width="100%" height="100%"
+                                  paddingLeft="-1" paddingRight="-1"/>
+            <mx:VBox id="otherBox" width="100%" height="100%" />
+        </mx:ViewStack>
+    </mx:VBox>
+</s:BorderContainer>

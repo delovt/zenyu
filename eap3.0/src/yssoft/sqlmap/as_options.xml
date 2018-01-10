@@ -1,0 +1,31 @@
+﻿<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<!-- 系统选项  孙东亚 -->
+
+<sqlMap>
+     
+     <select id="get_as_options_aqcl"  resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+            select * from as_options where cclass=#cclass# order by iid
+     </select>
+     
+     <update id="update_as_options_aqcl"  parameterClass="java.util.HashMap" >
+            update as_options set cvalue=#cvalue#  where iid = #iid# 
+     </update>
+     
+     <!--   根据 IID 获取相对应的系统参数  -->
+     <select id="select_init_paramter"  resultClass="string" parameterClass="int">
+     	select cvalue from as_options where iid =#iid#
+     </select>
+     
+     <select id="get_as_options_ac"  resultClass="java.util.HashMap" >
+            select * from as_options order by iid
+     </select>
+     
+     <insert id="commSessionId" parameterClass="java.util.HashMap">
+            $sql$
+		<selectKey resultClass="int" keyProperty="iid" > 
+			SELECT @@IDENTITY AS iid 
+	    </selectKey>
+    </insert>
+     
+     
+</sqlMap>

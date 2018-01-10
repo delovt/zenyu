@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:comps="yssoft.comps.*"
+         width="100%" height="100%" styleName="topcontent"
+         creationComplete="init()">
+    <fx:Script>
+		<![CDATA[
+        import mx.events.FlexEvent;
+
+        import yssoft.comps.frame.module.CrmEapTextInput;
+
+        protected function button1_clickHandler(event:MouseEvent):void {
+            AccessUtil.remoteCallJava("hrPersonDest", "selectEmsLists", emsListCallBack, CRMmodel.userId + "");
+        }
+
+        private function doLineNum(item:Object, column:DataGridColumn):String {
+            var lineNum:int = EMS.dataProvider.getItemIndex(item) + 1;
+            item.ccode = lineNum;
+            return lineNum + "";
+        }
+
+        private var imenup:int;
+        private var ui_imenup:CrmEapTextInput;
+
+        private var icallline:int;
+        private var ui_icallline:CrmEapTextInput;
+
+        [Bindable]
+        public var arr:Array = [
+            {label: "1", data: "1"},
+            {label: "2", data: "2"},
+            {label: "3", data: "3"},
+            {label: "4", data: "4"}
+        ];
+        [Bindable]
+        public var arrLayout:ArrayCollection = new ArrayCollection(arr);
+
+        private function myBorder_creationCompleteHandler(event:FlexEvent):void {
+            var personlist:ArrayCollection = CRMmodel.personlist;
+            for each(var item:Object in personlist) {
+                if (item.iid == CRMmodel.userId) {
+                    icallline = CRMmodel.hrperson.icallline;
+                    imenup = item.imenup;
+                    cmb_layout.selectedIndex = item.ilayout - 1;
+                    cmb_layout.dataProvider.refresh();
+                    break;
+                }
+
+            }
+            initConsultItem("imenup", 13);
+        }
+
+        private function initConsultItem(name:String, ifuncregedit:int = 162):void {
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_" + name;
+            obj1.ifuncregedit = ifuncregedit;
+            if (ifuncregedit == 162)
+                obj1.ctable = "sc_order";
+            obj1.cfield = name;
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", initConsultBack, obj1);
+        }
+
+        private function initConsultBack(evt:ResultEvent):void {
+
+            if (evt.result != null) {
+                var consultObj:Object = evt.result;
+                var cobjectname:String = evt.result.cobjectname;
+
+                this[cobjectname] = new CrmEapTextInput();
+                var consultTextInput:CrmEapTextInput = this[cobjectname];
+
+                consultTextInput.width = 220;
+                consultTextInput.name = "UI_C1";
+                consultObj.cobjectname = "UI_C1";
+                consultTextInput.singleType = consultObj;
+                consultTextInput.addEventListener("initialization", function (event:Event):void {
+                    if (imenup > 0 && cobjectname == "ui_imenup") {
+                        consultTextInput.text = imenup + "";
+                        consultTextInput.onDataChange();
+                    }
+                    if (icallline > 0 && cobjectname == "ui_icallline") {
+                        consultTextInput.text = icallline + "";
+                        consultTextInput.onDataChange();
+                    }
+                });
+                //consultTextInput.styleName = "contentTextInputOther";
+                //consultTextInput.bor
+                this[cobjectname + "_box"].addChild(consultTextInput);
+            }
+        }
+
+        private function icalllineinit(event:FlexEvent):void {
+            initConsultItem("icallline", 450);
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Script source="../../../yssoft/scripts/PersonDataEditScript.as"/>
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:HBox width="100%" height="100%" styleName="contentHDividedBox">
+        <mx:VBox width="252" height="100%" styleName="lefttree">
+            <!-- 菜单树 -->
+            <mx:ApplicationControlBar id="menuBar1" width="100%" height="32" dock="true">
+                <s:Label text="用户信息" styleName="contentTitle" color="#333333"/>
+            </mx:ApplicationControlBar>
+
+            <mx:VBox width="252" horizontalAlign="center">
+                <mx:HBox width="100%" horizontalGap="5" paddingTop="10" paddingLeft="10">
+                    <mx:VBox height="100%" verticalGap="10">
+                        <mx:Canvas x="49" width="104" height="98" borderStyle="solid" cornerRadius="4">
+                            <s:Image id="userImg" width="100%" height="100%" source="{CRMmodel.headerIcon}"/>
+                        </mx:Canvas>
+                        <s:Button id="img_Edit" width="104" height="28" label="更换头像" click="openHraderIconView()"/>
+                    </mx:VBox>
+                    <mx:VBox width="100%" height="100%" verticalGap="15" paddingTop="5">
+                        <mx:Label text="姓名：{(CRMmodel.hrperson.cname==null)?'':CRMmodel.hrperson.cname}" width="120"/>
+                        <mx:Label text="部门：{(CRMmodel.hrperson.departcname==null)?'':CRMmodel.hrperson.departcname}" width="120"/>
+                        <mx:Label text="岗位：{(CRMmodel.hrperson.ijob1cname==null)?'':CRMmodel.hrperson.ijob1cname}" width="120"/>
+                        <mx:Label text="职务：{(CRMmodel.hrperson.postcname==null)?'':CRMmodel.hrperson.postcname}" width="120"/>
+                    </mx:VBox>
+                </mx:HBox>
+                <s:Spacer height="10"/>
+                <mx:TabBar x="2" width="100%" height="132" direction="vertical" dropShadowVisible="true"
+                           itemClick="clickEvt(event)">
+                    <mx:dataProvider>{STATE_ARRAY}</mx:dataProvider>
+                </mx:TabBar>
+
+            </mx:VBox>
+            <s:Spacer height="100%"/>
+            <mx:VBox width="100%" fontSize="12" paddingBottom="10">
+                <s:Label
+                        text="  最近登录时间：{CRMmodel.lasttime==null || CRMmodel.lasttime==''?'未知时间':CRMmodel.lasttime.substring(0,CRMmodel.lasttime.length-5)}"
+                        paddingBottom="10"/>
+                <s:Label
+                        text="  最近登录地点：{CRMmodel.lastaddress==null || CRMmodel.lastaddress==''?'未知地点':CRMmodel.lastaddress }"/>
+            </mx:VBox>
+        </mx:VBox>
+        <!-- 菜单信息维护 -->
+        <mx:VBox width="100%" height="100%" styleName="centerbg4">
+            <!-- 标签 -->
+            <mx:ApplicationControlBar styleName="centertop" id="menuBar2" width="100%" height="32" paddingLeft="10"
+                                      dock="true">
+                <mx:Label id="textname" text="个人信息设置" fontSize="12" fontWeight="bold"/>
+            </mx:ApplicationControlBar>
+
+
+            <mx:HBox width="100%" height="100%" styleName="contentHbox" horizontalAlign="center">
+
+                <mx:VBox id="container" width="100%" height="100%" cornerRadius="8" verticalGap="10"
+                         horizontalAlign="left">
+                    <mx:ViewStack id="myViewStack" width="100%" height="100%">
+                        <mx:Canvas id="personalMessageSet" width="100%">
+                            <mx:VBox id="myBorder" width="100%" styleName="content"
+                                    creationComplete="myBorder_creationCompleteHandler(event)">
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text="个性呢称" styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_cnickname" text="{person.cnickname} "
+                                                  styleName="contentTextInput" width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text="登录账号" styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_cusecode" styleName="contentTextInput"
+                                                  text="{person.cusecode}" width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox width="100%" styleName="contentSubHbox">
+                                    <mx:Label styleName="contentLabel" text="常用手机"/>
+                                    <mx:TextInput id="tnp_cmobile" styleName="contentTextInput" text="{person.cmobile1}"
+                                                  width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox width="100%" styleName="contentSubHbox">
+                                    <mx:Label styleName="contentLabel"
+                                              text="联系电话"/>
+                                    <mx:TextInput id="tnp_ctel" text="{person.ctel}" styleName="contentTextInput"
+                                                  width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+								<mx:HBox width="100%" styleName="contentSubHbox">
+									<mx:Label styleName="contentLabel"
+											  text="个人  QQ"/>
+									<mx:TextInput id="tnp_cqq" text="{person.cqq}" styleName="contentTextInput"
+												  width="100%"/>
+								</mx:HBox>
+								<mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text="电子邮箱" styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_cemaill" text="{person.cemail}" styleName="contentTextInput"
+                                                  width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text="个性签名" styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_csignature" text="{person.csignature}"
+                                                  styleName="contentTextInput" width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text="密码问题" styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_cquestion" text="{person.cquestion}"
+                                                  styleName="contentTextInput" width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text="密码答案" styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_canswer" text="{person.canswer}" styleName="contentTextInput"
+                                                  width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox id="ui_imenup_box" styleName="contentSubHbox" width="100%">
+                                    <mx:Label text="菜单方案" styleName="contentLabel"/>
+
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                                    <mx:HBox id="ui_icallline_box" creationComplete="icalllineinit(event)">
+                                        <mx:Label text="热线线路：" styleName="contentLabel" />
+                                    </mx:HBox>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" height="33" styleName="contentSubHbox">
+                                    <mx:Label text="坐席排列布局：" styleName="contentLabel" />
+                                    <mx:ComboBox id="cmb_layout" dataProvider="{arrLayout}" labelField="label"
+                                                 textAlign="center" width="130"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+                                <mx:HBox width="100%" styleName="contentSubHbox">
+                                    <mx:Label text="是否呼出弹屏：" styleName="contentLabel" />
+                                    <mx:CheckBox id="calloutjump" selected="{person.bcallout}"/>
+                                    <s:Spacer width="30%"/>
+                                    <mx:Label text="热线处理后是否关闭弹出卡片：" styleName="contentLabel" />
+                                    <mx:CheckBox id="isCloseOutBox" selected="{person.bisCloseOut}"/>
+                                </mx:HBox>
+
+                            </mx:VBox>
+                            <s:Spacer height="100%"/>
+                        </mx:Canvas>
+
+                        <mx:Canvas id="personalPwdSet">
+
+                            <mx:VBox width="100%" styleName="content">
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text=" 输入原密码 " styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_old_pwd" displayAsPassword="true" restrict="0-9a-zA-Z'."
+                                                  styleName="contentTextInput" width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text=" 输入新密码 " styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_new_pwd" displayAsPassword="true" restrict="0-9a-zA-Z'."
+                                                  styleName="contentTextInput" width="100%"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text=" 确认新密码 " styleName="contentLabel"/>
+                                    <mx:TextInput id="tnp_agin_pwd" styleName="contentTextInput" restrict="0-9a-zA-Z'."
+                                                  width="100%" displayAsPassword="true"/>
+                                </mx:HBox>
+                            </mx:VBox>
+                        </mx:Canvas>
+<!---功能过时-->
+<!--                        <mx:Canvas id="personalArgmSet" width="100%">
+                            <mx:VBox width="100%" styleName="content">
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label text=" 个人首页 " styleName="contentLabel"/>
+                                    <comps:ConsultTextInput id="tnp_ihfuncregedit" width="100%" iid="14"
+                                                            bindValueField="iid" bindLabelField="cname"
+                                                            styleName="contentTextInput" editable="true"
+                                                            visibleIcon="{true}" isChanageAcFuncregedit="true"
+                                                            value="{person.ihfuncregedit}">
+                                    </comps:ConsultTextInput>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label width="60" styleName="contentLabel" text=" 锁屏时间"/>
+                                    <mx:TextInput id="tnp_dscreenLock" styleName="contentTextInput" width="100%"
+                                                  text="{person.idscreenlock}"/>
+                                </mx:HBox>
+                                <mx:HRule width="100%"/>
+
+                                <mx:HBox styleName="contentSubHbox" width="100%">
+                                    <mx:Label width="119" styleName="contentLabel" text=" 消息提醒确认方式"/>
+                                    <mx:RadioButtonGroup id="rb_confirmtype"/>
+                                    <s:RadioButton id="confirmtype_1" label=" 浏览 " value="0"
+                                                   selected="{person.iconfirmtype ==0?true:false}"
+                                                   groupName="rb_confirmtype"/>
+                                    <s:RadioButton id="confirmtype_2" label=" 勾选 " value="1"
+                                                   selected="{person.iconfirmtype ==1?true:false}"
+                                                   groupName="rb_confirmtype"/>
+                                </mx:HBox>
+                            </mx:VBox>
+                        </mx:Canvas>
+-->
+                        <mx:Canvas id="personalEMSSet" width="100%" height="100%">
+                            <mx:VBox width="100%" height="100%">
+                                <mx:DataGrid borderAlpha="1" id="EMS" dataProvider="{emsArr}" width="100%" height="100%"
+                                             editable="true" styleName="content"
+                                             dragEnabled="true" dropEnabled="true" dragMoveEnabled="true">
+                                    <mx:columns>
+                                        <mx:DataGridColumn headerText="序号" width="50" dataField="ccode" editable="false"
+                                                           labelFunction="{doLineNum}"/>
+                                        <mx:DataGridColumn headerText="是否显示" width="60" dataField="bvisible"
+                                                           editable="false">
+                                            <mx:itemRenderer>
+                                                <fx:Component>
+
+                                                    <mx:HBox horizontalAlign="center">
+                                                        <fx:Script>
+														<![CDATA[
+                                                            protected function cb1_changeHandler(event:Event):void {
+                                                                if (cb1.selected) {
+                                                                    data.bvisible = true;
+                                                                } else {
+                                                                    data.bvisible = false;
+                                                                }
+                                                            }
+                                                            ]]>
+													</fx:Script>
+
+                                                        <mx:CheckBox id="cb1" change="cb1_changeHandler(event)"
+                                                                     selected="{data.bvisible}"/>
+                                                    </mx:HBox>
+                                                </fx:Component>
+                                            </mx:itemRenderer>
+                                        </mx:DataGridColumn>
+                                        <mx:DataGridColumn headerText="预警项目" dataField="cname" editable="true"/>
+                                        <mx:DataGridColumn headerText="关联功能" dataField="funcname" editable="false"/>
+
+                                    </mx:columns>
+                                </mx:DataGrid>
+                            </mx:VBox>
+                        </mx:Canvas>
+
+                    </mx:ViewStack>
+                    <mx:HBox width="100%" height="32" horizontalAlign="right" verticalAlign="middle">
+                        <s:Button id="refButton" width="104" visible="false" label="刷新"
+                                  click="button1_clickHandler(event)"/>
+                        <s:Button width="104" label="保存" click="onsubmit()"/>
+                    </mx:HBox>
+                </mx:VBox>
+            </mx:HBox>
+        </mx:VBox>
+    </mx:HBox>
+</mx:HBox>
+					
+					
+

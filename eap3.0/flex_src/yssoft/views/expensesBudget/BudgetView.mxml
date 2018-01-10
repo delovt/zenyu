@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HDividedBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"  xmlns:header="yssoft.views.expensesBudget.*"
+			   width="100%" height="100%" xmlns:comps="yssoft.comps.*"  implements="yssoft.impls.ICRMWindow" creationComplete="onWindowInit()" >
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.item{
+			horizontalGap:0;
+			verticalGap:0; 
+		}
+	</fx:Style>
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.flash_proxy;
+			
+			import mx.collections.ArrayCollection;
+			import mx.containers.GridItem;
+			import mx.containers.GridRow;
+			import mx.controls.Alert;
+			import mx.controls.listClasses.ListData;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.MenuEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			
+			import yssoft.comps.dataGridForCheckBox.CheckBoxColumn;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.views.expensesBudget.GridRowView;
+			import yssoft.vos.BmBudgetVo;
+			
+			
+			public var departWidth:Number = 0;	
+			[Bindable]public var winParam:Object=new Object();
+			
+			[Bindable]private var budget:BmBudgetVo = new BmBudgetVo();
+			
+			[Bindable]private var x_percent_arr:Array=[];
+
+			[Bindable]public var arr:ArrayCollection = new ArrayCollection();
+			
+			
+			private var consultIid:int = 0; //动态更改参照 
+			
+			private var operate:String = ""; //全局操作方法
+			
+			//窗体初始化
+			public function onWindowInit():void{
+				init();
+			}
+			//窗体打开
+			public function onWindowOpen():void{
+				this.dt_grid.removeAllChildren(); //清空上一次缓存行
+				onWindowInit();
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void{
+			}
+			
+			private function init():void{
+				if(winParam.hasOwnProperty("budget")){
+					Load_ClassVo(winParam.budget);
+				}
+				if(winParam.hasOwnProperty("arr")) this.arr = winParam.arr;
+				//加载选公司or 部门 or 人员界面
+				onChanageOrganization();
+				//加载列表
+				//loadGridRow();
+				//回车代替 TAB 键
+				CRMtool.setTabIndex(vb_tab_1);  
+				CRMtool.setTabIndex(vb_tab_2); 
+				//横向百分比数组
+				this.x_percent_arr = (budget.cproportion+","+budget.fsum).toString().split(",");
+				
+				lbrForbiddenSave(); //初始化禁用linkbar
+				
+			}
+			
+			//加载列表
+			private function loadGridRow():void{
+				for(var i:int = 0; i < arr.length; i++)
+				{
+					var grv:GridRowView = new GridRowView();
+					grv.obj = arr[i];
+					grv.owner=this;
+					grv.departWidth = departWidth;
+					grv.consultIid = consultIid;
+					this.dt_grid.addChild(grv);
+				}
+			}
+			
+			//部门隐藏显示方法
+			private function departHideDisplay(bool:Boolean):void{
+				if(bool){
+					departWidth = 8;
+				}else{
+					departWidth = 0;
+				}
+				this.dt_grid.removeAllChildren();  //清空
+				loadGridRow(); //重新加载行
+				this.resolveHeader.HideDisplayDepart(bool);
+			}
+			
+			
+			//预算分解
+			private function resolve():void{
+				var newArr:ArrayCollection = new ArrayCollection();
+				var obj:Object = {};
+				
+				//循环新增用户自增的行
+				var array:Array = this.dt_grid.getChildren();
+				for(var i:int=(arr.length); i < array.length ; i++){
+					var percent_:String =( array[i] as GridRowView).getY_PerCent();
+					if(percent_ != "" ){
+						var obj_0:Object = {};
+						obj_0.projectName = ""; //项目名称
+						obj_0.percent = percent_;
+						arr.addItem(obj_0);
+					}
+				}
+				
+				
+				for(var i:int = 0; i < arr.length; i++)
+				{
+					var grv:GridRowView = 	array[i] as GridRowView; 		  //循环获取每个纵向百分比
+					arr[i].percent = grv.getY_PerCent();								  //覆盖原有百分比
+					arr[i].department  = grv.lbl_department.value;
+					
+					if( grv.lbl_projectName.selectedIID  != null && grv.lbl_projectName.selectedIID  != ""){
+						arr[i].projectName = grv.lbl_projectName.selectedIID ;//覆盖预算项目
+					}else{
+						if(i > arr.length){  //若修改时，未更改项目，则不覆盖
+							arr[i] = "";
+						}
+					}
+					
+					obj = new Object();
+					obj.department = arr[i].department;
+					obj.projectName = arr[i].projectName;
+					obj.percent = arr[i].percent;
+					
+					obj.df_1_0 = compute_val(i,this.resolveHeader.get_1_0());
+					obj.df_1_1 = compute_val(i,this.resolveHeader.get_1_1());
+					obj.df_1_2 = compute_val(i,this.resolveHeader.get_1_2());
+					obj.df_1_sum = compute_val(i,this.resolveHeader.get_1_sum());
+					
+					obj.df_2_0 = compute_val(i,this.resolveHeader.get_2_0());
+					obj.df_2_1 = compute_val(i,this.resolveHeader.get_2_1());
+					obj.df_2_2 = compute_val(i,this.resolveHeader.get_2_2());
+					obj.df_2_sum = compute_val(i,this.resolveHeader.get_2_sum());
+					
+					obj.df_3_0 = compute_val(i,this.resolveHeader.get_3_0());
+					obj.df_3_1 = compute_val(i,this.resolveHeader.get_3_1());
+					obj.df_3_2 = compute_val(i,this.resolveHeader.get_3_2());
+					obj.df_3_sum = compute_val(i,this.resolveHeader.get_3_sum());
+					
+					obj.df_4_0 = compute_val(i,this.resolveHeader.get_4_0());
+					obj.df_4_1 = compute_val(i,this.resolveHeader.get_4_1());
+					obj.df_4_2 = compute_val(i,this.resolveHeader.get_4_2());
+					obj.df_4_sum = compute_val(i,this.resolveHeader.get_4_sum());
+					obj.df_sum = (Number(obj.df_1_sum) + Number(obj.df_2_sum) + Number(obj.df_3_sum) + Number(obj.df_4_sum) ).toFixed(2);
+					newArr.addItem(obj);
+				}
+				arr = newArr;    //将分解后数组值给绑定变量
+				this.dt_grid.removeAllChildren();  //清空
+				loadGridRow(); //重新加载
+			}
+			
+			
+			//获取每月X、Y * 总价的值
+			private function compute_val(i:int,x_percent:Number):Number{
+				var y_percent:Number =  parseNum(arr[i].percent) ;
+				var input_sum:Number = resolveHeader.get_sum();
+				var result:Number = ( input_sum * x_percent) * y_percent;  
+				return Number(result.toFixed(2));
+			}
+			
+			//转换百分数
+			private function parseNum(percent:Object):Number{
+				var str:String = percent+"";
+				str = str.replace("%","");
+				var num:Number = Number(str) / 100;
+				return num;
+			}
+			
+			//更改Y坐标表头默认百分比 
+			public  function  percent_y_chanage():void{
+				var array:Array = this.dt_grid.getChildren();
+				var newArray:Array = new Array();
+				for(var i:int=0;i<array.length;i++){
+					newArray.push((array[i] as GridRowView).getY_PerCent());
+				}
+				this.resolveHeader.default_y_percent(newArray);
+			}
+			
+			
+			//获取竖向百分比数组
+			public function getY_Percents():String{
+				var str:String = "";
+				var array:Array = this.dt_grid.getChildren();
+				for(var i:int=0;i<array.length;i++){
+					str +=( (array[i] as GridRowView).getY_PerCent()+",");
+				}
+				str = str.substr(0,str.length -1);
+				return str;
+			}
+			
+			//加载类
+			public function Load_ClassVo(val:Object):void{
+				budget.bdetail = val.bdetail;
+				budget.ccode = val.ccode;
+				budget.cmemo = val.cmemo;
+				budget.cname = val.cname;
+				budget.cproportion = val.cproportion;
+				budget.cproportions = val.cproportions;
+				budget.cversion = val.cversion;
+				budget.fsum = (val.fsum+"") == "NaN"?0:val.fsum;
+				budget.iid = val.iid;
+				budget.iitem = val.iitem;
+				budget.iorganization = val.iorganization;
+				budget.istatus = val.istatus;
+				budget.iyear = val.iyear ;
+			}
+			
+			private function getParamterVo():BmBudgetVo{
+				var bt:BmBudgetVo = new BmBudgetVo();
+				bt.bdetail = this.cbox.selected == true?1:0;
+				bt.ccode  = this.ccode.text;
+				bt.cmemo = this.cmemo.text ;
+				bt.cname   = this.cname.text;
+				bt.cproportion =this.resolveHeader.getX_percent();
+				bt.cproportions = this.getY_Percents(); 
+				bt.cversion = this.cversion.text;
+				bt.fsum = Number(this.budgetSum.text);
+				
+				bt.iid = (this.budget != null?budget.iid:0);
+				if( Number(this.iitem.value) == 0){
+					bt.iitem = this.budget.iitem ;
+				}else{
+					bt.iitem = Number(this.iitem.value);
+				}
+				
+				
+				bt.iorganization = int(this.organization.selectedValue);
+				bt.istatus = Number(this.istatus.text);
+				if(bt.iyear == 0){
+					bt.iyear = (new Date()).getFullYear();
+				}
+				return bt;
+			}
+			
+			
+			//获取选中行的索引集合
+			private function getSelectRow():Array{
+				var array:Array = this.dt_grid.getChildren();
+				var str:String = "";
+				for(var i:int=0;i<array.length;i++){
+					var grv:GridRowView =array[i] as GridRowView;
+					if(grv.flagColor){
+						str +=( i+",");
+					}
+				}
+				return str.substr(0,str.length -1).split(",").sort(Array.DESCENDING);
+			}
+			
+			
+			//动态更改关联表头数值
+			private function onChanageHeaderFont():void{
+				this.resolveHeader.set_sum(this.budgetSum.text);
+			}
+			
+			//主表预算项目更改时 触发事件 加载子类
+			public function onChanageCrmText():void{
+				var ipid:String = this.iitem.value+"";
+				AccessUtil.remoteCallJava("BmBudgetDest","getChildNodeItem",call_chanage_crm_text,ipid);
+			}
+			private function call_chanage_crm_text(e:ResultEvent):void{
+				if(e.result.flag =="fail"){ CRMtool.tipAlert("错误：没能正确的获取到该项目下内容！");}
+				else{
+					dt_grid.removeAllChildren();
+					this.arr.addAll(e.result.list as ArrayCollection);
+					this.loadGridRow();
+				}
+			}
+			
+			
+			
+			
+			/**  ------------------------------ 分割线 --------------------------------*/
+			
+			// Radio更改事件
+			private function onChanageOrganization():void{
+				var val:int = int(this.organization.selectedValue);
+				
+				if(val == 0){   			//公司
+					consultIid = 332;
+					departHideDisplay(false);
+					this.resolveHeader.chanageHeader(0);
+				}else if( val == 1){    //部门
+					consultIid = 332;
+					departHideDisplay(true);
+					this.resolveHeader.chanageHeader(1);
+				}else{					  //人员
+					consultIid = 74;
+					departHideDisplay(false);
+					this.resolveHeader.chanageHeader(2);
+				}
+			}
+			
+			//增删改
+			private function operate_0(e:ItemClickEvent):void{
+				operate = e.item.name;
+				if(operate == "onNew"){
+					clearForm();
+					lbrStartUsingSave();
+				}else if(operate == "onEdit"){
+					lbrStartUsingSave();
+				}else if(operate == "onDelete"){
+					if (this.arr.length >0 )CRMtool.tipAlert("确认要删除这些信息？",null,"AFFIRM",this,"onDelete");
+				}
+			}
+			
+			//增删行
+			private function operate_1(e:ItemClickEvent):void{
+				var operate:String = e.item.name;
+				if(operate == "addRow"){
+					var grv:GridRowView = new GridRowView();
+					grv.owner = this;
+					grv.departWidth = departWidth;
+					grv.consultIid = consultIid;
+					this.dt_grid.addChild(grv);
+					arr.addItem(grv.obj);			
+					
+				}else if(operate == "delRow"){
+					if(this.arr.length == 0){return;}
+					if(getSelectRow()[0] == ""){
+						var array_1:Array = this.dt_grid.getChildren();
+						this.dt_grid.removeChildAt(array_1.length -1);
+						this.arr.removeItemAt(array_1.length -1);
+					}else{
+						var array:Array = getSelectRow();
+						for(var i:int =0; i < array.length ;i++){
+							this.dt_grid.removeChildAt(array[i]);
+							this.arr.removeItemAt(array[i]);
+						}
+						percent_y_chanage();
+					}
+				}
+			}
+			
+			//保存放弃
+			private function operate_2(e:ItemClickEvent):void{
+				var operate_0:String = e.item.name;
+				
+				if(this.resolveHeader.get_sum() != Number(this.budgetSum.text)){
+					CRMtool.tipAlert("预算总数与合计总值必须一样 ！");
+					return;
+				}
+				
+				if(operate_0 == "onSave"){
+					
+					var params:Object = {};
+					
+					if(operate =="onNew")
+					{
+						lbrForbiddenSave();
+						
+						params.budgetArr = this.arr;
+						params.budget = this.getParamterVo();
+						AccessUtil.remoteCallJava("BmBudgetDest","addBmBudgets",result_call_fun,params);
+					}
+					else if(operate == "onEdit")
+					{
+						lbrForbiddenSave();
+						
+						params.budgetArr = this.arr;
+						params.budget = this.getParamterVo();
+						AccessUtil.remoteCallJava("BmBudgetDest","updateBmBudgets",result_call_fun,params);
+					}
+					else if(operate == "onDelete")
+					{	
+						params.ibudget = budget.iid;
+						AccessUtil.remoteCallJava("BmBudgetDest","delBmBudgets",result_call_fun,params);
+					}
+					
+				}else if(operate_0 == "onGiveUp"){
+					lbrForbiddenSave();
+				}
+			}
+			
+			//分解
+			private function operate_3(e:ItemClickEvent):void{
+				var operate:String = e.item.name;
+				if(operate == "onResolve"){
+					this.resolve();
+				}else if(operate == "onBudget"){
+					this.resolve();
+				}
+			}
+			
+			//清空
+			private function clearForm():void{
+				this.ccode.text     = "";
+				this.cname.text    ="";
+				this.cmemo.text   ="";
+				this.cbox.selected = false;
+				this.cversion.text = "";
+				this.iitem.value = "";
+				this.iitem.tnp_text.text ="";
+				this.budgetSum.text   = "";
+				this.istatus.text = "";
+				
+				this.resolveHeader.clearAllText();
+				this.x_percent_arr = new Array();
+				this.dt_grid.removeAllChildren();
+				this.arr.removeAll();
+			}
+			
+			
+			//保存回调函数
+			private function result_call_fun(e:ResultEvent):void{
+				if(operate == "onDelete"){
+					this.dt_grid.removeAllChildren();
+					CRMtool.tipAlert("删除成功！");
+				}else{
+					CRMtool.tipAlert("保存成功！");
+				}
+			}
+			
+			/**
+			 * 禁用保存按钮,启用增删改
+			 */
+			public function lbrForbiddenSave():void{
+				lbr_budget_2.enabled = false;
+				lbr_budget_0.enabled = true;
+				//禁用输入框
+				CRMtool.containerChildsEnabled(vb_tab_1,false);
+			}
+			/**
+			 * 启用保存,禁用增删改
+			 */
+			public function lbrStartUsingSave():void{
+				lbr_budget_0.enabled = false;
+				lbr_budget_2.enabled = true;
+				//禁用输入框
+				CRMtool.containerChildsEnabled(vb_tab_1,true);
+			}
+		]]>
+	</fx:Script>
+	
+	
+	<mx:VBox width="100%" height="100%">
+		<mx:ApplicationControlBar width="100%" height="32">
+			<comps:LinkBarVboxComps id="lbr_budget_0" height="25" width="15%"  dataProvider="{ConstsModel.BUDGET_OPERATE_0}" itemClick="operate_0(event)"/>
+			<comps:LinkBarVboxComps id="lbr_budget_1" height="25" width="7%"  dataProvider="{ConstsModel.BUDGET_OPERATE_1}" itemClick="operate_1(event)"/>
+			<comps:LinkBarVboxComps id="lbr_budget_2" height="25" width="7%"  dataProvider="{ConstsModel.BUDGET_OPERATE_2}" itemClick="operate_2(event)"/>
+			<comps:LinkBarVboxComps id="lbr_budget_3" height="25" width="7%"  dataProvider="{ConstsModel.BUDGET_OPERATE_3}" itemClick="operate_3(event)"/>
+			<s:Spacer width="80%"/>
+			<comps:CrmTextInput id="tnp_bjobstatus"  />
+		</mx:ApplicationControlBar>
+		
+		<mx:VBox  width="100%" height="90%" horizontalAlign="center" paddingTop="20"  paddingLeft="20" paddingRight="20">
+			<mx:VBox width="100%" horizontalAlign="center"   styleName="content" id="vb_tab_1">
+				<mx:HBox width="100%" height="26">
+					<mx:Label text="   预算编码：" /> <mx:TextInput styleName="contentTextInput" width="100%" text="{budget.ccode}"  id="ccode"/>  
+					<s:Spacer width="5%" height="2"/>
+					<mx:Label text="预算名称：" />   <mx:TextInput styleName="contentTextInput" width="100%" text="{budget.cname}" id="cname" />
+					<s:Spacer  width="5%" height="2" />
+					<mx:Label text="预算版本：" />   <mx:TextInput styleName="contentTextInput" width="100%"  text="{budget.cversion}" id="cversion" />
+				</mx:HBox>
+				<mx:HRule width="100%" />
+				
+				<mx:HBox width="100%" height="26">
+					<mx:Label text="   预算组织：" /> 
+					<mx:RadioButtonGroup id="organization" change="onChanageOrganization()"  selectedValue="{budget.iorganization}"/>
+					<mx:RadioButton label="公司" groupName="organization" value="0" />
+					<mx:RadioButton label="部门" groupName="organization" value="1"/>
+					<mx:RadioButton label="人员 " groupName="organization" value="2" width="66%"/>
+					<s:Spacer width="5%" height="2"/>
+					<mx:Label text="   预算项目：" />
+					<!--comps:CRMReferTextInput id="iitem" styleName="contentTextInput"  width="100%"  iid="330" te="{budget.iitem}" visibleIcon="{iitem.editable}" / -->
+					
+					<comps:ConsultTextInput id="iitem" width="100%" iid="52" bindValueField="iid" bindLabelField="cname" styleName="contentTextInput" editable="false" visibleIcon="{this.iitem.enabled}" value="{budget.iitem}" owner="{this}" isBudgetParent="true"  />
+					
+					<s:Spacer  width="5%" height="2" />
+					<mx:Label text=" 明细编制：" />  <s:CheckBox id="cbox" width="100%" selected="{budget.bdetail==0?false:true}" />
+				</mx:HBox>
+				<mx:HRule width="100%" />
+				
+				<mx:HBox width="100%" height="26">
+					<mx:Label text="   预算总数：" /> <mx:TextInput id="budgetSum" styleName="contentTextInput" width="100%" text="{budget.fsum}"  change="onChanageHeaderFont()" />
+					<s:Spacer width="5%" height="2"/>
+					<mx:Label text="备注说明：" /> <mx:TextInput   styleName="contentTextInput" width="100%"  text="{budget.cmemo}" id="cmemo"/>
+					<s:Spacer  width="5%" height="2" />
+					<mx:Label text="单据状态：" /> <mx:TextInput styleName="contentTextInput" width="100%"  text="{budget.istatus}" id = "istatus"/>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:VRule width="5%" height="13"/>
+			<!-- 预算列表 -->
+			<mx:VBox width="100%" height="80%"  horizontalAlign="center" styleName="content" paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10"  id="vb_tab_2">
+				<header:GridHeader width="100%" height="75" id="resolveHeader" x_percent="{x_percent_arr}"/>
+				<mx:Grid width="100%"  styleName="item">
+					<mx:GridRow width="100%">
+						<mx:GridItem width="100%">
+							<mx:VBox id="dt_grid" width="100%"  styleName="item"></mx:VBox>				
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:VBox>
+</mx:HDividedBox>

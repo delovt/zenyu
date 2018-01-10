@@ -1,0 +1,54 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+
+ 	<select id="SendMessage.search" resultClass="java.util.HashMap" parameterClass="java.util.HashMap" remapResults="true">
+	 	$sqlvalue$
+	</select>
+	
+ 	<update id="SendMessage.update"  parameterClass="java.util.HashMap" >
+	 	$sqlvalue$
+	</update>
+	
+	<delete id="SendMessage.delete"  parameterClass="java.util.HashMap">
+		$sqlvalue$
+	</delete>
+	
+	<insert id="SendMessage.insert"  parameterClass="java.util.HashMap">
+		$sqlvalue$
+	</insert>
+
+    <select id="SendMessageForWorkFlow" resultClass="yssoft.vos.AbSmsVo" parameterClass="java.util.HashMap" remapResults="true">
+        select msg.iid iid,hp.cmobile1 cmobile,msg.pcname +' 发起工作流：'+msg.csubject cdetail,ac.ifuncregedit,ac.irperson icustperson,ac.isperson imaker,hp.cname cpsnname  from as_communication ac left join hr_person hp on ac.irperson=hp.iid
+        left join (
+
+        select oa.csubject,com.isperson,com.irperson,com.iid,oa.iinvoice,com.ifuncregedit,com.itype,com.cdetail,fun.cname funcname,p.cname pcname   from as_communication com
+        left join as_funcregedit fun on com.ifuncregedit=fun.iid
+        left join hr_person p on com.isperson=p.iid
+        left join oa_invoice oa on com.iinvoice = oa.iid
+        where com.itype=1 and com.ifuncregedit !=10 and com.isread=0
+        union
+        select oa.csubject,com.isperson,com.irperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,'自由协同' funcame,p.cname pcname  from as_communication com
+        left join hr_person p on com.isperson=p.iid
+        left join oa_invoice oa on oa.iid=com.iinvoice
+        where com.itype=1 and com.ifuncregedit =10 and com.isread=0
+        union
+        select com.cdetail csubject,com.isperson,com.irperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,fun.cname funcname,p.cname pcname  from as_communication com
+        left join as_funcregedit fun on com.ifuncregedit=fun.iid
+        left join hr_person p on com.isperson=p.iid
+        where com.itype=2 and com.ifuncregedit !=10 and com.isread=0
+        union
+        select com.cdetail csubject,com.isperson,com.irperson ,com.iid,com.iinvoice,com.ifuncregedit,com.itype,com.cdetail,'离线消息' funcame,p.cname pcname from as_communication com
+        left join hr_person p on com.isperson=p.iid
+        where com.itype=0 and com.isread=0 and com.isonline=0
+        union
+        select oa.csubject,com.isperson,com.irperson,com.iid,case when isnull(fun.cname,'自由协同')= '自由协同' then oa.iid else oa.iinvoice end iinvoice,isnull(fun.iid,10) ifuncregedit,com.itype,com.cdetail,isnull(fun.cname,'自由协同') funcname,p.cname pcname  from as_communication com
+        left join oa_invoice oa on com.iinvoice=oa.iid
+        left join as_funcregedit fun on fun.iid=oa.ifuncregedit
+        left join hr_person p on com.isperson=p.iid
+        where com.itype=4 and com.isread=0
+        ) msg on msg.irperson=ac.irperson and msg.iid=ac.iid
+
+        where ac.irperson != 0 and isnull(ac.ismsstatus,0) != 1 and ac.bsms=1 and (ac.cdetail='发起' or ac.ismsstatus=2) and msg.iid is not null
+    </select>
+	  
+</sqlMap>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        show="showHandler(event)" mouseDownOutside="mouseDownOutsideHandler(event)"
+                        creationComplete="init()" title="当前页过滤"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+    <fx:Declarations>
+    </fx:Declarations>
+    <fx:Script>
+		<![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.Button;
+        import mx.events.FlexEvent;
+        import mx.events.FlexMouseEvent;
+
+        import yssoft.comps.frame.module.Basic.BasicMxDataGrid;
+        import yssoft.comps.frame.module.FilterList;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.CRMtool;
+        import yssoft.vos.ListclmVo;
+        import yssoft.vos.ListsetVo;
+
+        //FrameworkVBoxView的引用
+        private var _framework:Object;
+        public function get framework():Object {
+            return _framework;
+        }
+
+        public function set framework(value:Object):void {
+            _framework = value;
+        }
+
+        //获得列表信息
+        private var _listclmVo:ListsetVo;
+
+        private var _acListclmVos:ArrayCollection;
+
+
+        public function set acListclmVos(value:ArrayCollection):void {
+            this._acListclmVos = value;
+        }
+
+        //结果集
+        private var _dataArr:ArrayCollection;
+
+        public var isChange:Boolean = false;
+
+        public function set dataArr(value:ArrayCollection):void {
+            this._dataArr = value;
+        }
+
+        private var _selectDataArr:ArrayCollection = new ArrayCollection();
+
+        public var refreshFunction:Function;
+
+        private var filterAC:ArrayCollection;
+        public var dgrd_person:BasicMxDataGrid;
+
+        public function init():void {
+            this.x = this.x - 13;
+            this.y = this.y - 10;
+            isChange = false;
+            myBox.removeAllChildren();
+            filterAC = new ArrayCollection();
+            //先找出所有列
+            for each(var listclmVo:ListclmVo in this._acListclmVos) {
+                if (listclmVo.bfilter) {
+                    var filterVbox:FilterVbox = new FilterVbox();
+                    filterVbox.cfield = listclmVo.cfield;
+                    filterVbox.mainLabelText = listclmVo.cnewcaption;
+                    filterVbox.dataValue = _dataArr;
+                    filterVbox.filterAC = filterAC;
+                    filterVbox.addEventListener("selectedChanged", function (e:Event):void {
+                        var j:int = getSelectedBoxNum();
+                        if (j > 0) {
+                            (owner as Button).styleName = "popupbuttonskin_query";
+                        } else {
+                            (owner as Button).styleName = "popupbuttonskin_query_gray";
+                        }
+                    });
+
+                    myBox.addChild(filterVbox);
+                }
+            }
+        }
+
+        private function getSelectedBoxNum():int {
+            var j:int = 0;
+            for each(var filter:FilterList in filterAC) {
+                var selectAc:ArrayCollection = filter.selectedList;
+                if (selectAc.length > 0)
+                    j++;
+            }
+            return j;
+        }
+
+        protected function button1_clickHandler(event:MouseEvent):void {
+            _selectDataArr.removeAll();
+            var list:ArrayCollection = CRMtool.copyArrayCollection(_dataArr);
+            var newList:ArrayCollection = new ArrayCollection();
+            var j:int = getSelectedBoxNum();
+
+            if (j == 0) {
+                newList = list;
+                (this.framework as FrameworkVBoxView).message.text = "";
+            } else {
+                for each(var item:Object in list) {
+                    var i:int = 0;
+                    for each(var filter:FilterList in filterAC) {
+                        var selectAc:ArrayCollection = filter.selectedList;
+                        for each(var sitem:Object in selectAc) {
+                            if (sitem.label.toString() == item[filter.cfield].toString()) {
+                                i++;
+                                break;
+                            }
+                        }
+                    }
+                    if (i == j)
+                        newList.addItem(item);
+                }
+            }
+
+
+            refreshFunction(newList);
+            close();
+
+            if (j > 0 && newList.length > 0) {
+                (this.owner as Button).styleName = "popupbuttonskin_query";
+                (this.framework as FrameworkVBoxView).message.text = "找到 [" + newList.length + "] 条结果";
+            }
+        }
+
+
+        private function onSelected(selected:Boolean):void {
+            for each(var filter:FilterList in filterAC) {
+                filter.isSelectedAll(selected);
+            }
+        }
+
+        private function showHandler(event:FlexEvent):void {
+            var pt:Point = new Point(dgrd_person.x, dgrd_person.y);
+            pt = dgrd_person.localToGlobal(pt);
+            this.x = pt.x + CRMmodel.alertShadowMargin;
+            this.y = pt.y + CRMmodel.alertShadowMargin;
+
+            if (isChange) {
+                for each(var filter:FilterList in filterAC) {
+                    filter.refresh(this._dataArr);
+                    filter.isSelectedAll(false);
+                }
+                isChange = false;
+            }
+        }
+
+        private function mouseDownOutsideHandler(event:FlexMouseEvent):void {
+            if((this.framework as FrameworkVBoxView).message.text == "")
+                (owner as Button).styleName = "popupbuttonskin_query_gray";
+
+            close();
+        }
+        ]]>
+	</fx:Script>
+    <mx:VBox width="100%" height="100%">
+        <mx:HBox width="{this.width}" height="100%" id="myBox"
+                 paddingLeft="10" paddingRight="10" paddingBottom="6" paddingTop="6" horizontalScrollPolicy="auto"
+                 verticalScrollPolicy="off"/>
+        <mx:HBox width="100%" height="32" verticalAlign="middle" paddingRight="5" paddingLeft="5"
+                 backgroundColor="{CRMmodel.basicColorArray[0]}">
+            <mx:Button label="全选" color="#333333" click="onSelected(true)" width="55"/>
+            <mx:Button label="全消" color="#333333" click="onSelected(false)" width="55"/>
+            <mx:Spacer width="100%"/>
+            <mx:Button label="确定" click="button1_clickHandler(event)"/>
+        </mx:HBox>
+    </mx:VBox>
+</basic:BasicTitleWindow>

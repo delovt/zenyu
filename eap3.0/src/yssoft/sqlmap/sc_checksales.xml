@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+
+	<select id="getOrderAndPlanInfoByIcustomer" parameterClass="int"
+		resultClass="java.util.HashMap" remapResults="true"><!-- 把收款条件翻译到页面 -->
+		<!--select op.iid as op_iid,c.ccode as c_ccode,c.cname as c_cname,
+		as_funcregedit.cname as o_cname,
+		o.ccode as o_ccode,o.iid as o_iid,op.cname as
+		op_cname,op.cmemo,op.dplan,op.fmoney,op.fclosemoney
+		from sc_order o,sc_orderrpplan op,cs_customer c,as_funcregedit
+		where op.iorder = o.iid and o.icustomer = c.iid
+		and o.iifuncregedit = as_funcregedit.iid
+		and o.icustomer = #icustomer#
+		and o.istatus = 1  order by op.dplan asc-->
+		 select op.iid as op_iid,c.ccode as c_ccode,c.cname as c_cname,   as_funcregedit.cname as o_cname, 
+         o.ccode as o_ccode,o.iid as o_iid,op.cname as   op_cname,aa.cname cmemo,op.dplan,op.fmoney,op.fclosemoney  
+         from sc_order o 
+         left join sc_orderrpplan op on o.iid=op.iorder
+         left join cs_customer c on o.icustomer=c.iid
+         left join as_funcregedit on o.iifuncregedit = as_funcregedit.iid 
+         left join (select iid,cname from aa_data) aa on aa.iid=op.cmemo
+         where  o.icustomer = #icustomer#   and o.istatus = 1  order by op.dplan asc  
+		
+	</select>
+
+	<update id="update_Sc_orderrpplan" parameterClass="java.util.HashMap">
+		update sc_orderrpplan set fclosemoney = isnull(fclosemoney,0)+ isnull(#fclosemoney#,0) where iid = #iid#
+	</update>
+
+	<update id="update_Sc_order" parameterClass="java.util.HashMap">
+		update sc_order set	frpsum=isnull((select sum(isnull(fclosemoney,0)) from sc_orderrpplan where iorder =#iorder#),0)	where iid = #iorder#
+        <!--以前的 -->
+        <!--  update sc_order set fbackprofit = isnull(frpsum,0)-isnull(fcost,0)-isnull(ftax,0)-isnull(ffee,0),fpayables = fsum-frpsum where iid = #iorder# -->
+        <!--SZC 合同增加了赠品费用，这边需要减去 -->
+        update sc_order set fbackprofit = isnull(frpsum,0)-isnull(fcost,0)-isnull(ftax,0)-isnull(fpremiums,0)-isnull(ffee,0),fpayables = fsum-frpsum where iid = #iorder#
+	</update>
+	
+	<update id="update_Sc_order2" parameterClass="java.util.HashMap">
+		update sc_order set	frpsum=isnull((select sum(isnull(fclosemoney,0)) from sc_orderrpplan where iorder =(select iorder from sc_orderrpplan where iid=#ictrpplan#)),0)	where iid = (select iorder from sc_orderrpplan where iid=#ictrpplan#)
+	</update>
+
+	<update id="update_sc_rpinvoice" parameterClass="java.util.HashMap">
+		update sc_rpinvoice set fclosemoney = isnull((select sum(isnull(fclosemoney,0)) from sc_ctrpclose where irpinvoice= #irpinvoice#),0)	where iid = #irpinvoice#
+	</update>
+
+	<insert id="insert_Sc_ctrpclose" parameterClass="java.util.HashMap">
+		insert into
+		sc_ctrpclose(iorder,ictrpplan,irpinvoice,fclosemoney,imaker,dmaker,iifuncregedit)
+		values(#iorder#,#ictrpplan#,#irpinvoice#,#fclosemoney#,#imaker#,#dmaker#,#iifuncregedit#)
+		<selectKey resultClass="int" keyProperty="iid">
+			SELECT @@IDENTITY AS iid
+		</selectKey>
+	</insert>
+
+    <insert id="insert_sc_orderapportions" parameterClass="java.util.HashMap">
+        insert into
+        sc_orderapportions(iorder,ictrpclose,ddate,idepartment,iperson,crole,cdetail,fpercent,fmoney,imaker,dmaker)
+        values(#iorder#,#ictrpclose#,#ddate#,#idepartment#,#iperson#,#crole#,#cdetail#,#fpercent#,#fmoney#,#imaker#,#dmaker#)
+        <selectKey resultClass="int" keyProperty="iid">
+            SELECT @@IDENTITY AS iid
+        </selectKey>
+    </insert>
+
+	<delete id="delete_Sc_ctrpcloseByiid" parameterClass="int">
+		delete from sc_ctrpclose where iid = #iid#
+	</delete>
+
+    <delete id="delete_sc_orderapportionsByictrpclose" parameterClass="int">
+        delete from sc_orderapportions where ictrpclose = #iid#
+    </delete>
+
+
+</sqlMap>

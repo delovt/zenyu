@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="100%" height="100%" close="onCloseHandler()" title="进程推进"
+                        creationComplete="initWindow()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import hlib.StringUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			import yssoft.comps.frame.module.CrmEapRadianVbox;
+			import yssoft.frameui.formopt.OperDataAuth;
+			import yssoft.models.CRMmodel;
+			import yssoft.tools.CRMtool;
+			
+			
+			//菜单(列表)传参
+			[Bindable]
+			public var winParam:Object=new Object();
+			
+			// 单据功能注册码
+			[Bindable]
+			public var formIfunIid:int=0;
+			
+			public var currid:int=0;
+			
+			public var outCrmEap:CrmEapRadianVbox;
+			
+			[Bindable]
+			public var curButtonStatus:String="onNew";
+			
+			private var crmeap:CrmEapRadianVbox ;
+			
+			public var paramObj:Object=null;
+			
+			/**
+			 *  单据状态, 新增 new ，编辑 edit ，浏览 browser, 默认为新增 new
+			 * 	从菜单触发 状态为new，从其他触发与单据列表触发 可以设为new,edit,browser其中之一
+			 */
+			[Bindable]
+			public var formStatus:String="new";
+			
+			//打开（初始化界面）进行按钮互斥
+			private function initWindow():void
+			{
+				winParam = CRMtool.getObject(this.winParam);
+				this.formIfunIid = int(winParam.ifuncregedit);
+				crmeap= new CrmEapRadianVbox();
+				crmeap.name="myCanva";
+				crmeap.curButtonStatus=this.curButtonStatus;
+				crmeap.formIfunIid = this.formIfunIid;
+				crmeap.owner=this;
+				crmeap.addEventListener("complete",complete);
+				crmeap.queryVouchForm(paramObj);
+				this.formShowArea.addChild(crmeap);
+			}
+			
+			private function complete(event:Event):void
+			{
+				if(paramObj!=null)
+				{
+					crmeap.setValue(crmeap.fzsj(paramObj)); 
+				}
+			}
+			
+			//关闭窗口
+			private function onCloseHandler():void{
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function onSave():void
+			{
+				crmeap.onSave();
+				crmeap.addEventListener("success",success);
+			}
+			
+			private function success(event:Event):void
+			{
+				var writeLit:ArrayCollection =crmeap.writeLit;
+				var obj:Object =outCrmEap.getValue();
+				var obj1:Object = crmeap.getValue();
+				if(writeLit!=null)
+				{
+					for(var i:int=0;i<writeLit.length;i++)
+					{
+						var writeMap:Object = writeLit.getItemAt(i);
+						var cfield2:String =writeMap.cfield2;
+						obj[StringUtil.Trim(cfield2)+""]=obj1[StringUtil.Trim(String(writeMap.cfield))+""];
+					}
+				}
+				outCrmEap.setValue(crmeap.fzsj(obj),1,1);
+				onCloseHandler(); 
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%">
+		<mx:VBox width="100%" height="90%" verticalGap="0" paddingLeft="10" paddingRight="10">
+			<mx:Canvas id="formShowArea" width="100%" height="100%" 
+					   horizontalScrollPolicy="off" >
+			</mx:Canvas>
+		</mx:VBox>
+		<mx:HBox width="100%" height="10%" horizontalAlign="right" paddingLeft="10" paddingRight="10" paddingBottom="10" paddingTop="10">
+			<mx:Button label="确定" click="onSave()"/>
+			<mx:Button label="取消" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+</basic:BasicTitleWindow>

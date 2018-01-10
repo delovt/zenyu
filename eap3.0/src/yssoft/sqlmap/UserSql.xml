@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="gb2312" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+	<!-- 按照角色的父节点查询 -->
+	<select id="get_user1" resultClass="yssoft.vos.HrPersonVo" parameterClass="java.util.HashMap">
+		select top 1 * from dbo.hr_person h where h.cusecode =#cusecode# and h.cusepassword=#cusepassword#
+	</select>
+	
+	
+	<select id="get_user" resultClass="yssoft.vos.HrPersonVo" parameterClass="java.util.HashMap">
+		select top 1 d.cname departcname,j1.cname ijob1cname,j2.cname ijob2cname,pt.cname postcname,r.iid roleiid,r.cname rolecname,r.buse rolebuse,p.* from hr_person p 
+		left join hr_department d on p.idepartment=d.iid
+		left join hr_job j1 on p.ijob1 = j1.iid
+		left join hr_job j2 on p.ijob2 = j2.iid
+		left join hr_post pt on p.ipost = pt.iid
+		
+		left join as_roleuser ru on p.iid=ru.iperson
+		left join as_role r on ru.irole=r.iid
+		where p.cusecode =#cusecode# and p.cusepassword=#cusepassword# and busestatus=1 and bjobstatus=1
+		<!--where p.cusecode =#cusecode# and pwdcompare(#cusepassword#,p.cusepassword)=1-->
+	</select>
+	
+	<select id="get_userbyid" resultClass="yssoft.vos.HrPersonVo" parameterClass="java.util.HashMap">
+		select top 1 d.cname departcname,j1.cname ijob1cname,j2.cname ijob2cname,pt.cname postcname,r.iid roleiid,r.cname rolecname,r.buse rolebuse,p.* from hr_person p 
+		left join hr_department d on p.idepartment=d.iid
+		left join hr_job j1 on p.ijob1 = j1.iid
+		left join hr_job j2 on p.ijob2 = j2.iid
+		left join hr_post pt on p.ipost = pt.iid
+		
+		left join as_roleuser ru on p.iid=ru.iperson
+		left join as_role r on ru.irole=r.iid
+		where p.iid =#iperson#
+		<!--where p.cusecode =#cusecode# and pwdcompare(#cusepassword#,p.cusepassword)=1-->
+	</select>
+	
+	<statement id="get_user_ce"  >
+			select * from hr_person
+	</statement>
+	
+	<select id="get_user_pwd" resultClass="java.util.HashMap" parameterClass="java.lang.String">
+		select cusepassword from hr_person p where p.cusecode = #loginName#
+	</select>
+	
+	<select id="get_user_obj" resultClass="yssoft.vos.HrPersonVo" parameterClass="java.lang.String">
+		select * from hr_person p where p.cusecode = #loginName#
+	</select>
+	
+	<!-- 获取 角色列表 -->
+	<select id="get_user_role" resultClass="java.util.HashMap" parameterClass="string">
+		select * from as_roleuser ru left join as_role r on ru.irole=r.iid
+		where ru.iperson=#iperson#
+	</select>
+	
+	<update id="update_user_last" parameterClass="java.util.HashMap" >
+		update hr_person set clast =#clast#,dlast=#dlast# where iid =#iid#
+	</update>
+	<!-- 更新 用户的的在线时间戳 -->
+	<update id="user.update_timestamp" parameterClass="java.util.HashMap" >
+		update hr_person set conlinetimestamp=#timestamp# where iid=#iperson#
+	</update>
+	
+	<!-- 跟新，时间戳，ip，sessionid -->
+	<update id="user.update_startinfo" parameterClass="java.util.HashMap" >
+		update hr_person set conlinetimestamp=#timestamp#,cip=#cip#,sesssionid=#sesssionid# where iid=#iperson#
+	</update>
+	
+	<!-- 获取在线人员 -->
+	<select id="user.get_online" parameterClass="string" resultClass="java.util.HashMap">
+	select hr_person.iid,hr_person.cname,cnickname,idepartment,cusecode ,hr_department.cname departcname,'1' isonline from hr_person
+	left join hr_department on hr_person.idepartment = hr_department.iid
+	where hr_person.conlinetimestamp >= #endtimestamp#
+	</select>
+	<!-- 获取当前启用总人数 -->
+	<select id="user.getperson_count" resultClass="string">
+		select count(*) from hr_person where busestatus = 1
+	</select>
+	
+	<!-- 判断用户是否已经登录了 -->
+	<select id="user.islogin" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select case when isnull(h.cip,'')='' then '127.0.0.1' else h.cip end cip,
+		convert(varchar(19),DATEADD(s,cast(SUBSTRING
+		(h.conlinetimestamp ,0,LEN(h.conlinetimestamp)-2) as int),'1970-01-01 08:00:00'),120)  as doperate,'1' logined
+		from hr_person h left join 
+		(select top 1 * from as_operlog where iperson =#iperson# and cfunction='登录系统') c on h.iid=c.iperson
+		where h.iid=#iperson# and h.conlinetimestamp > #endtimestamp#
+
+	</select>
+	
+	
+	<!-- 更新 用户的便签 -->
+	<update id="user.update.note" parameterClass="java.util.HashMap" >
+		update hr_person set cnote=#cnode# where iid = #iperson#
+	</update>
+	
+	<!-- 删除 用户的 常用设置 -->
+	<delete id="user.delete.personmenu" parameterClass="java.util.HashMap" >
+		delete from as_personmenu where iperson = #iperson#
+	</delete>
+	
+	<!-- 插入 用户的 常用设置 -->
+	<insert id="user.insert.personmenu" parameterClass="java.util.HashMap">
+		insert into as_personmenu (iperson,itype,imenu,ino,iimage,clocalprogram,clocalcaption)
+					values (#iperson#,#itype#,#imenu#,#ino#,#iimage#,#clocalprogram#,#clocalcaption#)
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+	</insert>
+	
+	<!-- 获取 用户的 常用设置(不含权限，只是展示) -->
+	<select id="user.select.personmenu" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select pm.*,isnull(menu.cname,pm.clocalcaption) cname,menu.iimage miimage from as_personmenu  pm left join as_menu menu on pm.imenu=menu.iid
+		where pm.iperson=#iperson#
+	</select>
+	<!-- 获取 用户的 常用设置(含有权限) -->
+	<select id="user.select.personmenu.auth" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+					select m.iid,m.ipid,m.ccode,isnull(m.cname,m.clocalcaption) cname,m.iimage,m.itype,f.cprogram,m.ifuncregedit,m.iopentype,m.iszc,
+m.buse,m.authcode,m.hasauth,m.bshow,f.iid fiid,m.cprogram mcprogram,f.brepeat, '' clzzid,f.cparameter,f.ctable,
+			f.ifuncregedit as outifuncregedit,f.cname as title,m.pmitype,m.ino,m.clocalprogram,m.clocalcaption,m.imenu
+			from (
+			select m.*,case when copercode is null then 'no' else 'yes' end hasauth  from (
+				select menu.*,apm.itype pmitype,apm.ino,apm.clocalprogram,apm.clocalcaption,apm.imenu,case when  authcontent.iid is null then 'no' else 'yes'end iszc,
+					      case when authcontent.ccode is null then '0' else authcontent.ccode end authcode,
+					      case when buse is null then '0' else '1' end buse from as_menu menu 
+				left join (select * from as_authcontent where substring(ccode,charindex('.',ccode)+1,2)='01') authcontent 
+				on menu.ifuncregedit=authcontent.ifuncregedit
+				right join as_personmenu apm on apm.imenu=menu.iid
+				where apm.iperson=#iperson#
+			) m left join (
+				select distinct(copercode) from as_operauth where irole in 
+				(select distinct(irole) from as_roleuser ru left join as_role ro on ru.irole = ro.iid 
+				where ro.buse=1 and ru.iperson=#iperson#)
+				and substring(copercode,charindex('.',copercode)+1,2)='01'
+			) auth on m.authcode=auth.copercode 
+			) m left join as_funcregedit f on m.ifuncregedit=f.iid
+			order by m.ino
+	</select>
+	
+	
+	
+	
+	
+	
+	
+</sqlMap>

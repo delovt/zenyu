@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+         creationComplete="init()">
+
+         <mx:TextInput width="70%" id="phoneNumber" restrict="0-9#*" styleName="contentTextInputOther"  fontWeight="bold"   textAlign="center"/>
+         <mx:LinkButton id="setAside" width="30%" height="100%" label="拨打"   click="click_handel()"/>
+
+
+    <fx:Script><![CDATA[
+        import mx.events.FlexEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.models.CRMmodel;
+        import yssoft.scripts.CallCenterConnect;
+        import yssoft.tools.CRMtool;
+
+        //IP地址
+        private var _cpsip:String;
+        private var _cpsport:int;
+
+        //连接 呼叫中心 服务端
+        private var _softSocket:Socket = null;
+
+        private function init():void {
+            this.phoneNumber.addEventListener(KeyboardEvent.KEY_DOWN,enterprise);
+            setAside_color(0x8CCD45);
+
+        }
+
+        private function callout(): void {
+            if(!CRMmodel.modelSocket) {
+                //var conn:CallCenterConnect = new CallCenterConnect();
+                CRMtool.showAlert("尚未连接呼叫中心服务，请链接...");
+                return;
+            }
+            var num:String = StringUtil.trim(this.phoneNumber.text);
+
+            var type:String = this.setAside.label;
+            if(type == "拨打") {
+                if(CRMtool.isStringNull(num) || num.length < 3) {
+                    CRMtool.showAlert("拨打号码有误，请核查！");
+                    return;
+                }
+
+                this.setAside.label = "挂机";
+                setAside_color(0xCC0032);
+            } else if(type == "挂机") {
+                this.setAside.label = "拨打";
+                setAside_color(0x8CCD45);
+            }else {
+                return;
+            }
+            sendMsg(type,num);
+        }
+        public function click_handel():void {
+            callout();
+        }
+
+        public function enterprise(event:KeyboardEvent):void {
+            if(event.keyCode == 13) {//Enter键
+                callout();
+            }
+        }
+
+        private function sendMsg(type:String,num:String):void {
+
+            if (CRMtool.isStringNull(num)) {
+                return;
+            } else {
+                var channel:String = (String)(CRMmodel.icallline - 1);
+                var msg:String = "CMsg:";
+                if(type == "拨打") {
+
+                    msg += num;
+                }
+                if(type == "挂机") {
+
+                    phoneNumber.text = "";
+                    msg += "hangup";
+                }
+
+                msg += ":" + channel;
+
+                var message:ByteArray = new ByteArray(); //新建一个ByteArray存放数据
+
+                message.writeUTFBytes(msg);
+
+                CRMmodel.modelSocket.writeBytes(message); //写入Socket的缓冲区
+
+                CRMmodel.modelSocket.flush(); //调用flush方法发送信息
+
+            }
+        }
+
+        public function set softSocket(value:Socket):void {
+            _softSocket = value;
+        }
+
+        public function get softSocket():Socket {
+            return _softSocket;
+        }
+
+        public function setAside_color(color:uint) {
+
+            setAside.setStyle("chromeColor",color);
+
+            setAside.graphics.beginFill(color);
+            setAside.graphics.drawRect(0, 0, setAside.width, setAside.height);
+            setAside.graphics.endFill();
+        }
+        ]]></fx:Script>
+</mx:HBox>
+
+<!--<mx:stytle type="text/css">-->
+    <!--#id{       border:1px solid #ccc;}-->
+<!--</mx:stytle>-->
+

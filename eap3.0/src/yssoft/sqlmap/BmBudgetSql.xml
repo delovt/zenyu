@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap>
+    
+    <!-- 预算项目  -->
+    <select id="bm_item_select" resultClass="java.util.HashMap">
+    	select * from bm_item	
+ 	</select>
+ 	
+ 	<select id="bm_item_childnode" parameterClass="int"    resultClass="java.util.HashMap">
+ 		select iid as projectName from bm_item where ipid = #ipid#
+ 	</select>
+ 	
+ 	<insert id="bm_item_add"  parameterClass="yssoft.vos.BmItemVo">
+ 		insert into bm_item (ccode , cname , ipid , bdetail , cmemo ) values(#ccode# , #cname# , #ipid# , #bdetail# , #cmemo#);
+		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+ 	</insert>
+ 	
+ 	<update id="bm_item_update" parameterClass="yssoft.vos.BmItemVo">
+ 		begin
+		update bm_item set ccode =#ccode#,cname=#cname#,ipid=#ipid#,cmemo=#cmemo#, bdetail =#bdetail# where iid=#iid#;
+		update bm_item set  ccode=REPLACE(SUBSTRING(ccode,1,len(#oldCode#)),#oldCode#,#ccode#)+SUBSTRING(ccode,len(#oldCode#)+1,len(ccode)) where ccode like #oldCode#+'%';
+		end;
+ 	</update>
+ 	
+ 	<delete id="bm_item_del"  parameterClass="String">
+ 		delete bm_item where iid =#iid#
+ 	</delete>
+ 	
+ 	<select id="bm_item_getcname" parameterClass ="String" resultClass="String">
+ 		select cname from bm_item where iid = #iid#
+ 	</select>
+ 	
+ 
+ 	<!-- 预算主表 -->
+ 	<select id="bm_budget_select" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		select c.* from 
+		(
+			  SELECT TOP $pagesize$ b.* FROM
+			  (
+			     SELECT TOP $topsize$ a.* FROM
+			     (
+			     	$sql$
+			      ) a
+			  ) b 
+		 ) c 
+		 <isNotEmpty property="orderSql">
+		 	$orderSql$
+		 </isNotEmpty>
+	</select>	
+	
+	<select id="bm_budget_select_sum" parameterClass="java.util.HashMap" resultClass="int">
+		select count(*) from ($sql$) b
+	</select>	
+ 	
+ 	<insert id="bm_budget_add" parameterClass="yssoft.vos.BmBudgetVo">
+ 		insert into bm_budget (ccode,cname,cversion,iyear,iorganization,iitem,bdetail,fsum,cproportion,cproportions,cmemo,istatus) 
+ 		values 
+ 		(#ccode#,#cname#,#cversion#,#iyear#,#iorganization#,#iitem#,#bdetail#,#fsum#,#cproportion#,#cproportions#,#cmemo#,#istatus#) 
+ 		<selectKey resultClass="int" keyProperty="iid" > 
+  				SELECT @@IDENTITY AS iid 
+	   </selectKey> 
+ 	</insert>	
+ 	
+ 	<update id="bm_budget_update" parameterClass="yssoft.vos.BmBudgetVo">
+ 		update bm_budget set ccode =#ccode#,cname=#cname#,cversion=#cversion#,iyear=#iyear#,iorganization=#iorganization#,iitem=#iitem#,
+ 		bdetail=#bdetail#,fsum=#fsum#,cproportion=#cproportion#,cproportions=#cproportions#,cmemo=#cmemo#,istatus=#istatus# where iid=#iid#
+ 	</update>
+ 	
+ 	<delete id="bm_budget_delete"  parameterClass="java.util.HashMap">
+ 		begin
+ 		delete  bm_budget $iid$;
+ 		delete  bm_budgets $iid_son$;
+ 		end;
+ 	</delete>
+ 	
+ 	
+ 	<!-- 预算子表 -->
+ 	<select id="bm_budgets_select" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+ 		select * from bm_budgets where ibudget = #ibudget#
+ 	</select>
+ 	
+ 	<insert id="bm_budgets_add" parameterClass="yssoft.vos.BmBudgetsVo">
+ 		insert into bm_budgets (ibudget,imonth,icorp,idepartment,iperson,iitems,fsum) values (#ibudget#,#imonth#,#icorp#,#idepartment#,#iperson#,#iitems#,#fsum#)
+ 	</insert>
+ 	
+ 	<update id="bm_budgets_update" parameterClass="yssoft.vos.BmBudgetsVo">
+ 		update bm_budgets set ibudget=#ibudget#,imonth=#imonth#,icorp=#icorp#,idepartment=#idepartment#,iperson=#iperson#,iitems=#iitems#,fsum=#fsum# where iid=#iid#
+ 	</update>
+ 	
+ 	<delete id="bm_budgets_delete"  parameterClass="int">
+ 		delete bm_budgets where ibudget = #iid#
+ 	</delete>
+ 	
+</sqlMap>

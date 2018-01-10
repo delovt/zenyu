@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        width="700" height="400" title="回帖"
+                        implements="yssoft.impls.ICRMWindow"
+                        initialize="ini()" close="crmwindow1_myCloseHandler(event)"
+                        xmlns:myRichTextEditor="yssoft.comps.myRichTextEditor.*"
+                        xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+			
+			import flash.events.Event;
+			import flash.events.MouseEvent;
+			import flash.utils.describeType;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.evts.EventDispatcherFactory;
+			import yssoft.evts.TwitterEvent;
+			import yssoft.models.CRMmodel;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			import yssoft.tools.DateUtil;
+			import yssoft.vos.TwitterReplyVo;
+
+			[Bindable]
+			public var iid:int;
+			[Bindable]
+			public var itwitter:int;
+			[Bindable]
+			private  var twitterReplyVo:TwitterReplyVo = new TwitterReplyVo();
+			
+			protected function ini():void{
+				
+			}
+			
+			
+			protected function btn_reply_clickHandler(event:MouseEvent):void
+			{
+				if( this.cdetail.htmlText == "" )
+					return;
+				
+				twitterReplyVo.itwitter =  itwitter;
+				twitterReplyVo.cdetail  =  this.cdetail.htmlText
+				twitterReplyVo.bhide    =  false;
+				twitterReplyVo.imaker   =  int( CRMmodel.userId );
+				twitterReplyVo.dmaker   =  DateUtil.formateDate();
+				twitterReplyVo.userId  =  CRMmodel.userId;
+				
+				AccessUtil.remoteCallJava("TwitterDest","reply",onReplyBack, twitterReplyVo);
+			}
+			
+			private function onReplyBack( evt:ResultEvent ):void
+			{
+				if( evt.result.toString()!="failed")
+				{
+					PopUpManager.removePopUp(this);
+					AccessUtil.remoteCallJava("TwitterDest","addUpBrowseTwitter",null, itwitter);
+					EventDispatcherFactory.getEventDispatcher().dispatchEvent(
+						new TwitterEvent( TwitterEvent.onDetailViewRefresh ) );
+				}
+				else
+				{
+					CRMtool.tipAlert(ConstsModel.TWITTER_REPLY_FAILED_INFO);
+				}
+			}
+			
+			protected function btn_reset_clickHandler(event:MouseEvent):void
+			{
+				this.cdetail.htmlText = "";
+			}
+			
+			//窗体初始化
+			public function onWindowInit():void
+			{
+				
+			}
+			//窗体打开
+			public function onWindowOpen():void
+			{
+				//	ini();
+				//	onGiveUp();
+				//	this.ifuncregedit.te = "";
+				//	CRMtool.toolButtonsEnabled(this.btn_menubar,"onGiveUp");
+				
+			}
+			//窗体关闭,完成窗体的清理工作
+			public function onWindowClose():void
+			{
+				
+			}
+			
+			protected function crmwindow1_myCloseHandler(event:Event):void
+			{
+				PopUpManager.removePopUp(this);				
+			}
+			
+		]]>
+	</fx:Script>
+	<basic:layout>
+		<s:VerticalLayout gap="0" paddingLeft="10"  paddingTop="10" paddingRight="10"/>
+	</basic:layout>
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<!--<comps:CRMRichTextEditor  borderVisible="true" borderColor="#c4cccc" id="cdetail" width="100%" height="100%" />-->	
+		<myRichTextEditor:MyRichTextEditor  id="cdetail" width="100%" height="100%"/>
+	</mx:VBox>
+	<mx:HBox width="100%"  horizontalAlign="right" height="38" verticalAlign="middle" >
+		<mx:Button id="btn_reply" label="回复" click="btn_reply_clickHandler(event)" />
+		<mx:Button id="btn_reset" label="重置" click="btn_reset_clickHandler(event)" />
+	</mx:HBox>	
+
+	
+</basic:BasicTitleWindow >

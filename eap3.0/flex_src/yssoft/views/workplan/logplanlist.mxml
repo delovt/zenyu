@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" 
+		 xmlns:comps="yssoft.comps.*" 
+		 paddingTop="0" paddingBottom="0" verticalGap="0" xmlns:renders="yssoft.renders.*" label="该日日志">
+	<fx:Metadata>
+		[Event(name="onDownloadBodyVoEnd",type="flash.events.Event")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import yssoft.evts.onItemDoubleClick;
+			import yssoft.models.ConstsModel;
+			import yssoft.tools.AccessUtil;
+			import yssoft.vos.oa_workdiaryVo;
+			import yssoft.vos.oa_workdiarysVo;
+			[Bindable]
+			public var condition:String;
+			[Bindable]
+			public var workdiaryVo:oa_workdiaryVo;
+			[Bindable]
+			public var workdiarysVos:ArrayCollection=new ArrayCollection();
+			[Bindable]
+			public var count:int;//总共日志数
+			[Bindable]
+			public var backcount:int;//已反馈日志数
+			
+			//下载表体Vo
+			public function DownloadBodyVo():void
+			{
+				AccessUtil.remoteCallJava("oa_workdiaryViewDest","get_bywhere_oa_workdiarys",downloadBodyVoCallBackHandler,this.condition,null,false);				
+			}
+			private function downloadBodyVoCallBackHandler(evt:ResultEvent):void
+			{
+				this.count=0;
+				if(evt.result!=null)
+				{
+				      workdiarysVos=evt.result as ArrayCollection;
+					  this.count=workdiarysVos.length;
+					  updatestatecolor();
+				} 
+				this.dispatchEvent(new Event("onDownloadBodyVoEnd"));
+			}
+			
+			protected function comps_list_itemDoubleClickHandler(event:MouseEvent):void
+			{
+				var evt:onItemDoubleClick=new onItemDoubleClick(onItemDoubleClick.eventtype,event.currentTarget);
+				this.dispatchEvent(evt);				
+			}
+			
+			//更新回写状态颜色
+			public function updatestatecolor():void
+			{
+				this.backcount=0;
+				for each(var item:Object in this.workdiarysVos)
+				{
+					if (item.iplans>0)
+					{
+						this.backcount++;
+						item.backcolor=ConstsModel.PLAN_DONE_COLOR;
+					}
+					else
+					{
+						item.backcolor=ConstsModel.PLAN_NONE_COLOR;
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:Repeater id="rep" width="100%" height="100%" dataProvider="{this.workdiarysVos}">
+		<renders:DGWorkplanList id="comps_list" item="{rep.currentItem}" width="100%" isShowFirstCol="true" cdateformat="YYYY-MM-DD HH:NN:SS"
+        autoDrawBackground="true" rollOverColor="#E6F1F9" buttonMode="true" accentColor="blue" useHandCursor="true" mouseChildren="false" click="comps_list_itemDoubleClickHandler(event)"/>
+		<comps:CrmDotLine width="100%"/>
+	</mx:Repeater>
+</mx:VBox>

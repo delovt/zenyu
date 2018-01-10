@@ -1,0 +1,62 @@
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"    "sql-map-2.dtd">
+<sqlMap>
+	<!-- 获取与用户关联的桌面列表 -->
+	<select id="explorer.getDesktopList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		select * from ac_desktop where iperson=#iperson# order by ino
+	</select>
+	
+	<!-- 获取用于关联的桌面列表的 详细配置信息,里面要添加权限控制 -->
+	<select id="explorer.getDetailDesktopList" parameterClass="java.util.HashMap"  resultClass="java.util.HashMap">
+		select * from ac_desktops where idesktop=#idesktop#
+<!-- 		select dt.*,fun.cname,fun.cprogram,fun.cparameter,fun.ctable,fun.ifuncregedit outifuncregedit from  -->
+<!-- 		( select * from ac_desktops where idesktop in (select iid from ac_desktop where iperson=#iperson# ) ) dt -->
+<!-- 		left join as_funcregedit fun on dt.ifuncregedit = fun.iid -->
+<!-- 		order by dt.iid,dt.ino -->
+	</select>
+	
+	<!-- 新增 桌面 屏幕 ,并返回新增项的主键iid-->
+	<insert id="explorer.insertDesktopItem" parameterClass="java.util.HashMap">
+		insert into ac_desktop (iperson,itype,ino,ccaption)
+		values
+		(#iperson#,#itype#,#ino#,#ccaption#)
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+	</insert>
+	<!-- 删除 桌面屏幕，同时级联删除 屏幕关联的 项目配置 -->
+	<delete id="explorer.deleteDesktopItem" parameterClass="java.util.HashMap">
+		begin
+			delete ac_desktops where idesktop in (select iid from ac_desktop where iperson=#iperson#);
+			delete ac_desktop where iperson=#iperson#;
+<!-- 			delete from ac_desktop where iid = #iid#; -->
+<!-- 			delete  from ac_desktops where idesktop = #iid#; -->
+		end;
+	</delete>
+	<!-- 修改 桌面屏幕 -->
+	<update id="explorer.updateDesktopItem" parameterClass="java.util.HashMap">
+		update ac_desktop set itype=#itype#,ino=#ino#,ccaption=#ccaption# where iid=#iid#
+	</update>
+	
+	
+	<!-- 新增 桌面 屏幕项,同时返回新增iid -->
+    <insert id="explorer.insertDesktopsItem" parameterClass="java.util.HashMap">
+    	insert into ac_desktops (idesktop,ifuncregedit,iimage,ccaption,ino,ipage,itype,ifuncregedits)
+		values
+		(#idesktop#,#ifuncregedit#,#iimage#,#ccaption#,#ino#,#ipage#,#itype#,#ifuncregedits#)
+		<selectKey resultClass="int" keyProperty="iid">
+			select @@IDENTITY AS iid
+		</selectKey>
+    </insert>
+    
+    <!-- 删除 桌面屏幕项 -->
+    <delete id="explorer.deleteDesktopsItem" parameterClass="java.util.HashMap">
+    	delete  from ac_desktops where iid = #dtsiid#
+    </delete>
+    
+    <!-- 修改 桌面屏幕项 -->
+    <update id="explorer.updateDesktopsItem" parameterClass="java.util.HashMap">
+		update ac_desktop  set idesktop=#idesktop#,ifuncregedit=#ifuncregedit#,iimage=#iimage#,
+		ccaption=#ccaption#,ino=#ino# where iid=#iid#
+	</update>
+ 
+</sqlMap>

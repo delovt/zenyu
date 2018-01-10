@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx" horizontalGap="0"
+         paddingLeft="7" paddingRight="7" paddingBottom="7" paddingTop="7"
+         horizontalScrollPolicy="off" verticalScrollPolicy="off" implements="yssoft.interfaces.IMainViewStackRefresh"
+         width="100%" height="100%" xmlns:homeView="yssoft.views.homeView.*" xmlns:warnset="yssoft.views.warnset.*">
+
+    <fx:Script>
+		<![CDATA[
+        public function mainViewSelectMe():void {
+            refSubHome();
+            wsp.getWarnData();
+        }
+
+        public function refSubHome():void {
+            dpc.refSubHome();
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <!-- 将非可视元素（例如服务、值对象）放在此处 -->
+    </fx:Declarations>
+    <mx:VBox width="150" height="100%" verticalGap="4">
+        <homeView:SmartButtonBox/>
+        <warnset:WarnShowPro id="wsp" width="150" height="100%" borderColor="#efefef" borderStyle="solid"
+                             borderVisible="true" borderAlpha="1"/>
+    </mx:VBox>
+    <s:Spacer width="12"/>
+    <homeView:DesktopProContainer id="dpc" ownerBox="{this}" width="100%" height="100%"/>
+    <s:Spacer width="5"/>
+</mx:HBox>

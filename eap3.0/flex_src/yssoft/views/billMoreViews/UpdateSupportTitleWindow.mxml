@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<basic:BasicTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:s="library://ns.adobe.com/flex/spark"
+                        xmlns:mx="library://ns.adobe.com/flex/mx"
+                        xmlns:comps="yssoft.comps.*"
+                        title="实际支持情况"
+                        width="650" height="232"
+                        xmlns:module="yssoft.comps.frame.module.*"
+                        close="onCloseHandler()" xmlns:basic="yssoft.comps.frame.module.Basic.*">
+	
+	<fx:Script>
+		<![CDATA[
+        import flashx.textLayout.formats.Float;
+
+        import mx.collections.ArrayCollection;
+        import mx.collections.ArrayList;
+        import mx.controls.Alert;
+        import mx.controls.CheckBox;
+        import mx.controls.TextInput;
+        import mx.events.DataGridEvent;
+        import mx.events.DataGridEventReason;
+        import mx.events.FlexEvent;
+        import mx.managers.PopUpManager;
+        import mx.rpc.events.ResultEvent;
+        import mx.utils.StringUtil;
+
+        import yssoft.comps.CRMDataGridForCheckBox;
+        import yssoft.comps.frame.module.CrmEapRadianVbox;
+        import yssoft.comps.frame.module.CrmEapTextInput;
+        import yssoft.models.CRMmodel;
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        private var iid:int;
+        private var crmeap:CrmEapRadianVbox;
+
+        private var ui_iaperson:CrmEapTextInput;
+        //			private var ui_casupport:CrmEapTextInput;
+
+        private var icustomer:int;
+
+        public function myinit(iid:int, crmeap:CrmEapRadianVbox):void {
+            this.iid = iid;
+            this.crmeap = crmeap;
+            this.icustomer = (crmeap.getValue() as Object).icustomer;
+            initConsult();
+            CRMtool.openView(this);
+//				(ui_ddeparture.getHour()).addEventListener(FlexEvent.VALUE_COMMIT,hours_focusOutHandler);
+//				(ui_ddeparture.getMin()).addEventListener(FlexEvent.VALUE_COMMIT,hours_focusOutHandler);
+            var param:Object = crmeap.getValue();
+            ui_dadate.text = param.dadate;
+            ui_casupport.text = param.casupport;
+            ui_csuggest.text = param.csuggest;
+            ui_ffee.text = param.ffee;
+            ui_cmemo.text = param.cmemo;
+
+            //ui_iaperson.text=param.iaperson;
+        }
+
+        private function initConsult():void {
+
+            var obj1:Object = new Object();
+            obj1.cobjectname = "ui_iaperson";
+            obj1.ifuncregedit = "147";
+            obj1.cfield = "iaperson";
+
+            AccessUtil.remoteCallJava("CommonalityDest", "queryFun", function (evt:ResultEvent):void {
+
+                if (evt.result != null) {
+                    var consultObj:Object = evt.result;
+
+                    ui_iaperson = new CrmEapTextInput();
+                    ui_iaperson.percentWidth = 100;
+                    ui_iaperson.name = "UI_C1";
+                    consultObj.cobjectname = "UI_C1";
+                    ui_iaperson.singleType = consultObj;
+                    ui_iaperson.text = crmeap.getValue().iaperson;
+                    ui_iaperson_box.addChild(ui_iaperson);
+                    //ui_iaperson.editable = false;
+                }
+            }, obj1);
+
+
+        }
+
+        public function onGetConsultSqlCondition(value:String = "icustomer=icustomer"):String {
+            if (icustomer > 0) {
+                return  " and icustomer=" + icustomer;
+            }
+            else {
+                return "";
+            }
+        }
+
+        private var flag:Boolean = true;
+
+        protected function titlewindow1_updateCompleteHandler():void {
+            //if(ui_iaperson&&ui_casupport&&flag){
+            var valueObj:Object = crmeap.getValue();
+
+//					ui_darrival.text=valueObj.darrival ;
+//					ui_ddeparture.text=valueObj.ddeparture;
+//					
+//					ui_cdescription.text=valueObj.cdescription;
+//					ui_cprocess.text=valueObj.cprocess;
+            ui_dadate.text = valueObj.dadate;
+            ui_csuggest.text = valueObj.csuggest;
+            ui_ffee.text = valueObj.ffee;
+            ui_cmemo.text = valueObj.cmemo;
+
+            //ui_iaperson.text=valueObj.iaperson;
+            ui_iaperson.addEventListener("initialization", function (event:Event):void {
+                ui_iaperson.onDataChange();
+            });
+            ui_iaperson.onDataChange();
+
+            ui_casupport.text = valueObj.casupport;
+
+            //ui_casupport.onDataChange();
+
+//					if(valueObj.darrival&&valueObj.darrival!=""){
+//						ui_darrival.editable = false;
+//					}
+//					if(valueObj.ddeparture&&valueObj.ddeparture!=""){
+//						ui_ddeparture.editable = false;
+//					}
+
+            CRMtool.setTabIndex(this.myBorder);
+            flag = false;
+            //}
+
+        }
+
+        private function verification():Boolean {
+            //lueObj.darrival = ui_darrival.text;
+            //	valueObj.ddeparture = ui_ddeparture.text;
+            //valueObj.dadate = ui_dadate.text;
+            if (!verificationItem(ui_dadate)) {
+                return false;
+            }
+            if (!verificationItem(ui_iaperson)) {
+                return false;
+            }
+            if (!verificationItem(ui_casupport)) {
+                return false;
+            }
+
+            return true;
+
+        }
+
+        private function verificationItem(textInput:Object):Boolean {
+            var bool:Boolean = true;
+            if (CRMtool.isStringNull(textInput.text)) {
+                bool = false;
+                //CRMtool.showAlert(textInput.id+"  必填");
+                textInput.setFocus();
+            }
+            return bool;
+        }
+
+        override protected function onSubmit():void {
+            var valueObj:Object = crmeap.getValue();
+
+            if (verification() == false) {
+                return;
+            }
+
+//				valueObj.darrival = ui_darrival.text;
+//				valueObj.ddeparture = ui_ddeparture.text;
+            valueObj.casupport = ui_casupport.text;
+            //valueObj.iaperson = ui_iaperson.text;
+            valueObj.dadate = ui_dadate.text;
+            valueObj.csuggest = ui_csuggest.text;
+            valueObj.ffee = ui_ffee.text;
+            valueObj.cmemo = ui_cmemo.text;
+
+            //valueObj.istatus=2;
+            //valueObj.irecord = CRMmodel.userId.toString();
+            //valueObj.iengineer = valueObj.irecord;
+            //valueObj.drecord = CRMtool.getFormatDateString("YYYY-MM-DD HH:NN:SS",new Date());
+
+            if (ui_iaperson && CRMtool.isStringNotNull(ui_iaperson.text)) {
+                valueObj.iaperson = ui_iaperson.consultList.getItemAt(0)[ui_iaperson.singleType.cconsultbkfld];
+            }
+
+            var sql:String = "update sa_presupport set iaperson='" + valueObj.iaperson + "',casupport='" + valueObj.casupport + "',dadate='" + valueObj.dadate + "',csuggest='" + valueObj.csuggest + "',ffee='" + valueObj.ffee + "',cmemo='" + valueObj.cmemo + "'  where iid =" + valueObj.iid;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function ():void {
+                CRMtool.tipAlert("提交支持申请成功！");
+                var obj:Object = new Object();
+                obj.mainValue = valueObj;
+                crmeap.setValue(obj, 1, 1);
+                onCloseHandler();
+            }, sql, "更新中……");
+
+//				AccessUtil.remoteCallJava("SrBillDest","updateDataForStatus2",function():void{								
+//					CRMtool.tipAlert("提交支持申请成功！");
+//					var obj:Object = new Object();
+//					obj.mainValue = valueObj;
+//					crmeap.setValue(obj,1,1);
+//					onCloseHandler();
+//				},valueObj,"更新中……");				
+        }
+
+        //			protected function hours_focusOutHandler(event:FlexEvent):void
+        //			{
+        //				this.ui_dadate.text = this.ui_ddeparture.text;
+        //
+        //			}
+        ]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<mx:VBox id="myBorder" width="100%" height="186" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" verticalGap="10" >
+		<mx:VBox width="100%" height="66" styleName="content">
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%" id="ui_iaperson_box">
+					<mx:Label text="实际支持人员:" styleName="contentLabel" color="red"/>
+<!--					<mx:TextInput id="ui_iaperson" height="100%" styleName="contentTextInput" width="100%"/>-->
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="实际支持时间:" styleName="contentLabel"  color="red"/>
+					<comps:DateControl id="ui_dadate" isStyle="true"  width="100%"/>
+					<!--<mx:TextInput id="dadate_"  styleName="contentTextInput" width="100%"/>-->
+				</mx:HBox>
+			</mx:HBox>
+			<mx:HRule width="100%" />
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%" id="ui_casupport_box">
+					<mx:Label text="实际支持情况:" styleName="contentLabel" color="red"/>
+					<mx:TextInput id="ui_casupport" height="100%" styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="后续行动建议:" styleName="contentLabel" />
+					<mx:TextInput id="ui_csuggest"  styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox width="100%" height="33" styleName="content">
+			<mx:HBox width="100%" height="100%" styleName="contentSubHbox">
+				<mx:HBox width="50%">
+					<mx:Label text="支持发生费用:" styleName="contentLabel"/>
+					<mx:TextInput id="ui_ffee" restrict="0-9." height="100%" styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+				<mx:HBox width="50%">
+					<mx:Label text="备               注:" styleName="contentLabel" />
+					<mx:TextInput id="ui_cmemo"  styleName="contentTextInput" width="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:HBox  verticalAlign="middle" paddingRight="10" paddingLeft="10">
+			<s:Spacer width="455"/>
+			<s:Button label="确定" click="onSubmit()"/>
+			<s:Button label="放弃" click="onCloseHandler()"/>
+		</mx:HBox>
+	</mx:VBox>
+</basic:BasicTitleWindow>

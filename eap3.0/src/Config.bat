@@ -1,0 +1,1 @@
+start ../../../../../jre/bin/javaw -Djava.library.path=./lib/ -jar SoftConfig.jar

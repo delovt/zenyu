@@ -1,0 +1,702 @@
+<?xml version="1.0"?>
+<!--
+  Created by ln on 2015/1/31.
+-->
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:s="library://ns.adobe.com/flex/spark" xmlns:basic="yssoft.comps.frame.module.Basic.*"
+         creationComplete="init()"
+        >
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.controls.CheckBox;
+        import mx.controls.RadioButton;
+        import mx.controls.RadioButtonGroup;
+        import mx.controls.Text;
+        import mx.controls.TextArea;
+        import mx.controls.TextInput;
+        import mx.rpc.events.ResultEvent;
+
+        import yssoft.models.CRMmodel;
+
+        import yssoft.tools.AccessUtil;
+        import yssoft.tools.CRMtool;
+
+        [Bindable]
+        private var qname:String = "";   //问卷主题
+        [Bindable]
+        private var ctype:String = "";  //问卷类型
+        [Bindable]
+        private var _questionvisit:Boolean = true;    //问卷显示
+        [Bindable]
+        private var _accountvisit:Boolean = false;    //统计显示
+        [Bindable]
+        private var _submit:Boolean = true;           //提交按钮是否可用
+        [Bindable]
+        private var _close:Boolean = false;           //终止按钮是否可用
+        [Bindable]
+        public function get close():Boolean {
+            return _close;
+        }
+
+        [Bindable]
+        public function set close(value:Boolean):void {
+            _close = value;
+        }
+
+        [Bindable]
+        public var ccontent:String = "调查统计";            //显示内容
+        [Bindable]
+        public var department:String = "";          //发起部门
+        [Bindable]
+        public var person:String = "";             //发起人员
+        [Bindable]
+        public var imaker:int = 0;             //发起人员id
+        [Bindable]
+        public var dbegin:String = "";            //起始日期
+        [Bindable]
+        public var dend:String = "";             //结束日期
+        [Bindable]
+        public var way:String = "";              //投票方式
+
+        public var iid:int = 0;                       //调查问卷主表id
+
+        private var info:Object;           //调查问卷相关信息;
+        [Bindable]
+        private var _total:int = 0;
+
+        [Bindable]
+        public function get unfinish():int {
+            return _unfinish;
+        }
+
+        [Bindable]
+        public function set unfinish(value:int):void {
+            _unfinish = value;
+        }
+
+        [Bindable]
+        public function get finish():int {
+            return _finish;
+        }
+
+        [Bindable]
+        public function set finish(value:int):void {
+            _finish = value;
+        }
+
+        //调查总数
+        [Bindable]
+        private var _finish:int = 0;         //已调查总数
+        [Bindable]
+        private var _unfinish:int = 0;       //未调查总数
+
+        private var questionlist:ArrayCollection = new ArrayCollection();    //问题列表
+        private var answerlist:ArrayCollection = new ArrayCollection();      //答案列表
+        private var submitlist:ArrayCollection = new ArrayCollection();      //调查答案列表
+        private var anslist:ArrayCollection = new ArrayCollection();      //插入调查答案列表
+        [Bindable]
+        private var datalist:ArrayCollection = new ArrayCollection();      //统计列表
+
+        public var element:Object = new Object();
+
+        //菜单传参
+        [Bindable]
+        public var winParam:Object = new Object();
+
+        private function init():void {
+            this.dg.isAllchecked = false;
+            this.dg.isAllowMulti = false;
+            this.dg.isShowLineNum = false;
+            if (winParam != null && winParam.hasOwnProperty("iid")) {
+                iid = winParam.iid;
+                ccontent = winParam.ccontent;
+            }
+            if (ccontent == "调查统计") {
+                var persql:String = "select * from OA_inquiryp where iinquiry = " + iid + " and iperson = " + CRMmodel.userId;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var arr:ArrayCollection = event.result as ArrayCollection;
+                    if (arr.length == 0) {
+                        CRMtool.showAlert("对不起，您不在调查范围内，不能进入投票界面！");
+                        return;
+                    }
+                    questionvisit = true;
+                    accountvisit = false;
+                    questionini();
+                }, persql);
+
+            } else if (ccontent == "返回调查") {
+                accountvisit = true;
+                questionvisit = false;
+                accountini();
+            }
+            var sql:String = "select oa.iid,oa.ccode,oa.cname,convert(varchar(10),oa.dbegin,23)dbegin,convert(varchar(10),oa.dend,23)dend," +
+                    "case oa.istyle when 1 then '实名' else '匿名' end cstyle,isnull(depart.cname,'') department,per.cname cmaker,isnull(da.cname,'') ctype," +
+                    "isnull(bmodify,0)bmodify,oa.imaker " +
+                    "from OA_inquiry oa " +
+                    "left join HR_department depart on oa.idepartment = depart.iid " +
+                    "left join hr_person per on oa.imaker = per.iid " +
+                    "left join (select aa_data.iid,aa_data.ccode,aa_data.cname from aa_data left join aa_dataclass "+
+                                "on aa_data.iclass = aa_dataclass.iid where aa_dataclass.cname = '问卷类型') da on convert(varchar(4),oa.itype) = da.ccode " +
+                    "left join (select * from OA_inquiryp where iperson = " + CRMmodel.userId + ") oai on oa.iid = oai.iinquiry " +
+                    "where oa.iid = " + iid;
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var res:ArrayCollection = event.result as ArrayCollection;
+                info = res[0];
+                qname = res[0].cname;
+                ctype = res[0].ctype;
+                department = res[0].department;
+                person = res[0].cmaker;
+                dbegin = res[0].dbegin;
+                dend = res[0].dend;
+                way = res[0].cstyle;
+                imaker = res[0].imaker;
+                submit = !res[0].bmodify as Boolean;
+                if (imaker == CRMmodel.userId) {
+                    close = true;
+                }
+                getCounts();
+
+            }, sql);
+        }
+
+        private function getCounts():void {
+            var sqlcount:String = "select (select count(*)total from OA_inquiryp where iinquiry = " + iid + " )total," +
+                    "(select count(*)finish from OA_inquiryp  where iinquiry = " + iid + " and bmodify = 1)finish," +
+                    "(select count(*)unfinish from OA_inquiryp  where iinquiry = " + iid + " and bmodify = 0)unfinish";
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var list:ArrayCollection = event.result as ArrayCollection;
+                total = list[0].total;
+                finish = list[0].finish;
+                unfinish = list[0].unfinish;
+            }, sqlcount);
+        }
+
+        private function questionini():void {
+            var sql = "select os.iid,isnull(os.ino,0)ino,os.cname qstname,da1.cname cstyle,isnull(bother,0)bother,isnull(oss.ino,0)inos,isnull(oss.cname,'')answer,isnull(oss.iid,0) iids " +
+                    "from OA_inquirys os " +
+                    "left join (select aa_data.iid,aa_data.ccode,aa_data.cname from aa_data left join aa_dataclass "+
+                                "on aa_data.iclass = aa_dataclass.iid where aa_dataclass.cname = '答题方式') da1 on convert(varchar(4),os.istyle) = da1.ccode " +
+                    "left join OA_inquiryss oss on os.iid = oss.iinquirys " +
+                    "where iinquiry = " + iid + " and isnull(isource,0) in (1,0) " +
+                    " order by os.ino";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                answerlist = event.result as ArrayCollection;
+                question_box.removeAllChildren();
+                for each(var obj:Object in answerlist) {
+                    if (questionlist.length == 0) {
+                        questionlist.addItem(obj);
+                    } else {
+                        var flag:Boolean = false;
+                        for each(var o:Object in questionlist) {
+                            if (obj.iid == o.iid) {
+                                flag = true;
+                            }
+                        }
+                        if (!flag) {
+                            questionlist.addItem(obj);
+                        }
+                    }
+                }
+                for each(var item:Object in questionlist) {
+                    var item_hbox:HBox = new HBox();
+                    item_hbox.setStyle("paddingTop", 10);
+
+                    var item_num:VBox = new VBox();
+                    var lab_num:Label = new Label();
+                    lab_num.text = item.ino + "、";
+                    item_num.addChild(lab_num);
+
+                    var item_question:VBox = new VBox();
+                    var item_label:Label = new Label();
+                    item_label.text = item.qstname;
+                    item_question.addChild(item_label);
+
+                    item_hbox.addChild(item_num);
+                    item_hbox.addChild(item_question);
+
+                    var item_answer:VBox = new VBox();
+                    if (item.cstyle == "单选") {
+                        var rbg:RadioButtonGroup = new RadioButtonGroup();
+                        rbg.enabled = submit;
+                        for each(var sw:Object in answerlist) {
+                            if (item.iid == sw.iid) {
+                                var answer_hbox:HBox = new HBox();
+                                var rb:RadioButton = new RadioButton();
+                                rb.id = "rbn_" + sw.iid + "_" + sw.iids;
+                                rb.label = sw.answer;
+                                rb.group = rbg;
+                                rb.value = sw.iids;
+                                rb.enabled = submit;
+
+                                if (sw.iids != 0) {
+                                    answer_hbox.addChild(rb);
+                                    item_answer.addChild(answer_hbox);
+                                    element["rbn_" + sw.iid + "_" + sw.iids] = rb;
+                                }
+                            }
+                        }
+                        if (item.bother == 1) {
+                            var rb1:RadioButton = new RadioButton();
+                            rb1.id = "rbn_other_" + item.iid;
+                            rb1.label = "其他选项";
+                            rb1.group = rbg;
+                            rb1.value = 0;
+                            rb1.enabled = submit;
+                            var txt_other:TextInput = new TextInput();
+                            txt_other.id = "txt_other_" + item.iid;
+                            txt_other.width = 250;
+                            txt_other.editable = submit;
+                            txt_other.enabled = submit;
+                            var other_hbox1:HBox = new HBox();
+                            other_hbox1.addChild(rb1);
+                            other_hbox1.addChild(txt_other);
+                            item_answer.addChild(other_hbox1);
+                            element["rbn_other_" + item.iid] = rb1;
+                            element["txt_other_" + item.iid] = txt_other;
+                        }
+                    }
+                    else if (item.cstyle == "多选") {
+                        for each(var sw:Object in answerlist) {
+                            if (item.iid == sw.iid) {
+                                var answer_hbox:HBox = new HBox();
+                                var cbx:CheckBox = new CheckBox();
+                                cbx.id = "cbx_" + sw.iid + "_" + sw.iids;
+                                cbx.label = sw.answer;
+                                cbx.enabled = submit;
+
+                                if (sw.iids != 0) {
+                                    answer_hbox.addChild(cbx);
+                                    item_answer.addChild(answer_hbox);
+                                    element["cbx_" + sw.iid + "_" + sw.iids] = cbx;
+                                }
+                            }
+                        }
+                        if (item.bother == 1) {
+                            var other_hbox:HBox = new HBox();
+                            var cbx_other:CheckBox = new CheckBox();
+                            cbx_other.id = "cbx_other_" + item.iid;
+                            cbx_other.label = "其他选项";
+                            cbx.enabled = submit;
+                            var txt_other:TextInput = new TextInput();
+                            txt_other.id = "txt_other_" + item.iid;
+                            txt_other.width = 250;
+                            txt_other.editable = submit;
+                            txt_other.enabled = submit;
+                            other_hbox.addChild(cbx_other);
+                            other_hbox.addChild(txt_other);
+                            item_answer.addChild(other_hbox);
+                            element["cbx_other_" + item.iid] = cbx_other;
+                            element["txt_other_" + item.iid] = txt_other;
+                        }
+
+                    } else if (item.cstyle == "问答") {
+                        var txa:TextArea = new TextArea();
+                        txa.id = "txa_" + item.iid;
+                        txa.width = 350;
+                        txa.editable = submit;
+                        txa.enabled = submit;
+                        item_answer.addChild(txa);
+                        element["txa_" + item.iid] = txa;
+                    }
+
+                    item_question.addChild(item_answer);
+                    question_box.addChild(item_hbox);
+                }
+
+            }, sql);
+        }
+
+        private function accountini():void {
+            getTj();
+        }
+
+        private function content_Handel(event:MouseEvent):void {
+            if (event.target.text == "调查统计") {
+                ccontent = "返回调查";
+                questionvisit = false;
+                accountvisit = true;
+                getTj();
+            } else if (event.target.text == "返回调查") {
+                var persql:String = "select * from OA_inquiryp where iinquiry = " + iid + " and iperson = " + CRMmodel.userId;
+                AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                    var arr:ArrayCollection = event.result as ArrayCollection;
+                    if (arr.length == 0) {
+                        CRMtool.showAlert("对不起，您不在调查范围内，不能进入投票界面！");
+                        return;
+                    }
+                    ccontent = "调查统计";
+                    questionvisit = true;
+                    accountvisit = false;
+                    questionini();
+                }, persql);
+            }
+        }
+
+        [Bindable]
+        public function get accountvisit():Boolean {
+            return _accountvisit;
+        }
+
+        [Bindable]
+        public function set accountvisit(value:Boolean):void {
+            _accountvisit = value;
+        }
+
+        [Bindable]
+        public function get questionvisit():Boolean {
+            return _questionvisit;
+        }
+
+        [Bindable]
+        public function set questionvisit(value:Boolean):void {
+            _questionvisit = value;
+        }
+
+        [Bindable]
+        public function get submit():Boolean {
+            return _submit;
+        }
+
+        [Bindable]
+        public function set submit(value:Boolean):void {
+            _submit = value;
+        }
+
+        public function over_Handel():void {
+            if (imaker != CRMmodel.userId) {
+                CRMtool.showAlert("不是发起人，不能终止调查！");
+                return;
+            }
+            AccessUtil.remoteCallJava("CommonalityDest", "updateStatus", function(e:ResultEvent):void{
+                CRMtool.showAlert(qname + "关闭成功！");
+            }, {iinvoice: iid, ifuncregedit: 461, istatus: 13, iperson: CRMmodel.userId}, null, false);
+        }
+
+        public function submit_Handel():void {
+            var sql:String = "select " +
+                    "isnull((select distinct isnull(istatus,0) from OA_inquiry where iid = " + iid + "),0) istatus, " +
+                    "isnull((select distinct isnull(bmodify,0) from OA_inquiryp where iinquiry = " + iid + " and iperson = " + CRMmodel.userId + "),0) bmodify ";
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                var list:ArrayCollection = event.result as ArrayCollection;
+                if (list[0].istatus != 12) {
+                    CRMtool.showAlert(qname + "已被关闭！");
+                    return;
+                } else if (list[0].bmodify == 1) {
+                    CRMtool.showAlert("您已经投过票了！");
+                    return;
+                } else {
+                    //执行提交
+                    getSubmitList();
+                    if (submitlist.length > 0) {
+                        var obj:Object = new Object();
+                        obj.submitlist = submitlist;
+                        obj.anslist = anslist;
+                        obj.iinquiry = iid;
+                        obj.iperson = CRMmodel.userId;
+                        AccessUtil.remoteCallJava("OADest", "addInquiryd", function (event:ResultEvent):void {
+                            submit = false;
+                            getCounts();
+                            setEnable();
+                            CRMtool.showAlert("提交成功！");
+                        }, obj, null, true, null, function (event:ResultEvent):void {
+                            CRMtool.showAlert("提交失败！");
+                        });
+                    }
+                }
+            }, sql);
+        }
+
+        public function getSubmitList():void {
+            for each(var qobj:Object in questionlist) {
+                var flag = true;
+                if (qobj.cstyle == "单选") {
+                    for each(var aobj:Object in answerlist) {
+                        if (qobj.iid == aobj.iid) {
+                            var rb:RadioButton = element["rbn_" + aobj.iid + "_" + aobj.iids];
+//                            rb.enabled = false;
+                            if (rb.selected) {
+                                var item:Object = new Object();
+                                item.iinquiry = iid;
+                                item.iinquirys = qobj.iid;
+                                item.iperson = CRMmodel.userId;
+                                item.iinquiryss = aobj.iids;
+                                item.cname = "";
+
+                                submitlist.addItem(item);
+                                flag = false;
+                            }
+                        }
+                    }
+                    if (qobj.bother == 1) {
+                        var rb1:RadioButton = element["rbn_other_" + qobj.iid];
+//                        rb1.enabled = false;
+                        var txt_other:TextInput = element["txt_other_" + qobj.iid];
+//                        txt_other.editable = false;
+//                        txt_other.enabled = false;
+                        if (rb1.selected) {
+                            if (CRMtool.isStringNotNull(txt_other.text)) {
+                                var item:Object = new Object();
+                                item.iinquiry = iid;
+                                item.iinquirys = qobj.iid;
+                                item.iperson = CRMmodel.userId;
+                                item.iinquiryss = 0;
+                                item.cname = txt_other.text;
+
+                                anslist.addItem(item);
+                                flag = false;
+                            } else {
+                                CRMtool.showAlert("请填写" + qobj.qstname + "的其他选项！");
+                                submitlist.removeAll();
+                                anslist.removeAll();
+                                return;
+                            }
+                        }
+                    }
+                } else if (qobj.cstyle == "多选") {
+                    for each(var aobj:Object in answerlist) {
+                        if (qobj.iid == aobj.iid) {
+                            var cbx:CheckBox = element["cbx_" + aobj.iid + "_" + aobj.iids];
+//                            cbx.enabled = false;
+                            if (cbx.selected) {
+                                var item:Object = new Object();
+                                item.iinquiry = iid;
+                                item.iinquirys = qobj.iid;
+                                item.iperson = CRMmodel.userId;
+                                item.iinquiryss = aobj.iids;
+                                item.cname = "";
+
+                                submitlist.addItem(item);
+                                flag = false;
+                            }
+                        }
+                    }
+                    if (qobj.bother == 1) {
+                        var cbx_other:CheckBox = element["cbx_other_" + qobj.iid];
+//                        cbx_other.enabled = false;
+                        var txt_other:TextInput = element["txt_other_" + qobj.iid];
+//                        txt_other.editable = false;
+//                        txt_other.enabled = false;
+                        if (cbx_other.selected) {
+                            if (CRMtool.isStringNotNull(txt_other.text)) {
+                                var item:Object = new Object();
+                                item.iinquiry = iid;
+                                item.iinquirys = qobj.iid;
+                                item.iperson = CRMmodel.userId;
+                                item.iinquiryss = 0;
+                                item.cname = txt_other.text;
+
+                                anslist.addItem(item);
+                                flag = false;
+                            } else {
+                                CRMtool.showAlert("请填写" + qobj.qstname + "的其他选项！");
+                                submitlist.removeAll();
+                                anslist.removeAll();
+                                return;
+                            }
+                        }
+                    }
+                } else if (qobj.cstyle == "问答") {
+                    var txa:TextArea = element["txa_" + qobj.iid];
+//                    txa.editable = false;
+//                    txa.enabled = false;
+                    if (CRMtool.isStringNotNull(txa.text)) {
+                        var item:Object = new Object();
+                        item.iinquiry = iid;
+                        item.iinquirys = qobj.iid;
+                        item.iperson = CRMmodel.userId;
+                        item.iinquiryss = 0;
+                        item.cname = txa.text;
+
+                        submitlist.addItem(item);
+                        flag = false;
+                    }
+                }
+                if (flag) {
+                    CRMtool.showAlert(qobj.qstname + "答案为空，请填写！");
+                    submitlist.removeAll();
+                    anslist.removeAll();
+                    return;
+                }
+            }
+        }
+
+        public function setEnable(flag:Boolean = false):void {
+            for each(var qobj:Object in questionlist) {
+                if (qobj.cstyle == "单选") {
+                    for each(var aobj:Object in answerlist) {
+                        if (qobj.iid == aobj.iid) {
+                            var rb:RadioButton = element["rbn_" + aobj.iid + "_" + aobj.iids];
+                            rb.enabled = flag;
+                        }
+                    }
+                    if (qobj.bother == 1) {
+                        var rb1:RadioButton = element["rbn_other_" + qobj.iid];
+                        rb1.enabled = flag;
+                        var txt_other:TextInput = element["txt_other_" + qobj.iid];
+                        txt_other.editable = flag;
+                        txt_other.enabled = flag;
+                    }
+                } else if (qobj.cstyle == "多选") {
+                    for each(var aobj:Object in answerlist) {
+                        if (qobj.iid == aobj.iid) {
+                            var cbx:CheckBox = element["cbx_" + aobj.iid + "_" + aobj.iids];
+                            cbx.enabled = flag;
+                        }
+                    }
+                    if (qobj.bother == 1) {
+                        var cbx_other:CheckBox = element["cbx_other_" + qobj.iid];
+                        cbx_other.enabled = flag;
+                        var txt_other:TextInput = element["txt_other_" + qobj.iid];
+                        txt_other.editable = flag;
+                        txt_other.enabled = flag;
+                    }
+                } else if (qobj.cstyle == "问答") {
+                    var txa:TextArea = element["txa_" + qobj.iid];
+                    txa.editable = flag;
+                    txa.enabled = flag;
+                }
+            }
+        }
+        public function getTj():void {
+            var sql:String = "select os.iinquiry,os.iid iquestion,isnull(oss.iid,0) ianswer,os.ino,'' question, " +
+                    " case when isnull(od.cname,'')='' then oss.cname else od.cname end answer,isnull(t.tot,0)tot,convert(varchar(10),isnull(tj.counts,0))counts, " +
+                    " case when ISNULL(t.tot,0)=0 then '0%' else convert(varchar(10),cast(isnull(tj.counts,0) as float)/cast(t.tot as float) * 100)+'%' end rate,oss.isource " +
+                    " from oa_inquirys os " +
+                    " left join oa_inquiryss oss on os.iid = oss.iinquirys " +
+                    " left join (select iinquiry,COUNT(iid)tot from OA_inquiryp where bmodify=1 group by iinquiry )t on os.iinquiry = t.iinquiry " +
+                    " left join (select iinquiry,iinquirys,iinquiryss,isnull(COUNT(iid),0)counts from OA_inquiryd " +
+                    " group by iinquiry,iinquirys,iinquiryss)tj on os.iinquiry=tj.iinquiry and os.iid=tj.iinquirys and isnull(oss.iid,0)=tj.iinquiryss " +
+                    " left join OA_inquiryd od on od.iinquiry=os.iinquiry and od.iinquirys=os.iid and od.iinquiryss=isnull(oss.iid,0) " +
+                    " left join (select aa_data.iid,aa_data.ccode,aa_data.cname from aa_data left join aa_dataclass "+
+                                    "on aa_data.iclass = aa_dataclass.iid where aa_dataclass.cname = '答题方式') da on convert(varchar(4),os.istyle) = da.ccode " +
+                    " where os.iinquiry = " + iid + " and isnull(da.cname,'') not in ('问答') " +
+                    " union " +
+                    " select a.iinquiry,a.iinquirys,a.iinquiryss,1,'',a.cname,0,'','',1 from OA_inquiryd a join OA_inquirys b " +
+                    " on a.iinquirys=b.iid left join (select aa_data.iid,aa_data.ccode,aa_data.cname from aa_data left join aa_dataclass "+
+                                "on aa_data.iclass = aa_dataclass.iid where aa_dataclass.cname = '答题方式') data on convert(varchar(4),b.istyle) = data.ccode where isnull(data.cname,'') in ('问答') and a.iinquiry = " + iid + " and ISNULL(a.cname,'')<>'' " +
+                    " union " +
+                    " select iinquiry,iid,0,0,convert(varchar(10),ino)+'、'+cname,'',0,'','',0 from oa_inquirys " +
+                    " where iinquiry = " + iid +
+                    " order by os.iid,os.ino ";
+
+            AccessUtil.remoteCallJava("CommonalityDest", "assemblyQuerySql", function (event:ResultEvent):void {
+                datalist = event.result as ArrayCollection;
+                dg.dataProvider.refresh();
+            }, sql);
+
+        }
+
+        [Bindable]
+        public function get total():int {
+            return _total;
+        }
+
+        [Bindable]
+        public function set total(value:int):void {
+            _total = value;
+        }
+        ]]></fx:Script>
+    <mx:VBox id="leftBox" paddingLeft="30" paddingRight="30" paddingTop="10" paddingBottom="10" width="80%"
+             height="100%" borderStyle="solid" borderColor="black">
+        <mx:HBox width="100%" height="30">
+            <mx:Label text="{qname}" color="#B11006"/>
+            <mx:Label text="/{ctype}"/>
+            <mx:Spacer width="100%"/>
+            <mx:Label text="{ccontent}" color="#7D1715" click="content_Handel(event)"/>
+        </mx:HBox>
+        <mx:HRule width="100%"/>
+        <mx:VBox id="question_box" paddingTop="10" width="100%" height="100%" paddingLeft="30" visible="{questionvisit}"
+                 includeInLayout="{questionvisit}"/>
+
+        <mx:VBox id="account_box" paddingTop="10" width="100%" height="100%" visible="{accountvisit}"
+                 includeInLayout="{accountvisit}">
+            <basic:BasicMxDataGrid id="dg" width="100%" height="100%" borderVisible="true"
+                                   borderStyle="inset" editable="true"
+                                   dataProvider="{datalist}" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
+                <basic:columns>
+                    <mx:DataGridColumn headerText="问卷id" dataField="iinquiry" width="70" visible="false"/>
+                    <mx:DataGridColumn headerText="问题id" dataField="iquestion" width="70" visible="false"/>
+                    <mx:DataGridColumn headerText="答案id" dataField="ianswer" width="70" visible="false"/>
+                    <mx:DataGridColumn headerText="调查问题" dataField="question" width="200" editable="false"/>
+                    <mx:DataGridColumn headerText="问题答案" dataField="answer" width="250" editable="false">
+                        <mx:itemRenderer>
+                            <fx:Component>
+                                <s:MXDataGridItemRenderer>
+                                    <fx:Script><![CDATA[
+                                        override public function set data(value:Object):void {
+                                            super.data = value;
+                                            if (Number(value.isource) != 1) {
+                                                this.answerLabel.setStyle("color", "#C2595E");
+                                            } else {
+                                                this.answerLabel.setStyle("color", "#000000");
+                                            }
+                                        }
+                                        ]]></fx:Script>
+                                    <mx:Label id="answerLabel" text="{data.answer}"/>
+                                </s:MXDataGridItemRenderer>
+                            </fx:Component>
+                        </mx:itemRenderer>
+                    </mx:DataGridColumn>
+                    <mx:DataGridColumn headerText="投票数" dataField="counts" width="200" editable="false"
+                                       textAlign="right"/>
+                    <mx:DataGridColumn headerText="百分比" dataField="rate" width="200" editable="false"
+                                       textAlign="right"/>
+                    <mx:DataGridColumn headerText="isource" dataField="isource" width="200" visible="false"
+                                       textAlign="right"/>
+
+                </basic:columns>
+            </basic:BasicMxDataGrid>
+        </mx:VBox>
+    </mx:VBox>
+    <!--右侧记录-->
+    <mx:VBox paddingBottom="10" paddingLeft="10" paddingRight="10" width="20%" height="100%"
+             borderStyle="solid" borderColor="black">
+        <mx:VBox width="100%" height="400">
+            <mx:HBox width="100%">
+                <mx:Label text="发起部门：" paddingTop="5"/>
+                <mx:Label text="{department}" color="#325A8D" paddingTop="5"/>
+            </mx:HBox>
+            <mx:HBox width="100%">
+                <mx:Label text="发起人员：" paddingTop="10"/>
+                <mx:Label text="{person}" color="#325A8D" paddingTop="5"/>
+            </mx:HBox>
+            <mx:HBox width="100%">
+                <mx:Label text="调查期限：" paddingTop="5"/>
+                <mx:Label text="{dbegin}" color="#325A8D" paddingTop="5"/>
+            </mx:HBox>
+            <mx:HBox width="100%">
+                <mx:Label text="到：      " paddingTop="10"/>
+                <mx:Label text="{CRMtool.isStringNull(dend)?'不限':dend}" color="#325A8D" paddingTop="5"/>
+            </mx:HBox>
+            <mx:HBox width="100%">
+                <mx:Label text="投票方式：" paddingTop="5"/>
+                <mx:Label text="{way}" color="#325A8D" paddingTop="5" paddingBottom="10"/>
+            </mx:HBox>
+            <mx:HRule width="100%"/>
+
+            <mx:HBox>
+                <mx:Label text="调查人数：  " paddingTop="5"/>
+                <mx:Label text="{total}" color="#325A8D" paddingTop="5"/>
+            </mx:HBox>
+            <mx:HBox>
+                <mx:Label text="已投票人数：" paddingTop="5"/>
+                <mx:Label text="{finish}" color="#325A8D" paddingTop="5"/>
+            </mx:HBox>
+            <mx:HBox>
+                <mx:Label text="未投票人数：" paddingTop="5"/>
+                <mx:Label text="{unfinish}" color="#96373F" paddingTop="5"/>
+            </mx:HBox>
+        </mx:VBox>
+        <mx:Spacer height="100%"/>
+        <mx:VBox width="100%" height="30">
+            <mx:Button label="提交调查" width="100%" height="30" chromeColor="#059DDC" textAlign="center" color="white"
+                       paddingTop="10" paddingBottom="5" click="submit_Handel()" enabled="{submit}"/>
+            <!--<mx:Button label="结束调查" width="100%" height="30" chromeColor="#E9AE00" textAlign="center" color="white"-->
+                       <!--paddingTop="10" paddingBottom="10" click="over_Handel()" enabled="{close}"/>-->
+        </mx:VBox>
+    </mx:VBox>
+
+
+</mx:HBox>

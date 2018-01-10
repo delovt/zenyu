@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import yssoft.tools.AccessUtil;
+			import yssoft.tools.CRMtool;
+			
+			[Bindable]
+			private var _winParam:Object;
+			
+			public function set winParam(value:Object):void
+			{
+				this._winParam=value;
+				if(this._winParam){
+					callRequest(this._winParam);
+				}
+			}
+			
+			public function get winParam():Object
+			{
+				return this._winParam;
+			}
+			
+			private function callRequest(param:Object):void
+			{
+				//Alert.show(""+ObjectUtil.toString(param));
+				AccessUtil.remoteCallJava("CallCenterDest","historyHotLine",callBack,param,null,false);
+			}
+			[Bindable]
+			private var item:ArrayCollection=new ArrayCollection();
+			private function callBack(event:ResultEvent):void
+			{ 
+				//Alert.show("[result]"+(event.result));
+				item=event.result as ArrayCollection;
+				if(item.length==0)
+				{
+					this.label="热线";
+				}
+				else
+				{
+					this.label="热线("+item.length+")";
+				}
+			}
+			
+			//
+			private function lbfun(item:Object,column:DataGridColumn):String{
+				if(item){
+					return ""+(this.item.getItemIndex(item)+1)
+				}else{
+					return "";
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:DataGrid id="dgitems" width="100%" height="100%" variableRowHeight="true" dataProvider="{item}" editable="false">
+		<mx:columns>
+			<mx:DataGridColumn width="60" headerText="序号" labelFunction="lbfun"/>
+			<mx:DataGridColumn width="100" headerText="通话类型" dataField="itype"/>
+			<mx:DataGridColumn width="100" headerText="通话时间" dataField="dbegin"/>
+			<mx:DataGridColumn width="100" headerText="处理方式" dataField="csolution"/>
+			<mx:DataGridColumn width="100" headerText="主叫号码" dataField="callphone"/>
+			<mx:DataGridColumn width="100" headerText="热线人员" dataField="pname"/>
+			<mx:DataGridColumn headerText="通话内容" dataField="cdetail"/>
+		</mx:columns>
+	</mx:DataGrid>
+</mx:Canvas>
